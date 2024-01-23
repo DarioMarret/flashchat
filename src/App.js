@@ -1,5 +1,5 @@
 import FixedPlugin from "components/FixedPlugin/FixedPlugin";
-import AdminFooter from "components/Footers/AdminFooter";
+// import AdminFooter from "components/Footers/AdminFooter";
 import AdminNavbar from "components/Navbars/AdminNavbar";
 
 import Sidebar from "components/Sidebar/Sidebar";
@@ -122,7 +122,7 @@ export default function App() {
                     <Route path="/admin/bots" element={<ChatBots />} exact />
                   </Routes>
                 </div>
-                <AdminFooter />
+                {/* <AdminFooter /> */}
                 <div
                   className="close-layer"
                   onClick={() =>

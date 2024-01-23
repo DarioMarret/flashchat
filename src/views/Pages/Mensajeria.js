@@ -73,6 +73,8 @@ export default function Mensajeria() {
     const [card_mensajes, setCard_mensajes] = useState([])
     const [conversacionActiva, setConversacionActiva] = useState([])
     const [estados, setEstados] = useState([])
+    const [newMensaje, setNewMensaje] = useState(null)
+    const [convEstado, setConvEstado] = useState(null)
 
     useEffect(() => {
         try {
@@ -92,7 +94,10 @@ export default function Mensajeria() {
                             id: item.id,
                             conversacion_id: item.conversacion_id,
                             name: item.Contactos.nombre,
+                            contacto_id: item.contacto_id,
+                            channel_id: item.channel_id,
                             mensaje: item.mensajes,
+                            equipo_id: item.equipo_id,
                             tipo: item.tipo,
                             // sila fecha es mayor o igual a un dia se muestra la fecha con el siguiente formato DD/MM/YYYY hh:mm a si es de hoy solo se muestra hh:mm a
                             // fecha: moment(item.updatedAt).format('hh:mm a'),
@@ -217,10 +222,24 @@ export default function Mensajeria() {
     }
 
     const ManejarConversacion = (item) => {
-        localStorage.setItem("conversacion_activa", JSON.stringify({conversacion_id:item.conversacion_id, nombreunico: item.nombreunico}))
+        console.log("item: ",item);
+        localStorage.setItem("conversacion_activa", JSON.stringify({
+            cuenta_id: GetTokenDecoded().cuenta_id,
+            conversacion_id:item.conversacion_id,
+            nombreunico: item.nombreunico,
+            equipo_id: item.equipo_id,
+            channel_id: item.channel_id,
+            contacto_id: item.contacto_id,
+            estado: item.estado,
+        }))
+        setConvEstado(item.estado === 'undefined' ? 'Chatbot' : item.estado)
         socket.emit('get_conversacion_activa', {
             cuenta_id: GetTokenDecoded().cuenta_id,
             conversacion_id: item.conversacion_id,
+            equipo_id: item.equipo_id,
+            channel_id: item.channel_id,
+            contacto_id: item.contacto_id,
+            agente_id: GetTokenDecoded().id,
             nombreunico: item.nombreunico,
         })
     }
@@ -232,35 +251,72 @@ export default function Mensajeria() {
             return null
         }
     }
+
+    const EnvianMensaje = () => {
+        console.log("newMensaje: ",newMensaje);
+        if(newMensaje !== null || newMensaje !== "") {
+            console.log("e.target.value: ",newMensaje);
+            const covActiva = GetManejoConversacion()
+            let infoClient = {
+                cuenta_id: GetTokenDecoded().cuenta_id,
+                conversacion_id: covActiva.conversacion_id,
+                equipo_id: covActiva.equipo_id,
+                channel_id: covActiva.channel_id,
+                contacto_id: covActiva.contacto_id,
+                agente_id: GetTokenDecoded().id,
+                nombreunico: covActiva.nombreunico,
+            }
+            let mensaje = {
+                text: newMensaje,
+                type: "text",
+            }
+            socket.emit('enviando_mensajes', {
+                infoClient: infoClient,
+                mensaje: mensaje,
+            })
+            setNewMensaje("")
+        }
+    }
     const CompomenteMultimedis =(item)=> {
         if(item.mensajes.type === "text") {
             return (
-                <pre>
+                <pre data-id={item.mensajes.id || null} className="">
                     {String(item.mensajes.text)}
                 </pre>
             )
         }else if(item.mensajes.type === "image") {
             return (
-                <img src={item.mensajes.url} alt="..." className="mr-3" width={250} />
+                <img src={item.mensajes.url} alt="..." className="mr-3" width={250} data-id={item.mensajes.id || null} />
             )
         }else if(item.mensajes.type === "video") {
             return (
-                <video src={item.mensajes.url} alt="..." className="mr-3" />
+                <video src={item.mensajes.url} alt="..." className="mr-3" data-id={item.mensajes.id || null} />
             )
         }else if(item.mensajes.type === "file") {
             
             // preview del archivo
             return (
-                <iframe src={item.mensajes.url} height="400px"></iframe>
+                <iframe src={item.mensajes.url} height="400px" data-id={item.mensajes.id || null}></iframe>
             )
 
         }else if(item.mensajes.type === "audio") {
             return (
-                <audio src={item.mensajes.url} alt="..." className="mr-3" />
+                <audio src={item.mensajes.url} alt="..." className="mr-3" data-id={item.mensajes.id || null} />
             )
         }else{
             return null
         }
+    }
+
+    const ActualizarEstadoConversacion = (e) => {
+        console.log("e.target.value: ",e.target.value);
+        // const covActiva = GetManejoConversacion()
+        // socket.emit('actualizar_estado_conversacion', {
+        //     cuenta_id: GetTokenDecoded().cuenta_id,
+        //     conversacion_id: covActiva.conversacion_id,
+        //     nombreunico: covActiva.nombreunico,
+        //     estado: e.target.value,
+        // })
     }
     useEffect(() => {
         ListarEstados()
@@ -277,7 +333,7 @@ export default function Mensajeria() {
                     }}
                 >
                     {/* hacer qie cuando este en md el select valla abajo  */}
-                    <div className="card-header d-flex gap-2 border-bottom-2 flex-wrap">
+                    <div className="d-flex gap-2 border border-bottom-2 p-2 flex-wrap">
                         <h5 className="card-title m-md-1">Conversaciones</h5>
                         <select className="form-control " style={{
                             width: "180px"
@@ -315,7 +371,7 @@ export default function Mensajeria() {
                                                 item.mensaje.type === "text" ? (
                                                     String(item.mensaje.text)
                                                 ) : (
-                                                    item.mensaje.url
+                                                    <img src={item.mensaje.url} alt="..." className="mr-3" width={20} />
                                                 )
                                             }</p>
                                             <div className="d-flex">
@@ -323,7 +379,8 @@ export default function Mensajeria() {
                                                 {
                                                     item.etiqueta.map((item, index) => {
                                                         return (
-                                                            <small key={index} className="badge badge-primary mr-2">{item}</small>
+                                                            <small key={index} className="badge bg-primary mx-1">
+                                                                {item}</small>
                                                         )
                                                     })
                                                 }
@@ -342,13 +399,17 @@ export default function Mensajeria() {
                         marginBottom: "0px !important"
                     }}
                 >
-                    <div className="card-header d-flex border-bottom-1">
+                    <div className=" d-flex justify-content-between border border-bottom-2 p-2" 
+                        // style={{
+                        //     borderBottom: "1px solid #e9ecef !important"
+                        // }}
+                    >
                         <h4 className="card-title">Informacion del contacto</h4>
                         <select className="form-control ml-auto" style={{
                             width: "180px"
                         }}
                         onChange={(e) => {
-                            console.log("e.target.value: ",e.target.value);
+                            ActualizarEstadoConversacion(e)
                         }}
                         value={estados.estados}
                         >
@@ -414,10 +475,15 @@ export default function Mensajeria() {
                             <button type="submit" className="btn btn-primary btn-icon ml-2 mx-2">
                                 <i className="fa fa-paperclip"></i>
                             </button>
-                                <textarea className="form-control" placeholder="Escribe un mensaje" style={{
-                                    height: "40px"
+                                <textarea className="form-control" placeholder="Escribe un mensaje"
+                                value={newMensaje}
+                                onChange={(e) => setNewMensaje(e.target.value)}
+                                style={{
+                                    height: "50px"
                                 }}></textarea>
-                                <button type="submit" className="btn btn-primary btn-icon ml-2">
+                                <button type="submit" className="btn btn-primary btn-icon ml-2"
+                                    onClick={() => EnvianMensaje()}
+                                >
                                     <i className="fa fa-paper-plane"></i>
                                 </button>
                             </form>
