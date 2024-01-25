@@ -6,7 +6,7 @@ import Sidebar from "components/Sidebar/Sidebar";
 import AuthContext from "context/AuthContext";
 import { GetToken, removeDatosUsuario } from "function/storeUsuario";
 import React, { useEffect, useMemo, useState } from "react";
-import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
+import { Navigate, Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import routes from "routes";
 
 import image1 from "assets/img/full-screen-image-1.jpg";
@@ -75,12 +75,17 @@ export default function App() {
               <div className="main-panel">
                 <AdminNavbar />
                 <div className="content">
-                  <Routes>
+                  <Routes
+                    basename="/"
+                    forceRefresh={true}
+                    initialEntries={["/admin/dashboard"]}
+                  >
                     <Route
                       path="/admin/dashboard"
                       element={<Dashboard />}
                       exact
                     />
+                    <Route path="/*" element={<Navigate to="admin/dashboard" replace />} />
                     <Route
                       path="/admin/mensajeria"
                       element={<Mensajeria />}

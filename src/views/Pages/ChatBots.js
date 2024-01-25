@@ -16,6 +16,7 @@ import {
     Modal,
     Row
 } from 'react-bootstrap';
+import { CopyToClipboard } from 'react-copy-to-clipboard';
 import socket from 'views/SocketIO';
 
 
@@ -102,6 +103,7 @@ function ChatBots(props) {
             numero_telefono: '',
             identificador: '',
             IdWhatsAppBusiness: '',
+            nombreunico: '',
             access_token: '',
             api_key: '',
             api_telegram: '',
@@ -159,12 +161,15 @@ function ChatBots(props) {
         }
     }
 
+
+
     const ActivaModalEditar = (item) => {
         setBot({
             id: item.id,
             cuenta_id: 1,
             channel_id: item.channel_id,
             nombre_bot: item.nombre_bot,
+            nombreunico: item.nombreunico,
             pagina: item.pagina,
             numero_telefono: item.numero_telefono,
             identificador: item.identificador,
@@ -192,12 +197,12 @@ function ChatBots(props) {
                 {
                     bots.map((bot, index) => (
                         //espacio entre las cards
-                        <Card key={index} className='mr-1 mb-1 ml-1 col-12 col-sm-6 col-md-4 col-lg-3'>
+                        <Card key={index} className='mx-1 col-lg-4 col-md-3 col-sm-1'>
                             <Card.Body>
-                                <div className='d-flex justify-content-between'>
+                                <div className='d-flex justify-content-between align-items-start'>
                                     <div className='d-flex'>
-                                        <img src={InconBot(bot.channel_id)} alt="" width={100}/>
-                                        <div className='ml-2'>
+                                        <img src={InconBot(bot.channel_id)} alt="" width={90}/>
+                                        <div className=''>
                                             <h5>{bot.nombre_bot}</h5>
                                             <p className='text-muted text-truncate m-0'>{bot.numero_telefono.substring(0, 11)}</p>
                                             {
@@ -205,12 +210,12 @@ function ChatBots(props) {
                                             }
                                         </div>
                                     </div>
-                                    <div className='d-flex flex-column'>
-                                        <button className="btn btn-primary ml-2"
+                                    <div className='d-flex flex-column mx-x'>
+                                        <button className="btn btn-primary"
                                             onClick={() => window.open(`${bot.url}`, '_blank')}
                                         >Configurar</button>
-                                        <button className="btn btn-primary ml-2" onClick={()=>ActivaModalEditar(bot)}>Editar</button>
-                                        <button className="btn btn-danger ml-2" onClick={()=>EliminarBots(bot.id)}>Eliminar</button>
+                                        <button className="btn btn-primary" onClick={()=>ActivaModalEditar(bot)}>Editar</button>
+                                        <button className="btn btn-danger" onClick={()=>EliminarBots(bot.id)}>Eliminar</button>
                                     </div>
                                 </div>
                             </Card.Body>
@@ -341,6 +346,36 @@ function ChatBots(props) {
                                         />
                                     </div>
                                 </>
+                            ) : null
+                        }
+                        {
+                            bot.channel_id === 3 && bot.id !== 0 ? (
+                                <div className="form-group">
+                                    <label htmlFor="mensaje">Webhook</label>
+                                    <input className="form-control" id="IdWhatsAppBusiness" disabled={true}
+                                        value={`${host}webhookCloud?bots=${bot.nombreunico}`}
+                                    />
+                                    <CopyToClipboard text={`${host}webhookCloud?bots=${bot.nombreunico}`}>
+                                        <a href={'#'} className="">
+                                            Copiar
+                                        </a>
+                                    </CopyToClipboard>
+                                </div>
+                            ) : null
+                        }
+                        {
+                            bot.channel_id === 3 && bot.id !== 0 ? (
+                                <div className="form-group">
+                                    <label htmlFor="mensaje">Webhook</label>
+                                    <input className="form-control" id="IdWhatsAppBusiness" disabled={true}
+                                        value="testing-flashchat"
+                                    />
+                                    <CopyToClipboard text={"testing-flashchat"}>
+                                        <a href={'#'}>
+                                            Copiar
+                                        </a>
+                                    </CopyToClipboard>
+                                </div>
                             ) : null
                         }
                         {

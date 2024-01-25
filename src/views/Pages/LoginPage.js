@@ -41,6 +41,7 @@ const LoginPage =()=> {
     }else{
       console.log("no login");
       const { data, status } = await axios.post(`${host}login`, usuario);
+      console.log(data);
       if (status === 200) {
         if (data.status === 200) {
           // guardar en localstorage

@@ -94,22 +94,19 @@ export default function Mensajeria() {
                             id: item.id,
                             conversacion_id: item.conversacion_id,
                             name: item.Contactos.nombre,
+                            Contactos: item.Contactos,
                             contacto_id: item.contacto_id,
                             channel_id: item.channel_id,
                             mensaje: item.mensajes,
                             equipo_id: item.equipo_id,
                             tipo: item.tipo,
-                            // sila fecha es mayor o igual a un dia se muestra la fecha con el siguiente formato DD/MM/YYYY hh:mm a si es de hoy solo se muestra hh:mm a
-                            // fecha: moment(item.updatedAt).format('hh:mm a'),
+                            estado: item.estado,
                             fecha: moment(item.updatedAt) >= moment().subtract(1, 'days') ? moment(item.updatedAt).format('hh:mm a') : moment(item.updatedAt).format('DD/MM/YYYY hh:mm a'),
-                            // fecha: moment(item.updatedAt).format('DD/MM/YYYY hh:mm a'),
                             url_avatar: item.Contactos.avatar,
                             proveedor: item.channel.proveedor,
                             active: true,
                             nombreunico: item.nombreunico,
-                            // si agente_id es 0 se anade en el array de etiquetas el valor Nuevo mas en el equipo que esta asignado
                             etiqueta: item.etiquetas,
-                            // equipo:
                             agente_id: item.agente_id,
                         })
                         if(covActiva) {
@@ -177,36 +174,6 @@ export default function Mensajeria() {
                 }
             })
         
-
-            // socket.on(`response_get_conversacion_${cuenta_id}`, (data) => {
-            //     console.log("response_get_conversacion_: "+cuenta_id,data);
-            //     if(typeof data == 'object' && data.length > 0) {
-            //         console.log("data: ",data);
-            //         // se tiene que anadir el nuevo mensaje al array de mensajes al inicio
-            //         const newMessages = data.map((item) => {
-            //             return {
-            //                 id: item.id,
-            //                 conversacion_id: item.conversacion_id,
-            //                 name: item.Contactos.nombre,
-            //                 mensaje: item.mensajes,
-            //                 tipo: item.tipo,
-            //                 fecha: moment(item.updatedAt) >= moment().subtract(1, 'days') 
-            //                     ? moment(item.updatedAt).format('hh:mm a') 
-            //                     : moment(item.updatedAt).format('DD/MM/YYYY hh:mm a'),
-            //                 url_avatar: item.Contactos.avatar,
-            //                 proveedor: item.channel.proveedor,
-            //                 active: true,
-            //                 nombreunico: item.nombreunico,
-            //                 etiqueta: item.etiquetas,
-            //                 agente_id: item.agente_id,
-            //             };
-            //         });
-            //         // newMessage lo valla al principio del array de mensajes
-            //         newMessages.push(...card_mensajes)
-            //         console.log("newMessages: ",newMessages);
-            //         setCard_mensajes(newMessages)
-            //     }
-            // })
         } catch (error) {
             console.log(error);
         }
@@ -231,8 +198,9 @@ export default function Mensajeria() {
             channel_id: item.channel_id,
             contacto_id: item.contacto_id,
             estado: item.estado,
+            Contacto: item.Contactos,
         }))
-        setConvEstado(item.estado === 'undefined' ? 'Chatbot' : item.estado)
+        setConvEstado(item.estado)
         socket.emit('get_conversacion_activa', {
             cuenta_id: GetTokenDecoded().cuenta_id,
             conversacion_id: item.conversacion_id,
@@ -252,11 +220,21 @@ export default function Mensajeria() {
         }
     }
 
-    const EnvianMensaje = () => {
+    const random = () => {
+        return Math.random().toString(36).substr(2);
+    }
+
+    const EnvianMensaje = (e) => {
+        e.preventDefault()
         console.log("newMensaje: ",newMensaje);
+        const covActiva = GetManejoConversacion()
+        if(covActiva == null || covActiva.estado === 'Eliminado'){
+            alert("Seleccione una conversacion")
+            return
+        }
         if(newMensaje !== null || newMensaje !== "") {
+
             console.log("e.target.value: ",newMensaje);
-            const covActiva = GetManejoConversacion()
             let infoClient = {
                 cuenta_id: GetTokenDecoded().cuenta_id,
                 conversacion_id: covActiva.conversacion_id,
@@ -267,6 +245,7 @@ export default function Mensajeria() {
                 nombreunico: covActiva.nombreunico,
             }
             let mensaje = {
+                id: random(),
                 text: newMensaje,
                 type: "text",
             }
@@ -277,6 +256,7 @@ export default function Mensajeria() {
             setNewMensaje("")
         }
     }
+
     const CompomenteMultimedis =(item)=> {
         if(item.mensajes.type === "text") {
             return (
@@ -299,9 +279,12 @@ export default function Mensajeria() {
                 <iframe src={item.mensajes.url} height="400px" data-id={item.mensajes.id || null}></iframe>
             )
 
-        }else if(item.mensajes.type === "audio") {
+        }else if(item.mensajes.type == "audio") {
+            console.log("item.mensajes.url: ",item.mensajes.url);
             return (
-                <audio src={item.mensajes.url} alt="..." className="mr-3" data-id={item.mensajes.id || null} />
+                <audio controls>
+                    <source src={item.mensajes.url} type="audio/ogg" />
+                </audio>
             )
         }else{
             return null
@@ -309,14 +292,27 @@ export default function Mensajeria() {
     }
 
     const ActualizarEstadoConversacion = (e) => {
-        console.log("e.target.value: ",e.target.value);
-        // const covActiva = GetManejoConversacion()
-        // socket.emit('actualizar_estado_conversacion', {
-        //     cuenta_id: GetTokenDecoded().cuenta_id,
-        //     conversacion_id: covActiva.conversacion_id,
-        //     nombreunico: covActiva.nombreunico,
-        //     estado: e.target.value,
-        // })
+        const covActiva = GetManejoConversacion()
+        socket.emit('actualizar_estado_conversacion', {
+            cuenta_id: GetTokenDecoded().cuenta_id,
+            conversacion_id: covActiva.conversacion_id,
+            nombreunico: covActiva.nombreunico,
+            estado: e.target.value,
+        })
+        // actualizamos el estado en localstorage
+        localStorage.setItem("conversacion_activa", JSON.stringify({
+            ...covActiva,
+            estado: e.target.value,
+        }))
+        setConvEstado(e.target.value)
+        setTimeout(() => {
+            socket.emit('listar_conversacion', {
+                cuenta_id: GetTokenDecoded().cuenta_id,
+                equipo_id: null,
+                agente_id: null,
+                estado: null,
+            })
+        }, 900);
     }
     useEffect(() => {
         ListarEstados()
@@ -359,7 +355,7 @@ export default function Mensajeria() {
                                             <div className="d-flex w-100 justify-content-between">
                                                 {
                                                     item.url_avatar == null || item.url_avatar == "" ? (
-                                                        <img src="https://www.w3schools.com/howto/img_avatar.png" alt="..." className="avatar rounded-circle mr-3" />
+                                                        <img src="https://www.w3schools.com/howto/img_avatar.png" alt="..." className="avatar rounded-circle mr-3" width={50} />
                                                     ) : (
                                                         <img src={item.url_avatar} alt="..." className="avatar rounded-circle mr-3" width={50} />
                                                     )
@@ -375,7 +371,6 @@ export default function Mensajeria() {
                                                 )
                                             }</p>
                                             <div className="d-flex">
-                                                <small className="mr-auto">Etiquetas:</small>
                                                 {
                                                     item.etiqueta.map((item, index) => {
                                                         return (
@@ -399,24 +394,36 @@ export default function Mensajeria() {
                         marginBottom: "0px !important"
                     }}
                 >
-                    <div className=" d-flex justify-content-between border border-bottom-2 p-2" 
-                        // style={{
-                        //     borderBottom: "1px solid #e9ecef !important"
-                        // }}
-                    >
-                        <h4 className="card-title">Informacion del contacto</h4>
+                    <div className=" d-flex justify-content-between border border-bottom-2 p-2" >
+                        <h4 className="card-title">{
+                            GetManejoConversacion() == null ? (
+                                "Seleccione una conversacion"
+                            ) : (
+                                <>
+                                    <img src={GetManejoConversacion().Contacto.avatar} alt="..." className="avatar rounded-circle mr-3" width={50} />
+                                    {" "+ GetManejoConversacion().Contacto.nombre + " "}
+                                    <a href="#" className="btn btn-primary btn-icon btn-round float-right">
+                                        <i className="fa fa-phone"></i>
+                                        {GetManejoConversacion().Contacto.telefono}
+                                    </a>
+                                </>
+                            )
+                        }</h4>
                         <select className="form-control ml-auto" style={{
-                            width: "180px"
+                            width: "180px",
+                            background: convEstado === "Abierto" ? "#28a745" : convEstado === "Eliminado" ? "#dc3545" : convEstado === "Resuelta" ? "#ffc107" : "#17a2b8",
                         }}
                         onChange={(e) => {
                             ActualizarEstadoConversacion(e)
                         }}
-                        value={estados.estados}
+                        value={convEstado}
                         >
                             {
                                 estados.map((item, index) => {
-                                    return (
-                                        <option key={index} value={item.estados}>{item.estados}</option>
+                                    return(
+                                        <option key={index} value={item.estados} 
+                                        // selected={convEstado === item.estados ? true : false}
+                                        >{item.estados}</option>
                                     )
                                 })
                             }
@@ -441,6 +448,7 @@ export default function Mensajeria() {
                                                             minWidth: "fit-content",
                                                             maxWidth: "50%",
                                                             borderRadius: "10px 0px 10px 10px",
+                                                            wordWrap: "break-word",
                                                         }}
                                                     >
                                                         <p className="mb-0 lg:text-sm"> {CompomenteMultimedis(item)} </p>
@@ -457,6 +465,7 @@ export default function Mensajeria() {
                                                             minWidth: "fit-content",
                                                             maxWidth: "50%",
                                                             borderRadius: "0px 10px 10px 10px",
+                                                            wordWrap: "break-word",
                                                         }}
                                                     >
                                                         <p className="mb-0 lg:text-sm"> {CompomenteMultimedis(item)} </p>
@@ -482,7 +491,7 @@ export default function Mensajeria() {
                                     height: "50px"
                                 }}></textarea>
                                 <button type="submit" className="btn btn-primary btn-icon ml-2"
-                                    onClick={() => EnvianMensaje()}
+                                    onClick={(e) => EnvianMensaje(e)}
                                 >
                                     <i className="fa fa-paper-plane"></i>
                                 </button>
