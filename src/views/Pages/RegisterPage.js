@@ -1,55 +1,99 @@
-import React from "react";
 
 // react-bootstrap components
 import {
-  Badge,
   Button,
   Card,
-  Form,
-  Media,
-  Navbar,
-  Nav,
-  Container,
-  Row,
-  Col
+  Form
 } from "react-bootstrap";
 
 function RegisterPage() {
   return (
     <>
       <div
-        className="full-page register-page section-image"
-        data-color="orange"
-        data-image={require("assets/img/bg5.jpg")}
+        className="full-page section-image d-flex align-items-center pt-4"
+        data-color="black"
+        data-image={require("assets/img/full-screen-image-2.jpg")}
+        style={{ height: '100vh' }}
       >
-        <div className="content d-flex align-items-center">
-          <Container>
-            <Card className="card-register card-plain text-center">
-              <Card.Header>
-                <Row className="justify-content-center">
-                  <Col md="8">
-                    <div className="header-text">
-                      <Card.Title as="h2">
-                        Light Bootstrap Dashboard PRO
-                      </Card.Title>
-                      <Card.Subtitle as="h4">
-                        Register for free and experience the dashboard today
-                      </Card.Subtitle>
-                      <hr></hr>
+        <div className="container content d-flex justify-content-center align-items-center p-0">
+          <div class="row w-100 justify-content-center">
+            <div class="col-12 col-md-6 col-lg-5">
+              <Form action="" className="form" method="">
+                <Card className={"card-login background-backdrop"}>
+                  <Card.Header>
+                    <h3 className="header text-center">Registro</h3>
+                    <hr/>
+                  </Card.Header>
+                    <Card.Body>
+                      <Form.Group className="mb-3">
+                        <label className="font-600 d-flex align-items-center">
+                        <span class="material-symbols-outlined" style={{marginRight: '5px'}}>domain</span>
+                          Nombre de empresa</label>
+                        <Form.Control
+                          placeholder="Mi empresa"
+                          type="text"
+                          name="empresa"
+                        ></Form.Control>
+                      </Form.Group>
+
+                      <Form.Group className="mb-3">
+                        <label className="font-600 d-flex align-items-center">
+                        <span class="material-symbols-outlined" style={{marginRight: '5px'}}>phone_iphone</span>
+                          Contacto</label>
+                        <Form.Control
+                          placeholder="0999999999"
+                          type="text"
+                          name="contacto"
+                        ></Form.Control>
+                      </Form.Group>
+
+                      <Form.Group className="mb-3">
+                        <label className="font-600 d-flex align-items-center">
+                        <span class="material-symbols-outlined" style={{marginRight: '5px'}}>mail</span>
+                          Correo electrónico</label>
+                        <Form.Control
+                          placeholder="correo@email.com"
+                          type="email"
+                          name="correo"
+                        ></Form.Control>
+                      </Form.Group>
+
+                      <Form.Group>
+                        <label className="font-600 d-flex align-items-center">
+                        <span class="material-symbols-outlined" style={{marginRight: '5px'}}>
+                          lock
+                          </span>
+                          Contraseña</label>
+                        <Form.Control
+                          placeholder="********"
+                          type="password"
+                          name="clave"
+                        ></Form.Control>
+                      </Form.Group>
+                    </Card.Body>
+                  <Card.Footer className="ml-auto mr-auto">
+                    <Button className="btn-wd w-100" type="submit" variant="warning"
+                      
+                    >
+                      Registrarme
+                    </Button>
+
+                    <div className="mt-2 d-flex flex-column justify-content-center align-items-center">
+                      <small className="text-span">- Tendrás 10 días gratuitos - </small>
+                      <a className="text-link">Iniciar sesión</a>
                     </div>
-                  </Col>
-                </Row>
-              </Card.Header>
-              <Card.Body>
-                Hola mundo
-              </Card.Body>
-            </Card>
-          </Container>
+                  </Card.Footer>
+                </Card>
+              </Form>
+            </div>
+          </div>
         </div>
+
         <div
           className="full-page-background"
           style={{
-            backgroundImage: "url(" + require("assets/img/bg5.jpg") + ")"
+            backgroundImage:
+              "url(" + require("assets/img/full-screen-image-2.jpg") + ")"
           }}
         ></div>
       </div>
