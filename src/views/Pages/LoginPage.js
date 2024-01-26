@@ -2,19 +2,16 @@ import axios from "axios";
 import { host, usuario_token } from "function/util/global";
 import useAuth from "hook/useAuth";
 import React from "react";
-import style from 'assets/css/style.css';
 
 // react-bootstrap components
 import {
   Button,
   Card,
-  Col,
-  Container,
   Form
 } from "react-bootstrap";
 
 
-const LoginPage =()=> {
+const LoginPage =(props)=> {
   const [cardClasses, setCardClasses] = React.useState("card-hidden");
   React.useEffect(() => {
     setTimeout(function () {
@@ -74,7 +71,8 @@ const LoginPage =()=> {
                 <h3 className="text-uppercase mx-auto text-white font-600 text-center typing">Obtén tu cuenta demo por 10 días !</h3>
 
                 <p className="text-gray frasphe text-center mx-auto my-3">Descubre la revolución en atención al cliente con nuestro innovador chatbot durante 10 días de demo gratuito</p>
-                <button className="btn-outline-white">Quiero mi demo</button>
+                <button className="btn-outline-white" 
+                onClick={() => props.setEstados(false)}>Quiero mi demo</button>
               </div>
             </div>
 
@@ -135,7 +133,7 @@ const LoginPage =()=> {
 
                     <div className="mt-2 d-flex flex-column justify-content-center align-items-center">
                       <span className="text-span">- No tienes cuenta - </span>
-                      <a className="text-link">Regístrate</a>
+                      <a className="text-link" onClick={() => props.setEstados(false)}>Regístrate</a>
                     </div>
                   </Card.Footer>
                 </Card>
