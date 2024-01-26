@@ -2,7 +2,7 @@ import { useState } from 'react';
 import LoginPage from '../LoginPage';
 import RegisterPage from '../RegisterPage';
 
-function Auth() {
+function Auths() {
     const {estados, setEstados} = useState(false);
 
     return (
@@ -14,4 +14,4 @@ function Auth() {
     );
 }
 
-export default Auth;
+export default Auths;

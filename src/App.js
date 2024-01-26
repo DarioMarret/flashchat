@@ -13,7 +13,6 @@ import image1 from "assets/img/full-screen-image-1.jpg";
 import image2 from "assets/img/full-screen-image-2.jpg";
 import image3 from "assets/img/full-screen-image-3.jpg";
 import image4 from "assets/img/full-screen-image-4.jpg";
-import Auth from "layouts/Auth";
 import Dashboard from "views/Dashboard";
 import ChatBots from "views/Pages/ChatBots";
 import Agentes from "views/Pages/Configuracion/Agentes";
@@ -26,6 +25,7 @@ import Masivos from "views/Pages/Configuracion/Masivos";
 import MensajesAutomaticos from "views/Pages/Configuracion/MensajesAutomaticos";
 import Contactos from "views/Pages/Contactos";
 import Mensajeria from "views/Pages/Mensajeria";
+import Auths from "views/Pages/auth/Auths";
 
 export default function App() {
   const [auth, setAuth] = useState(undefined);
@@ -156,7 +156,7 @@ export default function App() {
           <>
             <div className="wrapper wrapper-full-page">
               {/* <AuthNavbar /> */}
-              <Auth />
+              <Auths />
               {/* <RegisterPage /> */}
               {/* <AuthFooter /> */}
             </div>
