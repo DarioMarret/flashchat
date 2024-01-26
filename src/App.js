@@ -28,6 +28,7 @@ import MensajesAutomaticos from "views/Pages/Configuracion/MensajesAutomaticos";
 import Contactos from "views/Pages/Contactos";
 import LoginPage from "views/Pages/LoginPage";
 import Mensajeria from "views/Pages/Mensajeria";
+import RegisterPage from "views/Pages/RegisterPage";
 
 export default function App() {
   const [auth, setAuth] = useState(undefined);
@@ -157,9 +158,10 @@ export default function App() {
         ) : (
           <>
             <div className="wrapper wrapper-full-page">
-              <AuthNavbar />
-              <LoginPage />
-              <AuthFooter />
+              {/* <AuthNavbar /> */}
+              {/* <LoginPage /> */}
+              <RegisterPage />
+              {/* <AuthFooter /> */}
             </div>
           </>
         )}

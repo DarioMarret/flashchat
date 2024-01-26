@@ -29,6 +29,7 @@ function AuthNavbar() {
               <span className="d-block d-md-none">LBDP React</span>
             </Navbar.Brand>
           </div>
+
           <button
             className="navbar-toggler navbar-toggler-right border-0"
             type="button"
