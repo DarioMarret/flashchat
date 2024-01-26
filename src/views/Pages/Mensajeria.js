@@ -4,7 +4,7 @@
 // react-bootstrap components
 import axios from "axios";
 import { GetTokenDecoded } from "function/storeUsuario";
-import { host } from "function/util/global";
+import { host, proxy } from "function/util/global";
 import moment from "moment";
 import { useEffect, useState } from "react";
 import {
@@ -14,58 +14,13 @@ import {
 import io from "socket.io-client";
 
 
-const socket = io.connect("http://177.234.209.101:5002",{
-    path: `/socket.io/socket.io.js`,
+const socket = io.connect(String(host).replace(`/${proxy}/`,''),{
+    path: `${proxy}/socket.io/socket.io.js`,
     transports: ["websocket"],
 })
 console.log("socket: ",socket);
 
 moment.locale('es')
-
-const mensajes = [
-    {
-        id: 1,
-        mensaje: "Hola, como estas?",
-        fecha: "Hace 2 minutos",
-        type: "recibido"
-    },
-    {
-        id: 2,
-        mensaje: "Estoy bien, y tu?",
-        fecha: "Hace 1 minutos",
-        type: "enviado"
-    },
-    {
-        id: 3,
-        mensaje: "Bien, gracias por preguntar",
-        fecha: "Hace 6 minutos",
-        type: "recibido"
-    },
-    {
-        id: 4,
-        mensaje: "Que bueno",
-        fecha: "Hace 1 minutos",
-        type: "enviado"
-    },
-    {
-        id: 5,
-        mensaje: "Que bueno",
-        fecha: "Hace 4 minutos",
-        type: "recibido"
-    },
-    {
-        id: 6,
-        mensaje: "Que bueno",
-        fecha: "Hace 3 minutos",
-        type: "enviado"
-    },
-    {
-        id: 7,
-        mensaje: "Que bueno",
-        fecha: "Hace 5 minutos",
-        type: "recibido"
-    }
-]
 
 
 export default function Mensajeria() {
