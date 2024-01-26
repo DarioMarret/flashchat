@@ -3,13 +3,9 @@ import { Link, useLocation } from "react-router-dom";
 
 // react-bootstrap components
 import {
-  Badge,
-  Button,
-  Card,
-  Navbar,
-  Nav,
   Container,
-  Col,
+  Nav,
+  Navbar
 } from "react-bootstrap";
 
 function AuthNavbar() {

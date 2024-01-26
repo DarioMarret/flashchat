@@ -6,7 +6,7 @@ import {
   Form
 } from "react-bootstrap";
 
-function RegisterPage() {
+function RegisterPage(props) {
   return (
     <>
       <div
@@ -80,7 +80,7 @@ function RegisterPage() {
 
                     <div className="mt-2 d-flex flex-column justify-content-center align-items-center">
                       <small className="text-span">- Tendrás 10 días gratuitos - </small>
-                      <a className="text-link">Iniciar sesión</a>
+                      <a className="text-link" onClick={() => props.setEstados(true)}>Iniciar sesión</a>
                     </div>
                   </Card.Footer>
                 </Card>
