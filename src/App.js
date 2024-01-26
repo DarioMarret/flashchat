@@ -13,8 +13,7 @@ import image1 from "assets/img/full-screen-image-1.jpg";
 import image2 from "assets/img/full-screen-image-2.jpg";
 import image3 from "assets/img/full-screen-image-3.jpg";
 import image4 from "assets/img/full-screen-image-4.jpg";
-import AuthFooter from "components/Footers/AuthFooter";
-import AuthNavbar from "components/Navbars/AuthNavbar";
+import Auth from "layouts/Auth";
 import Dashboard from "views/Dashboard";
 import ChatBots from "views/Pages/ChatBots";
 import Agentes from "views/Pages/Configuracion/Agentes";
@@ -26,9 +25,7 @@ import Inactividad from "views/Pages/Configuracion/Inactividad";
 import Masivos from "views/Pages/Configuracion/Masivos";
 import MensajesAutomaticos from "views/Pages/Configuracion/MensajesAutomaticos";
 import Contactos from "views/Pages/Contactos";
-import LoginPage from "views/Pages/LoginPage";
 import Mensajeria from "views/Pages/Mensajeria";
-import RegisterPage from "views/Pages/RegisterPage";
 
 export default function App() {
   const [auth, setAuth] = useState(undefined);
@@ -159,8 +156,8 @@ export default function App() {
           <>
             <div className="wrapper wrapper-full-page">
               {/* <AuthNavbar /> */}
-              {/* <LoginPage /> */}
-              <RegisterPage />
+              <Auth />
+              {/* <RegisterPage /> */}
               {/* <AuthFooter /> */}
             </div>
           </>
