@@ -1,25 +1,20 @@
+import useAuth from "hook/useAuth";
 import React from "react";
 
 // react-bootstrap components
 import {
-  Badge,
   Button,
-  ButtonGroup,
-  Card,
-  Dropdown,
+  Container,
   Form,
   InputGroup,
-  Navbar,
   Nav,
-  Pagination,
-  Container,
-  Row,
-  Col,
-  Collapse,
+  Navbar
 } from "react-bootstrap";
 
 function AdminNavbar() {
   const [collapseOpen, setCollapseOpen] = React.useState(false);
+
+  const { logout } = useAuth();
   return (
     <>
       <Navbar expand="lg">
@@ -46,7 +41,7 @@ function AdminNavbar() {
               </Button>
             </div>
             <Navbar.Brand href="#pablo" onClick={(e) => e.preventDefault()}>
-              Buttons
+              {/* Buttons */}
             </Navbar.Brand>
           </div>
           <button
@@ -75,7 +70,7 @@ function AdminNavbar() {
               </Form>
             </Nav>
             <Nav navbar>
-              <Dropdown as={Nav.Item}>
+              {/* <Dropdown as={Nav.Item}>
                 <Dropdown.Toggle
                   as={Nav.Link}
                   id="dropdown-165516306"
@@ -116,8 +111,8 @@ function AdminNavbar() {
                     Another action
                   </Dropdown.Item>
                 </Dropdown.Menu>
-              </Dropdown>
-              <Dropdown as={Nav.Item}>
+              </Dropdown> */}
+              {/* <Dropdown as={Nav.Item}>
                 <Dropdown.Toggle
                   as={Nav.Link}
                   id="dropdown-414718872"
@@ -210,7 +205,17 @@ function AdminNavbar() {
                     Log out
                   </Dropdown.Item>
                 </Dropdown.Menu>
-              </Dropdown>
+              </Dropdown> */}
+
+                <Button
+                  className="btn-fill btn d-block bg-dark border-dark"
+                  variant="dark"
+                  onClick={() =>
+                    logout()
+                  }
+                >
+                  Cerrar Session
+                </Button>
             </Nav>
           </Navbar.Collapse>
         </Container>
