@@ -38,7 +38,7 @@ function Auth() {
     <>
       <div className="wrapper wrapper-full-page">
         {/* Navbar */}
-        <AuthNavbar />
+        {/* <AuthNavbar /> */}
         {/* End Navbar */}
         {
           getComponente()
