@@ -23,7 +23,7 @@
 }
 
 .text-link {
-  color: #FFA534;
+  color: #585652;
   padding-left: 20px;
   padding-right: 20px;
   font-size: 1rem;
@@ -36,8 +36,11 @@
 }
 
 .text-link:hover {
-  color: #FFA534;
+  color: #585652;
   font-weight: 600;
+}
+.dark{
+  background: #495057;
 }
 
 .frasphe {

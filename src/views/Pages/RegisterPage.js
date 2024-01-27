@@ -1,5 +1,8 @@
 
 // react-bootstrap components
+import axios from "axios";
+import { host } from "function/util/global";
+import { useState } from "react";
 import {
   Button,
   Card,
@@ -7,12 +10,43 @@ import {
 } from "react-bootstrap";
 
 function RegisterPage(props) {
+
+  const [empresa, setEmpresa] =useState({
+    empresa: "",
+    nombre: "",
+    avatar: "",
+    correo: "",
+    clave: "",
+    conatcto: "",
+    menu:{}
+  })
+
+  const handleInputChange = (event) => {
+    setEmpresa({
+      ...empresa,
+      [event.target.name]: event.target.value,
+    });
+  }
+
+  const Register = async (event) => {
+    event.preventDefault();
+    const { data, status } = await axios.post(`${host}cuentas`, empresa);
+    if(status === 200){
+      if(data.status === 200){
+        console.log(data);
+        props.setEstados(true);
+      }else{
+        console.log(data);
+      }
+    }
+  }
+
   return (
     <>
       <div
         className="full-page section-image d-flex align-items-center pt-4"
         data-color="black"
-        data-image={require("assets/img/full-screen-image-2.jpg")}
+        data-image={require("assets/img/fondo_login.jpeg")}
         style={{ height: '100vh' }}
       >
         <div className="container content d-flex justify-content-center align-items-center p-0">
@@ -33,6 +67,7 @@ function RegisterPage(props) {
                           placeholder="Mi empresa"
                           type="text"
                           name="empresa"
+                          onChange={handleInputChange}
                         ></Form.Control>
                       </Form.Group>
 
@@ -44,6 +79,7 @@ function RegisterPage(props) {
                           placeholder="0999999999"
                           type="text"
                           name="contacto"
+                          onChange={handleInputChange}
                         ></Form.Control>
                       </Form.Group>
 
@@ -55,6 +91,7 @@ function RegisterPage(props) {
                           placeholder="correo@email.com"
                           type="email"
                           name="correo"
+                          onChange={handleInputChange}
                         ></Form.Control>
                       </Form.Group>
 
@@ -68,12 +105,13 @@ function RegisterPage(props) {
                           placeholder="********"
                           type="password"
                           name="clave"
+                          onChange={handleInputChange}
                         ></Form.Control>
                       </Form.Group>
                     </Card.Body>
                   <Card.Footer className="ml-auto mr-auto">
-                    <Button className="btn-wd w-100" type="submit" variant="warning"
-                      
+                    <Button className="btn-wd w-100" type="submit" variant="dark"
+                      onClick={(event) => Register(event)}
                     >
                       Registrarme
                     </Button>
@@ -93,7 +131,7 @@ function RegisterPage(props) {
           className="full-page-background"
           style={{
             backgroundImage:
-              "url(" + require("assets/img/full-screen-image-2.jpg") + ")"
+              "url(" + require("assets/img/fondo_login.jpeg") + ")"
           }}
         ></div>
       </div>

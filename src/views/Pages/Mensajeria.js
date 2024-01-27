@@ -166,6 +166,7 @@ export default function Mensajeria() {
             nombreunico: item.nombreunico,
         })
     }
+
     const GetManejoConversacion = () => {
         const local = localStorage.getItem("conversacion_activa")
         if(local) {
@@ -269,6 +270,7 @@ export default function Mensajeria() {
             })
         }, 900);
     }
+    
     useEffect(() => {
         ListarEstados()
     }, [])

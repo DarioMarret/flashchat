@@ -22,7 +22,7 @@ import socket from 'views/SocketIO';
 
 function ChatBots(props) {
     const [show, setShow] = useState(false);
-    const handleClose = () => setShow(!show);
+    
     const [canales, setCanales] = useState([]);
     const [bot, setBot] = useState({
         id: 0,
@@ -43,6 +43,11 @@ function ChatBots(props) {
         url: '',
     });
     const [bots, setBots] = useState([]);
+
+    const handleClose = () => {
+        setShow(!show);
+        Limpiar();
+    }
 
     const ListarCanal = async() => {
         const url = `${host}canales`;
@@ -186,10 +191,10 @@ function ChatBots(props) {
     return (
         <>
           <Container fluid>
-            <div className='d-flex justify-content-end mb-3'>
-                <button className="btn btn-primary ml-2"
+            <div className='d-flex justify-content-start mb-3'>
+                <button className="btn btn-dark active ml-2"
                     onClick={handleClose}
-                >Crear Bots</button>
+                >Crear nuevo bot</button>
             </div>
             <Row
                 className='d-flex justify-content-start align-items-start flex-wrap'
@@ -201,7 +206,8 @@ function ChatBots(props) {
                             <Card.Body>
                                 <div className='d-flex justify-content-between align-items-start'>
                                     <div className='d-flex'>
-                                        <img src={InconBot(bot.channel_id)} alt="" width={90}/>
+                                        <img src={InconBot(bot.channel_id)} alt="" width={90}
+                                        />
                                         <div className=''>
                                             <h5>{bot.nombre_bot}</h5>
                                             <p className='text-muted text-truncate m-0'>{bot.numero_telefono.substring(0, 11)}</p>
@@ -211,11 +217,22 @@ function ChatBots(props) {
                                         </div>
                                     </div>
                                     <div className='d-flex flex-column mx-x'>
-                                        <button className="btn btn-primary"
+                                        <button className="btn btn active mr-2"
                                             onClick={() => window.open(`${bot.url}`, '_blank')}
-                                        >Configurar</button>
-                                        <button className="btn btn-primary" onClick={()=>ActivaModalEditar(bot)}>Editar</button>
-                                        <button className="btn btn-danger" onClick={()=>EliminarBots(bot.id)}>Eliminar</button>
+                                        >
+                                            {/* icono de construir */}
+                                            <i className="fas fa-cogs"></i>
+                                        </button>
+                                        <button className="btn btn active mr-2"
+                                        onClick={()=>ActivaModalEditar(bot)}>
+                                            {/* icono de editar */}
+                                            <i className="fas fa-edit"></i>
+                                        </button>
+                                        <button className="btn btn active mr-2"
+                                        onClick={()=>EliminarBots(bot.id)}>
+                                            {/* icono de eliminar */}
+                                            <i className="fas fa-trash-alt"></i>
+                                        </button>
                                     </div>
                                 </div>
                             </Card.Body>
@@ -229,8 +246,20 @@ function ChatBots(props) {
                 onHide={handleClose}
                 aria-labelledby="example-modal-sizes-title-lg"
             >
-                <Modal.Header closeButton>
-                <Modal.Title>Crear Bot</Modal.Title>
+                <Modal.Header>
+                    {
+                        bot.id === 0 ? (
+                            <Modal.Title>Crear bot</Modal.Title>
+                        ) : (
+                            <Modal.Title>Editar bot</Modal.Title>
+                        )
+                    }
+                    <button
+                        className='btn btn-dark active mr-2 w-10'
+                        onClick={handleClose}
+                    >
+                        X
+                    </button>
                 </Modal.Header>
                 <Modal.Body>
                     <form>
@@ -239,6 +268,7 @@ function ChatBots(props) {
                             <select className="form-control" id="exampleFormControlSelect1"
                                 value={bot.channel_id}
                                 onChange={(e) => setBot({...bot, channel_id: parseInt(e.target.value)})}
+                                disabled={bot.id !== 0}
                             >
                                 <option>Seleccione</option>
                                 {
@@ -252,7 +282,8 @@ function ChatBots(props) {
                             <label htmlFor="tiempo">Nombre Bots</label>
                             <input type="text" className="form-control" id="nombre_bot" placeholder="Nombre Bots"
                                 value={bot.nombre_bot}
-                                onChange={(e) => setBot({...bot, nombre_bot: e.target.value})}
+                                // el nombre del bot no puede tener espacios
+                                onChange={(e) => setBot({...bot, nombre_bot: e.target.value.replace(/\s/g, '')})}
                             />
                         </div>
                         {
@@ -380,14 +411,14 @@ function ChatBots(props) {
                         }
                         {
                             bot.id === 0 ?  (
-                                <button type="submit" className="btn btn-primary"
+                                <button type="submit" className="btn btn-dark active w-100 mt-3"
                                     onClick={(e) => {
                                         e.preventDefault();
                                         GuardarBot();
                                     }}
                                 >Guardar</button>
                             ): (
-                                <button type="submit" className="btn btn-primary"
+                                <button type="submit" className="btn btn-dark active w-100 mt-3"
                                     onClick={(e) => {
                                         e.preventDefault();
                                         Actualizar();

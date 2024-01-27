@@ -17,11 +17,12 @@ const LoginPage =(props)=> {
     setTimeout(function () {
       setCardClasses("");
     }, 100);
-  });
+  })
+
   const [usuario, setUsuario] = React.useState({
     correo: "",
     clave: "",
-  });
+  })
 
   const handleInputChange = (event) => {
     setUsuario({
@@ -29,6 +30,7 @@ const LoginPage =(props)=> {
       [event.target.name]: event.target.value,
     });
   }
+  
   const { login, setReloadUser } = useAuth();
   
   const Login = async (event) => {
@@ -61,7 +63,7 @@ const LoginPage =(props)=> {
       <div
         className="full-page section-image d-flex align-items-center"
         data-color="black"
-        data-image={require("assets/img/full-screen-image-2.jpg")}
+        data-image={require("assets/img/fondo_login.jpeg")}
         style={{ height: '100vh' }}
       >
         <div className="container content d-flex justify-content-center align-items-center p-0">
@@ -80,7 +82,8 @@ const LoginPage =(props)=> {
               <Form action="" className="form" method="">
                 <Card className={"card-login background-backdrop" + cardClasses}>
                   <Card.Header>
-                    <h3 className="header text-center">Login</h3>
+                    <h3 className="header text-center">Bienvenido a FlashChat</h3>
+                    <h4 className="header text-center">Login</h4>
                     <hr/>
                   </Card.Header>
                     <Card.Body>
@@ -125,7 +128,7 @@ const LoginPage =(props)=> {
 
                     </Card.Body>
                   <Card.Footer className="ml-auto mr-auto">
-                    <Button className="btn-wd w-100" type="submit" variant="warning"
+                    <Button className="btn-wd w-100" type="submit" variant="dark"
                       onClick={Login}
                     >
                       Login
@@ -200,7 +203,7 @@ const LoginPage =(props)=> {
           className="full-page-background"
           style={{
             backgroundImage:
-              "url(" + require("assets/img/full-screen-image-2.jpg") + ")"
+              "url(" + require("assets/img/fondo_login.jpeg") + ")"
           }}
         ></div>
       </div>

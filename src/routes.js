@@ -113,6 +113,13 @@ var routes = [
     mini: "LP",
     component: LoginPage
   },
+  //   {
+  //   path: "/sweet-alert",
+  //   layout: "/admin",
+  //   name: "Sweet Alert",
+  //   mini: "SA",
+  //   component: SweetAlertPage
+  // },
   // {
   //   collapse: true,
   //   path: "/components",

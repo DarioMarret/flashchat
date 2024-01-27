@@ -13,6 +13,7 @@ import image1 from "assets/img/full-screen-image-1.jpg";
 import image2 from "assets/img/full-screen-image-2.jpg";
 import image3 from "assets/img/full-screen-image-3.jpg";
 import image4 from "assets/img/full-screen-image-4.jpg";
+import { RemoverConversacion } from "function/storeUsuario";
 import Dashboard from "views/Dashboard";
 import ChatBots from "views/Pages/ChatBots";
 import Agentes from "views/Pages/Configuracion/Agentes";
@@ -26,7 +27,6 @@ import MensajesAutomaticos from "views/Pages/Configuracion/MensajesAutomaticos";
 import Contactos from "views/Pages/Contactos";
 import Mensajeria from "views/Pages/Mensajeria";
 import Auths from "views/Pages/auth/Auths";
-import style from 'assets/css/style.css';
 
 export default function App() {
   const [auth, setAuth] = useState(undefined);
@@ -51,6 +51,7 @@ export default function App() {
   };
   const logout = () => {
     removeDatosUsuario();
+    RemoverConversacion();
     setAuth(null);
     setReloadUser(true);
   };
@@ -124,6 +125,8 @@ export default function App() {
                       exact
                     />
                     <Route path="/admin/bots" element={<ChatBots />} exact />
+                    {/* <Route path="/admin/sweet-alert" element={<SweetAlertPage />} exact /> */}
+
                   </Routes>
                 </div>
                 {/* <AdminFooter /> */}

@@ -52,3 +52,8 @@ export function removeDatosUsuario() {
         console.log(error);
     }
 }
+
+export const RemoverConversacion = () => {
+    localStorage.removeItem("conversacion_activa");
+    return true;
+}
