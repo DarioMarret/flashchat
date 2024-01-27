@@ -22,12 +22,12 @@ function AdminNavbar() {
           <div className="navbar-wrapper">
             <div className="navbar-minimize">
               <Button
-                className="btn-fill btn-round btn-icon d-none d-lg-block bg-dark border-dark"
+                className="btn-fill btn-round btn-icon d-none d-lg-block border-dark"
                 variant="dark"
                 onClick={() => document.body.classList.toggle("sidebar-mini")}
               >
-                <i className="fas fa-ellipsis-v visible-on-sidebar-regular"></i>
-                <i className="fas fa-bars visible-on-sidebar-mini"></i>
+                <i className="fas fa-ellipsis-v visible-on-sidebar-regular icon-dak"></i>
+                <i className="fas fa-bars visible-on-sidebar-mini icon-dak"></i>
               </Button>
               <Button
                 className="btn-fill btn-round btn-icon d-block d-lg-none bg-dark border-dark"
@@ -36,8 +36,8 @@ function AdminNavbar() {
                   document.documentElement.classList.toggle("nav-open")
                 }
               >
-                <i className="fas fa-ellipsis-v visible-on-sidebar-regular"></i>
-                <i className="fas fa-bars visible-on-sidebar-mini"></i>
+                <i className="fas fa-ellipsis-v visible-on-sidebar-regular icon-dak"></i>
+                <i className="fas fa-bars visible-on-sidebar-mini icon-dak"></i>
               </Button>
             </div>
             <Navbar.Brand href="#pablo" onClick={(e) => e.preventDefault()}>

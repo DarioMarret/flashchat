@@ -80,6 +80,15 @@
   width: 20em;
 }
 
+.font-bold {
+  font-weight: bold;
+}
+
+
+.icon-dak {
+  color: #212529;
+}
+
 @keyframes animation {
   from {
     width: 0px;

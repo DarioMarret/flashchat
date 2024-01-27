@@ -13,7 +13,6 @@ import {
 // import socket from "views/SocketIO";
 import io from "socket.io-client";
 
-
 const socket = io.connect(String(host).replace(`/${proxy}/`,''),{
     path: `${proxy}/socket.io/socket.io.js`,
     transports: ["websocket"],

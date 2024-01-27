@@ -28,6 +28,8 @@ import Contactos from "views/Pages/Contactos";
 import Mensajeria from "views/Pages/Mensajeria";
 import Auths from "views/Pages/auth/Auths";
 
+import style from "./assets/css/style.css";
+
 export default function App() {
   const [auth, setAuth] = useState(undefined);
   const [ReloadUser, setReloadUser] = useState(false);
