@@ -50,11 +50,6 @@ function ChatBots(props) {
     const handleClose = () => {
         setShow(!show);
         Limpiar();
-        if(show == false){
-            setUserFb(null)
-            setPerfil(null)
-            SuccessSetuserFb()
-        }
     }
 
     const ListarCanal = async() => {
@@ -74,12 +69,16 @@ function ChatBots(props) {
     }
 
     const GuardarBot = async() => {
-        const url = `${host}bots`;
-        const { data, status } = await axios.post(url, bot);
-        if (status === 200) {
-            ListarBots()
-            Limpiar()
-            setShow(!show);
+        if(perfil && userFb){
+            await SuccessSetuserFb()
+        }else{
+            const url = `${host}bots`;
+            const { data, status } = await axios.post(url, bot);
+            if (status === 200) {
+                ListarBots()
+                Limpiar()
+                setShow(!show);
+            }
         }
     }
 
