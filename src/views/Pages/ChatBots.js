@@ -198,9 +198,11 @@ function ChatBots(props) {
                 email: datoss.email,
                 url: datoss.picture.data.url,
             }
+            console.log(datos)
+            setUserFb(null)
             const { data, status } = await axios.post(`${host}webhookFConfig`, datos);
             if (status === 200) {
-                console.log(data)
+                console.log("response: ",data)
                 return true
             }else{
                 return false
@@ -317,15 +319,15 @@ function ChatBots(props) {
                                         fields="email,name,picture"
                                         scope="email,public_profile,pages_show_list,pages_messaging"
                                         onSuccess={(response) => {
-                                            console.log('Login Success!', response);
+                                            // console.log('Login Success!', response);
                                             setUserFb(response)
                                         }}
                                         onFail={(error) => {
                                             console.log('Login Failed!', error);
                                         }}
-                                        onProfileSuccess={(response) => {
+                                        onProfileSuccess={async(response) => {
                                             console.log('Get Profile Success!', response);
-                                            SuccessSetuserFb(response)
+                                            await SuccessSetuserFb(response)
                                         }}
                                         style={{
                                             backgroundColor: "#4267b2",
