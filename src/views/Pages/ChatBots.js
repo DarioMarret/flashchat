@@ -206,7 +206,7 @@ function ChatBots(props) {
                 }
                 console.log(datos)
                 setUserFb(null)
-                const { data, status } = await axios.post(`${host}webhookFConfig`, datos);
+                const { data, status } = await axios.post(`${host}webhookFConfig?cuenta_id=${GetTokenDecoded().cuenta_id}`, datos);
                 if (status === 200) {
                     console.log("response: ",data)
                     return true
