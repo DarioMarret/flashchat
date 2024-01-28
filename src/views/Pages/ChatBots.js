@@ -45,10 +45,16 @@ function ChatBots(props) {
     });
     const [bots, setBots] = useState([]);
     const [userFb, setUserFb] = useState(null);
+    const [perfil, setPerfil] = useState(null);
 
     const handleClose = () => {
         setShow(!show);
         Limpiar();
+        if(show == false){
+            setUserFb(null)
+            setPerfil(null)
+            SuccessSetuserFb()
+        }
     }
 
     const ListarCanal = async() => {
@@ -192,20 +198,22 @@ function ChatBots(props) {
 
     const SuccessSetuserFb = async (datoss) => {
         try {
-            let datos = {
-                ...userFb,
-                name: datoss.name,
-                email: datoss.email,
-                url: datoss.picture.data.url,
-            }
-            console.log(datos)
-            setUserFb(null)
-            const { data, status } = await axios.post(`${host}webhookFConfig`, datos);
-            if (status === 200) {
-                console.log("response: ",data)
-                return true
-            }else{
-                return false
+            if(userFb && perfil){
+                let datos = {
+                    ...userFb,
+                    name: perfil.name,
+                    email: perfil.email,
+                    url: perfil.picture.data.url,
+                }
+                console.log(datos)
+                setUserFb(null)
+                const { data, status } = await axios.post(`${host}webhookFConfig`, datos);
+                if (status === 200) {
+                    console.log("response: ",data)
+                    return true
+                }else{
+                    return false
+                }
             }
         } catch (error) {
           console.log("error")
@@ -327,7 +335,8 @@ function ChatBots(props) {
                                         }}
                                         onProfileSuccess={async(response) => {
                                             console.log('Get Profile Success!', response);
-                                            await SuccessSetuserFb(response)
+                                            setPerfil(response)
+                                            
                                         }}
                                         style={{
                                             backgroundColor: "#4267b2",
