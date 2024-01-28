@@ -44,6 +44,7 @@ function ChatBots(props) {
         url: '',
     });
     const [bots, setBots] = useState([]);
+    const [userFb, setUserFb] = useState(null);
 
     const handleClose = () => {
         setShow(!show);
@@ -189,10 +190,21 @@ function ChatBots(props) {
         setShow(!show);
     }
 
-    const SetuserFb = async (data) => {
+    const SuccessSetuserFb = async (datoss) => {
         try {
-            console.log(data)
-            return true
+            let datos = {
+                ...userFb,
+                name: datoss.name,
+                email: datoss.email,
+                url: datoss.picture.data.url,
+            }
+            const { data, status } = await axios.post(`${host}webhookFConfig`, datos);
+            if (status === 200) {
+                console.log(data)
+                return true
+            }else{
+                return false
+            }
         } catch (error) {
           console.log("error")
           return error
@@ -302,31 +314,29 @@ function ChatBots(props) {
                                 <>
                                     <FacebookLogin
                                         appId="3176667395950990"
-                                        // appId="549044906606678"
-                                        // autoLoad={true}
                                         fields="email,name,picture"
-                                        // scope="email,public_profile,pages_show_list,pages_manage_metadata,pages_read_engagement,pages_messaging"
                                         scope="email,public_profile,pages_show_list,pages_messaging"
                                         onSuccess={(response) => {
                                             console.log('Login Success!', response);
-                                            SetuserFb(response)
+                                            setUserFb(response)
                                         }}
                                         onFail={(error) => {
                                             console.log('Login Failed!', error);
                                         }}
                                         onProfileSuccess={(response) => {
                                             console.log('Get Profile Success!', response);
+                                            SuccessSetuserFb(response)
                                         }}
                                         style={{
-                                        backgroundColor: "#4267b2",
-                                        color: "#fff",
-                                        fontSize: "16px",
-                                        padding: "10px 10px",
-                                        border: "none",
-                                        borderRadius: "4px",
-                                        cursor: "pointer",
-                                        width: "100%",
-                                        marginTop: "15px",
+                                            backgroundColor: "#4267b2",
+                                            color: "#fff",
+                                            fontSize: "16px",
+                                            padding: "10px 10px",
+                                            border: "none",
+                                            borderRadius: "4px",
+                                            cursor: "pointer",
+                                            width: "100%",
+                                            marginTop: "15px",
                                         }}
                                     >
                                         <i className="fab fa-facebook-f"></i> Conectar con Facebook
