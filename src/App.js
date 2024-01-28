@@ -140,7 +140,7 @@ export default function App() {
                 />
               </div>
             </div>
-            <FixedPlugin
+            {/* <FixedPlugin
               setSidebarImageParent={(value) => setSidebarImage(value)}
               sidebarDefaultImage={sidebarImage}
               sidebarImages={[image1, image2, image3, image4]}
@@ -156,7 +156,7 @@ export default function App() {
               setSidebarBackgroundParent={(value) =>
                 setSidebarBackground(value)
               }
-            />
+            /> */}
           </>
         ) : (
           <>

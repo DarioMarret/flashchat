@@ -54,21 +54,26 @@ function AdminNavbar() {
             <span className="navbar-toggler-bar burger-lines"></span>
           </button>
           <Navbar.Collapse className="justify-content-end" in={collapseOpen}>
-            <Nav className="nav mr-auto" navbar>
+            <Nav className="nav mr-auto ml-2" navbar>
               <Form
-                className="navbar-form navbar-left navbar-search-form ml-3 ml-lg-0"
+                className="navbar-form navbar-left navbar-search-form"
+                style={{ marginRight: '15px' }}
                 role="search"
               >
-                <InputGroup>
-                  <i className="nc-icon nc-zoom-split"></i>
+                <InputGroup className="py-1 d-flex align-items-center bb-1">
+                  <i className="nc-icon nc-zoom-split mr-1"></i>
+
                   <Form.Control
                     defaultValue=""
-                    placeholder="Search..."
+                    placeholder="Buscar ..."
                     type="text"
+                    className=""
+                    style={{ marginLeft: '10px' }}
                   ></Form.Control>
                 </InputGroup>
               </Form>
             </Nav>
+
             <Nav navbar>
               {/* <Dropdown as={Nav.Item}>
                 <Dropdown.Toggle
