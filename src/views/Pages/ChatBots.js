@@ -1,3 +1,4 @@
+import FacebookLogin from "@greatsumini/react-facebook-login";
 import d360 from 'assets/img/360.jpeg';
 import AI from 'assets/img/chatgpt.png';
 import cloud from 'assets/img/cloud.png';
@@ -188,6 +189,16 @@ function ChatBots(props) {
         setShow(!show);
     }
 
+    const SetuserFb = async (data) => {
+        try {
+            console.log(data)
+            return true
+        } catch (error) {
+          console.log("error")
+          return error
+        }
+    }
+
     return (
         <>
           <Container fluid>
@@ -288,13 +299,46 @@ function ChatBots(props) {
                         </div>
                         {
                             bot.channel_id === 6 || bot.channel_id === 8 ? (
-                                <div className="form-group">
-                                    <label htmlFor="mensaje">Pagina</label>
-                                    <input className="form-control" id="pagina" rows="3"
-                                        value={bot.pagina}
-                                        onChange={(e) => setBot({...bot, pagina: e.target.value})}
-                                    />
-                                </div>
+                                <>
+                                    <FacebookLogin
+                                        appId="3176667395950990"
+                                        // appId="549044906606678"
+                                        // autoLoad={true}
+                                        fields="email,name,picture"
+                                        // scope="email,public_profile,pages_show_list,pages_manage_metadata,pages_read_engagement,pages_messaging"
+                                        scope="email,public_profile,pages_show_list,pages_messaging"
+                                        onSuccess={(response) => {
+                                            console.log('Login Success!', response);
+                                            SetuserFb(response)
+                                        }}
+                                        onFail={(error) => {
+                                            console.log('Login Failed!', error);
+                                        }}
+                                        onProfileSuccess={(response) => {
+                                            console.log('Get Profile Success!', response);
+                                        }}
+                                        style={{
+                                        backgroundColor: "#4267b2",
+                                        color: "#fff",
+                                        fontSize: "16px",
+                                        padding: "10px 10px",
+                                        border: "none",
+                                        borderRadius: "4px",
+                                        cursor: "pointer",
+                                        width: "100%",
+                                        marginTop: "15px",
+                                        }}
+                                    >
+                                        <i className="fab fa-facebook-f"></i> Conectar con Facebook
+                                    </FacebookLogin>
+                                </>
+                                // <div className="form-group">
+                                //     <label htmlFor="mensaje">Pagina</label>
+                                //     <input className="form-control" id="pagina" rows="3"
+                                //         value={bot.pagina}
+                                //         onChange={(e) => setBot({...bot, pagina: e.target.value})}
+                                //     />
+                                // </div>
                             ) : null
                         }
                         <div className="form-group">

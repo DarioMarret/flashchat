@@ -1,4 +1,7 @@
-import { useState } from "react";
+import axios from 'axios';
+import { GetTokenDecoded } from "function/storeUsuario";
+import { host } from "function/util/global";
+import { useEffect, useState } from "react";
 import {
     Container,
     Modal
@@ -34,6 +37,7 @@ function Inactividad(props) {
         mensaje: '',
         cuenta_id: 0
     });
+    const [inactividades, setInactividades] = useState([])
 
     const handleMensaje = (e) => {
         setInactividad({
@@ -41,28 +45,71 @@ function Inactividad(props) {
             [e.target.id]: e.target.value,
         });
     }
+    const handleEditInactividad = (item) => {
+        setInactividad({
+            id: item.id,
+            description: item.description,
+            tiempo: item.tiempo,
+            mensaje: item.mensaje,
+            cuenta_id: GetTokenDecoded().cuenta_id
+        })
+        setShow(true)
+    }
+
+    const ListarInactividad = async() => {
+        let url = host + 'inactividad/'+GetTokenDecoded().cuenta_id
+        const { data, status } = await axios.get(url)
+        if(status === 200){
+            setInactividades(data)
+        }
+    }
+
+    useEffect(() => {
+        (async()=>{
+            await ListarInactividad()
+        })()
+    }, [])
 
     return (
         <>
         <Container fluid>
+            <div className="d-flex justify-content-between">
+                <h4 className="font-weight-bold mt-2">Inactividad</h4>
+            </div>
+
             <table className="table table-striped response">
-                <thead>
+                <thead
+                    className="table-dark table-active text-center"
+                >
                     <tr>
-                        <th>Descripción</th>
-                        <th>Tiempo</th>
-                        <th>Mensaje</th>
+                        <th
+                            className="text-white"
+                        >Descripción</th>
+                        <th
+                            className="text-white"
+                        >Tiempo</th>
+                        <th
+                            className="text-white"
+                        >Mensaje</th>
+                        <th
+                            className="text-white"
+                        >Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {equipos.map((item, index) => (
-                        <tr key={index}>
+                    {inactividades.map((item, index) => (
+                        <tr key={index}
+                            className="text-center"
+                        >
                             <td>{item.description}</td>
                             <td>{item.tiempo}</td>
                             <td>{item.mensaje}</td>
                             <td>
-                                <button className="btn btn-primary ml-2"
-                                    onClick={handleClose}
-                                >Editar</button>
+                                <button className="btn btn ml-2"
+                                    onClick={() => handleEditInactividad(item)}
+                                >
+                                    <i className="fa fa-edit"></i>
+                                </button>
                             </td>
                         </tr>
                     ))}
@@ -74,8 +121,11 @@ function Inactividad(props) {
                 backdrop="static"
                 keyboard={false}
             >
-                <Modal.Header closeButton>
+                <Modal.Header>
                 <Modal.Title>Editar Inactividad</Modal.Title>
+                <button type="button" className="btn-dark" onClick={handleClose}>
+                    <i className="fa fa-times"></i>
+                </button>
                 </Modal.Header>
                 <Modal.Body>
                     <form>
@@ -93,18 +143,17 @@ function Inactividad(props) {
                                 onChange={handleMensaje}
                             />
                         </div>
-                        <div className="form-group">
+                        <div className="form-group mb-3">
                             <label htmlFor="mensaje">Mensaje</label>
-                            <textarea className="form-control" id="mensaje" rows="3"
+                            <textarea className="form-control " id="mensaje" rows="3" cols="50"
                                 value={inactividad.mensaje}
                                 onChange={handleMensaje}
                             ></textarea>
                         </div>
-                        <button type="submit" className="btn btn-primary">Guardar</button>
+                        <button type="submit" className="btn btn-dark w-100">Guardar</button>
                     </form>
                 </Modal.Body>
             </Modal>
-
         </Container>
             
         </>
