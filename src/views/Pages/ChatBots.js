@@ -2,7 +2,6 @@ import FacebookLogin from "@greatsumini/react-facebook-login";
 import d360 from 'assets/img/360.jpeg';
 import AI from 'assets/img/chatgpt.png';
 import cloud from 'assets/img/cloud.png';
-import facebook from 'assets/img/facebook.jpeg';
 import gupshup from 'assets/img/gupshup.jpeg';
 import instagram from 'assets/img/instagram.jpeg';
 import QR from 'assets/img/qr.png';
@@ -124,7 +123,7 @@ function ChatBots(props) {
         });
     }
 
-    const InconBot = (id) => {
+    const InconBot = (id, url) => {
         switch (id) {
             case 1:
                 return AI;
@@ -137,7 +136,7 @@ function ChatBots(props) {
             case 5:
                 return gupshup;
             case 6:
-                return facebook;
+                return url;
             case 7:
                 return telegram;
             case 8:
@@ -238,7 +237,7 @@ function ChatBots(props) {
                             <Card.Body>
                                 <div className='d-flex justify-content-between align-items-start'>
                                     <div className='d-flex'>
-                                        <img src={InconBot(bot.channel_id)} alt="" width={90}
+                                        <img src={InconBot(bot.channel_id, bot.url)} alt="" width={90}
                                         />
                                         <div className=''>
                                             <h5>{bot.nombre_bot}</h5>
