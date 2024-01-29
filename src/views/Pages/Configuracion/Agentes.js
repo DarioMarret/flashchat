@@ -181,9 +181,13 @@ function Agentes(props) {
                         <Modal.Title>Editar Agente</Modal.Title>
                     }
                     {/* botton para X para cerrar el modal */}
-                    <button className="btn btn-dark ml-auto"
+                    <button 
+                    type="button"
+                    className="btn-dark ml-auto"
                         onClick={handleClose}
-                    >X</button>
+                    >
+                        <i className="fa fa-times"></i>
+                    </button>
                     </div>
                 </Modal.Header>
                 <Modal.Body>

@@ -178,9 +178,10 @@ function Equipos(props) {
                         <Modal.Title>Crear Equipo</Modal.Title>
                     }
                     <button
-                        className='btn btn-dark active mr-2 w-10'
+                        type="button"
+                        className='btn-dark mr-2 w-10'
                         onClick={handleClose}>
-                        X
+                        <i className="fa fa-times"></i>
                     </button>
                 </Modal.Header>
                 <Modal.Body>

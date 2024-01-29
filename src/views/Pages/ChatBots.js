@@ -1,7 +1,7 @@
+import FacebookLogin from "@greatsumini/react-facebook-login";
 import d360 from 'assets/img/360.jpeg';
 import AI from 'assets/img/chatgpt.png';
 import cloud from 'assets/img/cloud.png';
-import facebook from 'assets/img/facebook.jpeg';
 import gupshup from 'assets/img/gupshup.jpeg';
 import instagram from 'assets/img/instagram.jpeg';
 import QR from 'assets/img/qr.png';
@@ -43,6 +43,8 @@ function ChatBots(props) {
         url: '',
     });
     const [bots, setBots] = useState([]);
+    const [userFb, setUserFb] = useState(null);
+    const [perfil, setPerfil] = useState(null);
 
     const handleClose = () => {
         setShow(!show);
@@ -66,12 +68,16 @@ function ChatBots(props) {
     }
 
     const GuardarBot = async() => {
-        const url = `${host}bots`;
-        const { data, status } = await axios.post(url, bot);
-        if (status === 200) {
-            ListarBots()
-            Limpiar()
-            setShow(!show);
+        if(perfil && userFb){
+            await SuccessSetuserFb()
+        }else{
+            const url = `${host}bots`;
+            const { data, status } = await axios.post(url, bot);
+            if (status === 200) {
+                ListarBots()
+                Limpiar()
+                setShow(!show);
+            }
         }
     }
 
@@ -117,7 +123,7 @@ function ChatBots(props) {
         });
     }
 
-    const InconBot = (id) => {
+    const InconBot = (id, url) => {
         switch (id) {
             case 1:
                 return AI;
@@ -130,7 +136,7 @@ function ChatBots(props) {
             case 5:
                 return gupshup;
             case 6:
-                return facebook;
+                return url;
             case 7:
                 return telegram;
             case 8:
@@ -188,6 +194,31 @@ function ChatBots(props) {
         setShow(!show);
     }
 
+    const SuccessSetuserFb = async (datoss) => {
+        try {
+            if(userFb && perfil){
+                let datos = {
+                    ...userFb,
+                    name: perfil.name,
+                    email: perfil.email,
+                    url: perfil.picture.data.url,
+                }
+                console.log(datos)
+                setUserFb(null)
+                const { data, status } = await axios.post(`${host}webhookFConfig?cuenta_id=${GetTokenDecoded().cuenta_id}`, datos);
+                if (status === 200) {
+                    console.log("response: ",data)
+                    return true
+                }else{
+                    return false
+                }
+            }
+        } catch (error) {
+          console.log("error")
+          return error
+        }
+    }
+
     return (
         <>
           <Container fluid>
@@ -206,7 +237,7 @@ function ChatBots(props) {
                             <Card.Body>
                                 <div className='d-flex justify-content-between align-items-start'>
                                     <div className='d-flex'>
-                                        <img src={InconBot(bot.channel_id)} alt="" width={90}
+                                        <img src={InconBot(bot.channel_id, bot.url_perfil)} alt="" width={90}
                                         />
                                         <div className=''>
                                             <h5>{bot.nombre_bot}</h5>
@@ -288,13 +319,45 @@ function ChatBots(props) {
                         </div>
                         {
                             bot.channel_id === 6 || bot.channel_id === 8 ? (
-                                <div className="form-group">
-                                    <label htmlFor="mensaje">Pagina</label>
-                                    <input className="form-control" id="pagina" rows="3"
-                                        value={bot.pagina}
-                                        onChange={(e) => setBot({...bot, pagina: e.target.value})}
-                                    />
-                                </div>
+                                <>
+                                    <FacebookLogin
+                                        appId="3176667395950990"
+                                        fields="email,name,picture"
+                                        scope="email,public_profile,pages_show_list,pages_messaging"
+                                        onSuccess={(response) => {
+                                            // console.log('Login Success!', response);
+                                            setUserFb(response)
+                                        }}
+                                        onFail={(error) => {
+                                            console.log('Login Failed!', error);
+                                        }}
+                                        onProfileSuccess={async(response) => {
+                                            console.log('Get Profile Success!', response);
+                                            setPerfil(response)
+                                            
+                                        }}
+                                        style={{
+                                            backgroundColor: "#4267b2",
+                                            color: "#fff",
+                                            fontSize: "16px",
+                                            padding: "10px 10px",
+                                            border: "none",
+                                            borderRadius: "4px",
+                                            cursor: "pointer",
+                                            width: "100%",
+                                            marginTop: "15px",
+                                        }}
+                                    >
+                                        <i className="fab fa-facebook-f"></i> Conectar con Facebook
+                                    </FacebookLogin>
+                                </>
+                                // <div className="form-group">
+                                //     <label htmlFor="mensaje">Pagina</label>
+                                //     <input className="form-control" id="pagina" rows="3"
+                                //         value={bot.pagina}
+                                //         onChange={(e) => setBot({...bot, pagina: e.target.value})}
+                                //     />
+                                // </div>
                             ) : null
                         }
                         <div className="form-group">

@@ -63,7 +63,7 @@ const LoginPage =(props)=> {
       <div
         className="full-page section-image d-flex align-items-center"
         data-color="black"
-        data-image={require("assets/img/fondo_login.jpeg")}
+        data-image={require("assets/img/fondo2.jpeg")}
         style={{ height: '100vh' }}
       >
         <div className="container content d-flex justify-content-center align-items-center p-0">
@@ -203,7 +203,7 @@ const LoginPage =(props)=> {
           className="full-page-background"
           style={{
             backgroundImage:
-              "url(" + require("assets/img/fondo_login.jpeg") + ")"
+              "url(" + require("assets/img/fondo2.jpeg") + ")"
           }}
         ></div>
       </div>

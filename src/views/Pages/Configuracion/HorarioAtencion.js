@@ -170,9 +170,9 @@ function HorarioAtencion(props) {
                         <Modal.Title>Crear Horario</Modal.Title>
                     }
                     <button type="button" 
-                        className="btn btn-dark active"
+                        className="btn-dark active"
                         onClick={handleClose}>
-                        x
+                        <i className="fa fa-times"></i>
                     </button>
                 </Modal.Header>
                 <Modal.Body>
