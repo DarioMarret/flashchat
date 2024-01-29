@@ -329,7 +329,7 @@ function ChatBots(props) {
                                         appId="3176667395950990"
                                         fields="email,name,picture"
                                         scope="email,public_profile,pages_show_list,pages_messaging"
-                                        useRedirect={true}
+                                        autoLoad={true}
                                         onSuccess={(response) => {
                                             // console.log('Login Success!', response);
                                             setUserFb(response)
