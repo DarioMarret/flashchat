@@ -241,7 +241,13 @@ function ChatBots(props) {
                                         <img src={InconBot(bot.channel_id, bot.url_perfil)} alt="" width={90}
                                         />
                                         <div className=''>
-                                            <h5>{bot.nombre_bot}</h5>
+                                            <h5>{
+                                                String(bot.nombre_bot).length > 15 ? (
+                                                    String(bot.nombre_bot).substring(0, 15) + '...'
+                                                ) : (
+                                                    bot.nombre_bot
+                                                )
+                                                }</h5>
                                             <p className='text-muted text-truncate m-0'>{bot.numero_telefono.substring(0, 11)}</p>
                                             {
                                                 ScannerQR(bot.channel_id, bot.nombreunico, bot.estado)
