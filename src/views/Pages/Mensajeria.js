@@ -290,7 +290,7 @@ export default function Mensajeria() {
 
   return (
     <>
-			<div className="d-flex box-chat box-chat-container flex-column flex-md-row" style={{ margin: '0px', maxHeight: '80vh'}}>
+			<div className="d-flex box-chat box-chat-container flex-column flex-md-row" style={{ margin: '0px', maxHeight: '80vh',   }}>
 				<div className="chat-list bg-chat rounded-start">
 					<div className="d-flex py-2 px-2 flex-wrap align-items-center justify-content-between">
 						<div className="">
