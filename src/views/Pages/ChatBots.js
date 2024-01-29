@@ -209,6 +209,7 @@ function ChatBots(props) {
                 if (status === 200) {
                     console.log("response: ",data)
                     setShow(!show);
+                    ListarBots()
                     return true
                 }else{
                     return false
