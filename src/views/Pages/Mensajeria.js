@@ -12,10 +12,11 @@ import {
 	Dropdown,
 	DropdownMenu,
 	DropdownToggle,
-	DropdownItem,
+	DropdownItem
 } from 'reactstrap';
 // import socket from "views/SocketIO";
 import io from "socket.io-client";
+import Picker from 'emoji-picker-react';
 import EmptyChat from "views/Components/emptyChat";
 
 const socket = io.connect(String(host).replace(`/${proxy}/`, ""), {
@@ -32,6 +33,14 @@ export default function Mensajeria() {
   const [estados, setEstados] = useState([]);
   const [newMensaje, setNewMensaje] = useState(null);
   const [convEstado, setConvEstado] = useState(null);
+
+  const [inputStr, setInputStr] = useState('');
+  const [showPicker, setShowPicker] = useState(false);
+ 
+  const onEmojiClick = (emojiObject, event) => {
+    setInputStr(prevInput => prevInput + emojiObject.emoji);
+    setShowPicker(false);
+  };
 
   useEffect(() => {
     try {
@@ -157,7 +166,6 @@ export default function Mensajeria() {
     const { data, status } = await axios.get(url);
     if (status === 200) {
       setEstados(data.data);
-      console.log(data);
     }
   };
 
@@ -319,9 +327,9 @@ export default function Mensajeria() {
 
   return (
     <>
-			<div className="d-flex box-chat" 
-			style={{ margin: '0px', maxHeight: '80vh', overflow: 'hidden' }}>
-				<div className="w-25 bg-chat rounded-start">
+			<div className="d-flex box-chat box-chat-container flex-column flex-md-row" 
+			style={{ margin: '0px', maxHeight: '80vh'}}>
+				<div className="chat-list bg-chat rounded-start">
 					<div className="d-flex py-2 px-2 flex-wrap align-items-center justify-content-between">
 						<div className="">
 							<Input className="input-dark text-dark"
@@ -573,7 +581,7 @@ export default function Mensajeria() {
 					</div>
 				</div>
 
-				<div className="w-75 bg-white rounded-end">
+				<div className="chat-messages bg-white rounded-end">
 					{/* <EmptyChat/> */}
           <div className="p-4 h-100 pt-2 pb-0">
             {/* Chat header */}
@@ -671,27 +679,38 @@ export default function Mensajeria() {
                   </div>
                 </div>
 
-                <div className="w-100 my-3">
-                  <div className="w-50">
-                    <section className="w-fit d-flex flex-column px-3 py-2 rounded 
-                    chat-item-detail chat-receiver">
-                      <span>Hello :)</span>
+                <div className="w-100 my-3  d-flex justify-content-end">
+                  <div className="w-50 d-flex justify-content-end">
+                    <section className="border w-fit d-flex flex-column px-3 py-2 rounded 
+                    chat-item-detail chat-sender">
+                      <span>Onde está ? </span>
                       <small>10:17 pm</small>
                       </section>
                   </div>
                 </div>
               </div>
+
+              <div className="col-12 picker-icon">
+                { showPicker && <Picker
+                pickerStyle={{ width: '100%' }}
+                onEmojiClick={onEmojiClick} />}
+              </div>
             </div>
 
             <div className="row rounded border-top d-flex align-items-center pt-2" style={{     minHeight: '50px' }}>
+
               <div className="col-9 d-flex align-items-center py-1">
                 <textarea className="w-100 rounded border text-dark px-3 bg-chat chat-text py-1" 
                 cols={'2'} rows={'2'} 
-                placeholder="Escribir ..."></textarea>
+                placeholder="Escribir ..."
+                value={inputStr}
+                onChange={e => setInputStr(e.target.value)}></textarea>
               </div>
 
-              <div className="col-3 d-flex gap-2 justify-content-end">
-                <button className="btn-chat">
+              <div className="col-3 d-flex gap-2 justify-content-end" 
+              style={{ zIndex: '400' }}>
+                <button className="btn-chat" 
+                onClick={() => setShowPicker(val => !val)} >
                   <span class="material-symbols-outlined">mood</span>
                 </button>
 

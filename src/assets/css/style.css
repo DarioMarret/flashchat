@@ -280,6 +280,34 @@
   z-index: 1;
 }
 
+.picker-icon  {
+  position: fixed !important;
+  z-index: 300 !important;
+}
+
+.box-chat-container {
+  overflow: inherit;
+}
+
+.chat-list, 
+.chat-messages {
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .box-chat-container {
+    overflow: hidden;
+  }
+
+  .chat-list {
+    width: 25%;
+  }
+
+  .chat-messages {
+    width: 75%;
+  }
+}
+
 @keyframes animation {
   from {
     width: 0px;
