@@ -329,6 +329,7 @@ function ChatBots(props) {
                                         appId="3176667395950990"
                                         fields="email,name,picture"
                                         scope="email,public_profile,pages_show_list,pages_messaging"
+                                        useRedirect={true}
                                         onSuccess={(response) => {
                                             // console.log('Login Success!', response);
                                             setUserFb(response)
@@ -336,10 +337,13 @@ function ChatBots(props) {
                                         onFail={(error) => {
                                             console.log('Login Failed!', error);
                                         }}
-                                        onProfileSuccess={async(response) => {
+                                        onProfileSuccess={(response) => {
                                             console.log('Get Profile Success!', response);
                                             setPerfil(response)
-                                            
+                                        }}
+                                        // siempre al inicio de sesion para que el usuario ponga la cuenta de facebook que quiere usar
+                                        onProfileFail={(error) => {
+                                            console.log('Get Profile Failed!', error);
                                         }}
                                         style={{
                                             backgroundColor: bot.channel_id === 8 ? "#e1306c" : "#3b5998",
