@@ -309,14 +309,18 @@ function ChatBots(props) {
                                 }
                             </select>
                         </div>
-                        <div className="form-group">
-                            <label htmlFor="tiempo">Nombre Bots</label>
-                            <input type="text" className="form-control" id="nombre_bot" placeholder="Nombre Bots"
-                                value={bot.nombre_bot}
-                                // el nombre del bot no puede tener espacios
-                                onChange={(e) => setBot({...bot, nombre_bot: e.target.value.replace(/\s/g, '')})}
-                            />
-                        </div>
+                        {
+                            bot.channel_id === 6 || bot.channel_id === 8 ? null : (
+                            <div className="form-group">
+                                <label htmlFor="tiempo">Nombre Bots</label>
+                                <input type="text" className="form-control" id="nombre_bot" placeholder="Nombre Bots"
+                                    value={bot.nombre_bot}
+                                    // el nombre del bot no puede tener espacios
+                                    onChange={(e) => setBot({...bot, nombre_bot: e.target.value.replace(/\s/g, '')})}
+                                />
+                            </div>
+                            )
+                        }
                         {
                             bot.channel_id === 6 || bot.channel_id === 8 ? (
                                 <>
@@ -337,10 +341,10 @@ function ChatBots(props) {
                                             
                                         }}
                                         style={{
-                                            backgroundColor: "#4267b2",
+                                            backgroundColor: bot.channel_id === 8 ? "#e1306c" : "#3b5998",
                                             color: "#fff",
                                             fontSize: "16px",
-                                            padding: "10px 10px",
+                                            padding: "5px 5px",
                                             border: "none",
                                             borderRadius: "4px",
                                             cursor: "pointer",
@@ -348,27 +352,35 @@ function ChatBots(props) {
                                             marginTop: "15px",
                                         }}
                                     >
-                                        <i className="fab fa-facebook-f"></i> Conectar con Facebook
+                                        {
+                                            bot.channel_id === 8 ? (
+                                                <>
+                                                    <i className="fab fa-instagram"></i> Conectar con Instagram
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <i className="fab fa-facebook-f"></i> Conectar con Facebook
+                                                </>
+                                            )
+
+                                        }
                                     </FacebookLogin>
                                 </>
-                                // <div className="form-group">
-                                //     <label htmlFor="mensaje">Pagina</label>
-                                //     <input className="form-control" id="pagina" rows="3"
-                                //         value={bot.pagina}
-                                //         onChange={(e) => setBot({...bot, pagina: e.target.value})}
-                                //     />
-                                // </div>
                             ) : null
                         }
-                        <div className="form-group">
-                            <label htmlFor="mensaje">Numero Telefono</label>
-                            <input className="form-control" id="numero_telefono"
-                                value={bot.numero_telefono}
-                                onChange={(e) => setBot({...bot, numero_telefono: e.target.value})}
-                            />
-                        </div>
                         {
-                            bot.channel_id === 3 || bot.channel_id === 8 || bot.channel_id === 6 ? (
+                            bot.channel_id === 6 || bot.channel_id === 8 ? null : (
+                                <div className="form-group">
+                                    <label htmlFor="mensaje">Numero Telefono</label>
+                                    <input className="form-control" id="numero_telefono"
+                                        value={bot.numero_telefono}
+                                        onChange={(e) => setBot({...bot, numero_telefono: e.target.value})}
+                                    />
+                                </div>
+                            )
+                        }
+                        {
+                            bot.channel_id === 3  ? (
                                 <div className="form-group">
                                     <label htmlFor="mensaje">Identificador</label>
                                     <input className="form-control" id="identificador"
@@ -390,7 +402,7 @@ function ChatBots(props) {
                             ) : null
                         }
                         {
-                            bot.channel_id === 8 || bot.channel_id === 6 || bot.channel_id === 3 ? (
+                            bot.channel_id === 3 ? (
                                 <div className="form-group">
                                     <label htmlFor="mensaje">Token Accesso</label>
                                     <input className="form-control" id="access_token"

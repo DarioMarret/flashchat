@@ -8,21 +8,22 @@ import { host, proxy } from "function/util/global";
 import moment from "moment";
 import { useEffect, useState } from "react";
 import {
-	Input,
-	Dropdown,
-	DropdownMenu,
-	DropdownToggle,
-	DropdownItem
+  Dropdown,
+  DropdownItem,
+  DropdownMenu,
+  DropdownToggle,
+  Input
 } from 'reactstrap';
 // import socket from "views/SocketIO";
-import io from "socket.io-client";
 import Picker from 'emoji-picker-react';
-import EmptyChat from "views/Components/emptyChat";
+import io from "socket.io-client";
+
 
 const socket = io.connect(String(host).replace(`/${proxy}/`, ""), {
-  path: `${proxy}/socket.io/socket.io.js`,
+  path: `/${proxy}/socket.io/socket.io.js`,
   transports: ["websocket"],
 });
+
 console.log("socket: ", socket);
 
 moment.locale("es");
@@ -52,6 +53,7 @@ export default function Mensajeria() {
         estado: null,
       });
       socket.on(`response_conversacion_${cuenta_id}`, (data) => {
+        console.log(`response_conversacion_${cuenta_id}:  `, data);
         let new_card = [];
         const covActiva = GetManejoConversacion();
         if (data.length > 0) {
@@ -107,48 +109,14 @@ export default function Mensajeria() {
             });
             resolve();
           });
-          // console.log("data: ",data);
-          // var exit = false
-          // let con = card_mensajes.map((item) => {
-          //     if(item.conversacion_id === data.conversacion_id && item.nombreunico === data.nombreunico) {
-          //         console.log("si esta el id_conversacion: ",{
-          //             ...item,
-          //             mensaje: data.mensajes,
-          //         });
-          //         exit = true
-          //         return {
-          //             ...item,
-          //             mensaje: data.mensajes,
-          //         }
-          //     }else{
-          //         return item
-          //     }
-          // })
-          // console.log("exit: ",exit);
-          // if(!exit) {
-          //     socket.emit('get_conversacion', {
-          //         cuenta_id: cuenta_id,
-          //         conversacion_id: data.conversacion_id,
-          //         nombreunico: data.nombreunico,
-          //     })
-          //     exit = false
-          // }else{
-          //     setCard_mensajes(con)
-          // }
         }
       });
 
       socket.on(`get_conversacion_activa_${cuenta_id}`, (msg) => {
         const { type, data, listMensajes } = msg;
-        if (
-          type === "response_get_conversacion_activa" &&
-          data.cuenta_id === cuenta_id &&
-          data.conversacion_id ===
-            JSON.parse(localStorage.getItem("conversacion_activa"))
-              .conversacion_id &&
-          data.nombreunico ===
-            JSON.parse(localStorage.getItem("conversacion_activa")).nombreunico
-        ) {
+        if ( type === "response_get_conversacion_activa" && data.cuenta_id === cuenta_id && 
+        data.conversacion_id === JSON.parse(localStorage.getItem("conversacion_activa")).conversacion_id && 
+        data.nombreunico === JSON.parse(localStorage.getItem("conversacion_activa")).nombreunico) {
           setConversacionActiva(listMensajes);
           console.log("listMensajes: ", listMensajes);
         }
@@ -171,9 +139,7 @@ export default function Mensajeria() {
 
   const ManejarConversacion = (item) => {
     console.log("item: ", item);
-    localStorage.setItem(
-      "conversacion_activa",
-      JSON.stringify({
+    localStorage.setItem("conversacion_activa",JSON.stringify({
         cuenta_id: GetTokenDecoded().cuenta_id,
         conversacion_id: item.conversacion_id,
         nombreunico: item.nombreunico,
@@ -242,45 +208,42 @@ export default function Mensajeria() {
   };
 
   const CompomenteMultimedis = (item) => {
-    if (item.mensajes.type === "text") {
+    if (item.type === "text") {
       return (
-        <pre data-id={item.mensajes.id || null} className="">
-          {String(item.mensajes.text)}
-        </pre>
+        <span  className="">
+          {String(item.text)}
+        </span>
       );
-    } else if (item.mensajes.type === "image") {
+    } else if (item.type === "image") {
       return (
         <img
-          src={item.mensajes.url}
+          src={item.url}
           alt="..."
           className="mr-3"
           width={250}
-          data-id={item.mensajes.id || null}
         />
       );
-    } else if (item.mensajes.type === "video") {
+    } else if (item.type === "video") {
       return (
         <video
-          src={item.mensajes.url}
+          src={item.url}
           alt="..."
           className="mr-3"
-          data-id={item.mensajes.id || null}
         />
       );
-    } else if (item.mensajes.type === "file") {
+    } else if (item.type === "file") {
       // preview del archivo
       return (
         <iframe
-          src={item.mensajes.url}
+          src={item.url}
           height="400px"
-          data-id={item.mensajes.id || null}
         ></iframe>
       );
-    } else if (item.mensajes.type == "audio") {
-      console.log("item.mensajes.url: ", item.mensajes.url);
+    } else if (item.type == "audio") {
+      console.log("item.mensajes.url: ", item.url);
       return (
         <audio controls>
-          <source src={item.mensajes.url} type="audio/ogg" />
+          <source src={item.url} type="audio/ogg" />
         </audio>
       );
     } else {
@@ -327,8 +290,7 @@ export default function Mensajeria() {
 
   return (
     <>
-			<div className="d-flex box-chat box-chat-container flex-column flex-md-row" 
-			style={{ margin: '0px', maxHeight: '80vh'}}>
+			<div className="d-flex box-chat box-chat-container flex-column flex-md-row" style={{ margin: '0px', maxHeight: '80vh'}}>
 				<div className="chat-list bg-chat rounded-start">
 					<div className="d-flex py-2 px-2 flex-wrap align-items-center justify-content-between">
 						<div className="">
@@ -363,7 +325,54 @@ export default function Mensajeria() {
 					</div>
 
 					<div className="w-100 py-2 px-2 d-flex flex-column gap-3 box-items-chat">
-						<div className="chat-item cursor-pointer rounded d-flex gap-2 align-items-center">
+            {
+              card_mensajes.map((item, index) => { 
+                return (
+                  <div key={index+1} className="chat-item cursor-pointer rounded d-flex gap-2 align-items-center"
+                    onClick={() => ManejarConversacion(item)}>
+                    <div className="w-25 rounded d-flex align-items-center justify-content-center">
+                      <img src={item.url_avatar} 
+                      className="rounded-circle"
+                      width="40px" height="40px"/>
+                    </div>
+
+                    <div className="w-75 p-1 d-flex flex-column">
+                      <div className="d-flex flex-row justify-content-between" 
+                      style={{ lineHeight: '15px'}}>
+                        <span className="w-100 text-dark font-bold">{item.name}</span>
+                        <small className="text-warning">{item.fecha}</small>
+                      </div>
+
+                      <div className="d-flex flex-row justify-content-between my-1">
+                        <small className="text-dark">{
+                          // limitar la cantidad de caracteres a mostrar
+                          item.mensaje.type === 'text' ? String(item.mensaje.text).length > 30 ? String(item.mensaje.text).substring(0, 30) + '...' : item.mensaje.text :
+                          // si es imagen o video mostrar el tipo de archivo
+                          item.mensaje.type === 'image' || item.mensaje.type === 'video' ? item.mensaje.type :
+                          // si es audio mostrar el nombre del archivo
+                          item.mensaje.type === 'audio' ? item.mensaje.type :
+                          // si es archivo mostrar el nombre del archivo
+                          item.mensaje.type === 'file' ? item.mensaje.type : null
+                        }</small>
+                        <div className="rounded-circle p-0 d-flex justify-content-center aligns-items-center bg-warning" 
+                        style={{ width: '24px', height: '24px'}}>1</div>
+                      </div>
+
+                      <div className="d-flex gap-2 flex-wrap">
+                        {
+                          item.etiqueta.map((et, index) => {
+                            return(
+                              <span key={index+1} className="chat-tag rounded bg-gray text-white">{et}</span>
+                            )
+                          })
+                        }
+                      </div>
+                    </div>
+                  </div>
+                )
+              })
+            }
+						{/* <div className="chat-item cursor-pointer rounded d-flex gap-2 align-items-center">
 							<div className="w-25 rounded d-flex align-items-center justify-content-center">
 								<img src="https://t4.ftcdn.net/jpg/03/46/93/61/360_F_346936114_RaxE6OQogebgAWTalE1myseY1Hbb5qPM.jpg" 
 								className="rounded-circle"
@@ -388,196 +397,8 @@ export default function Mensajeria() {
 									<span className="chat-tag rounded bg-gray text-white">Activo</span>
 								</div>
 							</div>
-						</div>
+						</div> */}
 
-						<div className="chat-item rounded cursor-pointer d-flex gap-2 align-items-center">
-							<div className="w-25 rounded d-flex align-items-center justify-content-center">
-								<img src="https://t4.ftcdn.net/jpg/03/46/93/61/360_F_346936114_RaxE6OQogebgAWTalE1myseY1Hbb5qPM.jpg" 
-								className="rounded-circle"
-								width="40px" height="40px"/>
-							</div>
-
-							<div className="w-75 p-1 d-flex flex-column">
-								<div className="d-flex flex-row justify-content-between" 
-								style={{ lineHeight: '15px'}}>
-									<span className="w-100 text-dark font-bold">Mi empresa</span>
-									<small className="text-warning">23:06</small>
-								</div>
-
-								<div className="d-flex flex-row justify-content-between my-1">
-									<small className="text-dark">Esto es un mensaje</small>
-									<div className="rounded-circle p-0 d-flex justify-content-center aligns-items-center bg-warning" 
-									style={{ width: '24px', height: '24px'}}>1</div>
-								</div>
-
-								<div className="d-flex gap-2 flex-wrap">
-									<span className="chat-tag rounded bg-gray text-white">Nuevo</span>
-									<span className="chat-tag rounded bg-gray text-white">Activo</span>
-								</div>
-							</div>
-						</div>
-
-						<div className="chat-item rounded cursor-pointer d-flex gap-2 align-items-center">
-							<div className="w-25 rounded d-flex align-items-center justify-content-center">
-								<img src="https://t4.ftcdn.net/jpg/03/46/93/61/360_F_346936114_RaxE6OQogebgAWTalE1myseY1Hbb5qPM.jpg" 
-								className="rounded-circle"
-								width="40px" height="40px"/>
-							</div>
-
-							<div className="w-75 p-1 d-flex flex-column">
-								<div className="d-flex flex-row justify-content-between" 
-								style={{ lineHeight: '15px'}}>
-									<span className="w-100 text-dark font-bold">Hola mundo</span>
-									<small className="text-warning">23:06</small>
-								</div>
-
-								<div className="d-flex flex-row justify-content-between my-1">
-									<small className="text-dark">Esto es un mensaje</small>
-									<div className="rounded-circle p-0 d-flex justify-content-center aligns-items-center bg-warning" 
-									style={{ width: '24px', height: '24px'}}>1</div>
-								</div>
-
-								<div className="d-flex gap-2 flex-wrap">
-									<span className="chat-tag rounded bg-gray text-white">Nuevo</span>
-									<span className="chat-tag rounded bg-gray text-white">Activo</span>
-								</div>
-							</div>
-						</div>
-
-						<div className="chat-item rounded cursor-pointer d-flex gap-2 align-items-center">
-							<div className="w-25 rounded d-flex align-items-center justify-content-center">
-								<img src="https://t4.ftcdn.net/jpg/03/46/93/61/360_F_346936114_RaxE6OQogebgAWTalE1myseY1Hbb5qPM.jpg" 
-								className="rounded-circle"
-								width="40px" height="40px"/>
-							</div>
-
-							<div className="w-75 p-1 d-flex flex-column">
-								<div className="d-flex flex-row justify-content-between" 
-								style={{ lineHeight: '15px'}}>
-									<span className="w-100 text-dark font-bold">Hola mundo</span>
-									<small className="text-warning">23:06</small>
-								</div>
-
-								<div className="d-flex flex-row justify-content-between my-1">
-									<small className="text-dark">Esto es un mensaje</small>
-									<div className="rounded-circle p-0 d-flex justify-content-center aligns-items-center bg-warning" 
-									style={{ width: '24px', height: '24px'}}>1</div>
-								</div>
-
-								<div className="d-flex gap-2 flex-wrap">
-									<span className="chat-tag rounded bg-gray text-white">Nuevo</span>
-									<span className="chat-tag rounded bg-gray text-white">Activo</span>
-								</div>
-							</div>
-						</div>
-
-            <div className="chat-item rounded cursor-pointer d-flex gap-2 align-items-center">
-							<div className="w-25 rounded d-flex align-items-center justify-content-center">
-								<img src="https://t4.ftcdn.net/jpg/03/46/93/61/360_F_346936114_RaxE6OQogebgAWTalE1myseY1Hbb5qPM.jpg" 
-								className="rounded-circle"
-								width="40px" height="40px"/>
-							</div>
-
-							<div className="w-75 p-1 d-flex flex-column">
-								<div className="d-flex flex-row justify-content-between" 
-								style={{ lineHeight: '15px'}}>
-									<span className="w-100 text-dark font-bold">Hola mundo</span>
-									<small className="text-warning">23:06</small>
-								</div>
-
-								<div className="d-flex flex-row justify-content-between my-1">
-									<small className="text-dark">Esto es un mensaje</small>
-									<div className="rounded-circle p-0 d-flex justify-content-center aligns-items-center bg-warning" 
-									style={{ width: '24px', height: '24px'}}>1</div>
-								</div>
-
-								<div className="d-flex gap-2 flex-wrap">
-									<span className="chat-tag rounded bg-gray text-white">Nuevo</span>
-									<span className="chat-tag rounded bg-gray text-white">Activo</span>
-								</div>
-							</div>
-						</div>
-
-            <div className="chat-item rounded cursor-pointer d-flex gap-2 align-items-center">
-							<div className="w-25 rounded d-flex align-items-center justify-content-center">
-								<img src="https://t4.ftcdn.net/jpg/03/46/93/61/360_F_346936114_RaxE6OQogebgAWTalE1myseY1Hbb5qPM.jpg" 
-								className="rounded-circle"
-								width="40px" height="40px"/>
-							</div>
-
-							<div className="w-75 p-1 d-flex flex-column">
-								<div className="d-flex flex-row justify-content-between" 
-								style={{ lineHeight: '15px'}}>
-									<span className="w-100 text-dark font-bold">Hola mundo</span>
-									<small className="text-warning">23:06</small>
-								</div>
-
-								<div className="d-flex flex-row justify-content-between my-1">
-									<small className="text-dark">Esto es un mensaje</small>
-									<div className="rounded-circle p-0 d-flex justify-content-center aligns-items-center bg-warning" 
-									style={{ width: '24px', height: '24px'}}>1</div>
-								</div>
-
-								<div className="d-flex gap-2 flex-wrap">
-									<span className="chat-tag rounded bg-gray text-white">Nuevo</span>
-									<span className="chat-tag rounded bg-gray text-white">Activo</span>
-								</div>
-							</div>
-						</div>
-
-            <div className="chat-item rounded cursor-pointer d-flex gap-2 align-items-center">
-							<div className="w-25 rounded d-flex align-items-center justify-content-center">
-								<img src="https://t4.ftcdn.net/jpg/03/46/93/61/360_F_346936114_RaxE6OQogebgAWTalE1myseY1Hbb5qPM.jpg" 
-								className="rounded-circle"
-								width="40px" height="40px"/>
-							</div>
-
-							<div className="w-75 p-1 d-flex flex-column">
-								<div className="d-flex flex-row justify-content-between" 
-								style={{ lineHeight: '15px'}}>
-									<span className="w-100 text-dark font-bold">Hola mundo</span>
-									<small className="text-warning">23:06</small>
-								</div>
-
-								<div className="d-flex flex-row justify-content-between my-1">
-									<small className="text-dark">Esto es un mensaje</small>
-									<div className="rounded-circle p-0 d-flex justify-content-center aligns-items-center bg-warning" 
-									style={{ width: '24px', height: '24px'}}>1</div>
-								</div>
-
-								<div className="d-flex gap-2 flex-wrap">
-									<span className="chat-tag rounded bg-gray text-white">Nuevo</span>
-									<span className="chat-tag rounded bg-gray text-white">Activo</span>
-								</div>
-							</div>
-						</div>
-
-            <div className="chat-item rounded cursor-pointer d-flex gap-2 align-items-center">
-							<div className="w-25 rounded d-flex align-items-center justify-content-center">
-								<img src="https://t4.ftcdn.net/jpg/03/46/93/61/360_F_346936114_RaxE6OQogebgAWTalE1myseY1Hbb5qPM.jpg" 
-								className="rounded-circle"
-								width="40px" height="40px"/>
-							</div>
-
-							<div className="w-75 p-1 d-flex flex-column">
-								<div className="d-flex flex-row justify-content-between" 
-								style={{ lineHeight: '15px'}}>
-									<span className="w-100 text-dark font-bold">Hola mundo</span>
-									<small className="text-warning">23:06</small>
-								</div>
-
-								<div className="d-flex flex-row justify-content-between my-1">
-									<small className="text-dark">Esto es un mensaje</small>
-									<div className="rounded-circle p-0 d-flex justify-content-center aligns-items-center bg-warning" 
-									style={{ width: '24px', height: '24px'}}>1</div>
-								</div>
-
-								<div className="d-flex gap-2 flex-wrap">
-									<span className="chat-tag rounded bg-gray text-white">Nuevo</span>
-									<span className="chat-tag rounded bg-gray text-white">Activo</span>
-								</div>
-							</div>
-						</div>
 					</div>
 				</div>
 
@@ -639,55 +460,49 @@ export default function Mensajeria() {
             {/* Chat conversation */}
             <div className="row chat-body">
               <div className="col-12">
-                <div className="w-100 my-3">
-                  <div className="w-50">
-                    <section className="w-fit d-flex flex-column px-3 py-2 rounded 
-                    chat-item-detail chat-receiver">
-                      <span>Esto es un mensaje tipo lorem inpsum, Esto es un mensaje tipo lorem inpsum, Esto es un mensaje tipo lorem inpsum</span>
-                      <small>10:17 pm</small>
-                      </section>
-                  </div>
-                </div>
-
-                <div className="w-100 my-3  d-flex justify-content-end">
-                  <div className="w-50 d-flex justify-content-end">
-                    <section className="border w-fit d-flex flex-column px-3 py-2 rounded 
-                    chat-item-detail chat-sender">
-                      <span>Yo envié este mensaje</span>
-                      <small>10:17 pm</small>
-                      </section>
-                  </div>
-                </div>
-
-                <div className="w-100 my-3">
-                  <div className="w-50">
-                    <section className="w-fit d-flex flex-column px-3 py-2 rounded 
-                    chat-item-detail chat-receiver">
-                      <span>Mensaje</span>
-                      <small>10:17 pm</small>
-                      </section>
-                  </div>
-                </div>
-
-                <div className="w-100 my-3  d-flex justify-content-end">
-                  <div className="w-50 d-flex justify-content-end">
-                    <section className="border w-fit d-flex flex-column px-3 py-2 rounded 
-                    chat-item-detail chat-sender">
-                      <span>Onde está ? </span>
-                      <small>10:17 pm</small>
-                      </section>
-                  </div>
-                </div>
-
-                <div className="w-100 my-3  d-flex justify-content-end">
-                  <div className="w-50 d-flex justify-content-end">
-                    <section className="border w-fit d-flex flex-column px-3 py-2 rounded 
-                    chat-item-detail chat-sender">
-                      <span>Onde está ? </span>
-                      <small>10:17 pm</small>
-                      </section>
-                  </div>
-                </div>
+                {
+                  conversacionActiva.map((item, index) => {
+                    if(item.tipo === 'ingoing'){
+                      return(
+                        <div key={index+1} className="w-100 my-3">
+                          <div className="w-50">
+                            <section className="w-fit d-flex flex-column px-3 py-2 rounded 
+                            chat-item-detail chat-receiver">
+                              <span>
+                                {CompomenteMultimedis(item.mensajes) }
+                              </span>
+                              <small>
+                                {
+                                  moment(item.createdAt) >= moment().subtract(1, "days") ?
+                                  moment(item.createdAt).format("hh:mm a") :
+                                  moment(item.createdAt).format("DD/MM/YYYY hh:mm a")
+                                }
+                              </small>
+                              </section>
+                          </div>
+                        </div>
+                      )
+                    }else{
+                      return(
+                        <div key={index+1} className="w-100 my-3  d-flex justify-content-end">
+                          <div className="w-50 d-flex justify-content-end">
+                            <section className="border w-fit d-flex flex-column px-3 py-2 rounded 
+                            chat-item-detail chat-sender">
+                              {CompomenteMultimedis(item.mensajes)}
+                              <small>
+                                {
+                                  moment(item.createdAt) >= moment().subtract(1, "days") ?
+                                  moment(item.createdAt).format("hh:mm a") :
+                                  moment(item.createdAt).format("DD/MM/YYYY hh:mm a")
+                                }
+                              </small>
+                              </section>
+                          </div>
+                        </div>
+                      )
+                    }
+                  })
+                }
               </div>
 
               <div className="col-12 picker-icon">
