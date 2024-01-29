@@ -13,12 +13,11 @@ import {
   DropdownItem,
   DropdownMenu,
   DropdownToggle,
-  Input
-} from 'reactstrap';
+  Input,
+} from "reactstrap";
 // import socket from "views/SocketIO";
-import Picker from 'emoji-picker-react';
+import Picker from "emoji-picker-react";
 import io from "socket.io-client";
-
 
 const socket = io.connect(String(host).replace(`/${proxy}/`, ""), {
   path: `/${proxy}/socket.io/socket.io.js`,
@@ -36,11 +35,11 @@ export default function Mensajeria() {
   const [newMensaje, setNewMensaje] = useState(null);
   const [convEstado, setConvEstado] = useState(null);
 
-  const [inputStr, setInputStr] = useState('');
+  const [inputStr, setInputStr] = useState("");
   const [showPicker, setShowPicker] = useState(false);
- 
+
   const onEmojiClick = (emojiObject, event) => {
-    setInputStr(prevInput => prevInput + emojiObject.emoji);
+    setInputStr((prevInput) => prevInput + emojiObject.emoji);
     setShowPicker(false);
   };
 
@@ -114,9 +113,15 @@ export default function Mensajeria() {
 
       socket.on(`get_conversacion_activa_${cuenta_id}`, (msg) => {
         const { type, data, listMensajes } = msg;
-        if ( type === "response_get_conversacion_activa" && data.cuenta_id === cuenta_id && 
-        data.conversacion_id === JSON.parse(localStorage.getItem("conversacion_activa")).conversacion_id && 
-        data.nombreunico === JSON.parse(localStorage.getItem("conversacion_activa")).nombreunico) {
+        if (
+          type === "response_get_conversacion_activa" &&
+          data.cuenta_id === cuenta_id &&
+          data.conversacion_id ===
+            JSON.parse(localStorage.getItem("conversacion_activa"))
+              .conversacion_id &&
+          data.nombreunico ===
+            JSON.parse(localStorage.getItem("conversacion_activa")).nombreunico
+        ) {
           setConversacionActiva(listMensajes);
           // console.log("listMensajes: ", listMensajes);
         }
@@ -139,7 +144,9 @@ export default function Mensajeria() {
 
   const ManejarConversacion = (item) => {
     console.log("item: ", item);
-    localStorage.setItem("conversacion_activa",JSON.stringify({
+    localStorage.setItem(
+      "conversacion_activa",
+      JSON.stringify({
         cuenta_id: GetTokenDecoded().cuenta_id,
         conversacion_id: item.conversacion_id,
         nombreunico: item.nombreunico,
@@ -209,36 +216,14 @@ export default function Mensajeria() {
 
   const CompomenteMultimedis = (item) => {
     if (item.type === "text") {
-      return (
-        <span  className="">
-          {String(item.text)}
-        </span>
-      );
+      return <span className="">{String(item.text)}</span>;
     } else if (item.type === "image") {
-      return (
-        <img
-          src={item.url}
-          alt="..."
-          className="mr-3"
-          width={250}
-        />
-      );
+      return <img src={item.url} alt="..." className="mr-3" width={250} />;
     } else if (item.type === "video") {
-      return (
-        <video
-          src={item.url}
-          alt="..."
-          className="mr-3"
-        />
-      );
+      return <video src={item.url} alt="..." className="mr-3" />;
     } else if (item.type === "file") {
       // preview del archivo
-      return (
-        <iframe
-          src={item.url}
-          height="400px"
-        ></iframe>
-      );
+      return <iframe src={item.url} height="400px"></iframe>;
     } else if (item.type == "audio") {
       console.log("item.mensajes.url: ", item.url);
       return (
@@ -282,7 +267,7 @@ export default function Mensajeria() {
     ListarEstados();
   }, []);
 
-	const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
   const toggle = () => setDropdownOpen((prevState) => !prevState);
 
   const [dropdownOpenTag, setDropdownOpenTag] = useState(false);
@@ -290,89 +275,122 @@ export default function Mensajeria() {
 
   return (
     <>
-			<div className="d-flex box-chat box-chat-container flex-column flex-md-row" style={{ margin: '0px', maxHeight: '80vh',   }}>
-				<div className="chat-list bg-chat rounded-start">
-					<div className="d-flex py-2 px-2 flex-wrap align-items-center justify-content-between">
-						<div className="">
-							<Input className="input-dark text-dark"
-								placeholder="Buscar chat"
-							/>
-						</div>
+      <div
+        className="d-flex box-chat box-chat-container flex-column flex-md-row"
+        style={{ margin: "0px", height: '100%' }}
+      >
+        <div className="chat-list bg-chat rounded-start">
+          <div className="d-flex py-2 px-2 flex-wrap align-items-center justify-content-between">
+            <div className="">
+              <Input
+                className="input-dark text-dark"
+                placeholder="Buscar chat"
+              />
+            </div>
 
-						<div className="d-flex">
-							<Dropdown isOpen={dropdownOpen} toggle={toggle} direction="down">
-								<DropdownToggle data-toggle="dropdown"tag="span" className="cursor-pointer">
-									<span class="material-symbols-outlined text-dark">
-										more_horiz
-									</span>
-								</DropdownToggle>
+            <div className="d-flex">
+              <Dropdown isOpen={dropdownOpen} toggle={toggle} direction="down">
+                <DropdownToggle
+                  data-toggle="dropdown"
+                  tag="span"
+                  className="cursor-pointer"
+                >
+                  <span class="material-symbols-outlined text-dark">
+                    more_horiz
+                  </span>
+                </DropdownToggle>
 
-								<DropdownMenu>
-									<DropdownItem className="d-flex align-items-center gap-2">
-										<span class="material-symbols-outlined">
-											all_inbox
-										</span>
-										<span>Mis Conversaciones</span>
-									</DropdownItem>
-									<DropdownItem className="d-flex align-items-center gap-2">
-										<span class="material-symbols-outlined">
-											mark_chat_unread
-										</span>
-										Sin leer</DropdownItem>
-								</DropdownMenu>
-							</Dropdown>
-						</div>
-					</div>
+                <DropdownMenu>
+                  <DropdownItem className="d-flex align-items-center gap-2">
+                    <span class="material-symbols-outlined">all_inbox</span>
+                    <span>Mis Conversaciones</span>
+                  </DropdownItem>
+                  <DropdownItem className="d-flex align-items-center gap-2">
+                    <span class="material-symbols-outlined">
+                      mark_chat_unread
+                    </span>
+                    Sin leer
+                  </DropdownItem>
+                </DropdownMenu>
+              </Dropdown>
+            </div>
+          </div>
 
-					<div className="w-100 py-2 px-2 d-flex flex-column gap-3 box-items-chat">
-            {
-              card_mensajes.map((item, index) => { 
-                return (
-                  <div key={index+1} className="chat-item cursor-pointer rounded d-flex gap-2 align-items-center"
-                    onClick={() => ManejarConversacion(item)}>
-                    <div className="w-25 rounded d-flex align-items-center justify-content-center">
-                      <img src={item.url_avatar} 
+          <div className="w-100 py-2 px-2 d-flex flex-column gap-3 box-items-chat">
+            {card_mensajes.map((item, index) => {
+              return (
+                <div
+                  key={index + 1}
+                  className="chat-item cursor-pointer rounded d-flex gap-2 align-items-center"
+                  onClick={() => ManejarConversacion(item)}
+                >
+                  <div className="w-25 rounded d-flex align-items-center justify-content-center">
+                    <img
+                      src={item.url_avatar}
                       className="rounded-circle"
-                      width="40px" height="40px"/>
+                      width="40px"
+                      height="40px"
+                    />
+                  </div>
+
+                  <div className="w-75 p-1 d-flex flex-column">
+                    <div
+                      className="d-flex flex-row justify-content-between"
+                      style={{ lineHeight: "15px" }}
+                    >
+                      <span className="w-100 text-dark font-bold">
+                        {item.name}
+                      </span>
+                      <small className="text-warning">{item.fecha}</small>
                     </div>
 
-                    <div className="w-75 p-1 d-flex flex-column">
-                      <div className="d-flex flex-row justify-content-between" 
-                      style={{ lineHeight: '15px'}}>
-                        <span className="w-100 text-dark font-bold">{item.name}</span>
-                        <small className="text-warning">{item.fecha}</small>
-                      </div>
-
-                      <div className="d-flex flex-row justify-content-between my-1">
-                        <small className="text-dark">{
-                          // limitar la cantidad de caracteres a mostrar
-                          item.mensaje.type === 'text' ? String(item.mensaje.text).length > 30 ? String(item.mensaje.text).substring(0, 30) + '...' : item.mensaje.text :
-                          // si es imagen o video mostrar el tipo de archivo
-                          item.mensaje.type === 'image' || item.mensaje.type === 'video' ? item.mensaje.type :
-                          // si es audio mostrar el nombre del archivo
-                          item.mensaje.type === 'audio' ? item.mensaje.type :
-                          // si es archivo mostrar el nombre del archivo
-                          item.mensaje.type === 'file' ? item.mensaje.type : null
-                        }</small>
-                        <div className="rounded-circle p-0 d-flex justify-content-center aligns-items-center bg-warning" 
-                        style={{ width: '24px', height: '24px'}}>1</div>
-                      </div>
-
-                      <div className="d-flex gap-2 flex-wrap">
+                    <div className="d-flex flex-row justify-content-between my-1">
+                      <small className="text-dark">
                         {
-                          item.etiqueta.map((et, index) => {
-                            return(
-                              <span key={index+1} className="chat-tag rounded bg-gray text-white">{et}</span>
-                            )
-                          })
+                          // limitar la cantidad de caracteres a mostrar
+                          item.mensaje.type === "text"
+                            ? String(item.mensaje.text).length > 30
+                              ? String(item.mensaje.text).substring(0, 30) +
+                                "..."
+                              : item.mensaje.text
+                            : // si es imagen o video mostrar el tipo de archivo
+                            item.mensaje.type === "image" ||
+                              item.mensaje.type === "video"
+                            ? item.mensaje.type
+                            : // si es audio mostrar el nombre del archivo
+                            item.mensaje.type === "audio"
+                            ? item.mensaje.type
+                            : // si es archivo mostrar el nombre del archivo
+                            item.mensaje.type === "file"
+                            ? item.mensaje.type
+                            : null
                         }
+                      </small>
+                      <div
+                        className="rounded-circle p-0 d-flex justify-content-center aligns-items-center bg-warning"
+                        style={{ width: "24px", height: "24px" }}
+                      >
+                        1
                       </div>
+                    </div>
+
+                    <div className="d-flex gap-2 flex-wrap">
+                      {item.etiqueta.map((et, index) => {
+                        return (
+                          <span
+                            key={index + 1}
+                            className="chat-tag rounded bg-gray text-white"
+                          >
+                            {et}
+                          </span>
+                        );
+                      })}
                     </div>
                   </div>
-                )
-              })
-            }
-						{/* <div className="chat-item cursor-pointer rounded d-flex gap-2 align-items-center">
+                </div>
+              );
+            })}
+            {/* <div className="chat-item cursor-pointer rounded d-flex gap-2 align-items-center">
 							<div className="w-25 rounded d-flex align-items-center justify-content-center">
 								<img src="https://t4.ftcdn.net/jpg/03/46/93/61/360_F_346936114_RaxE6OQogebgAWTalE1myseY1Hbb5qPM.jpg" 
 								className="rounded-circle"
@@ -398,38 +416,47 @@ export default function Mensajeria() {
 								</div>
 							</div>
 						</div> */}
+          </div>
+        </div>
 
-					</div>
-				</div>
-
-				<div className="chat-messages bg-white rounded-end">
-					{/* <EmptyChat/> */}
+        <div className="chat-messages bg-white rounded-end">
+          {/* <EmptyChat/> */}
           <div className="p-4 h-100 pt-2 pb-0">
             {/* Chat header */}
-            <div className="row rounded bg-chat d-flex" style={{ minHeight: '50px' }}>
+            <div
+              className="row rounded bg-chat d-flex"
+              style={{ minHeight: "50px" }}
+            >
               <div className="d-flex align-items-center gap-2 px-2 col-3">
                 <div className="rounded d-flex align-items-center justify-content-center">
-                  <img src={GetManejoConversacion() ? GetManejoConversacion().Contacto.avatar : null}  className="rounded-circle" width="40px" height="40px"/>
+                  <img
+                    src={
+                      GetManejoConversacion()
+                        ? GetManejoConversacion().Contacto.avatar
+                        : null
+                    }
+                    className="rounded-circle"
+                    width="40px"
+                    height="40px"
+                  />
                 </div>
 
                 <div className="d-flex align-items-center gap-2">
                   <span className="d-block font-bold chat-title d-flex">
-                    {
-                      GetManejoConversacion() ? GetManejoConversacion().Contacto.nombre : "Seleccione una conversación"
-                    }
+                    {GetManejoConversacion()
+                      ? GetManejoConversacion().Contacto.nombre
+                      : "Seleccione una conversación"}
                   </span>
-                  {
-                    GetManejoConversacion() ?
-                      <span className="d-block status-active"></span>
-                    : null
-                    
-                  }
+                  {GetManejoConversacion() ? (
+                    <span className="d-block status-active"></span>
+                  ) : null}
                 </div>
               </div>
 
               <div className="col-9 d-flex justify-content-end alig-items-center">
                 <div className="d-flex align-items-center gap-1">
-                  <Input className="input-dark text-dark"
+                  <Input
+                    className="input-dark text-dark"
                     placeholder="Buscar en conversación"
                   />
 
@@ -437,25 +464,32 @@ export default function Mensajeria() {
                     search
                   </span> */}
 
-                  <Dropdown isOpen={dropdownOpenTag} toggle={toggleTag} direction="down">
-                    <DropdownToggle data-toggle="dropdown"tag="span" className="cursor-pointer">
+                  <Dropdown
+                    isOpen={dropdownOpenTag}
+                    toggle={toggleTag}
+                    direction="down"
+                  >
+                    <DropdownToggle
+                      data-toggle="dropdown"
+                      tag="span"
+                      className="cursor-pointer"
+                    >
                       <span class="material-symbols-outlined text-dark">
                         more
                       </span>
                     </DropdownToggle>
 
                     <DropdownMenu>
-                      { estados.map((item, index) => {
-                          return(
-                            <DropdownItem className="d-flex align-items-center gap-2">
-                              <span class="material-symbols-outlined">
-                                all_inbox
-                              </span>
-                              <span>{item.estados}</span>
-                            </DropdownItem>
-                          )
-                        }) 
-                      }
+                      {estados.map((item, index) => {
+                        return (
+                          <DropdownItem className="d-flex align-items-center gap-2">
+                            <span class="material-symbols-outlined">
+                              all_inbox
+                            </span>
+                            <span>{item.estados}</span>
+                          </DropdownItem>
+                        );
+                      })}
                     </DropdownMenu>
                   </Dropdown>
                 </div>
@@ -467,72 +501,89 @@ export default function Mensajeria() {
             {/* Chat conversation */}
             <div className="row chat-body">
               <div className="col-12">
-                {
-                  conversacionActiva.map((item, index) => {
-                    if(item.tipo === 'ingoing'){
-                      return(
-                        <div key={index+1} className="w-100 my-3">
-                          <div className="w-50">
-                            <section className="w-fit d-flex flex-column px-3 py-2 rounded 
-                            chat-item-detail chat-receiver">
-                              <span>
-                                {CompomenteMultimedis(item.mensajes) }
-                              </span>
-                              <small>
-                                {
-                                  moment(item.createdAt) >= moment().subtract(1, "days") ?
-                                  moment(item.createdAt).format("hh:mm a") :
-                                  moment(item.createdAt).format("DD/MM/YYYY hh:mm a")
-                                }
-                              </small>
-                              </section>
-                          </div>
+                {conversacionActiva.map((item, index) => {
+                  if (item.tipo === "ingoing") {
+                    return (
+                      <div key={index + 1} className="w-100 my-3">
+                        <div className="w-50">
+                          <section
+                            className="w-fit d-flex flex-column px-3 py-2 rounded 
+                            chat-item-detail chat-receiver"
+                          >
+                            <span>{CompomenteMultimedis(item.mensajes)}</span>
+                            <small>
+                              {moment(item.createdAt) >=
+                              moment().subtract(1, "days")
+                                ? moment(item.createdAt).format("hh:mm a")
+                                : moment(item.createdAt).format(
+                                    "DD/MM/YYYY hh:mm a"
+                                  )}
+                            </small>
+                          </section>
                         </div>
-                      )
-                    }else{
-                      return(
-                        <div key={index+1} className="w-100 my-3  d-flex justify-content-end">
-                          <div className="w-50 d-flex justify-content-end">
-                            <section className="border w-fit d-flex flex-column px-3 py-2 rounded 
-                            chat-item-detail chat-sender">
-                              {CompomenteMultimedis(item.mensajes)}
-                              <small>
-                                {
-                                  moment(item.createdAt) >= moment().subtract(1, "days") ?
-                                  moment(item.createdAt).format("hh:mm a") :
-                                  moment(item.createdAt).format("DD/MM/YYYY hh:mm a")
-                                }
-                              </small>
-                              </section>
-                          </div>
+                      </div>
+                    );
+                  } else {
+                    return (
+                      <div
+                        key={index + 1}
+                        className="w-100 my-3  d-flex justify-content-end"
+                      >
+                        <div className="w-50 d-flex justify-content-end">
+                          <section
+                            className="border w-fit d-flex flex-column px-3 py-2 rounded 
+                            chat-item-detail chat-sender"
+                          >
+                            {CompomenteMultimedis(item.mensajes)}
+                            <small>
+                              {moment(item.createdAt) >=
+                              moment().subtract(1, "days")
+                                ? moment(item.createdAt).format("hh:mm a")
+                                : moment(item.createdAt).format(
+                                    "DD/MM/YYYY hh:mm a"
+                                  )}
+                            </small>
+                          </section>
                         </div>
-                      )
-                    }
-                  })
-                }
+                      </div>
+                    );
+                  }
+                })}
               </div>
 
               <div className="col-12 picker-icon">
-                { showPicker && <Picker
-                pickerStyle={{ width: '100%' }}
-                onEmojiClick={onEmojiClick} />}
+                {showPicker && (
+                  <Picker
+                    pickerStyle={{ width: "100%" }}
+                    onEmojiClick={onEmojiClick}
+                  />
+                )}
               </div>
             </div>
 
-            <div className="row rounded border-top d-flex align-items-center pt-2" style={{     minHeight: '50px' }}>
-
+            <div
+              className="row rounded border-top d-flex d-flex flex-column flex-md-row align-items-center pt-2"
+              style={{ minHeight: "50px" }}
+            >
               <div className="col-9 d-flex align-items-center py-1">
-                <textarea className="w-100 rounded border text-dark px-3 bg-chat chat-text py-1" 
-                cols={'2'} rows={'2'} 
-                placeholder="Escribir ..."
-                value={inputStr}
-                onChange={e => setInputStr(e.target.value)}></textarea>
+                <textarea
+                  className="w-100 rounded border text-dark px-3 bg-chat chat-text py-1"
+                  cols={"2"}
+                  rows={"2"}
+                  placeholder="Escribir ..."
+                  value={inputStr}
+                  onChange={(e) => setInputStr(e.target.value)}
+                ></textarea>
               </div>
 
-              <div className="col-3 d-flex gap-2 justify-content-end" 
-              style={{ zIndex: '400' }}>
-                <button className="btn-chat" 
-                onClick={() => setShowPicker(val => !val)} >
+              <div
+                className="col-3 d-flex gap-2 justify-content-end"
+                style={{ zIndex: "400" }}
+              >
+                <button
+                  className="btn-chat"
+                  onClick={() => setShowPicker((val) => !val)}
+                >
                   <span class="material-symbols-outlined">mood</span>
                 </button>
 
@@ -554,8 +605,8 @@ export default function Mensajeria() {
               </div>
             </div>
           </div>
-				</div>
-			</div>
-		</>
+        </div>
+      </div>
+    </>
   );
 }
