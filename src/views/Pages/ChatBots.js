@@ -237,7 +237,7 @@ function ChatBots(props) {
                             <Card.Body>
                                 <div className='d-flex justify-content-between align-items-start'>
                                     <div className='d-flex'>
-                                        <img src={InconBot(bot.channel_id, bot.url)} alt="" width={90}
+                                        <img src={InconBot(bot.channel_id, bot.url_perfil)} alt="" width={90}
                                         />
                                         <div className=''>
                                             <h5>{bot.nombre_bot}</h5>
