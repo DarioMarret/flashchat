@@ -53,7 +53,6 @@ export default function Mensajeria() {
         estado: null,
       });
       socket.on(`response_conversacion_${cuenta_id}`, (data) => {
-        console.log(`response_conversacion_${cuenta_id}:  `, data);
         let new_card = [];
         const covActiva = GetManejoConversacion();
         if (data.length > 0) {
@@ -118,7 +117,7 @@ export default function Mensajeria() {
         data.conversacion_id === JSON.parse(localStorage.getItem("conversacion_activa")).conversacion_id && 
         data.nombreunico === JSON.parse(localStorage.getItem("conversacion_activa")).nombreunico) {
           setConversacionActiva(listMensajes);
-          console.log("listMensajes: ", listMensajes);
+          // console.log("listMensajes: ", listMensajes);
         }
       });
     } catch (error) {
@@ -409,14 +408,23 @@ export default function Mensajeria() {
             <div className="row rounded bg-chat d-flex" style={{ minHeight: '50px' }}>
               <div className="d-flex align-items-center gap-2 px-2 col-3">
                 <div className="rounded d-flex align-items-center justify-content-center">
-                  <img src="https://t4.ftcdn.net/jpg/03/46/93/61/360_F_346936114_RaxE6OQogebgAWTalE1myseY1Hbb5qPM.jpg" 
+                  <img src={GetManejoConversacion() ? GetManejoConversacion().Contacto.avatar : null} 
                   className="rounded-circle"
                   width="40px" height="40px"/>
                 </div>
 
                 <div className="d-flex align-items-center gap-2">
-                  <span className="d-block font-bold chat-title d-flex">Jhon Dood</span>
-                  <span className="d-block status-active"></span>
+                  <span className="d-block font-bold chat-title d-flex">
+                    {
+                      GetManejoConversacion() ? GetManejoConversacion().Contacto.nombre : "Seleccione una conversación"
+                    }
+                  </span>
+                  {
+                    GetManejoConversacion() ?
+                      <span className="d-block status-active"></span>
+                    : null
+                    
+                  }
                 </div>
               </div>
 
