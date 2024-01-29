@@ -87,10 +87,10 @@ function Etiquetas(props) {
             <div className='d-flex justify-content-start mb-3'>
                 <button className="btn btn-dark active mr-2 w-25"
                     onClick={handleClose}
-                >Crear Etiquetas</button>
+                >Crear etiqueta</button>
             </div>
             <Card>
-                <table className="table table-bordered table-responsive">
+                <table className="table table-responsive">
                     <thead>
                         <tr
                             className='text-center text-white table-dark table-active'
@@ -134,7 +134,7 @@ function Etiquetas(props) {
                                                 {/* icono de editar */}
                                                 <a href="#" className="text-bark">
                                                     <i className="fas fa-edit
-                                                    text-warning
+                                                    text-dark
                                                     "></i>
                                                 </a>
                                             </button>
@@ -145,7 +145,7 @@ function Etiquetas(props) {
                                                 {/* icono de eliminar */}
                                                 <a href="#" className="text-bark">
                                                     <i className="fas fa-trash-alt 
-                                                    text-danger
+                                                    text-dark
                                                     "></i>
                                                 </a>
                                             </button>

@@ -131,7 +131,8 @@ const LoginPage =(props)=> {
                     <Button className="btn-wd w-100" type="submit" variant="dark"
                       onClick={Login}
                     >
-                      Login
+                      {/* en espanol */}
+                      Iniciar sesión 
                     </Button>
 
                     <div className="mt-2 d-flex flex-column justify-content-center align-items-center">

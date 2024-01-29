@@ -64,6 +64,23 @@ function Inactividad(props) {
         }
     }
 
+    const ActualizarInactividad = async (e) => {
+        e.preventDefault()
+        let url = host + 'inactividad'
+        let info = {
+            id: parseInt(inactividad.id),
+            description: inactividad.description,
+            tiempo: parseInt(inactividad.tiempo),
+            mensaje: inactividad.mensaje,
+            cuenta_id: parseInt(inactividad.cuenta_id)
+        }
+        const { status } = await axios.put(url, info)
+        if(status === 200){
+            ListarInactividad()
+            setShow(false)
+        }
+    }
+
     useEffect(() => {
         (async()=>{
             await ListarInactividad()
@@ -134,6 +151,7 @@ function Inactividad(props) {
                             <input type="text" className="form-control" id="description" placeholder="Descripción"
                                 value={inactividad.description}
                                 onChange={handleMensaje}
+                                disabled={true}
                             />
                         </div>
                         <div className="form-group">
@@ -141,6 +159,8 @@ function Inactividad(props) {
                             <input type="number" className="form-control" id="tiempo" placeholder="Tiempo"
                                 value={inactividad.tiempo}
                                 onChange={handleMensaje}
+                                min={5}
+                                max={1440}
                             />
                         </div>
                         <div className="form-group mb-3">
@@ -150,7 +170,9 @@ function Inactividad(props) {
                                 onChange={handleMensaje}
                             ></textarea>
                         </div>
-                        <button type="submit" className="btn btn-dark w-100">Guardar</button>
+                        <button type="submit" className="btn btn-dark w-100"
+                            onClick={(e)=>ActualizarInactividad(e)}
+                        >Guardar</button>
                     </form>
                 </Modal.Body>
             </Modal>

@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/alt-text */
 // react components used to create a calendar with events on it
 // dependency plugin for react-big-calendar
 // react component used to create alerts
@@ -408,9 +409,7 @@ export default function Mensajeria() {
             <div className="row rounded bg-chat d-flex" style={{ minHeight: '50px' }}>
               <div className="d-flex align-items-center gap-2 px-2 col-3">
                 <div className="rounded d-flex align-items-center justify-content-center">
-                  <img src={GetManejoConversacion() ? GetManejoConversacion().Contacto.avatar : null} 
-                  className="rounded-circle"
-                  width="40px" height="40px"/>
+                  <img src={GetManejoConversacion() ? GetManejoConversacion().Contacto.avatar : null}  className="rounded-circle" width="40px" height="40px"/>
                 </div>
 
                 <div className="d-flex align-items-center gap-2">

@@ -108,7 +108,7 @@ function Agentes(props) {
             <div className='d-flex justify-content-start mb-3'>
                 <button className="btn btn-dark ml-2"
                     onClick={handleClose}
-                >Crear Bots</button>
+                >Crear agente</button>
             </div>
             <Card>
 

@@ -208,6 +208,7 @@ function ChatBots(props) {
                 const { data, status } = await axios.post(`${host}webhookFConfig?cuenta_id=${GetTokenDecoded().cuenta_id}`, datos);
                 if (status === 200) {
                     console.log("response: ",data)
+                    setShow(!show);
                     return true
                 }else{
                     return false

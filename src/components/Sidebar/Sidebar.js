@@ -1,8 +1,10 @@
+import logo from "assets/img/favicon1.ico";
 import PropTypes from "prop-types";
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 
 // react-bootstrap components
+import { GetTokenDecoded } from "function/storeUsuario";
 import {
   Collapse,
   Nav
@@ -131,8 +133,9 @@ function Sidebar({ routes, image, background }) {
             >
               <div className="logo-img">
                 <img
-                  src={require("assets/img/logo.svg").default}
-                  alt="react-logo"
+                  src={logo}
+                  className="img-fluid rounded-circle"
+                  alt="logo"
                 />
               </div>
             </a>
@@ -145,7 +148,9 @@ function Sidebar({ routes, image, background }) {
           </div>
           <div className="user">
             <div className="photo">
-              <img alt="..." src={require("assets/img/default-avatar.png")} />
+              <img alt="..." src={
+                GetTokenDecoded() && GetTokenDecoded().avatar === "" ? require("assets/img/faces/face-0.jpg") : GetTokenDecoded().avatar
+                } />
             </div>
             <div className="info">
               <a
@@ -159,7 +164,8 @@ function Sidebar({ routes, image, background }) {
                 aria-expanded={userCollapseState}
               >
                 <span>
-                  Automatic <b className="caret"></b>
+                    {GetTokenDecoded() && GetTokenDecoded().nombre}
+                   <b className="caret"></b>
                 </span>
               </a>
               <Collapse id="collapseExample" in={userCollapseState}>
