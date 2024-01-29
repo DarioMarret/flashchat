@@ -82,8 +82,8 @@ const LoginPage =(props)=> {
               <Form action="" className="form" method="">
                 <Card className={"card-login background-backdrop" + cardClasses}>
                   <Card.Header>
-                    <h3 className="header text-center">Bienvenido a FlashChat</h3>
-                    <h4 className="header text-center">Login</h4>
+                    <h4 className="header text-center">Bienvenido</h4>
+                    <h3 className="header text-center font-bold">FlashChat</h3>
                     <hr/>
                   </Card.Header>
                     <Card.Body>
