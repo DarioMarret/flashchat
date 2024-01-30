@@ -15,7 +15,7 @@ function Etiquetas(props) {
     const [etiquetas, setEtiquetas] = useState([]);
     const [etiqueta, setEtiqueta] = useState({
         id: 0,
-        etiquetas: '',
+        etiqueta: '',
         color: '#'+Math.floor(Math.random()*16777215).toString(16),
         cuenta_id: GetTokenDecoded().cuenta_id
     });
@@ -29,7 +29,7 @@ function Etiquetas(props) {
         setShow(!show)
         setEtiqueta({
             id: 0,
-            etiquetas: '',
+            etiqueta: '',
             color: '#'+Math.floor(Math.random()*16777215).toString(16),
             cuenta_id: GetTokenDecoded().cuenta_id
         })
@@ -42,8 +42,12 @@ function Etiquetas(props) {
         }
     }
     const EditarEquipo = async (item) => {
-        console.log(item)
-        setEtiqueta(item)
+        setEtiqueta({
+            id: item.id,
+            etiqueta: item.etiquetas,
+            color: item.color,
+            cuenta_id: GetTokenDecoded().cuenta_id
+        })
         setShow(true)
     }
 
@@ -185,8 +189,8 @@ function Etiquetas(props) {
                         <Form.Group controlId="formBasicEmail">
                             <Form.Label>Etiqueta</Form.Label>
                             <Form.Control type="text" placeholder="Nombre del Equipo"
-                                name='etiquetas'
-                                value={etiqueta.etiquetas}
+                                name='etiqueta'
+                                value={etiqueta.etiqueta}
                                 onChange={handleEquipo}
                             />
                         </Form.Group>
