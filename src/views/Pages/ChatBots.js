@@ -257,7 +257,7 @@ function ChatBots(props) {
                                     </div>
                                     <div className='d-flex flex-column mx-x'>
                                         <button className="btn btn active mr-2"
-                                            onClick={() => window.open(`${bot.url}`, '_blank')}
+                                            onClick={() => window.open(`${bot.url}?cuenta_id=${bot.cuenta_id}`, '_blank')}
                                         >
                                             {/* icono de construir */}
                                             <i className="fas fa-cogs"></i>

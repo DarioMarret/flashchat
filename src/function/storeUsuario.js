@@ -1,5 +1,6 @@
+import axios from 'axios';
 import { DecodeJwt, DescryptCualquierDato } from "./util/ecrypt";
-import { usuario_token } from "./util/global";
+import { host, usuario_token } from "./util/global";
 
 
 export const GetToken = () => {
@@ -56,4 +57,17 @@ export function removeDatosUsuario() {
 export const RemoverConversacion = () => {
     localStorage.removeItem("conversacion_activa");
     return true;
+}
+
+export const SubirMedia = async (imagen) => {
+    const url = `${host}upload`;
+    const formData = new FormData();
+    formData.append("media", imagen);
+    const { data, status } = await axios.post(url, formData);
+    console.log(data);
+    if (status === 200) {
+        return data.url;
+    }else{
+        return null;
+    }
 }
