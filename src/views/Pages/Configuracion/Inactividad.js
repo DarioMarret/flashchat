@@ -60,7 +60,9 @@ function Inactividad(props) {
         let url = host + 'inactividad/'+GetTokenDecoded().cuenta_id
         const { data, status } = await axios.get(url)
         if(status === 200){
-            setInactividades(data)
+            // ordenar por tiempo menor a mayor
+            const inactividad = data.sort((a, b) => a.tiempo - b.tiempo)
+            setInactividades(inactividad)
         }
     }
 

@@ -98,7 +98,7 @@ function Equipos(props) {
 
     const EditarEquipo = async (id) => {
         let url = host + 'equipo/'+id
-        const { data, status } = await axios.put(url, equipo)
+        const { status } = await axios.put(url, equipo)
         if(status === 200){
             ListarEquipos()
             setShow(true)

@@ -161,8 +161,10 @@ function ChatBots(props) {
         if(id === 2) {
             return (
                 <div className='col'>
-                    <a href={`${host}session/?session=${nombreunico}`} target="_blank" rel="noreferrer">
-                        scanner qr
+                    <a href={`${host}session/index.html?session=${nombreunico}`} target="_blank" rel="noreferrer"
+                        className='btn btn active text-dark shadow-sm link py-1 '
+                    >
+                        Scanner qr
                     </a>
                     <p className={'ml-2 text-' + (estado === 'online' ? 'success' : 'danger')}>{estado}</p>
                 </div>
@@ -241,10 +243,10 @@ function ChatBots(props) {
                                     <div className='d-flex'>
                                         <img src={InconBot(bot.channel_id, bot.url_perfil)} alt="" width={90}
                                         />
-                                        <div className=''>
+                                        <div className='px-2'>
                                             <h5>{
                                                 String(bot.nombre_bot).length > 15 ? (
-                                                    String(bot.nombre_bot).substring(0, 15) + '...'
+                                                    String(bot.nombre_bot).substring(0, 10) + '...'
                                                 ) : (
                                                     bot.nombre_bot
                                                 )

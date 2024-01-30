@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { GetTokenDecoded } from 'function/storeUsuario';
+import { GetTokenDecoded, SubirMedia } from 'function/storeUsuario';
 import { host } from 'function/util/global';
 import { useEffect, useState } from 'react';
 import {
@@ -22,7 +22,7 @@ function Agentes(props) {
         avatar: '',
         correo: '',
         clave: '',
-        menu: {},
+        menu: [],
         contacto: '',
         perfil: '',
     })
@@ -86,6 +86,18 @@ function Agentes(props) {
         if (status === 200) {
             ListarAgentes()
             handleClose()
+        }
+    }
+    const CargarAvatar = async(file) => {
+        const url = await SubirMedia(file)
+        if(url !== null){
+            setAgente({
+                ...agente,
+                avatar: url
+            })
+            return url
+        }else{
+            return null
         }
     }
     const ActualizarAgente = async() => {
@@ -214,13 +226,20 @@ function Agentes(props) {
                         <Form.Group controlId="exampleForm.ControlInput1">
                             <Form.Label>Avatar</Form.Label>
                             <Form.Control type="file"
-                                onChange={(e) => setAgente({...agente, avatar: e.target.value})}
+                                accept="image/png, image/jpeg"
+                                onChange={(e) => CargarAvatar(e.target.files[0])}
                             />
                         </Form.Group>
                         <Form.Group controlId="exampleForm.ControlInput1">
                             <Form.Label>Correo</Form.Label>
                             <Form.Control type="email"
                                 onChange={(e) => setAgente({...agente, correo: e.target.value})}
+                            />
+                        </Form.Group>
+                        <Form.Group controlId="exampleForm.ControlInput1">
+                            <Form.Label>Contacto</Form.Label>
+                            <Form.Control type="text"
+                                onChange={(e) => setAgente({...agente, contacto: e.target.value})}
                             />
                         </Form.Group>
                         <Form.Group controlId="exampleForm.ControlInput1">

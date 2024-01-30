@@ -69,6 +69,7 @@ function Etiquetas(props) {
         e.preventDefault()
         let url = host + 'etiqueta'
         const { data, status } = await axios.post(url, etiqueta)
+        console.log(data)
         if(status === 200){
             ListarEtiquetas()
         }
@@ -205,12 +206,12 @@ function Etiquetas(props) {
                             <button 
                                 className='btn btn-dark active mr-2 w-100'
                             type="submit" onClick={(e)=>ActualizarEtiqueta(e)}>
-                                Actualizar
+                                Actualizar Etiqueta
                             </button>:
                             <button 
                                 className='btn btn-dark active mr-2 w-100'
                             type="submit" onClick={(e)=>CrearEquipo(e)}>
-                                Crear
+                                Crear Etiqueta
                             </button>
                         }
                     </Form>

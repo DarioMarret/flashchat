@@ -235,7 +235,7 @@ export default function Contactos (props) {
                                 <option value="">Seleccione</option>
                                 {
                                     canales.map((canal, index) => (
-                                        <option key={index} value={canal.id}>{canal.proveedor}</option>
+                                        <option key={index} value={parseInt(canal.id)}>{canal.proveedor}</option>
                                     ))
                                 }
                             </select>
