@@ -17,6 +17,7 @@ import {
 } from "reactstrap";
 // import socket from "views/SocketIO";
 import Picker from "emoji-picker-react";
+import { SubirMedia } from "function/storeUsuario";
 import io from "socket.io-client";
 
 const socket = io.connect(String(host).replace(`/${proxy}/`, ""), {
@@ -36,6 +37,7 @@ export default function Mensajeria() {
   const [convEstado, setConvEstado] = useState(null);
 
   const [inputStr, setInputStr] = useState("");
+  const [typeInput, setTypeInput] = useState("text");
   const [showPicker, setShowPicker] = useState(false);
 
   const onEmojiClick = (emojiObject, event) => {
@@ -142,6 +144,15 @@ export default function Mensajeria() {
     }
   };
 
+  const CargarAvatar = async(file) => {
+    const url = await SubirMedia(file)
+    if(url !== null){
+      setInputStr(url)
+      return url
+    }else{
+      return null
+    }
+  }
   const ManejarConversacion = (item) => {
     console.log("item: ", item);
     localStorage.setItem(
@@ -184,14 +195,14 @@ export default function Mensajeria() {
 
   const EnvianMensaje = (e) => {
     e.preventDefault();
-    console.log("newMensaje: ", newMensaje);
+    console.log("inputStr: ", inputStr);
     const covActiva = GetManejoConversacion();
     if (covActiva == null || covActiva.estado === "Eliminado") {
       alert("Seleccione una conversacion");
       return;
     }
-    if (newMensaje !== null || newMensaje !== "") {
-      console.log("e.target.value: ", newMensaje);
+    if (inputStr !== null || inputStr !== "") {
+      console.log("e.target.value: ", inputStr);
       let infoClient = {
         cuenta_id: GetTokenDecoded().cuenta_id,
         conversacion_id: covActiva.conversacion_id,
@@ -203,14 +214,16 @@ export default function Mensajeria() {
       };
       let mensaje = {
         id: random(),
-        text: newMensaje,
-        type: "text",
+        text: typeInput === "text" ? inputStr : null,
+        url: typeInput === "text" ? null : inputStr,
+        type: typeInput,
       };
       socket.emit("enviando_mensajes", {
         infoClient: infoClient,
         mensaje: mensaje,
       });
-      setNewMensaje("");
+      setInputStr("");
+      setTypeInput("text");
     }
   };
 
@@ -218,13 +231,53 @@ export default function Mensajeria() {
     if (item.type === "text") {
       return <span className="">{String(item.text)}</span>;
     } else if (item.type === "image") {
-      return <img src={item.url} alt="..." className="mr-3" width={250} />;
+      // cuando se haga click en la imagen se debe abrir en un modal
+      return (
+        <img
+          src={item.url}
+          alt="..."
+          className="mr-3"
+          width={250}
+          onClick={() => {
+            window.open(item.url, "_blank");
+          }}
+        />
+      );
     } else if (item.type === "video") {
-      return <video src={item.url} alt="..." className="mr-3" />;
+      return  (
+        <video controls width={250}>
+          <source src={item.url} type="video/mp4" />
+        </video>
+      )
+    } else if (item.type === "contact") {
+      return <span className="">{String(item.text)}</span>;
     } else if (item.type === "file") {
       // preview del archivo
-      return <iframe src={item.url} height="400px"></iframe>;
-    } else if (item.type == "audio") {
+      if(item.url.split('.').pop() === 'xlsx' || item.url.split('.').pop() === 'xls'){
+        // si es xlsx mostrar el icono de excel y cuando se haga click descargar el archivo
+        return (
+          <div className="d-flex gap-2">
+            <span class="material-symbols-outlined">insert_drive_file</span>
+            <a href={item.url} download>
+              {item.url.split('/').pop()}
+            </a>
+          </div>
+        )
+      // si es .json .exe .docx .doc .pptx .ppt .txt .zip .rar mostrar el icono de archivo y cuando se haga click descargar el archivo
+      }else if (item.url.split('.').pop() === 'json' || item.url.split('.').pop() === 'exe' || item.url.split('.').pop() === 'docx' || item.url.split('.').pop() === 'doc' || item.url.split('.').pop() === 'pptx' || item.url.split('.').pop() === 'ppt' || item.url.split('.').pop() === 'txt' || item.url.split('.').pop() === 'zip' || item.url.split('.').pop() === 'rar'){
+        return (
+          <div className="d-flex gap-2">
+            <span class="material-symbols-outlined">insert_drive_file</span>
+            <a href={item.url} download>
+              {item.url.split('/').pop()}
+            </a>
+          </div>
+        )
+      }else{
+        return <iframe src={item.url} height="400px"></iframe>;
+      }
+
+    } else if (item.type === "audio") {
       console.log("item.mensajes.url: ", item.url);
       return (
         <audio controls>
@@ -236,23 +289,24 @@ export default function Mensajeria() {
     }
   };
 
-  const ActualizarEstadoConversacion = (e) => {
+  const ActualizarEstadoConversacion = (estado) => {
+    console.log("e.target.value: ", estado);
     const covActiva = GetManejoConversacion();
     socket.emit("actualizar_estado_conversacion", {
       cuenta_id: GetTokenDecoded().cuenta_id,
       conversacion_id: covActiva.conversacion_id,
       nombreunico: covActiva.nombreunico,
-      estado: e.target.value,
+      estado: estado,
     });
     // actualizamos el estado en localstorage
     localStorage.setItem(
       "conversacion_activa",
       JSON.stringify({
         ...covActiva,
-        estado: e.target.value,
+        estado: estado,
       })
     );
-    setConvEstado(e.target.value);
+    setConvEstado(estado);
     setTimeout(() => {
       socket.emit("listar_conversacion", {
         cuenta_id: GetTokenDecoded().cuenta_id,
@@ -260,7 +314,7 @@ export default function Mensajeria() {
         agente_id: null,
         estado: null,
       });
-    }, 900);
+    }, 300);
   };
 
   useEffect(() => {
@@ -376,14 +430,16 @@ export default function Mensajeria() {
 
                     <div className="d-flex gap-2 flex-wrap">
                       {item.etiqueta.map((et, index) => {
-                        return (
-                          <span
-                            key={index + 1}
-                            className="chat-tag rounded bg-gray text-white"
-                          >
-                            {et}
-                          </span>
-                        );
+                        if(et !== null && et !== "" && et !== undefined){
+                          return (
+                            <span
+                              key={index + 1}
+                              className="chat-tag rounded bg-gray text-white"
+                            >
+                              {et}
+                            </span>
+                          );
+                        }
                       })}
                     </div>
                   </div>
@@ -482,7 +538,7 @@ export default function Mensajeria() {
                     <DropdownMenu>
                       {estados.map((item, index) => {
                         return (
-                          <DropdownItem className="d-flex align-items-center gap-2">
+                          <DropdownItem className="d-flex align-items-center gap-2" onClick={()=>ActualizarEstadoConversacion(item.estados)} >
                             <span class="material-symbols-outlined">
                               all_inbox
                             </span>
@@ -591,15 +647,41 @@ export default function Mensajeria() {
                   <span class="material-symbols-outlined">mic</span>
                 </button>
 
-                <button className="btn-chat">
+                <button className="btn-chat"
+                  onClick={() => {
+                    setTypeInput("image");
+                    document.getElementById("file").click();
+
+                  }}
+                >
+                  <input
+                    type="file"
+                    id="file"
+                    name="file"
+                    accept="image/*"
+                    style={{ display: "none" }}
+                    onChange={(e) => {
+                      CargarAvatar(e.target.files[0])
+                    }}
+                  />
                   <span class="material-symbols-outlined">image</span>
                 </button>
 
-                <button className="btn-chat">
+                <button className="btn-chat"
+                  onClick={() => {
+                    setTypeInput("file");
+                    document.getElementById("cualquiercosa").click();
+                  }}
+                >
+                  <input type="file" id="cualquiercosa" name="file" accept="*" style={{ display: "none" }}
+                    onChange={(e) => {
+                      CargarAvatar(e.target.files[0])
+                    }}
+                  />
                   <span class="material-symbols-outlined">attach_file</span>
                 </button>
 
-                <button className="btn-chat btn-chat-send d-flex align-items-center justify-content-center">
+                <button className="btn-chat btn-chat-send d-flex align-items-center justify-content-center" onClick={EnvianMensaje}>
                   <span class="material-symbols-outlined">send</span>
                 </button>
               </div>
