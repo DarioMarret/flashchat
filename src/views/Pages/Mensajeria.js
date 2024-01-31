@@ -46,21 +46,6 @@ export default function Mensajeria() {
   };
 
   useEffect(() => {
-    // Verificar si el navegador admite notificaciones
-    if ('Notification' in window) {
-      Notification.requestPermission().then((permission) => {
-          if (permission === 'granted') {
-              console.log('Permiso de notificación concedido.');
-              // Puedes mostrar notificaciones aquí
-          } else if (permission === 'denied') {
-              console.log('Permiso de notificación denegado.');
-          } else if (permission === 'default') {
-              console.log('El usuario cerró el cuadro de diálogo de permisos sin tomar ninguna acción.');
-          }
-      });
-    } else {
-      console.log('El navegador no admite notificaciones.');
-    }
     try {
       const cuenta_id = GetTokenDecoded().cuenta_id;
       socket.emit("listar_conversacion", {
@@ -103,17 +88,6 @@ export default function Mensajeria() {
                   conversacion_id: item.conversacion_id,
                   nombreunico: item.nombreunico,
                 })
-                // notificacion push del navegador
-                if (Notification.permission === "granted") {
-                  navigator.serviceWorker.getRegistration().then((reg) => {
-                    reg.showNotification("Nuevo mensaje", {
-                      body: item.mensajes.text,
-                      icon: item.Contactos.avatar,
-                      vibrate: [200, 100, 200, 100, 200, 100, 200],
-                      tag: "vibration-sample",
-                    });
-                  });
-                }
               }
             }
           });
