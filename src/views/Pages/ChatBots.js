@@ -337,7 +337,8 @@ function ChatBots(props) {
                                     <FacebookLogin
                                         appId="3176667395950990"
                                         fields="email,name,picture"
-                                        scope="email,public_profile,pages_show_list,pages_messaging,pages_read_engagement"
+                                        // que liste las paginas que tiene el usuario
+                                        scope="pages_show_list,email,public_profile,pages_messaging,pages_read_engagement"
                                         autoLoad={true}
                                         onSuccess={(response) => {
                                             // console.log('Login Success!', response);

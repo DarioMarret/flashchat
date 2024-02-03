@@ -40,6 +40,7 @@ function Masivos(props) {
             [e.target.name]: e.target.value,
         });
     }
+    
     const handleSelect = (item) => {
         if(item.target.value !== ''){
             let inf = JSON.parse(item.target.value)

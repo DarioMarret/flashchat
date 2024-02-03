@@ -198,7 +198,7 @@ export default function Mensajeria() {
       alert("Seleccione una conversacion");
       return;
     }
-    if (inputStr !== null || inputStr !== "") {
+    if (inputStr !== null && inputStr !== "") {
       console.log("e.target.value: ", inputStr);
       let infoClient = {
         cuenta_id: GetTokenDecoded().cuenta_id,
@@ -214,6 +214,7 @@ export default function Mensajeria() {
         text: typeInput === "text" ? inputStr : null,
         url: typeInput === "text" ? null : inputStr,
         type: typeInput,
+        parems: null,
       };
       socket.emit("enviando_mensajes", {
         infoClient: infoClient,
@@ -226,7 +227,9 @@ export default function Mensajeria() {
 
   const CompomenteMultimedis = (item) => {
     if (item.type === "text") {
-      return <span className="">{String(item.text)}</span>;
+      return <span
+      style={{ whiteSpace: "pre-wrap", wordWrap: "break-word"}}
+      >{String(item.text)}</span>;
     } else if (item.type === "image") {
       // cuando se haga click en la imagen se debe abrir en un modal
       return (
@@ -426,6 +429,7 @@ export default function Mensajeria() {
                     </div>
 
                     <div className="d-flex gap-2 flex-wrap">
+
                       {item.etiqueta.map((et, index) => {
                         if(et !== null && et !== "" && et !== undefined){
                           return (
@@ -606,10 +610,10 @@ export default function Mensajeria() {
 
               <div className="col-12 picker-icon">
                 {showPicker && (
-                  <Picker
-                    pickerStyle={{ width: "100%" }}
-                    onEmojiClick={onEmojiClick}
-                  />
+                    <Picker
+                      pickerStyle={{ width: "100%" }}
+                      onEmojiClick={onEmojiClick}
+                    />
                 )}
               </div>
             </div>
