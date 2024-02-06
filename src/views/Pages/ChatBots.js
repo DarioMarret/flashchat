@@ -176,8 +176,6 @@ function ChatBots(props) {
         }
     }
 
-
-
     const ActivaModalEditar = (item) => {
         setBot({
             id: item.id,
@@ -338,9 +336,11 @@ function ChatBots(props) {
                                 <>
                                     <FacebookLogin
                                         appId="3176667395950990"
-                                        fields="email,name,picture"
+                                        // obtener el identificador de la pagina
+                                        fields="email,name,picture,accounts"
                                         // que liste las paginas que tiene el usuario
-                                        scope="pages_show_list,email,public_profile,pages_messaging,pages_read_engagement"
+                                        // obtener el identificador de la pagina
+                                        scope="pages_show_list,email,public_profile,pages_messaging,pages_read_engagement,pages_manage_metadata"
                                         autoLoad={true}
                                         onSuccess={(response) => {
                                             // console.log('Login Success!', response);
@@ -524,7 +524,8 @@ function ChatBots(props) {
             </Modal>
           </Container>
         </>
-    );
+    )
+    
 }
 
 export default ChatBots;
