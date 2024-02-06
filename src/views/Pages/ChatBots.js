@@ -72,11 +72,13 @@ function ChatBots(props) {
             await SuccessSetuserFb()
         }else{
             const url = `${host}bots`;
-            const { data, status } = await axios.post(url, bot);
+            const { status } = await axios.post(url, bot);
             if (status === 200) {
                 ListarBots()
                 Limpiar()
                 setShow(!show);
+            }else{
+                alert('Error al generar el token de acceso')
             }
         }
     }

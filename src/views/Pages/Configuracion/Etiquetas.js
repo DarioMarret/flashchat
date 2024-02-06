@@ -63,7 +63,7 @@ function Etiquetas(props) {
 
     const EliminarEquipo = async (id) => {
         let url = host + 'etiqueta/'+id
-        const { data, status } = await axios.delete(url)
+        const { status } = await axios.delete(url)
         if(status === 200){
             ListarEtiquetas()
         }
@@ -72,8 +72,7 @@ function Etiquetas(props) {
     const CrearEquipo = async (e) => {
         e.preventDefault()
         let url = host + 'etiqueta'
-        const { data, status } = await axios.post(url, etiqueta)
-        console.log(data)
+        const { status } = await axios.post(url, etiqueta)
         if(status === 200){
             ListarEtiquetas()
         }

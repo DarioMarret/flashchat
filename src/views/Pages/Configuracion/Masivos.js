@@ -13,10 +13,14 @@ import {
 
 function Masivos(props) {
     const [show, setShow] = useState(false);
-    const handleClose = () => setShow(!show);
+    const handleClose = () => {
+        LimpiarEnvio()
+        setShow(!show)
+    }
     const [bots, setBots] = useState([]);
     const [masivos, setMasivos] = useState([]);
-    const [progresoFile, setProgresoFile] = useState(0);
+    const [progresoFile, setProgresoFile] = useState(0)
+
     const [envio, setEnvio] = useState({
         id: 0,
         cuenta_id: GetTokenDecoded().cuenta_id,
@@ -31,6 +35,8 @@ function Masivos(props) {
         parametros: [],
         estado: null,
         progreso: 0,
+        intervalo_entre: 10,
+        retardo_entre_msjs: 1000,
         updatedAt: null,
     });
 
@@ -68,6 +74,8 @@ function Masivos(props) {
             parametros: [],
             estado: null,
             progreso: 0,
+            intervalo_entre: 10,
+            retardo_entre_msjs: 1000,
             updatedAt: null,
         })
     }
@@ -181,34 +189,34 @@ function Masivos(props) {
                 {
                     masivos.map((item, index) => (
                         <Col key={index}
-                            className="mb-4 p-2 bg-white rounded shadow-sm"
+                            className="w-fit d-flex flex-column px-3 py-2 bg-white border rounded shadow-sm mb-3"
                             md="4"
                             sm="12"
                             lg="4"
                         >
-                            <Card.Header>
-                                <Card.Title as="h4">{item.nombre_bot}</Card.Title>
-                            </Card.Header>
                             <Card.Body>
                                 <Row>
-                                    <div className="">
-                                        <p>Fecha de envio: {item.fecha_envio}</p>
-                                        <p>Estado: {item.estado}</p>
-                                        <p>Attachment: </p>
+                                    <div className="w-fit d-flex flex-column px-3 py-2">
+                                        <span>Bot: {item.nombre_bot}</span>
+                                        <span>Campana: {item.titulo}</span>
+                                        <span>Fecha de envio: {item.fecha_envio}</span>
+                                        <span>Estado: {item.estado}</span>
+                                        <span>Progreso: {item.progreso}</span>
+                                        <span>Intervalo de envio: {item.intervalo_entre}</span>
+                                        <span>Retardo de envio entre mensajes: {item.retardo_entre_msjs}</span>
+                                        <span>Imgen: </span>
                                         <img key={index} src={item.imagen} alt='...' width={150} />
-                                        <p>Mensaje: </p>
-                                        <span
-                                            // que no se desborde el texto
-                                            className='d-block text-truncate'
-                                        >{item.mensaje}</span>
+                                        <span>Mensaje: </span>
+                                        <
+                                        >{item.mensaje.substring(0, 50)}...</>
                                     </div>
-                                    <div className="col-md-12 mt-2 w-100 d-flex justify-content-end align-items-center gap-2">
-                                        <button className="btn btn-dark ml-2"
+                                    <div className="w-fit d-flex flex-column px-3 py-2 ">
+                                        <button className="btn btn-dark "
                                             onClick={()=>handleEditar(item)}
                                         >
                                             <i className="fa fa-edit"></i>
                                         </button>
-                                        <button className="btn btn-danger ml-2"
+                                        <button className="btn btn-danger "
                                             onClick={()=>EliminarMasivo(item.id)}
                                         >
                                             <i className="fa fa-trash"></i>
@@ -263,6 +271,22 @@ function Masivos(props) {
                                     ))
                                 }
                             </select>
+                        </div>
+
+                        <div className="form-group">
+                            <label htmlFor="nombreunico">Intervalo de envio</label>
+                            <input type="number" className="form-control" id="intervalo_entre" placeholder="intervalo_entre" name='intervalo_entre'
+                                value={envio.intervalo_entre}
+                                onChange={handleEnvio}
+                            />
+                        </div>
+
+                        <div className="form-group">
+                            <label htmlFor="nombreunico">Retardo de envio entre mensajes</label>
+                            <input type="number" className="form-control" id="retardo_entre_msjs" placeholder="retardo_entre_msjs" name='retardo_entre_msjs'
+                                value={envio.retardo_entre_msjs}
+                                onChange={handleEnvio}
+                            />
                         </div>
 
                         <div className="form-group">

@@ -208,12 +208,12 @@ function Sidebar({ routes, image, background }) {
           </div>
           <Nav as="ul">{createLinks(routes)}</Nav>
         </div>
-        <div
+        {/* <div
           className="sidebar-background"
           style={{
             backgroundImage: "url('" + image + "')"
           }}
-        ></div>
+        ></div> */}
       </div>
     </>
   );
