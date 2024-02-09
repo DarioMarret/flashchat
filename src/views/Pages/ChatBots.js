@@ -17,6 +17,7 @@ import {
     Row
 } from 'react-bootstrap';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
+import Swal from 'sweetalert2';
 import socket from 'views/SocketIO';
 
 
@@ -33,6 +34,7 @@ function ChatBots(props) {
         estado: '',
         pagina: '',
         numero_telefono: '',
+        plantilla:'',
         identificador: '',
         IdWhatsAppBusiness: '',
         access_token: '',
@@ -43,12 +45,21 @@ function ChatBots(props) {
         url: '',
     });
     const [bots, setBots] = useState([]);
+    const [botPlantilla, setBotPlantilla] = useState([]);
     const [userFb, setUserFb] = useState(null);
     const [perfil, setPerfil] = useState(null);
 
     const handleClose = () => {
         setShow(!show);
         Limpiar();
+    }
+
+    const ListarPlantillaBot = async() => {
+        const url = `${host}bots_plantillas`;
+        const { data, status } = await axios.get(url);
+        if (status === 200) {
+            setBotPlantilla(data.data);
+        }
     }
 
     const ListarCanal = async() => {
@@ -74,36 +85,68 @@ function ChatBots(props) {
             const url = `${host}bots`;
             const { status } = await axios.post(url, bot);
             if (status === 200) {
-                ListarBots()
-                Limpiar()
                 setShow(!show);
+                Swal.fire({
+                    title: "Bot guardado",
+                    icon: "success",
+                    showConfirmButton: false,
+                    timer: 1500,
+                }).then(() => {
+                    ListarBots()
+                    Limpiar()
+                });
             }else{
-                alert('Error al generar el token de acceso')
+                Swal.fire({
+                    title: "Error al guardar el bot",
+                    icon: "error",
+                    showConfirmButton: false,
+                    timer: 1500,
+                })
             }
         }
     }
 
     const Actualizar = async() => {
         const url = `${host}bots/${bot.id}`;
-        const { data, status } = await axios.put(url, bot);
+        const { status } = await axios.put(url, bot);
         if (status === 200) {
+            setShow(!show);
+            Swal.fire({
+                title: "Bot actualizado",
+                icon: "success",
+                showConfirmButton: false,
+                timer: 1500,
+            });
             ListarBots()
             Limpiar()
-            setShow(!show);
         }
     }
 
     const EliminarBots = async(id) => {
-        const url = `${host}bots/${id}`;
-        const { data, status } = await axios.delete(url);
-        if (status === 200) {
-            ListarBots()
-        }
+        Swal.fire({
+            title:"¿Estas seguro de eliminar el bot?",
+            text: "No podras recuperar la informacion",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Si",
+            cancelButtonText: "No",
+        }).then(async(result) => {
+            if (result.isConfirmed) {
+                const url = `${host}bots/${id}`;
+                const { status } = await axios.delete(url);
+                if (status === 200) {
+                    ListarBots()
+                }
+            }
+        })
     }
 
     useEffect(() => {
-        ListarCanal();
-        ListarBots();
+        (async()=> {
+           await ListarCanal();
+           await ListarBots();
+           await ListarPlantillaBot();
+        })()
     }, []);
 
     const Limpiar = () => {
@@ -114,6 +157,7 @@ function ChatBots(props) {
             nombre_bot: '',
             pagina: '',
             numero_telefono: '',
+            plantilla:'',
             identificador: '',
             IdWhatsAppBusiness: '',
             nombreunico: '',
@@ -211,6 +255,12 @@ function ChatBots(props) {
                 if (status === 200) {
                     console.log("response: ",data)
                     setShow(!show);
+                    Swal.fire({
+                        title: "Bot guardado",
+                        icon: "success",
+                        showConfirmButton: false,
+                        timer: 1500,
+                    });
                     ListarBots()
                     return true
                 }else{
@@ -319,6 +369,21 @@ function ChatBots(props) {
                                 }
                             </select>
                         </div>
+                        <div className="form-group">
+                            <label htmlFor="description">Plantilla Bot</label>
+                            <select className="form-control" id="exampleFormControlSelect1"
+                                value={bot.plantilla}
+                                onChange={(e) => setBot({...bot, plantilla: e.target.value})}
+                                disabled={bot.id !== 0}
+                            >
+                                <option>Seleccione una plantilla</option>
+                                {
+                                    botPlantilla.map((item, index) => (
+                                        <option key={index} value={item.plantilla}>{item.plantilla}</option>
+                                    ))
+                                }
+                            </select>
+                        </div>
                         {
                             bot.channel_id === 6 || bot.channel_id === 8 ? null : (
                             <div className="form-group">
@@ -340,8 +405,7 @@ function ChatBots(props) {
                                         fields="email,name,picture,accounts"
                                         // que liste las paginas que tiene el usuario
                                         // obtener el identificador de la pagina
-                                        scope="pages_show_list,email,public_profile,pages_messaging,pages_manage_metadata,pages_messaging_subscriptions,
-                                        business_asset_user_profile_access,pages_user_gender,page_events"
+                                        scope="pages_show_list,email,public_profile,pages_messaging,pages_manage_metadata,pages_messaging_subscriptions,pages_user_gender,page_events"
                                         autoLoad={true}
                                         onSuccess={(response) => {
                                             // console.log('Login Success!', response);
