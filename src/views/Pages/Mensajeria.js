@@ -33,6 +33,21 @@ export default function Mensajeria() {
   const [card_mensajes, setCard_mensajes] = useState([]);
   const [conversacionActiva, setConversacionActiva] = useState([]);
   const [estados, setEstados] = useState([]);
+  const [misConversaciones, setMisConversaciones] = useState('Sin leer')
+  const [equipoUsuario , setEquipoUsuario] = useState({
+    correo: '',
+    estado: '',
+    nombre: '',
+    perfil: '',
+    cuenta: {
+      id: 0,
+      empresa: '',
+      estado: '',
+      limite_agentes: '',
+      limite_bots: '',
+    },
+    equipos:[]
+  });
   const [newMensaje, setNewMensaje] = useState(null);
   const [convEstado, setConvEstado] = useState(null);
 
@@ -46,6 +61,10 @@ export default function Mensajeria() {
   };
 
   useEffect(() => {
+    console.log("GetTokenDecoded(): ", GetTokenDecoded());
+  }, []);
+  
+  useEffect(() => {
     try {
       const cuenta_id = GetTokenDecoded().cuenta_id;
       socket.emit("listar_conversacion", {
@@ -55,39 +74,48 @@ export default function Mensajeria() {
         estado: null,
       });
       socket.on(`response_conversacion_${cuenta_id}`, (data) => {
+        setEquipoUsuario(GetTokenDecoded());
         let new_card = [];
+        let equipos = []
+        GetTokenDecoded().equipos.map((item) => {
+          equipos.push(item.id)
+        });
         const covActiva = GetManejoConversacion();
         if (data.length > 0) {
           data.map((item) => {
-            new_card.push({
-              id: item.id,
-              conversacion_id: item.conversacion_id,
-              name: item.Contactos.nombre,
-              Contactos: item.Contactos,
-              contacto_id: item.contacto_id,
-              channel_id: item.channel_id,
-              mensaje: item.mensajes,
-              equipo_id: item.equipo_id,
-              tipo: item.tipo,
-              estado: item.estado,
-              fecha:
-                moment(item.updatedAt) >= moment().subtract(1, "days")
-                  ? moment(item.updatedAt).format("hh:mm a")
-                  : moment(item.updatedAt).format("DD/MM/YYYY hh:mm a"),
-              url_avatar: item.Contactos.avatar,
-              proveedor: item.channel.proveedor,
-              active: true,
-              nombreunico: item.nombreunico,
-              etiqueta: item.etiquetas,
-              agente_id: item.agente_id,
-            });
-            if (covActiva) {
-              if (item.conversacion_id === covActiva.conversacion_id && item.nombreunico === covActiva.nombreunico) {
-                socket.emit("get_conversacion_activa", {
-                  cuenta_id: GetTokenDecoded().cuenta_id,
+            if(item.estado !== "Eliminado" && item.estado !== "Resuelta"){
+              if(equipos.includes(item.equipo_id)){
+                new_card.push({
+                  id: item.id,
                   conversacion_id: item.conversacion_id,
+                  name: item.Contactos.nombre,
+                  Contactos: item.Contactos,
+                  contacto_id: item.contacto_id,
+                  channel_id: item.channel_id,
+                  mensaje: item.mensajes,
+                  equipo_id: item.equipo_id,
+                  tipo: item.tipo,
+                  estado: item.estado,
+                  fecha:
+                    moment(item.updatedAt) >= moment().subtract(1, "days")
+                      ? moment(item.updatedAt).format("hh:mm a")
+                      : moment(item.updatedAt).format("DD/MM/YYYY hh:mm a"),
+                  url_avatar: item.Contactos.avatar,
+                  proveedor: item.channel.proveedor,
+                  active: true,
                   nombreunico: item.nombreunico,
+                  etiqueta: item.etiquetas,
+                  agente_id: item.agente_id,
                 })
+                if (covActiva) {
+                  if (item.conversacion_id === covActiva.conversacion_id && item.nombreunico === covActiva.nombreunico) {
+                    socket.emit("get_conversacion_activa", {
+                      cuenta_id: GetTokenDecoded().cuenta_id,
+                      conversacion_id: item.conversacion_id,
+                      nombreunico: item.nombreunico,
+                    })
+                  }
+                }
               }
             }
           });
@@ -348,6 +376,7 @@ export default function Mensajeria() {
                   data-toggle="dropdown"
                   tag="span"
                   className="cursor-pointer"
+                  
                 >
                   <span class="material-symbols-outlined text-dark">
                     more_horiz
@@ -355,11 +384,19 @@ export default function Mensajeria() {
                 </DropdownToggle>
 
                 <DropdownMenu>
-                  <DropdownItem className="d-flex align-items-center gap-2">
+                  <DropdownItem className="d-flex align-items-center gap-2"
+                    onClick={() => {
+                      setMisConversaciones('Mis Conversaciones')
+                    }}
+                  >
                     <span class="material-symbols-outlined">all_inbox</span>
                     <span>Mis Conversaciones</span>
                   </DropdownItem>
-                  <DropdownItem className="d-flex align-items-center gap-2">
+                  <DropdownItem className="d-flex align-items-center gap-2"
+                    onClick={() => {
+                      setMisConversaciones('Sin leer')
+                    }}
+                  >
                     <span class="material-symbols-outlined">
                       mark_chat_unread
                     </span>

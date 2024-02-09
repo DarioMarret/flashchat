@@ -2,9 +2,9 @@ import FacebookLogin from "@greatsumini/react-facebook-login";
 import d360 from 'assets/img/360.jpeg';
 import AI from 'assets/img/chatgpt.png';
 import cloud from 'assets/img/cloud.png';
+import QR from 'assets/img/codigo-qr-whatsapp.png';
 import gupshup from 'assets/img/gupshup.jpeg';
 import instagram from 'assets/img/instagram.jpeg';
-import QR from 'assets/img/qr.png';
 import telegram from 'assets/img/telegram.jpeg';
 import axios from 'axios';
 import { GetTokenDecoded } from 'function/storeUsuario';
@@ -23,7 +23,12 @@ import socket from 'views/SocketIO';
 
 function ChatBots(props) {
     const [show, setShow] = useState(false);
-    
+    const [opQr, setOpQr] = useState(false);
+    const [estadoQr, setEstadoQr] = useState({
+        estado: '',
+        nombreunico: '',
+    });
+    const [linkQr, setLinkQr] = useState('');
     const [canales, setCanales] = useState([]);
     const [bot, setBot] = useState({
         id: 0,
@@ -52,6 +57,9 @@ function ChatBots(props) {
     const handleClose = () => {
         setShow(!show);
         Limpiar();
+    }
+    const handleopQr = () => {
+        setOpQr(!opQr);
     }
 
     const ListarPlantillaBot = async() => {
@@ -203,22 +211,79 @@ function ChatBots(props) {
         })
     });
 
+    const OpenModalQr = (nombreunico, estado) => {
+        setEstadoQr({
+            estado: estado,
+            nombreunico: nombreunico,
+        })
+        handleopQr()
+    }
+
+    const reconnexionQr = (nombreunico) => {
+        Swal.fire({
+            title:"¿Estas seguro de reconectar el bot?",
+            text: "En este proceso se cerrara la sesion y se volvera a escanear el codigo QR",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Si",
+            cancelButtonText: "No",
+        }).then(async(result) => {
+            const url = `${host}reconectar/${nombreunico}`;
+            fetch(url)
+        })
+    }
+
     const ScannerQR = (id, nombreunico, estado) => {
         if(id === 2) {
             return (
-                <div className='col'>
-                    <a href={`${host}session/index.html?session=${nombreunico}`} target="_blank" rel="noreferrer"
-                        className='btn btn active text-dark shadow-sm link py-1 '
+                <>
+                    <button className="btn btn active mr-2"
+                        onClick={() =>OpenModalQr(nombreunico, estado)}
                     >
-                        Scanner qr
-                    </a>
-                    <p className={'ml-2 text-' + (estado === 'online' ? 'success' : 'danger')}>{estado}</p>
-                </div>
+                        <i className="fas fa-qrcode"></i>
+                    </button>
+                </>
             )
         }else{
             return null;
         }
     }
+    const EstadoSession = () => {
+        console.log(estadoQr)
+        if(estadoQr.estado && estadoQr.nombreunico){
+            fetch(`${host}/estado_session?sessionName=${estadoQr.nombreunico}`)
+            .then((res) => res.json())
+            .then((data) => {
+            if (data.status === 200) {
+                console.log(data)
+                setEstadoQr({
+                    estado: data.message,
+                    nombreunico: estadoQr.nombreunico,
+                })
+            }
+            });
+        }
+    };
+
+    const RecargarQr = () => {
+        console.log(estadoQr)
+        if(estadoQr.estado && estadoQr.nombreunico){
+            let linkQr = `${host}qr/${estadoQr.nombreunico}.png`;
+            setLinkQr(linkQr);
+        }
+    }
+
+    // quiero que RecargarQr se ejecunte cada 300 milisegundos mientra esta abiento el modal de qr
+
+    useEffect(() => {
+        if (opQr) {
+            const interval = setInterval(() => {
+                RecargarQr();
+                EstadoSession()
+            }, 500);
+            return () => clearInterval(interval);
+        }
+    }, [opQr]);
 
     const ActivaModalEditar = (item) => {
         setBot({
@@ -345,11 +410,12 @@ function ChatBots(props) {
                             <Modal.Title>Editar bot</Modal.Title>
                         )
                     }
-                    <button
-                        className='btn btn-dark active mr-2 w-10'
+                    <button 
+                        type="button"
+                        className='btn-dark mr-2 w-10'
                         onClick={handleClose}
                     >
-                        X
+                        <i className="fa fa-times"></i>
                     </button>
                 </Modal.Header>
                 <Modal.Body>
@@ -397,6 +463,7 @@ function ChatBots(props) {
                             )
                         }
                         {
+                            // si el canal es facebook o instagram
                             bot.channel_id === 6 || bot.channel_id === 8 ? (
                                 <>
                                     <FacebookLogin
@@ -585,6 +652,61 @@ function ChatBots(props) {
                         }
 
                     </form>
+                </Modal.Body>
+            </Modal>
+            <Modal
+                size='md'
+                show={opQr}
+                // onHide={()=>setPerfil(null)}
+                aria-labelledby="example-modal-sizes-title-lg"
+            >
+                <Modal.Header>
+                    <Modal.Title >
+                        Por favor scanne el codigo QR
+                    </Modal.Title>
+                    <button 
+                        type="button"
+                        className='btn-dark mr-2 w-10'
+                        onClick={handleopQr}
+                    >
+                        <i className="fa fa-times"></i>
+                    </button>
+                </Modal.Header>
+                <Modal.Body>
+                    <div className="form-group d-flex justify-content-center align-items-center">
+                        <p>Estado: <span className="text-success ">{
+                            estadoQr.estado
+                        }</span></p>
+                    </div>
+                        <div
+                            className="form-group d-flex justify-content-center align-items-center"
+                        >
+                            <div
+                                style={{
+                                    height: '347px',
+                                    width: '347px',
+                                    borderRadius: '5px',
+                                    border: '2px solid #fff',
+                                    boxShadow: '0 0 10px #000',
+                                }}
+                            >
+                                <img src={linkQr} alt="Qr"/>
+                            </div>
+                        </div>
+                    <div
+                        className="text-center m-2"
+                    >
+                        <span
+                            className="text-center text-muted small"
+                        >Escanea el codigo QR para iniciar sesion</span>
+                        <div>
+                            <button className="btn btn-dark active w-100 mt-3"
+                                onClick={() => {
+                                    reconnexionQr(estadoQr.nombreunico);
+                                }}
+                            >Volver a escanea el codigo QR</button>
+                       </div>
+                    </div>
                 </Modal.Body>
             </Modal>
           </Container>
