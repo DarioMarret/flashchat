@@ -142,15 +142,10 @@ export default function Mensajeria() {
         const { type, data, listMensajes } = msg;
         if (
           type === "response_get_conversacion_activa" &&
-          data.cuenta_id === cuenta_id &&
-          data.conversacion_id ===
-            JSON.parse(localStorage.getItem("conversacion_activa"))
-              .conversacion_id &&
-          data.nombreunico ===
-            JSON.parse(localStorage.getItem("conversacion_activa")).nombreunico
+          data.cuenta_id === cuenta_id && data.conversacion_id === JSON.parse(localStorage.getItem("conversacion_activa")).conversacion_id &&
+          data.nombreunico === JSON.parse(localStorage.getItem("conversacion_activa")).nombreunico
         ) {
           setConversacionActiva(listMensajes);
-          // console.log("listMensajes: ", listMensajes);
         }
       });
     } catch (error) {
@@ -213,6 +208,9 @@ export default function Mensajeria() {
       return null;
     }
   };
+  const DeletManejoConversacion = () => {
+    localStorage.removeItem("conversacion_activa");
+  }
 
   const random = () => {
     return Math.random().toString(36).substr(2);
@@ -220,14 +218,12 @@ export default function Mensajeria() {
 
   const EnvianMensaje = (e) => {
     e.preventDefault();
-    console.log("inputStr: ", inputStr);
     const covActiva = GetManejoConversacion();
     if (covActiva == null || covActiva.estado === "Eliminado") {
       alert("Seleccione una conversacion");
       return;
     }
     if (inputStr !== null && inputStr !== "") {
-      console.log("e.target.value: ", inputStr);
       let infoClient = {
         cuenta_id: GetTokenDecoded().cuenta_id,
         conversacion_id: covActiva.conversacion_id,
@@ -235,6 +231,7 @@ export default function Mensajeria() {
         channel_id: covActiva.channel_id,
         contacto_id: covActiva.contacto_id,
         agente_id: GetTokenDecoded().id,
+        updatedAt: new Date(),
         nombreunico: covActiva.nombreunico,
       };
       let mensaje = {
@@ -323,17 +320,17 @@ export default function Mensajeria() {
     socket.emit("actualizar_estado_conversacion", {
       cuenta_id: GetTokenDecoded().cuenta_id,
       conversacion_id: covActiva.conversacion_id,
+      contacto_id: covActiva.contacto_id,
       nombreunico: covActiva.nombreunico,
       estado: estado,
     });
     // actualizamos el estado en localstorage
-    localStorage.setItem(
-      "conversacion_activa",
-      JSON.stringify({
-        ...covActiva,
-        estado: estado,
-      })
-    );
+    if(estado === "Eliminado" || estado === "Resuelta"){
+      DeletManejoConversacion();
+    }else{
+      localStorage.setItem("conversacion_activa",JSON.stringify({...covActiva,estado: estado}));
+    }
+
     setConvEstado(estado);
     setTimeout(() => {
       socket.emit("listar_conversacion", {
@@ -368,6 +365,9 @@ export default function Mensajeria() {
                 className="input-dark text-dark"
                 placeholder="Buscar chat"
               />
+              <p className="m-2 mb-0">
+                {misConversaciones}
+              </p>
             </div>
 
             <div className="d-flex">
@@ -409,107 +409,159 @@ export default function Mensajeria() {
 
           <div className="w-100 py-2 px-2 d-flex flex-column gap-3 box-items-chat">
             {card_mensajes.map((item, index) => {
-              return (
-                <div
-                  key={index + 1}
-                  className="chat-item cursor-pointer rounded d-flex gap-2 align-items-center"
-                  onClick={() => ManejarConversacion(item)}
-                >
-                  <div className="w-25 rounded d-flex align-items-center justify-content-center">
-                    <img
-                      src={item.url_avatar}
-                      className="rounded-circle"
-                      width="40px"
-                      height="40px"
-                    />
-                  </div>
-
-                  <div className="w-75 p-1 d-flex flex-column">
-                    <div
-                      className="d-flex flex-row justify-content-between"
-                      style={{ lineHeight: "15px" }}
-                    >
-                      <span className="w-100 text-dark font-bold">
-                        {item.name}
-                      </span>
-                      <small className="text-warning">{item.fecha}</small>
+              if(misConversaciones === 'Sin leer' && item.agente_id === 0){
+                return (
+                  <div
+                    key={index + 1}
+                    className="chat-item cursor-pointer rounded d-flex gap-2 align-items-center"
+                    onClick={() => ManejarConversacion(item)}
+                  >
+                    <div className="w-25 rounded d-flex align-items-center justify-content-center">
+                      <img
+                        src={item.url_avatar}
+                        className="rounded-circle"
+                        width="40px"
+                        height="40px"
+                      />
                     </div>
 
-                    <div className="d-flex flex-row justify-content-between my-1">
-                      <small className="text-dark">
-                        {
-                          // limitar la cantidad de caracteres a mostrar
-                          item.mensaje.type === "text"
-                            ? String(item.mensaje.text).length > 30
-                              ? String(item.mensaje.text).substring(0, 30) +
-                                "..."
-                              : item.mensaje.text
-                            : // si es imagen o video mostrar el tipo de archivo
-                            item.mensaje.type === "image" ||
-                              item.mensaje.type === "video"
-                            ? item.mensaje.type
-                            : // si es audio mostrar el nombre del archivo
-                            item.mensaje.type === "audio"
-                            ? item.mensaje.type
-                            : // si es archivo mostrar el nombre del archivo
-                            item.mensaje.type === "file"
-                            ? item.mensaje.type
-                            : null
-                        }
-                      </small>
+                    <div className="w-75 p-1 d-flex flex-column">
                       <div
-                        className="rounded-circle p-0 d-flex justify-content-center aligns-items-center bg-warning"
-                        style={{ width: "24px", height: "24px" }}
+                        className="d-flex flex-row justify-content-between"
+                        style={{ lineHeight: "15px" }}
                       >
-                        1
+                        <span className="w-100 text-dark font-bold">
+                          {item.name}
+                        </span>
+                        <small className="text-warning">{item.fecha}</small>
+                      </div>
+
+                      <div className="d-flex flex-row justify-content-between my-1">
+                        <small className="text-dark">
+                          {
+                            // limitar la cantidad de caracteres a mostrar
+                            item.mensaje.type === "text"
+                              ? String(item.mensaje.text).length > 30
+                                ? String(item.mensaje.text).substring(0, 30) +
+                                  "..."
+                                : item.mensaje.text
+                              : // si es imagen o video mostrar el tipo de archivo
+                              item.mensaje.type === "image" ||
+                                item.mensaje.type === "video"
+                              ? item.mensaje.type
+                              : // si es audio mostrar el nombre del archivo
+                              item.mensaje.type === "audio"
+                              ? item.mensaje.type
+                              : // si es archivo mostrar el nombre del archivo
+                              item.mensaje.type === "file"
+                              ? item.mensaje.type
+                              : null
+                          }
+                        </small>
+                        <div
+                          className="rounded-circle p-0 d-flex justify-content-center aligns-items-center bg-warning"
+                          style={{ width: "24px", height: "24px" }}
+                        >
+                          1
+                        </div>
+                      </div>
+
+                      <div className="d-flex gap-2 flex-wrap">
+
+                        {item.etiqueta.map((et, index) => {
+                          if(et !== null && et !== "" && et !== undefined){
+                            return (
+                              <span
+                                key={index + 1}
+                                className="chat-tag rounded bg-gray text-white"
+                              >
+                                {et}
+                              </span>
+                            );
+                          }
+                        })}
                       </div>
                     </div>
+                  </div>
+                );
+              }else if(misConversaciones === 'Mis Conversaciones' && item.agente_id === GetTokenDecoded().id){
+                // se permite mostrar todas las conversaciones que tienen el agente_id igual al id del agente logueado
+                return (
+                  <div
+                    key={index + 1}
+                    className="chat-item cursor-pointer rounded d-flex gap-2 align-items-center"
+                    onClick={() => ManejarConversacion(item)}
+                  >
+                    <div className="w-25 rounded d-flex align-items-center justify-content-center">
+                      <img
+                        src={item.url_avatar}
+                        className="rounded-circle"
+                        width="40px"
+                        height="40px"
+                      />
+                    </div>
 
-                    <div className="d-flex gap-2 flex-wrap">
+                    <div className="w-75 p-1 d-flex flex-column">
+                      <div
+                        className="d-flex flex-row justify-content-between"
+                        style={{ lineHeight: "15px" }}
+                      >
+                        <span className="w-100 text-dark font-bold">
+                          {item.name}
+                        </span>
+                        <small className="text-warning">{item.fecha}</small>
+                      </div>
 
-                      {item.etiqueta.map((et, index) => {
-                        if(et !== null && et !== "" && et !== undefined){
-                          return (
-                            <span
-                              key={index + 1}
-                              className="chat-tag rounded bg-gray text-white"
-                            >
-                              {et}
-                            </span>
-                          );
-                        }
-                      })}
+                      <div className="d-flex flex-row justify-content-between my-1">
+                        <small className="text-dark">
+                          {
+                            // limitar la cantidad de caracteres a mostrar
+                            item.mensaje.type === "text"
+                              ? String(item.mensaje.text).length > 30
+                                ? String(item.mensaje.text).substring(0, 30) +
+                                  "..."
+                                : item.mensaje.text
+                              : // si es imagen o video mostrar el tipo de archivo
+                              item.mensaje.type === "image" ||
+                                item.mensaje.type === "video"
+                              ? item.mensaje.type
+                              : // si es audio mostrar el nombre del archivo
+                              item.mensaje.type === "audio"
+                              ? item.mensaje.type
+                              : // si es archivo mostrar el nombre del archivo
+                              item.mensaje.type === "file"
+                              ? item.mensaje.type
+                              : null
+                          }
+                        </small>
+                        <div
+                          className="rounded-circle p-0 d-flex justify-content-center aligns-items-center bg-warning"
+                          style={{ width: "24px", height: "24px" }}
+                        >
+                          1
+                        </div>
+                      </div>
+
+                      <div className="d-flex gap-2 flex-wrap">
+
+                        {item.etiqueta.map((et, index) => {
+                          if(et !== null && et !== "" && et !== undefined){
+                            return (
+                              <span
+                                key={index + 1}
+                                className="chat-tag rounded bg-gray text-white"
+                              >
+                                {et}
+                              </span>
+                            );
+                          }
+                        })}
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
+                );
+              }
             })}
-            {/* <div className="chat-item cursor-pointer rounded d-flex gap-2 align-items-center">
-							<div className="w-25 rounded d-flex align-items-center justify-content-center">
-								<img src="https://t4.ftcdn.net/jpg/03/46/93/61/360_F_346936114_RaxE6OQogebgAWTalE1myseY1Hbb5qPM.jpg" 
-								className="rounded-circle"
-								width="40px" height="40px"/>
-							</div>
-
-							<div className="w-75 p-1 d-flex flex-column">
-								<div className="d-flex flex-row justify-content-between" 
-								style={{ lineHeight: '15px'}}>
-									<span className="w-100 text-dark font-bold">Hola mundo</span>
-									<small className="text-warning">23:06</small>
-								</div>
-
-								<div className="d-flex flex-row justify-content-between my-1">
-									<small className="text-dark">Esto es un mensaje</small>
-									<div className="rounded-circle p-0 d-flex justify-content-center aligns-items-center bg-warning" 
-									style={{ width: '24px', height: '24px'}}>1</div>
-								</div>
-
-								<div className="d-flex gap-2 flex-wrap">
-									<span className="chat-tag rounded bg-gray text-white">Nuevo</span>
-									<span className="chat-tag rounded bg-gray text-white">Activo</span>
-								</div>
-							</div>
-						</div> */}
           </div>
         </div>
 
