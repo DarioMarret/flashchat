@@ -15,7 +15,7 @@ import Mensajeria from "views/Pages/Mensajeria";
 
 var routes = []
 
-if(GetTokenDecoded().perfil === "Administrador"){
+if(GetTokenDecoded() && GetTokenDecoded().perfil === "Administrador"){
   routes =  [
     {
       path: "/dashboard",
