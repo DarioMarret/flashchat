@@ -472,7 +472,7 @@ function ChatBots(props) {
                                         fields="email,name,picture,accounts"
                                         // que liste las paginas que tiene el usuario
                                         // obtener el identificador de la pagina
-                                        scope="pages_show_list,email,public_profile,pages_messaging,pages_manage_metadata,pages_messaging_subscriptions,pages_user_gender,page_events"
+                                        scope="pages_show_list,email,public_profile,pages_messaging,pages_manage_metadata,pages_messaging_subscriptions"
                                         autoLoad={true}
                                         onSuccess={(response) => {
                                             // console.log('Login Success!', response);

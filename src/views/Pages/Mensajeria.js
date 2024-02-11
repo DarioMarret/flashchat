@@ -156,6 +156,19 @@ export default function Mensajeria() {
     };
   }, [socket]);
 
+
+  const EmiittingMensaje = () => {
+    new Promise((resolve, reject) => {
+      socket.emit("listar_conversacion", {
+        cuenta_id: GetTokenDecoded().cuenta_id,
+        equipo_id: null,
+        agente_id: null,
+        estado: null,
+      });
+      resolve();
+    });
+  }
+
   const ListarEstados = async () => {
     const url = `${host}estados`;
     const { data, status } = await axios.get(url);
@@ -198,6 +211,7 @@ export default function Mensajeria() {
       agente_id: GetTokenDecoded().id,
       nombreunico: item.nombreunico,
     });
+    EmiittingMensaje();
   };
 
   const GetManejoConversacion = () => {
