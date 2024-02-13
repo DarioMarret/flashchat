@@ -140,11 +140,10 @@ export default function Mensajeria() {
 
       socket.on(`get_conversacion_activa_${cuenta_id}`, (msg) => {
         const { type, data, listMensajes } = msg;
-        if (
-          type === "response_get_conversacion_activa" &&
+        console.log("msg: ", msg);
+        if (type === "response_get_conversacion_activa" &&
           data.cuenta_id === cuenta_id && data.conversacion_id === JSON.parse(localStorage.getItem("conversacion_activa")).conversacion_id &&
-          data.nombreunico === JSON.parse(localStorage.getItem("conversacion_activa")).nombreunico
-        ) {
+          data.nombreunico === JSON.parse(localStorage.getItem("conversacion_activa")).nombreunico) {
           setConversacionActiva(listMensajes);
         }
       });
