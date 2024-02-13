@@ -266,6 +266,9 @@ export default function Mensajeria() {
 
   const CompomenteMultimedis = (item) => {
     console.log("CompomenteMultimedis_item: ", item);
+    if(item === null || item === undefined){
+      return null;
+    }
     if (item.type === "text") {
       return <span style={{ whiteSpace: "pre-wrap", wordWrap: "break-word"}} >{String(item.text)}</span>;
     } else if (item.type === "image") {
