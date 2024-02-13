@@ -265,10 +265,9 @@ export default function Mensajeria() {
   };
 
   const CompomenteMultimedis = (item) => {
+    console.log("CompomenteMultimedis_item: ", item);
     if (item.type === "text") {
-      return <span
-      style={{ whiteSpace: "pre-wrap", wordWrap: "break-word"}}
-      >{String(item.text)}</span>;
+      return <span style={{ whiteSpace: "pre-wrap", wordWrap: "break-word"}} >{String(item.text)}</span>;
     } else if (item.type === "image") {
       // cuando se haga click en la imagen se debe abrir en un modal
       return (
