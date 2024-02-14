@@ -14,7 +14,6 @@ import LoginPage from "views/Pages/LoginPage";
 import Mensajeria from "views/Pages/Mensajeria";
 
 var routes = []
-
 if(GetTokenDecoded() && GetTokenDecoded().perfil === "Administrador"){
   routes =  [
     {
@@ -358,7 +357,5 @@ if(GetTokenDecoded() && GetTokenDecoded().perfil === "Administrador"){
     },
   ];
 }
-  
-
 
 export default routes;

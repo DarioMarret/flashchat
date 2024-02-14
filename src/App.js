@@ -1,4 +1,3 @@
-import FixedPlugin from "components/FixedPlugin/FixedPlugin";
 // import AdminFooter from "components/Footers/AdminFooter";
 import AdminNavbar from "components/Navbars/AdminNavbar";
 
@@ -9,10 +8,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Navigate, Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import routes from "routes";
 
-import image1 from "assets/img/full-screen-image-1.jpg";
-import image2 from "assets/img/full-screen-image-2.jpg";
 import image3 from "assets/img/full-screen-image-3.jpg";
-import image4 from "assets/img/full-screen-image-4.jpg";
 import { RemoverConversacion } from "function/storeUsuario";
 import Dashboard from "views/Dashboard";
 import ChatBots from "views/Pages/ChatBots";
@@ -28,7 +24,7 @@ import Contactos from "views/Pages/Contactos";
 import Mensajeria from "views/Pages/Mensajeria";
 import Auths from "views/Pages/auth/Auths";
 
-import style from "./assets/css/style.css";
+import "./assets/css/style.css";
 
 export default function App() {
   const [auth, setAuth] = useState(undefined);
@@ -50,13 +46,15 @@ export default function App() {
 
   const login = (user) => {
     setAuth(user);
-  };
+  }
+
   const logout = () => {
     removeDatosUsuario();
     RemoverConversacion();
     setAuth(null);
     setReloadUser(true);
-  };
+  }
+
   const authData = useMemo(
     () => ({
       auth,
@@ -65,12 +63,19 @@ export default function App() {
       setReloadUser,
     }),
     [auth]
-  );
+  )
+
   if (auth === undefined) return null;
   return (
     <AuthContext.Provider value={authData}>
       <Router>
-        {auth ? (
+        {!auth ? (
+            <>
+              <div className="wrapper wrapper-full-page">
+                <Auths />
+              </div>
+            </>
+        ) : (
           <>
             <div className="wrapper">
               <Sidebar routes={routes} image={sidebarImage} background={sidebarBackground} />
@@ -158,15 +163,7 @@ export default function App() {
               }
             /> */}
           </>
-        ) : (
-          <>
-            <div className="wrapper wrapper-full-page">
-              {/* <AuthNavbar /> */}
-              <Auths />
-              {/* <RegisterPage /> */}
-              {/* <AuthFooter /> */}
-            </div>
-          </>
+
         )}
       </Router>
     </AuthContext.Provider>

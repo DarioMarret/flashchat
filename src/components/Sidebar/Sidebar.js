@@ -122,9 +122,12 @@ function Sidebar({ routes, image, background }) {
     return location.pathname === routeName ? "active" : "";
   }
 
+
   return (
     <>
-      <div className="sidebar" data-color={background} data-image={image}>
+      <div className="sidebar"
+      data-color={background}
+      data-image={image}>
         <div className="sidebar-wrapper">
           <div className="logo">
             <a
