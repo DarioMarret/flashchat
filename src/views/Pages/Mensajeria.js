@@ -276,6 +276,7 @@ export default function Mensajeria() {
       });
       setInputStr("");
       setTypeInput("text");
+      EmiittingMensaje();
     }
   };
 
