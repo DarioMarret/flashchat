@@ -280,6 +280,29 @@ export default function Mensajeria() {
           return
         }
       })
+    }else{
+      localStorage.setItem("conversacion_activa", JSON.stringify({
+        cuenta_id: GetTokenDecoded().cuenta_id,
+        conversacion_id: item.conversacion_id,
+        nombreunico: item.nombreunico,
+        equipo_id: item.equipo_id,
+        channel_id: item.channel_id,
+        contacto_id: item.contacto_id,
+        estado: item.estado,
+        Contacto: item.Contactos,
+      })
+    );
+    setConvEstado(item.estado);
+    socket.emit("get_conversacion_activa", {
+      cuenta_id: GetTokenDecoded().cuenta_id,
+      conversacion_id: item.conversacion_id,
+      equipo_id: item.equipo_id,
+      channel_id: item.channel_id,
+      contacto_id: item.contacto_id,
+      agente_id: GetTokenDecoded().id,
+      nombreunico: item.nombreunico,
+    });
+    EmiittingMensaje();
     }
   };
 
