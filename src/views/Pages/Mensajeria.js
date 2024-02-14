@@ -15,6 +15,7 @@ import {
   DropdownToggle,
   Input,
 } from "reactstrap";
+import Swal from 'sweetalert2';
 // import socket from "views/SocketIO";
 import Picker from "emoji-picker-react";
 import { SubirMedia } from "function/storeUsuario";
@@ -241,29 +242,45 @@ export default function Mensajeria() {
     }
   }
   const ManejarConversacion = (item) => {
-    console.log("item: ", item);
-    localStorage.setItem("conversacion_activa", JSON.stringify({
-        cuenta_id: GetTokenDecoded().cuenta_id,
-        conversacion_id: item.conversacion_id,
-        nombreunico: item.nombreunico,
-        equipo_id: item.equipo_id,
-        channel_id: item.channel_id,
-        contacto_id: item.contacto_id,
-        estado: item.estado,
-        Contacto: item.Contactos,
+    if(misConversaciones === 'Todas' && item.agente_id !== 0){
+      Swal.fire({
+        title: 'Conversación en curso',
+        text: 'Esta conversación ya está siendo atendida por el agente *' + NombreAgente(item.agente_id)+'*',
+        html: 'Esta conversación ya está siendo atendida por el agente <b className="w-100 text-dark font-bold">' + NombreAgente(item.agente_id)+'</b>',
+        icon: 'info',
+        confirmButtonText: 'Tomar la conversación',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+      }).then((result) => {
+        if (result.isConfirmed) {
+            localStorage.setItem("conversacion_activa", JSON.stringify({
+              cuenta_id: GetTokenDecoded().cuenta_id,
+              conversacion_id: item.conversacion_id,
+              nombreunico: item.nombreunico,
+              equipo_id: item.equipo_id,
+              channel_id: item.channel_id,
+              contacto_id: item.contacto_id,
+              estado: item.estado,
+              Contacto: item.Contactos,
+            })
+          );
+          setConvEstado(item.estado);
+          socket.emit("get_conversacion_activa", {
+            cuenta_id: GetTokenDecoded().cuenta_id,
+            conversacion_id: item.conversacion_id,
+            equipo_id: item.equipo_id,
+            channel_id: item.channel_id,
+            contacto_id: item.contacto_id,
+            agente_id: GetTokenDecoded().id,
+            nombreunico: item.nombreunico,
+          });
+          EmiittingMensaje();
+        }else{
+          return
+        }
       })
-    );
-    setConvEstado(item.estado);
-    socket.emit("get_conversacion_activa", {
-      cuenta_id: GetTokenDecoded().cuenta_id,
-      conversacion_id: item.conversacion_id,
-      equipo_id: item.equipo_id,
-      channel_id: item.channel_id,
-      contacto_id: item.contacto_id,
-      agente_id: GetTokenDecoded().id,
-      nombreunico: item.nombreunico,
-    });
-    EmiittingMensaje();
+    }
   };
 
   const GetManejoConversacion = () => {
@@ -704,7 +721,6 @@ export default function Mensajeria() {
                       </div>
 
                       <div className="d-flex gap-2 flex-wrap">
-
                         {item.etiqueta.map((et, index) => {
                           if(et !== null && et !== "" && et !== undefined){
                             return (
