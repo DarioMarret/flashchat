@@ -59,6 +59,7 @@ export default function Mensajeria() {
   });
   const [newMensaje, setNewMensaje] = useState(null);
   const [convEstado, setConvEstado] = useState(null);
+  const [agentes, setAgentes] = useState([]);
 
   const [inputStr, setInputStr] = useState("");
   const [typeInput, setTypeInput] = useState("text");
@@ -68,10 +69,36 @@ export default function Mensajeria() {
     setInputStr((prevInput) => prevInput + emojiObject.emoji);
     setShowPicker(false);
   };
+  const ListarAgentes = async() => {
+    const url = `${host}agentes/${GetTokenDecoded().cuenta_id}`
+    const { data, status } = await axios.get(url)
+    if (status === 200) {
+        let ag = []
+        data.data.map((agente, index) => {
+            ag.push({
+              id: agente.id,
+              cuenta_id: agente.cuenta_id,
+              nombre: agente.nombre,
+            })
+        })
+        setAgentes(ag)
+    }else{
+      setAgentes([])
+    }
+  }
+
+  const NombreAgente = (id) => {
+    let nombre = agentes.filter((item) => item.id === id)
+    if(nombre.length > 0){
+      return nombre[0].nombre
+    }else{
+      return "Sin agente"
+    }
+  }
 
   useEffect(() => {
-    console.log("GetTokenDecoded(): ", GetTokenDecoded());
     GetMisConversaciones()
+    ListarAgentes()
   }, []);
 
   const VerConversaciones = (item) => {
@@ -625,7 +652,7 @@ export default function Mensajeria() {
                     className="chat-item cursor-pointer rounded d-flex gap-2 align-items-center"
                     onClick={() => ManejarConversacion(item)}
                   >
-                    <div className="w-25 rounded d-flex align-items-center justify-content-center">
+                    <div className="w-25 rounded d-flex align-items-center justify-content-center ">
                       <img
                         src={item.url_avatar}
                         className="rounded-circle"
@@ -633,6 +660,7 @@ export default function Mensajeria() {
                         height="40px"
                       />
                     </div>
+
 
                     <div className="w-75 p-1 d-flex flex-column">
                       <div
@@ -689,6 +717,11 @@ export default function Mensajeria() {
                             );
                           }
                         })}
+                      <span className="w-20 text-dark font-bold"
+                        style={{ fontSize: "12px" }}
+                      >
+                       Ag: {NombreAgente(item.agente_id)}
+                      </span>
                       </div>
 
                     </div>
