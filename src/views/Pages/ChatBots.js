@@ -32,7 +32,7 @@ function ChatBots(props) {
     const [canales, setCanales] = useState([]);
     const [bot, setBot] = useState({
         id: 0,
-        cuenta_id: 1,
+        cuenta_id: GetTokenDecoded().cuenta_id,
         channel_id: 0,
         nombre_bot: '',
         nombreunico: '',
