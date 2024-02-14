@@ -160,7 +160,7 @@ function ChatBots(props) {
     const Limpiar = () => {
         setBot({
             id: 0,
-            cuenta_id: 1,
+            cuenta_id: GetTokenDecoded().cuenta_id,
             channel_id: 0,
             nombre_bot: '',
             pagina: '',
@@ -249,13 +249,11 @@ function ChatBots(props) {
         }
     }
     const EstadoSession = () => {
-        console.log(estadoQr)
         if(estadoQr.estado && estadoQr.nombreunico){
             fetch(`${host}/estado_session?sessionName=${estadoQr.nombreunico}`)
             .then((res) => res.json())
             .then((data) => {
             if (data.status === 200) {
-                console.log(data)
                 setEstadoQr({
                     estado: data.message,
                     nombreunico: estadoQr.nombreunico,
@@ -266,7 +264,6 @@ function ChatBots(props) {
     };
 
     const RecargarQr = () => {
-        console.log(estadoQr)
         if(estadoQr.estado && estadoQr.nombreunico){
             let linkQr = `${host}qr/${estadoQr.nombreunico}.png`;
             setLinkQr(linkQr);
