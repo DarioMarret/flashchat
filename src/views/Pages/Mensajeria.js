@@ -346,7 +346,6 @@ export default function Mensajeria() {
   };
 
   const ActualizarEstadoConversacion = (estado) => {
-    console.log("e.target.value: ", estado);
     const covActiva = GetManejoConversacion();
     socket.emit("actualizar_estado_conversacion", {
       cuenta_id: GetTokenDecoded().cuenta_id,
@@ -358,6 +357,7 @@ export default function Mensajeria() {
     // actualizamos el estado en localstorage
     if(estado === "Eliminado" || estado === "Resuelta"){
       DeletManejoConversacion();
+      setConversacionActiva([]);
     }else{
       localStorage.setItem("conversacion_activa",JSON.stringify({...covActiva,estado: estado}));
     }
@@ -379,6 +379,10 @@ export default function Mensajeria() {
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const toggle = () => setDropdownOpen((prevState) => !prevState);
+
+  // transferir
+  const [dropdownOpenTransferir, setDropdownOpenTransferir] = useState(false);
+  const toggleTransferir = () => setDropdownOpenTransferir((prevState) => !prevState);
 
   const [dropdownOpenTag, setDropdownOpenTag] = useState(false);
   const toggleTag = () => setDropdownOpenTag((prevState) => !prevState);
@@ -510,7 +514,6 @@ export default function Mensajeria() {
                       </div>
 
                       <div className="d-flex gap-2 flex-wrap">
-
                         {item.etiqueta.map((et, index) => {
                           if(et !== null && et !== "" && et !== undefined){
                             return (
@@ -675,6 +678,7 @@ export default function Mensajeria() {
                           }
                         })}
                       </div>
+
                     </div>
                   </div>
                 );
@@ -837,6 +841,12 @@ export default function Mensajeria() {
                   placeholder="Escribir ..."
                   value={inputStr}
                   onChange={(e) => setInputStr(e.target.value)}
+                  // cuando se presione enter enviar el mensaje
+                  onKeyPress={(e) => {
+                    if (e.key === "Enter") {
+                      EnvianMensaje(e);
+                    }
+                  }}
                 ></textarea>
               </div>
 
