@@ -242,7 +242,7 @@ export default function Mensajeria() {
     }
   }
   const ManejarConversacion = (item) => {
-    if(misConversaciones === 'Todas' && item.agente_id !== 0){
+    if(misConversaciones === 'Todas' && item.agente_id !== 0 && item.agente_id !== GetTokenDecoded().id){
       Swal.fire({
         title: 'Conversación en curso',
         text: 'Esta conversación ya está siendo atendida por el agente *' + NombreAgente(item.agente_id)+'*',
