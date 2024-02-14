@@ -8,11 +8,12 @@ import {
     Form,
     Modal
 } from 'react-bootstrap';
+import Swal from 'sweetalert2';
 
 
 function Agentes(props) {
     const [show, setShow] = useState(false);
-    const handleClose = () => setShow(!show);
+
     const [agentes, setAgentes] = useState([])
     const [equipos, setEquipos] = useState([])
     const [agente, setAgente] = useState({
@@ -26,7 +27,21 @@ function Agentes(props) {
         contacto: '',
         perfil: '',
     })
-
+    const handleClose = () => {
+        setShow(!show)
+        setAgente({
+            id: 0,
+            cuenta_id: GetTokenDecoded().cuenta_id,
+            equipo_id: 0,
+            nombre: '',
+            avatar: '',
+            correo: '',
+            clave: '',
+            menu: [],
+            contacto: '',
+            perfil: '',
+        })
+    }
     const ListarAgentes = async() => {
         const url = `${host}agentes/${GetTokenDecoded().cuenta_id}`
         const { data, status } = await axios.get(url)
@@ -41,14 +56,14 @@ function Agentes(props) {
                     nombre: agente.nombre,
                     avatar: <img src="https://codigomarret.online/upload/img/chatbot.jpeg" alt="avatar" width={50} className="rounded-circle"/>,
                     correo: agente.correo,
-                    estado: agente.estado === 'offline' ? <button className="btn btn text-danger" disabled={true} >Offline</button> 
+                    estado: agente.estado === 'offline' ? <button className="btn btn text-danger" disabled={true} >Offline</button>
                     : <button disabled={true} className="btn btn text-success">Online</button>,
                     contacto: agente.contacto,
                     fecha: agente.fecha,
                     clave: agente.clave,
                     perfil: agente.perfil,
-                    accion: <div className="d-flex justify-content-center">
-                        <button className="btn btn mr-2 active"
+                    accion: <div className="d-flex justify-content-center gap-2">
+                        <button className="btn btn active"
                             onClick={() => {
                                 setAgente({
                                     id: agente.id,
@@ -57,13 +72,19 @@ function Agentes(props) {
                                     nombre: agente.nombre,
                                     avatar: agente.avatar,
                                     correo: agente.correo,
+                                    contacto: agente.contacto,
                                     clave: agente.clave,
                                     perfil: agente.perfil,
                                 })
-                                setShow(true)
+                                setShow(!show)
                             }}
                         >
                             <i className="fas fa-edit"></i>
+                        </button>
+                        <button className="btn btn active btn-danger"
+                            onClick={() => EliminarAgente(agente.id, agente.nombre)}
+                        >
+                            <i className="fas fa-trash-alt"></i>
                         </button>
                     </div>
                 })
@@ -100,6 +121,26 @@ function Agentes(props) {
             return null
         }
     }
+
+    const EliminarAgente = async(id, nombre) => {
+        const url = `${host}agentes/${id}`
+        Swal.fire({
+            title: 'Estas seguro?',
+            html: `Eliminaras el agente <b>${nombre}</b>`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                axios.delete(url)
+                .then(response => {
+                    ListarAgentes()
+                })
+            }
+        })
+ 
+    }
+
     const ActualizarAgente = async() => {
         const url = `${host}agentes/${agente.id}`
         const { data, status } = await axios.put(url, agente)
@@ -110,8 +151,10 @@ function Agentes(props) {
     }
 
     useEffect(() => {
-        ListarAgentes()
-        ListarEquipos()
+        (async()=>{
+            await ListarAgentes()
+            await ListarEquipos()
+        })()
     }, [])
 
     return (
@@ -207,6 +250,8 @@ function Agentes(props) {
                         <Form.Group controlId="exampleForm.ControlSelect1">
                             <Form.Label>Equipo</Form.Label>
                             <Form.Control as="select"
+                                value={agente.equipo_id}
+                                name='equipo_id'
                                 onChange={(e) => setAgente({...agente, equipo_id: parseInt(e.target.value)})}
                             >
                                 <option value={0}>Seleccione un equipo</option>
@@ -220,6 +265,8 @@ function Agentes(props) {
                         <Form.Group controlId="exampleForm.ControlInput1">
                             <Form.Label>Nombre</Form.Label>
                             <Form.Control type="text"
+                                name='nombre'
+                                value={agente.nombre}
                                 onChange={(e) => setAgente({...agente, nombre: e.target.value})}
                             />
                         </Form.Group>
@@ -227,24 +274,33 @@ function Agentes(props) {
                             <Form.Label>Avatar</Form.Label>
                             <Form.Control type="file"
                                 accept="image/png, image/jpeg"
+                                name='avatar'
                                 onChange={(e) => CargarAvatar(e.target.files[0])}
                             />
                         </Form.Group>
                         <Form.Group controlId="exampleForm.ControlInput1">
                             <Form.Label>Correo</Form.Label>
                             <Form.Control type="email"
+                                name='correo'
+                                value={agente.correo}
                                 onChange={(e) => setAgente({...agente, correo: e.target.value})}
                             />
                         </Form.Group>
                         <Form.Group controlId="exampleForm.ControlInput1">
                             <Form.Label>Contacto</Form.Label>
                             <Form.Control type="text"
+                                name='contacto'
+                                value={agente.contacto}
                                 onChange={(e) => setAgente({...agente, contacto: e.target.value})}
                             />
                         </Form.Group>
                         <Form.Group controlId="exampleForm.ControlInput1">
                             <Form.Label>Clave</Form.Label>
-                            <Form.Control type="password"
+                            <Form.Control 
+                                type="password"
+                                name='clave'
+                                autoComplete='off'
+                                aria-autocomplete='none'
                                 onChange={(e) => setAgente({...agente, clave: e.target.value})}
                             />
                         </Form.Group>
@@ -263,7 +319,7 @@ function Agentes(props) {
                 </Modal.Body>
                 <Modal.Footer>
                 {
-                    agente.id == 0 ?
+                    agente.id !== 0 ?
                     <button 
                         className='btn btn-dark active mr-2 w-100'
                         onClick={ActualizarAgente}
