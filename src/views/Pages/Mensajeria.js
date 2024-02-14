@@ -62,7 +62,23 @@ export default function Mensajeria() {
 
   useEffect(() => {
     console.log("GetTokenDecoded(): ", GetTokenDecoded());
+    GetMisConversaciones()
   }, []);
+
+  const VerConversaciones = (item) => {
+    localStorage.setItem('misConversaciones', item)
+    EmiittingMensaje()
+    setMisConversaciones(item)
+  }
+
+  const GetMisConversaciones = () => {
+    const local = localStorage.getItem('misConversaciones');
+    if (local) {
+      setMisConversaciones(local)
+    } else {
+      setMisConversaciones('Sin leer')
+    }
+  }
   
   useEffect(() => {
     try {
@@ -151,20 +167,19 @@ export default function Mensajeria() {
       console.log(error);
     }
     return () => {
-      socket.off();
+      socket.off(`response_conversacion_${GetTokenDecoded().cuenta_id}`);
+      socket.off(`get_conversacion_activa_${GetTokenDecoded().cuenta_id}`);
+      socket.off("mensaje");
     };
-  }, [socket]);
+  }, []);
 
 
   const EmiittingMensaje = () => {
-    new Promise((resolve, reject) => {
-      socket.emit("listar_conversacion", {
-        cuenta_id: GetTokenDecoded().cuenta_id,
-        equipo_id: null,
-        agente_id: null,
-        estado: null,
-      });
-      resolve();
+    socket.emit("listar_conversacion", {
+      cuenta_id: GetTokenDecoded().cuenta_id,
+      equipo_id: null,
+      agente_id: null,
+      estado: null,
     });
   }
 
@@ -221,6 +236,7 @@ export default function Mensajeria() {
       return null;
     }
   };
+
   const DeletManejoConversacion = () => {
     localStorage.removeItem("conversacion_activa");
   }
@@ -384,7 +400,6 @@ export default function Mensajeria() {
                 {misConversaciones}
               </p>
             </div>
-
             <div className="d-flex">
               <Dropdown isOpen={dropdownOpen} toggle={toggle} direction="down">
                 <DropdownToggle
@@ -401,7 +416,7 @@ export default function Mensajeria() {
                 <DropdownMenu>
                   <DropdownItem className="d-flex align-items-center gap-2"
                     onClick={() => {
-                      setMisConversaciones('Mis Conversaciones')
+                      VerConversaciones('Mis Conversaciones')
                     }}
                   >
                     <span class="material-symbols-outlined">all_inbox</span>
@@ -409,7 +424,7 @@ export default function Mensajeria() {
                   </DropdownItem>
                   <DropdownItem className="d-flex align-items-center gap-2"
                     onClick={() => {
-                      setMisConversaciones('Sin leer')
+                      VerConversaciones('Sin leer')
                     }}
                   >
                     <span class="material-symbols-outlined">
@@ -417,6 +432,19 @@ export default function Mensajeria() {
                     </span>
                     Sin leer
                   </DropdownItem>
+                  {/* todas */}
+                  {
+                    GetTokenDecoded().perfil === 'Administrador' ?
+                      <DropdownItem className="d-flex align-items-center gap-2"
+                        onClick={() => {
+                          VerConversaciones('Todas')
+                        }}
+                      >
+                        <span class="material-symbols-outlined">chat</span>
+                        Todas
+                      </DropdownItem>
+                      : null
+                  }
                 </DropdownMenu>
               </Dropdown>
             </div>
@@ -501,6 +529,81 @@ export default function Mensajeria() {
                 );
               }else if(misConversaciones === 'Mis Conversaciones' && item.agente_id === GetTokenDecoded().id){
                 // se permite mostrar todas las conversaciones que tienen el agente_id igual al id del agente logueado
+                return (
+                  <div
+                    key={index + 1}
+                    className="chat-item cursor-pointer rounded d-flex gap-2 align-items-center"
+                    onClick={() => ManejarConversacion(item)}
+                  >
+                    <div className="w-25 rounded d-flex align-items-center justify-content-center">
+                      <img
+                        src={item.url_avatar}
+                        className="rounded-circle"
+                        width="40px"
+                        height="40px"
+                      />
+                    </div>
+
+                    <div className="w-75 p-1 d-flex flex-column">
+                      <div
+                        className="d-flex flex-row justify-content-between"
+                        style={{ lineHeight: "15px" }}
+                      >
+                        <span className="w-100 text-dark font-bold">
+                          {item.name}
+                        </span>
+                        <small className="text-warning">{item.fecha}</small>
+                      </div>
+
+                      <div className="d-flex flex-row justify-content-between my-1">
+                        <small className="text-dark">
+                          {
+                            // limitar la cantidad de caracteres a mostrar
+                            item.mensaje.type === "text"
+                              ? String(item.mensaje.text).length > 30
+                                ? String(item.mensaje.text).substring(0, 30) +
+                                  "..."
+                                : item.mensaje.text
+                              : // si es imagen o video mostrar el tipo de archivo
+                              item.mensaje.type === "image" ||
+                                item.mensaje.type === "video"
+                              ? item.mensaje.type
+                              : // si es audio mostrar el nombre del archivo
+                              item.mensaje.type === "audio"
+                              ? item.mensaje.type
+                              : // si es archivo mostrar el nombre del archivo
+                              item.mensaje.type === "file"
+                              ? item.mensaje.type
+                              : null
+                          }
+                        </small>
+                        <div
+                          className="rounded-circle p-0 d-flex justify-content-center aligns-items-center bg-warning"
+                          style={{ width: "24px", height: "24px" }}
+                        >
+                          1
+                        </div>
+                      </div>
+
+                      <div className="d-flex gap-2 flex-wrap">
+
+                        {item.etiqueta.map((et, index) => {
+                          if(et !== null && et !== "" && et !== undefined){
+                            return (
+                              <span
+                                key={index + 1}
+                                className="chat-tag rounded bg-gray text-white"
+                              >
+                                {et}
+                              </span>
+                            );
+                          }
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                );
+              }else if(misConversaciones === 'Todas'){
                 return (
                   <div
                     key={index + 1}

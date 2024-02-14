@@ -18,7 +18,6 @@ import {
 } from 'react-bootstrap';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import Swal from 'sweetalert2';
-import socket from 'views/SocketIO';
 
 
 function ChatBots(props) {
@@ -200,16 +199,6 @@ function ChatBots(props) {
         }
     }
 
-
-    socket.on(`bost_update_${GetTokenDecoded().cuenta_id}`, async(data) => {
-        // se actializa el estado del bot qr
-        // el objeto para no hacer peticiones a la base de datos
-        bots.map((bot) => {
-            if (bot.nombreunico === data.nombreunico) {
-                bot.estado = data.estado;
-            }
-        })
-    });
 
     const OpenModalQr = (nombreunico, estado) => {
         setEstadoQr({
