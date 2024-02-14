@@ -20,10 +20,19 @@ import Picker from "emoji-picker-react";
 import { SubirMedia } from "function/storeUsuario";
 import io from "socket.io-client";
 
-const socket = io.connect(String(host).replace(`/${proxy}/`, ""), {
-  path: `/${proxy}/socket.io/socket.io.js`,
-  transports: ["websocket"],
-});
+var socket = null;
+if(proxy === ""){
+  socket = io.connect(String(host), {
+    path: "/socket.io/socket.io.js",
+    transports: ["websocket"],
+  });
+}else{
+  socket = io.connect(String(host).replace(`/${proxy}/`, ""), {
+    path: `/${proxy}/socket.io/socket.io.js`,
+    transports: ["websocket"],
+  });
+}
+
 
 console.log("socket: ", socket);
 
@@ -127,6 +136,10 @@ export default function Mensajeria() {
                   if (item.conversacion_id === covActiva.conversacion_id && item.nombreunico === covActiva.nombreunico) {
                     socket.emit("get_conversacion_activa", {
                       cuenta_id: GetTokenDecoded().cuenta_id,
+                      contacto_id: item.contacto_id,
+                      equipo_id: item.equipo_id,
+                      channel_id: item.channel_id,
+                      agente_id: GetTokenDecoded().id,
                       conversacion_id: item.conversacion_id,
                       nombreunico: item.nombreunico,
                     })
@@ -202,9 +215,7 @@ export default function Mensajeria() {
   }
   const ManejarConversacion = (item) => {
     console.log("item: ", item);
-    localStorage.setItem(
-      "conversacion_activa",
-      JSON.stringify({
+    localStorage.setItem("conversacion_activa", JSON.stringify({
         cuenta_id: GetTokenDecoded().cuenta_id,
         conversacion_id: item.conversacion_id,
         nombreunico: item.nombreunico,
