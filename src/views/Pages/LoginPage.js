@@ -9,15 +9,28 @@ import {
   Card,
   Form
 } from "react-bootstrap";
+import Swal from "sweetalert2";
 
 
 const LoginPage =(props)=> {
   const [cardClasses, setCardClasses] = React.useState("card-hidden");
+  const [demoStatus, setDemoStatus] = React.useState(false);
+  const [agenda, setAgenda] = React.useState({
+    fecha: "",
+    nombre: "",
+    correo: "",
+    telefono: "",
+    detalle: "",
+  })
   React.useEffect(() => {
     setTimeout(function () {
       setCardClasses("");
     }, 100);
   })
+  // fechaActual mas 7 dias
+  const fechaMaxima = new Date()
+  fechaMaxima.setDate(fechaMaxima.getDate() + 7)
+  fechaMaxima.setHours(18)
 
   const [usuario, setUsuario] = React.useState({
     correo: "",
@@ -31,29 +44,79 @@ const LoginPage =(props)=> {
     });
   }
   
+  const AgendarDemo = async (event) => {
+    event.preventDefault();
+    console.log(agenda)
+    if(agenda.correo === "" || agenda.fecha === "" || agenda.telefono === "" || agenda.detalle === "" || agenda.nombre === ""){
+      Swal.fire({
+        title: 'Error',
+        html: '<p className="text-white">Todos los campos son obligatorios</p>',
+        confirmButtonColor: '#000',
+        timer: 1500
+      })
+    }else{
+      const { data, status } = await axios.post(`${host}agendar_demo`, agenda);
+      console.log(data)
+      if (status === 200) {
+        Swal.fire({
+          title: 'Exito',
+          html: '<p className="text-white">Hemos recibido tu solicitud</p>',
+          confirmButtonText: 'Ok',
+          confirmButtonColor: '#000',
+          timer: 1500
+        }).then(() => {
+          setDemoStatus(false);
+          setAgenda({
+            fecha: "",
+            correo: "",
+            telefono: "",
+            mensaje: "",
+          })
+        })
+        // limpiar campos
+      } else {
+        Swal.fire({
+          title: 'Error',
+          html: '<p className="text-white">Error de conexión</p>',
+          confirmButtonColor: '#000',
+          timer: 2000
+        })
+      }
+    }
+  }
+
   const { login, setReloadUser } = useAuth();
   
   const Login = async (event) => {
     event.preventDefault();
-    console.log(usuario);
     if(usuario.correo === "" || usuario.clave === ""){
-      console.log("login");
+      Swal.fire({
+        title: 'Error',
+        html: '<p className="text-white">Todos los campos son obligatorios</p>',
+        confirmButtonColor: '#000',
+        timer: 1500
+      })
     }else{
-      console.log("no login");
       const { data, status } = await axios.post(`${host}login`, usuario);
-      console.log(data);
       if (status === 200) {
         if (data.status === 200) {
-          // guardar en localstorage
           localStorage.setItem(usuario_token, JSON.stringify(data.token));
-          // redireccionar
           login(data.token);
           setReloadUser(true);
         } else {
-          alert(data.mensaje);
+          Swal.fire({
+            title: 'Error',
+            html: '<p className="text-white">Usuario o contraseña incorrectos</p>',
+            confirmButtonColor: '#000',
+          })
         }
       } else {
-        alert("Error en el servidor");
+        Swal.fire({
+          title: 'Error',
+          html: '<p className="text-white">Error de conexión</p>',
+          confirmButtonColor: '#000',
+          timer: 2000
+        })
       }
     }
   }
@@ -74,75 +137,156 @@ const LoginPage =(props)=> {
 
                 <p className="text-gray frasphe text-center mx-auto my-3">Descubre la revolución en atención al cliente con nuestro innovador chatbot durante 10 días de demo gratuito</p>
                 <button className="btn-outline-white" 
-                onClick={() => props.setEstados(false)}>Quiero mi demo</button>
+                onClick={() => setDemoStatus(!demoStatus)}>Quiero mi demo</button>
               </div>
             </div>
-
-            <div class="col-12 col-md-6 col-lg-4">
-              <Form action="" className="form" method="">
-                <Card className={"card-login background-backdrop" + cardClasses}>
-                  <Card.Header>
-                    <h4 className="header text-center">Bienvenido</h4>
-                    <h3 className="header text-center font-bold">FlashChat</h3>
-                    <hr/>
-                  </Card.Header>
-                    <Card.Body>
-                      <Form.Group className="mb-4">
-                        <label className="font-600 d-flex align-items-center">
-                        <span class="material-symbols-outlined" style={{marginRight: '5px'}}>mail</span>
-                          Correo electrónico</label>
-                        <Form.Control
-                          placeholder="correo@email.com"
-                          type="email"
-                          name="correo"
-                          value={usuario.correo}
-                          onChange={handleInputChange}
-                        ></Form.Control>
-                      </Form.Group>
-
+            {
+              demoStatus ? 
+              <>
+               {/* formulario para agendar un demos */}
+              <div class="col-12 col-md-6 col-lg-4">
+                <Form action="" className="form" method="">
+                  <Card className={"card-login background-backdrop" + cardClasses}>
+                    <Card.Header>
+                      <h4 className="header text-center">Agenda tu demo</h4>
+                      <h3 className="header text-center font-bold">FlashChat</h3>
+                      <hr/>
+                    </Card.Header>
+                      <Card.Body>
+                      {/* fecha y hora en la que te podemos contactar */}
                       <Form.Group>
-                        <label className="font-600 d-flex align-items-center">
-                        <span class="material-symbols-outlined" style={{marginRight: '5px'}}>
-                          lock
-                          </span>
-                          Contraseña</label>
-                        <Form.Control
-                          placeholder="********"
-                          type="password"
-                          name="clave"
-                          value={usuario.clave}
-                          onChange={handleInputChange}
-                        ></Form.Control>
-                      </Form.Group>
-
-                      {/* <Form.Check className="pl-0">
-                        <Form.Check.Label>
-                          <Form.Check.Input
-                            defaultChecked
-                            type="checkbox"
-                          ></Form.Check.Input>
-                          <span className="form-check-sign"></span>
-                          Subscribe to newsletter
-                        </Form.Check.Label>
-                      </Form.Check> */}
-
-                    </Card.Body>
-                  <Card.Footer className="ml-auto mr-auto">
-                    <Button className="btn-wd w-100" type="submit" variant="dark"
-                      onClick={Login}
-                    >
-                      {/* en espanol */}
-                      Iniciar sesión 
-                    </Button>
-
-                    <div className="mt-2 d-flex flex-column justify-content-center align-items-center">
-                      <span className="text-span">- No tienes cuenta - </span>
-                      <a className="text-link" onClick={() => props.setEstados(false)}>Regístrate</a>
-                    </div>
-                  </Card.Footer>
-                </Card>
-              </Form>
-            </div>
+                          <label className="font-600 d-flex align-items-center">
+                          <span class="material-symbols-outlined" style={{marginRight: '5px'}}>event</span>
+                            Fecha y hora</label>
+                          <Form.Control
+                            placeholder="Fecha y hora"
+                            type="datetime-local"
+                            max={fechaMaxima}
+                            min={new Date().toISOString().split('T')[0] + 'T09:00'}
+                            name="fecha"
+                            onChange={(e) => setAgenda({...agenda, fecha: e.target.value})}
+                          ></Form.Control>
+                        </Form.Group>
+                        <Form.Group className="">
+                          <label className="font-600 d-flex align-items-center">
+                          <span class="material-symbols-outlined" style={{marginRight: '5px'}}>person</span>
+                            Nombre</label>
+                          <Form.Control
+                            placeholder="Nombre por el cual te podemos llamar"
+                            type="text"
+                            name="nombre"
+                            onChange={(e) => setAgenda({...agenda, nombre: e.target.value})}
+                          ></Form.Control>
+                        </Form.Group>
+                        <Form.Group className="">
+                          <label className="font-600 d-flex align-items-center">
+                          <span class="material-symbols-outlined" style={{marginRight: '5px'}}>mail</span>
+                            Correo electrónico</label>
+                          <Form.Control
+                            placeholder="Correo electrónico"
+                            type="email"
+                            name="correo"
+                            onChange={(e) => setAgenda({...agenda, correo: e.target.value})}
+                          ></Form.Control>
+                        </Form.Group>
+                        {/* contacto */}
+                        <Form.Group>
+                          <label className="font-600 d-flex align-items-center">
+                          <span class="material-symbols-outlined" style={{marginRight: '5px'}}>phone</span>
+                            Teléfono</label>
+                          <Form.Control
+                            placeholder="Teléfono"
+                            type="text"
+                            name="telefono"
+                            onChange={(e) => setAgenda({...agenda, telefono: e.target.value})}
+                          ></Form.Control>
+                        </Form.Group>
+                        {/* mensaje */}
+                        <Form.Group>
+                          <label className="font-600 d-flex align-items-center">
+                          <span class="material-symbols-outlined" style={{marginRight: '5px'}}>message</span>
+                            Mensaje</label>
+                          <Form.Control
+                            placeholder="Detallanos tu necesidad o duda"
+                            className="form-control textarea h-auto"
+                            as="textarea"
+                            cols={3}
+                            rows={3}
+                            name="detalle"
+                            onChange={(e) => setAgenda({...agenda, detalle: e.target.value})}
+                          ></Form.Control>
+                        </Form.Group>
+                      </Card.Body>
+                    <Card.Footer className="ml-auto mr-auto">
+                      <Button className="btn-wd w-100" type="submit" variant="dark"
+                        onClick={AgendarDemo}
+                      >
+                        {/* en espanol */}
+                        Enviar
+                      </Button>
+                      {/* <div className="mt-2 d-flex flex-column justify-content-center align-items-center">
+                        <a className="text-link" onClick={() => props.setEstados(false)}>Regístrate</a>
+                      </div>                       */}
+                    </Card.Footer>
+                  </Card>
+                </Form>
+              </div>
+              </> : 
+              <div class="col-12 col-md-6 col-lg-4">
+                <Form action="" className="form" method="">
+                  <Card className={"card-login background-backdrop" + cardClasses}>
+                    <Card.Header>
+                      <h4 className="header text-center">Bienvenido</h4>
+                      <h3 className="header text-center font-bold">FlashChat</h3>
+                      <hr/>
+                    </Card.Header>
+                      <Card.Body>
+                        <Form.Group className="mb-4">
+                          <label className="font-600 d-flex align-items-center">
+                          <span class="material-symbols-outlined" style={{marginRight: '5px'}}>mail</span>
+                            Correo electrónico</label>
+                          <Form.Control
+                            placeholder="correo@email.com"
+                            type="email"
+                            name="correo"
+                            value={usuario.correo}
+                            onChange={handleInputChange}
+                          ></Form.Control>
+                        </Form.Group>
+  
+                        <Form.Group>
+                          <label className="font-600 d-flex align-items-center">
+                          <span class="material-symbols-outlined" style={{marginRight: '5px'}}>
+                            lock
+                            </span>
+                            Contraseña</label>
+                          <Form.Control
+                            placeholder="********"
+                            type="password"
+                            name="clave"
+                            value={usuario.clave}
+                            onChange={handleInputChange}
+                          ></Form.Control>
+                        </Form.Group>
+  
+                      </Card.Body>
+                    <Card.Footer className="ml-auto mr-auto">
+                      <Button className="btn-wd w-100" type="submit" variant="dark"
+                        onClick={Login}
+                      >
+                        {/* en espanol */}
+                        Iniciar sesión 
+                      </Button>
+  
+                      {/* <div className="mt-2 d-flex flex-column justify-content-center align-items-center">
+                        <span className="text-span">- No tienes cuenta - </span>
+                        <a className="text-link" onClick={() => props.setEstados(false)}>Regístrate</a>
+                      </div> */}
+                    </Card.Footer>
+                  </Card>
+                </Form>
+              </div>
+            }
           </div>
 
           {/* <Container>
