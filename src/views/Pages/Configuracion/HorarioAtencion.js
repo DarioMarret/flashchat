@@ -148,7 +148,7 @@ function HorarioAtencion(props) {
                                         <button className="btn btn mx-1"
                                             onClick={()=>EliminarHorario(item.id)}
                                         >
-                                            <i className="fas fa-trash-alt"></i>
+                                            <i className="fas fa-trash-alt text-danger"></i>
                                         </button>
                                     </td>
                                 </tr>

@@ -9,6 +9,7 @@ import {
     Modal,
     Row
 } from 'react-bootstrap';
+import Swal from 'sweetalert2';
 
 
 function Masivos(props) {
@@ -88,13 +89,15 @@ function Masivos(props) {
                 ...envio,
                 imagen: url
             })
-            for (let i = progresoFile; i < 100; i++) {
+            let i = 0
+            for (i = progresoFile; i <= 100; i++) {
                 setProgresoFile(i)
+                if(i === 100){
+                    setTimeout(() => {
+                        setProgresoFile(0)
+                    }, 1500);
+                }
             }
-            const cletar = setInterval(() => {
-                setProgresoFile(0)
-            }, 2000);
-            clearInterval(cletar)
             return url
         }else{
             setProgresoFile(0)
@@ -141,6 +144,12 @@ function Masivos(props) {
                 ListarMasivos();
                 setShow(false)
                 LimpiarEnvio()
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Envio actualizado',
+                    showConfirmButton: false,
+                    timer: 1500
+                })
             }
         }else{
             const url = `${host}masivo`;
@@ -149,6 +158,12 @@ function Masivos(props) {
                 ListarMasivos();
                 setShow(false)
                 LimpiarEnvio()
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Envio creado',
+                    showConfirmButton: false,
+                    timer: 1500
+                })
             }
         }
     }
@@ -163,11 +178,23 @@ function Masivos(props) {
     }
 
     const EliminarMasivo = async(id) => {
-        const url = `${host}masivo/${id}`;
-        const { data, status } = await axios.delete(url);
-        if (status === 200) {
-            ListarMasivos();
-        }
+        Swal.fire({
+            title: '¿Estas seguro?',
+            text: "¡No podras revertir esto!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Si, eliminar!'
+        }).then(async(result) => {
+            if(result.isConfirmed){
+                const url = `${host}masivo/${id}`;
+                const { data, status } = await axios.delete(url);
+                if (status === 200) {
+                    ListarMasivos();
+                }
+            }
+        })
     }
 
     useEffect(() => {
@@ -211,15 +238,15 @@ function Masivos(props) {
                                         >{item.mensaje.substring(0, 50)}...</>
                                     </div>
                                     <div className="w-fit d-flex flex-column px-3 py-2 ">
-                                        <button className="btn btn-dark "
+                                        <button className="btn btn "
                                             onClick={()=>handleEditar(item)}
                                         >
                                             <i className="fa fa-edit"></i>
                                         </button>
-                                        <button className="btn btn-danger "
+                                        <button className="btn btn "
                                             onClick={()=>EliminarMasivo(item.id)}
                                         >
-                                            <i className="fa fa-trash"></i>
+                                            <i className="fa fa-trash text-danger"></i>
                                         </button>
                                     </div>
                                 </Row>
@@ -280,6 +307,9 @@ function Masivos(props) {
                                 onChange={handleEnvio}
                             />
                         </div>
+
+                        {/* restartdo entre mensajes */}
+                        {/* hacer un  */}
 
                         <div className="form-group">
                             <label htmlFor="nombreunico">Retardo de envio entre mensajes</label>

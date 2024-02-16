@@ -148,7 +148,7 @@ function ComprobantesOcr(props) {
                             <Modal.Title>Ocr</Modal.Title>
                             <button 
                             type="button"
-                                className='btn btn-dark active mr-2 w-10'
+                                className='btn btn mr-2 w-10'
                                 onClick={handleClose}>
                                 <i className="fa fa-times"></i>
                             </button>

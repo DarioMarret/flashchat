@@ -3,7 +3,6 @@ import { GetTokenDecoded } from 'function/storeUsuario';
 import { host } from 'function/util/global';
 import { useEffect, useState } from 'react';
 import {
-    Card,
     Container,
     Form,
     Modal
@@ -93,7 +92,6 @@ function Etiquetas(props) {
                     onClick={handleClose}
                 >Crear etiqueta</button>
             </div>
-            <Card>
                 <table className="table table-responsive">
                     <thead>
                         <tr
@@ -122,8 +120,8 @@ function Etiquetas(props) {
                                             className='text-center'
                                         >
                                             <div style={{
-                                                width: '60px', 
-                                                height: '20px', 
+                                                width: '60px',
+                                                height: '20px',
                                                 backgroundColor: item.color,
                                                 margin: 'auto'
                                             }}></div>
@@ -132,26 +130,20 @@ function Etiquetas(props) {
                                             className='text-center'
                                         >
                                             <button 
-                                            className="btn btn active w-20 mx-1"
+                                            className="btn btn w-20 mx-1"
                                                 onClick={() => EditarEquipo(item)}
                                             >
-                                                {/* icono de editar */}
-                                                <a href="#" className="text-bark">
                                                     <i className="fas fa-edit
                                                     text-dark
                                                     "></i>
-                                                </a>
                                             </button>
                                             
-                                            <button className="btn btn active mx-1 w-20"
+                                            <button className="btn btn mx-1 w-20"
                                                 onClick={() => EliminarEquipo(item.id)}
                                             >
-                                                {/* icono de eliminar */}
-                                                <a href="#" className="text-bark">
                                                     <i className="fas fa-trash-alt 
-                                                    text-dark
+                                                    text-danger
                                                     "></i>
-                                                </a>
                                             </button>
                                         </td>
                                     </tr>
@@ -160,7 +152,6 @@ function Etiquetas(props) {
                         }
                     </tbody>
                 </table>
-            </Card>
             </Container>
 
             <Modal

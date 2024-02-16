@@ -3,7 +3,6 @@ import { GetTokenDecoded, SubirMedia } from 'function/storeUsuario';
 import { host } from 'function/util/global';
 import { useEffect, useState } from 'react';
 import {
-    Card,
     Container,
     Form,
     Modal
@@ -63,7 +62,7 @@ function Agentes(props) {
                     clave: agente.clave,
                     perfil: agente.perfil,
                     accion: <div className="d-flex justify-content-center gap-2">
-                        <button className="btn btn active"
+                        <button className="btn btn "
                             onClick={() => {
                                 setAgente({
                                     id: agente.id,
@@ -81,10 +80,10 @@ function Agentes(props) {
                         >
                             <i className="fas fa-edit"></i>
                         </button>
-                        <button className="btn btn active btn-danger"
+                        <button className="btn btn"
                             onClick={() => EliminarAgente(agente.id, agente.nombre)}
                         >
-                            <i className="fas fa-trash-alt"></i>
+                            <i className="fas fa-trash-alt text-danger"></i>
                         </button>
                     </div>
                 })
@@ -165,8 +164,6 @@ function Agentes(props) {
                     onClick={handleClose}
                 >Crear agente</button>
             </div>
-            <Card>
-
                 <table className="table table-responsive">
                     <thead className=''>
                         <tr 
@@ -217,8 +214,6 @@ function Agentes(props) {
                         }
                     </tbody>
                 </table>
-            </Card>
-
             <Modal
                 show={show}
                 onHide={handleClose}
@@ -333,7 +328,7 @@ function Agentes(props) {
                 </Modal.Footer>
 
             </Modal>
-         </Container>   
+         </Container>
         </>
     );
 }

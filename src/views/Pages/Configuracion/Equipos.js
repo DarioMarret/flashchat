@@ -155,7 +155,7 @@ function Equipos(props) {
                                         <button className="btn btn ml-2"
                                             onClick={() => EliminarEquipo(item.id)}
                                         >
-                                            <i className="fas fa-trash-alt"></i>
+                                            <i className="fas fa-trash-alt text-danger"></i>
                                         </button>
                                     </td>
                                 </tr>

@@ -46,6 +46,8 @@ export default function App() {
 
   const login = (user) => {
     setAuth(user);
+    // volver a recargar las rutas
+    setReloadUser(true);
   }
 
   const logout = () => {
@@ -53,6 +55,7 @@ export default function App() {
     RemoverConversacion();
     setAuth(null);
     setReloadUser(true);
+    window.location.href = "/";
   }
 
   const authData = useMemo(

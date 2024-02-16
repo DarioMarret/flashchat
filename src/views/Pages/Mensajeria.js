@@ -44,6 +44,8 @@ export default function Mensajeria() {
   const [conversacionActiva, setConversacionActiva] = useState([]);
   const [estados, setEstados] = useState([]);
   const [misConversaciones, setMisConversaciones] = useState('Sin leer')
+  const [respuestaRapidas, setRespuestaRapidas] = useState([]);
+  const [showRespuesta, setShowRespuesta] = useState(false)
   const [equipoUsuario , setEquipoUsuario] = useState({
     correo: '',
     estado: '',
@@ -96,18 +98,14 @@ export default function Mensajeria() {
       return "Sin agente"
     }
   }
-
-  useEffect(() => {
-    GetMisConversaciones()
-    ListarAgentes()
-  }, []);
-
-  const VerConversaciones = (item) => {
-    localStorage.setItem('misConversaciones', item)
-    EmiittingMensaje()
-    setMisConversaciones(item)
-  }
-
+  const ListarMensajesRespuestaRapida = async () => {
+    const url = `${host}/mensaje_predeterminado/${GetTokenDecoded().cuenta_id}`
+    const { data, status } = await axios.get(url)
+    console.log(data)
+    if (status === 200 && data.data !== null) {
+      setRespuestaRapidas(data.data)
+    }
+  }  
   const GetMisConversaciones = () => {
     const local = localStorage.getItem('misConversaciones');
     if (local) {
@@ -116,6 +114,21 @@ export default function Mensajeria() {
       setMisConversaciones('Sin leer')
     }
   }
+  useEffect(() => {
+    (async()=>{
+      GetMisConversaciones()
+      await ListarAgentes()
+      await ListarMensajesRespuestaRapida()
+    })()
+  }, []);
+
+  const VerConversaciones = (item) => {
+    localStorage.setItem('misConversaciones', item)
+    EmiittingMensaje()
+    setMisConversaciones(item)
+  }
+
+
   
   useEffect(() => {
     try {
@@ -223,6 +236,8 @@ export default function Mensajeria() {
       estado: null,
     });
   }
+
+
 
   const ListarEstados = async () => {
     const url = `${host}estados`;
@@ -903,21 +918,51 @@ export default function Mensajeria() {
                 })}
               </div>
 
-              <div className="col-12 picker-icon">
+
+            </div>
+            <div
+                className="col-12 d-flex flex-wrap gap-2"
+                style={{
+                  zIndex: "400",
+                  position: "absolute",
+                  bottom: "100px",
+                }}
+              >
+              {/* <div className="col-12 picker-icon"> */}
                 {showPicker && (
                     <Picker
                       pickerStyle={{ width: "100%" }}
                       onEmojiClick={onEmojiClick}
                     />
                 )}
+              {/* </div> */}
+                {
+                    showRespuesta ? (
+                        respuestaRapidas.map((item, index) => {
+                          return (
+                            <span
+                              key={index + 1}
+                              className="col-12 rounded border text-dark px-3 bg-chat chat-text py-1 cursor-pointer w-50
+                              height-50 d-flex align-items-center justify-content-start"
+                              onClick={() => {
+                                setInputStr(item.mensaje);
+                                setShowRespuesta(false);
+                              }}
+                            >
+                              {item.mensaje}
+                            </span>
+                          )
+                        })
+                    ): null
+                  }
               </div>
-            </div>
-
             <div
               className="row rounded border-top d-flex d-flex flex-column flex-md-row align-items-center pt-2"
               style={{ minHeight: "50px" }}
             >
+
               <div className="col-9 d-flex align-items-center py-1">
+                {/* se hace visible las respuesta rapidas que el usuario las puedas seleccionar  */}
                 <textarea
                   className="w-100 rounded border text-dark px-3 bg-chat chat-text py-1"
                   cols={"2"}
@@ -931,6 +976,15 @@ export default function Mensajeria() {
                       EnvianMensaje(e);
                     }
                   }}
+                  // detectar cuando el usuario digite / para mostrar las opciones de respuesta rapida
+                  onKeyUp={(e) => {
+                    if (e.key === "/") {
+                      setShowRespuesta(true);
+                    }else{
+                      setShowRespuesta(false);
+                    }
+                  }}
+
                 ></textarea>
               </div>
 
