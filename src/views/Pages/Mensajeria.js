@@ -717,7 +717,6 @@ export default function Mensajeria() {
                       />
                     </div>
 
-
                     <div className="w-75 p-1 d-flex flex-column">
                       <div
                         className="d-flex flex-row justify-content-between"
