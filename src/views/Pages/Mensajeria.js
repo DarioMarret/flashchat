@@ -22,16 +22,20 @@ import { SubirMedia } from "function/storeUsuario";
 import io from "socket.io-client";
 
 var socket = null;
-if(proxy === ""){
-  socket = io.connect(String(host), {
-    path: "/socket.io/socket.io.js",
-    transports: ["websocket"],
-  });
-}else{
-  socket = io.connect(String(host).replace(`/${proxy}/`, ""), {
-    path: `/${proxy}/socket.io/socket.io.js`,
-    transports: ["websocket"],
-  });
+try {
+  if(true){
+    socket = io.connect("http://localhost:5002", {
+      path: "/socket.io/socket.io.js",
+      transports: ["websocket"],
+    });
+  }else{
+    socket = io.connect(String(host).replace(`/${proxy}/`, ""), {
+      path: `/${proxy}/socket.io/socket.io.js`,
+      transports: ["websocket"],
+    });
+  }
+} catch (error) {
+  console.log("error Socket: ",error);
 }
 
 
@@ -68,6 +72,7 @@ export default function Mensajeria() {
   const [inputStr, setInputStr] = useState("");
   const [typeInput, setTypeInput] = useState("text");
   const [showPicker, setShowPicker] = useState(false);
+  const [openGrande, setOpenGrande] = useState(false);
 
   const onEmojiClick = (emojiObject, event) => {
     setInputStr((prevInput) => prevInput + emojiObject.emoji);
@@ -100,11 +105,16 @@ export default function Mensajeria() {
     }
   }
   const ListarMensajesRespuestaRapida = async () => {
-    const url = `${host}/mensaje_predeterminado/${GetTokenDecoded().cuenta_id}`
-    const { data, status } = await axios.get(url)
-    console.log(data)
-    if (status === 200 && data.data !== null) {
-      setRespuestaRapidas(data.data)
+    try {
+      const url = `${host}/mensaje_predeterminado/${GetTokenDecoded().cuenta_id}`
+      const { data, status } = await axios.get(url)
+      console.log(data)
+      if (status === 200 && data.data !== null) {
+        setRespuestaRapidas(data.data)
+      }
+    } catch (error) {
+      console.log(error)
+      return null
     }
   }  
   const GetMisConversaciones = () => {
@@ -150,43 +160,42 @@ export default function Mensajeria() {
         const covActiva = GetManejoConversacion();
         if (data.length > 0) {
           data.map((item) => {
-            if(item.estado !== "Eliminado" && item.estado !== "Resuelta"){
-              if(equipos.includes(item.equipo_id)){
-                new_card.push({
-                  id: item.id,
-                  conversacion_id: item.conversacion_id,
-                  name: item.Contactos.nombre,
-                  Contactos: item.Contactos,
-                  contacto_id: item.contacto_id,
-                  channel_id: item.channel_id,
-                  mensaje: item.mensajes,
-                  equipo_id: item.equipo_id,
-                  tipo: item.tipo,
-                  estado: item.estado,
-                  fecha:
-                    moment(item.updatedAt) >= moment().subtract(1, "days")
-                      ? moment(item.updatedAt).format("hh:mm a")
-                      : moment(item.updatedAt).format("DD/MM/YYYY hh:mm a"),
-                  url_avatar: item.Contactos.avatar,
-                  proveedor: item.channel.proveedor,
-                  active: true,
-                  nombreunico: item.nombreunico,
-                  etiqueta: item.etiquetas,
-                  agente_id: item.agente_id,
-                })
-                if (covActiva) {
-                  if (item.conversacion_id === covActiva.conversacion_id && item.nombreunico === covActiva.nombreunico) {
-                    socket.emit("get_conversacion_activa", {
-                      cuenta_id: GetTokenDecoded().cuenta_id,
-                      contacto_id: item.contacto_id,
-                      equipo_id: item.equipo_id,
-                      channel_id: item.channel_id,
-                      agente_id: GetTokenDecoded().id,
-                      conversacion_id: item.conversacion_id,
-                      nombreunico: item.nombreunico,
-                    })
-                    
-                  }
+              console.log(item.Contactos.nombre, "Estado: ", item.estado)
+            if(equipos.includes(item.equipo_id)){
+              new_card.push({
+                id: item.id,
+                conversacion_id: item.conversacion_id,
+                name: item.Contactos.nombre,
+                Contactos: item.Contactos,
+                contacto_id: item.contacto_id,
+                channel_id: item.channel_id,
+                mensaje: item.mensajes,
+                equipo_id: item.equipo_id,
+                tipo: item.tipo,
+                estado: item.estado,
+                fecha:
+                  moment(item.updatedAt) >= moment().subtract(1, "days")
+                    ? moment(item.updatedAt).format("hh:mm a")
+                    : moment(item.updatedAt).format("DD/MM/YYYY hh:mm a"),
+                url_avatar: item.Contactos.avatar,
+                proveedor: item.channel.proveedor,
+                active: true,
+                nombreunico: item.nombreunico,
+                etiqueta: item.etiquetas,
+                agente_id: item.agente_id,
+              })
+              if (covActiva) {
+                if (item.conversacion_id === covActiva.conversacion_id && item.nombreunico === covActiva.nombreunico) {
+                  socket.emit("get_conversacion_activa", {
+                    cuenta_id: GetTokenDecoded().cuenta_id,
+                    contacto_id: item.contacto_id,
+                    equipo_id: item.equipo_id,
+                    channel_id: item.channel_id,
+                    agente_id: GetTokenDecoded().id,
+                    conversacion_id: item.conversacion_id,
+                    nombreunico: item.nombreunico,
+                  })
+                  
                 }
               }
             }
@@ -256,6 +265,7 @@ export default function Mensajeria() {
       return null
     }
   }
+
   const ManejarConversacion = (item) => {
     if(misConversaciones === 'Todas' && item.agente_id !== 0 && item.agente_id !== GetTokenDecoded().id){
       Swal.fire({
@@ -336,7 +346,7 @@ export default function Mensajeria() {
 
   const random = () => {
     return Math.random().toString(36).substr(2);
-  };
+  }
 
   const EnvianMensaje = (e) => {
     e.preventDefault();
@@ -375,7 +385,6 @@ export default function Mensajeria() {
   };
 
   const CompomenteMultimedis = (item) => {
-    console.log("CompomenteMultimedis_item: ", item);
     if(item === null || item === undefined){
       return null;
     }
@@ -482,6 +491,21 @@ export default function Mensajeria() {
   const [dropdownOpenTag, setDropdownOpenTag] = useState(false);
   const toggleTag = () => setDropdownOpenTag((prevState) => !prevState);
 
+
+  // funcion para grabar audio
+  const addAudioElement = (blob) => {
+    // const url = URL.createObjectURL(blob);
+    // obtener el buffer del audio
+    const reader = new FileReader();
+    reader.readAsArrayBuffer(blob);
+    reader.onloadend = async () => {
+      const buffer = reader.result;
+      console.log('Buffer:', buffer);
+      const url = await SubirMedia(blob)
+      console.log('URL:', url);
+    }
+  }
+
   return (
     <>
       <div
@@ -549,7 +573,14 @@ export default function Mensajeria() {
             </div>
           </div>
 
-          <div className="w-100 py-2 px-2 d-flex flex-column gap-3 box-items-chat">
+          <div className="w-100 py-2 px-2 d-flex flex-column gap-3 box-items-chat"
+            style={{
+              height: "calc(100% - 100px)",
+              overflowY: "auto",
+              overflowX: "hidden",
+            
+            }}
+          >
             {card_mensajes.map((item, index) => {
               if(misConversaciones === 'Sin leer' && item.agente_id === 0){
                 return (
@@ -916,10 +947,7 @@ export default function Mensajeria() {
                     );
                   }
                 })}
-                <span ref={dummy}></span>
               </div>
-
-
             </div>
             <div
                 className="col-12 d-flex flex-wrap gap-2"
@@ -1000,8 +1028,19 @@ export default function Mensajeria() {
                   <span class="material-symbols-outlined">mood</span>
                 </button>
 
-                <button className="btn-chat">
-                  <span class="material-symbols-outlined">mic</span>
+                <button className="btn-chat"
+                  // onClick={()=>setOpenGrande(!openGrande)}
+                >
+                  {/* <span class="material-symbols-outlined">mic</span> */}
+                  {/* <AudioRecorder 
+                    onRecordingComplete={addAudioElement}
+                    audioTrackConstraints={{
+                      noiseSuppression: true,
+                      echoCancellation: true,
+                    }} 
+                    downloadOnSavePress={true}
+                    downloadFileExtension="webm"
+                  /> */}
                 </button>
 
                 <button className="btn-chat"
@@ -1046,6 +1085,7 @@ export default function Mensajeria() {
           </div>
         </div>
       </div>
+      <span ref={dummy}></span>
     </>
   );
 }
