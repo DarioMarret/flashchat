@@ -7,7 +7,7 @@ import axios from "axios";
 import { GetTokenDecoded } from "function/storeUsuario";
 import { host, proxy } from "function/util/global";
 import moment from "moment";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Dropdown,
   DropdownItem,
@@ -46,6 +46,7 @@ export default function Mensajeria() {
   const [misConversaciones, setMisConversaciones] = useState('Sin leer')
   const [respuestaRapidas, setRespuestaRapidas] = useState([]);
   const [showRespuesta, setShowRespuesta] = useState(false)
+  const dummy = useRef(null)
   const [equipoUsuario , setEquipoUsuario] = useState({
     correo: '',
     estado: '',
@@ -184,6 +185,7 @@ export default function Mensajeria() {
                       conversacion_id: item.conversacion_id,
                       nombreunico: item.nombreunico,
                     })
+                    
                   }
                 }
               }
@@ -196,25 +198,23 @@ export default function Mensajeria() {
       socket.on("mensaje", (msg) => {
         const { type, data } = msg;
         if (type === "update-conversacion" && data.cuenta_id === cuenta_id) {
-          new Promise((resolve, reject) => {
-            socket.emit("listar_conversacion", {
-              cuenta_id: cuenta_id,
-              equipo_id: null,
-              agente_id: null,
-              estado: null,
-            });
-            resolve();
+          socket.emit("listar_conversacion", {
+            cuenta_id: cuenta_id,
+            equipo_id: null,
+            agente_id: null,
+            estado: null,
           });
+          dummy.current.scrollIntoView({ behavior: 'smooth' })
         }
       });
 
-      socket.on(`get_conversacion_activa_${cuenta_id}`, (msg) => {
+      socket.on(`get_conversacion_activa_${cuenta_id}`, (msg) => {//listamos los mensajes de la conversacion activa (la que esta siendo atendida por el agente)
         const { type, data, listMensajes } = msg;
-        console.log("msg: ", msg);
         if (type === "response_get_conversacion_activa" &&
           data.cuenta_id === cuenta_id && data.conversacion_id === JSON.parse(localStorage.getItem("conversacion_activa")).conversacion_id &&
           data.nombreunico === JSON.parse(localStorage.getItem("conversacion_activa")).nombreunico) {
           setConversacionActiva(listMensajes);
+          dummy.current.scrollIntoView({ behavior: 'smooth' })
         }
       });
     } catch (error) {
@@ -370,6 +370,7 @@ export default function Mensajeria() {
       setInputStr("");
       setTypeInput("text");
       EmiittingMensaje();
+      dummy.current.scrollIntoView({ behavior: 'smooth' })
     }
   };
 
@@ -457,14 +458,14 @@ export default function Mensajeria() {
     }
 
     setConvEstado(estado);
-    setTimeout(() => {
+    // setTimeout(() => {
       socket.emit("listar_conversacion", {
         cuenta_id: GetTokenDecoded().cuenta_id,
         equipo_id: null,
         agente_id: null,
         estado: null,
       });
-    }, 300);
+    // }, 300);
   };
 
   useEffect(() => {
@@ -916,6 +917,7 @@ export default function Mensajeria() {
                     );
                   }
                 })}
+                <span ref={dummy}></span>
               </div>
 
 

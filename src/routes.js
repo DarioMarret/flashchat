@@ -1,4 +1,3 @@
-import { GetTokenDecoded } from "function/storeUsuario";
 import Dashboard from "views/Dashboard.js";
 import ChatBots from "views/Pages/ChatBots";
 import Agentes from "views/Pages/Configuracion/Agentes";
@@ -13,9 +12,7 @@ import Contactos from "views/Pages/Contactos";
 import LoginPage from "views/Pages/LoginPage";
 import Mensajeria from "views/Pages/Mensajeria";
 
-var routes = []
-if(GetTokenDecoded() && GetTokenDecoded().perfil === "Administrador"){
-  routes =  [
+var routes = [
     {
       path: "/dashboard",
       layout: "/admin",
@@ -331,31 +328,7 @@ if(GetTokenDecoded() && GetTokenDecoded().perfil === "Administrador"){
     //     }
     //   ]
     // }
+
   ];
-}else{
-  routes =  [
-    {
-      path: "/dashboard",
-      layout: "/admin",
-      name: "Dashboard",
-      icon: "nc-icon nc-chart-pie-35",
-      component: Dashboard
-    },
-    {
-      path: "/mensajeria",
-      layout: "/admin",
-      name: "Mensajeria",
-      icon: "nc-icon nc-chat-round",
-      component: Mensajeria
-    },
-    {
-      path: "/contactos",
-      layout: "/admin",
-      name: "Contactos",
-      icon: "nc-icon nc-single-02",
-      component: Contactos
-    },
-  ];
-}
 
 export default routes;
