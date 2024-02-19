@@ -23,7 +23,7 @@ import io from "socket.io-client";
 
 var socket = null;
 try {
-  if(true){
+  if(proxy === ""){
     socket = io.connect("http://localhost:5002", {
       path: "/socket.io/socket.io.js",
       transports: ["websocket"],
