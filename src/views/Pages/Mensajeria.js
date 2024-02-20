@@ -22,7 +22,6 @@ import { SubirMedia } from "function/storeUsuario";
 import io from "socket.io-client";
 
 var socket = null;
-try {
   if(proxy === ""){
   // if(true){
     socket = io.connect("http://localhost:5002", {
@@ -35,12 +34,8 @@ try {
       transports: ["websocket"],
     });
   }
-} catch (error) {
-  console.log("error Socket: ",error);
-}
 
 
-console.log("socket: ", socket);
 
 moment.locale("es");
 
@@ -265,13 +260,14 @@ export default function Mensajeria() {
   // buscar la conversacion y por cuenta_id, contacto_id, conversacion_id, agente_id, y reemplazar los valores
   const CambiodeAgente = (data) => {
     const { cuenta_id, contacto_id, conversacion_id, agente_id } = data;
-    var card_mensajes_agent = [...card_mensajes];
-    card_mensajes_agent.map((item, index) => {
-      if (
-        item.conversacion_id === conversacion_id &&
-        item.contacto_id === contacto_id && cuenta_id === GetTokenDecoded().cuenta_id
-        ) {
-        card_mensajes_agent[index].agente_id = agente_id;
+    var card_mensajes_agent = [];
+    card_mensajes.map((item, index) => {
+      if (item.conversacion_id === conversacion_id && item.contacto_id === contacto_id && cuenta_id === GetTokenDecoded().cuenta_id) {
+        card_mensajes[index].agente_id = agente_id;
+        console.log("card_mensajes: ", card_mensajes[index]);
+        card_mensajes_agent.push(card_mensajes[index]);
+      }else{
+        card_mensajes_agent.push(card_mensajes[index]);
       }
     })
     setCard_mensajes(card_mensajes_agent)
@@ -348,6 +344,12 @@ export default function Mensajeria() {
             })
           );
           setConvEstado(item.estado);
+          socket.emit("asignacion_agente", {
+            cuenta_id: GetTokenDecoded().cuenta_id,
+            contacto_id: item.contacto_id,
+            conversacion_id: item.conversacion_id,
+            agente_id: GetTokenDecoded().id,
+          });
           socket.emit("get_conversacion_activa", {
             cuenta_id: GetTokenDecoded().cuenta_id,
             conversacion_id: item.conversacion_id,
@@ -356,12 +358,6 @@ export default function Mensajeria() {
             contacto_id: item.contacto_id,
             agente_id: GetTokenDecoded().id,
             nombreunico: item.nombreunico,
-          });
-          socket.emit("asignacion_agente", {
-            cuenta_id: GetTokenDecoded().cuenta_id,
-            contacto_id: item.contacto_id,
-            conversacion_id: item.conversacion_id,
-            agente_id: GetTokenDecoded().id,
           });
         }else{
           return
@@ -380,6 +376,12 @@ export default function Mensajeria() {
         })
       );
     setConvEstado(item.estado);
+    socket.emit("asignacion_agente", {
+      cuenta_id: GetTokenDecoded().cuenta_id,
+      contacto_id: item.contacto_id,
+      conversacion_id: item.conversacion_id,
+      agente_id: GetTokenDecoded().id,
+    });
     socket.emit("get_conversacion_activa", {
       cuenta_id: GetTokenDecoded().cuenta_id,
       conversacion_id: item.conversacion_id,
@@ -388,12 +390,6 @@ export default function Mensajeria() {
       contacto_id: item.contacto_id,
       agente_id: GetTokenDecoded().id,
       nombreunico: item.nombreunico,
-    });
-    socket.emit("asignacion_agente", {
-      cuenta_id: GetTokenDecoded().cuenta_id,
-      contacto_id: item.contacto_id,
-      conversacion_id: item.conversacion_id,
-      agente_id: GetTokenDecoded().id,
     });
     }
   };
