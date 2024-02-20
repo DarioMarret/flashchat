@@ -23,8 +23,8 @@ import io from "socket.io-client";
 
 var socket = null;
 try {
-  if(proxy === ""){
-  // if(true){
+  // if(proxy === ""){
+  if(true){
     socket = io.connect("http://localhost:5002", {
       path: "/socket.io/socket.io.js",
       transports: ["websocket"],
@@ -78,7 +78,8 @@ export default function Mensajeria() {
   const onEmojiClick = (emojiObject, event) => {
     setInputStr((prevInput) => prevInput + emojiObject.emoji);
     setShowPicker(false);
-  };
+  }
+
   const ListarAgentes = async() => {
     const url = `${host}agentes/${GetTokenDecoded().cuenta_id}`
     const { data, status } = await axios.get(url)
@@ -105,6 +106,7 @@ export default function Mensajeria() {
       return "Sin agente"
     }
   }
+
   const ListarMensajesRespuestaRapida = async () => {
     try {
       const url = `${host}/mensaje_predeterminado/${GetTokenDecoded().cuenta_id}`
@@ -117,7 +119,8 @@ export default function Mensajeria() {
       console.log(error)
       return null
     }
-  }  
+  }
+  
   const GetMisConversaciones = () => {
     const local = localStorage.getItem('misConversaciones');
     if (local) {
@@ -166,6 +169,27 @@ export default function Mensajeria() {
         if (data.length > 0) {
           for (let index = 0; index < data.length; index++) {
             const item = data[index];
+            if (covActiva) {
+              if (item.conversacion_id === covActiva.conversacion_id && item.nombreunico === covActiva.nombreunico) {
+                // validar si la conversacion activa aun sigue siendo atendida por el agente
+                console.log("item.agente_id.conversacion: ", item.agente_id);
+                console.log("item.agente_id.GetTokenDecoded: ", GetTokenDecoded().id);
+                if(item.agente_id === GetTokenDecoded().id){
+                  socket.emit("get_conversacion_activa", {
+                    cuenta_id: GetTokenDecoded().cuenta_id,
+                    contacto_id: item.contacto_id,
+                    equipo_id: item.equipo_id,
+                    channel_id: item.channel_id,
+                    agente_id: GetTokenDecoded().id,
+                    conversacion_id: item.conversacion_id,
+                    nombreunico: item.nombreunico,
+                  })
+                }else{
+                  // DeletManejoConversacion()
+                  // setConversacionActiva([])
+                }
+              }
+            }
             if(equipos.includes(item.equipo_id) && bots.includes(item.nombre_bot)){
               new_card.push({
                 id: item.id,
@@ -189,19 +213,6 @@ export default function Mensajeria() {
                 etiqueta: item.etiquetas,
                 agente_id: item.agente_id,
               })
-              if (covActiva) {
-                if (item.conversacion_id === covActiva.conversacion_id && item.nombreunico === covActiva.nombreunico) {
-                  socket.emit("get_conversacion_activa", {
-                    cuenta_id: GetTokenDecoded().cuenta_id,
-                    contacto_id: item.contacto_id,
-                    equipo_id: item.equipo_id,
-                    channel_id: item.channel_id,
-                    agente_id: GetTokenDecoded().id,
-                    conversacion_id: item.conversacion_id,
-                    nombreunico: item.nombreunico,
-                  })
-                }
-              }
             }
           }
           setCard_mensajes(new_card);
@@ -211,12 +222,7 @@ export default function Mensajeria() {
       socket.on("mensaje", (msg) => {
         const { type, data } = msg;
         if (type === "update-conversacion" && data.cuenta_id === cuenta_id) {
-          socket.emit("listar_conversacion", {
-            cuenta_id: cuenta_id,
-            equipo_id: null,
-            agente_id: null,
-            estado: null,
-          });
+          EmiittingMensaje()
         }
       });
 
@@ -229,7 +235,20 @@ export default function Mensajeria() {
           setConversacionActiva(listMensajes);
           dummy.current.scrollIntoView({ behavior: 'smooth' })
         }
-      });
+      })
+      socket.on("asignacion_agente", (msg) => {
+        const { type, data } = msg;
+        if (type === "response_asignacion_agente" && data.cuenta_id === GetTokenDecoded().cuenta_id) {
+          CambiodeAgente(data)
+        }
+      })
+      socket.on("cambiar_estado", (msg) => {
+        const { type, data } = msg;
+        if (type === "response_cambiar_estado" && data.cuenta_id === GetTokenDecoded().cuenta_id) {
+          CambiarEstadoConversacion(data)
+        }
+      })
+      
     } catch (error) {
       console.log(error);
     }
@@ -241,16 +260,50 @@ export default function Mensajeria() {
   }, []);
 
 
+
+
+  // buscar la conversacion y por cuenta_id, contacto_id, conversacion_id, agente_id, y reemplazar los valores
+  const CambiodeAgente = (data) => {
+    const { cuenta_id, contacto_id, conversacion_id, agente_id } = data;
+    var card_mensajes_agent = [...card_mensajes];
+    card_mensajes_agent.map((item, index) => {
+      if (
+        item.conversacion_id === conversacion_id &&
+        item.contacto_id === contacto_id && cuenta_id === GetTokenDecoded().cuenta_id
+        ) {
+        card_mensajes_agent[index].agente_id = agente_id;
+      }
+    })
+    setCard_mensajes(card_mensajes_agent)
+  }
+
+  const CambiarEstadoConversacion = (data) => {
+    const { cuenta_id, conversacion_id, contacto_id, estado, nombreunico } = data;
+    var card_mensajes_agent = [...card_mensajes];
+    card_mensajes_agent.map((item, index) => {
+      if (item.conversacion_id === conversacion_id && cuenta_id === GetTokenDecoded().cuenta_id 
+      && item.contacto_id === contacto_id && nombreunico === item.nombreunico) {
+        if(estado === "Eliminado" || estado === "Resuelta"){
+          DeletManejoConversacion()
+          setConversacionActiva([])
+          // lo eliminamos de la lista de conversaciones
+          card_mensajes_agent.splice(index, 1);
+        }else{
+          card_mensajes_agent[index].estado = estado;
+        }
+      }
+    })
+    setCard_mensajes(card_mensajes_agent)
+  }
+
   const EmiittingMensaje = () => {
     socket.emit("listar_conversacion", {
       cuenta_id: GetTokenDecoded().cuenta_id,
       equipo_id: null,
       agente_id: null,
       estado: null,
-    });
+    })
   }
-
-
 
   const ListarEstados = async () => {
     const url = `${host}estados`;
@@ -304,23 +357,28 @@ export default function Mensajeria() {
             agente_id: GetTokenDecoded().id,
             nombreunico: item.nombreunico,
           });
-          EmiittingMensaje();
+          socket.emit("asignacion_agente", {
+            cuenta_id: GetTokenDecoded().cuenta_id,
+            contacto_id: item.contacto_id,
+            conversacion_id: item.conversacion_id,
+            agente_id: GetTokenDecoded().id,
+          });
         }else{
           return
         }
       })
     }else{
       localStorage.setItem("conversacion_activa", JSON.stringify({
-        cuenta_id: GetTokenDecoded().cuenta_id,
-        conversacion_id: item.conversacion_id,
-        nombreunico: item.nombreunico,
-        equipo_id: item.equipo_id,
-        channel_id: item.channel_id,
-        contacto_id: item.contacto_id,
-        estado: item.estado,
-        Contacto: item.Contactos,
-      })
-    );
+          cuenta_id: GetTokenDecoded().cuenta_id,
+          conversacion_id: item.conversacion_id,
+          nombreunico: item.nombreunico,
+          equipo_id: item.equipo_id,
+          channel_id: item.channel_id,
+          contacto_id: item.contacto_id,
+          estado: item.estado,
+          Contacto: item.Contactos,
+        })
+      );
     setConvEstado(item.estado);
     socket.emit("get_conversacion_activa", {
       cuenta_id: GetTokenDecoded().cuenta_id,
@@ -331,7 +389,12 @@ export default function Mensajeria() {
       agente_id: GetTokenDecoded().id,
       nombreunico: item.nombreunico,
     });
-    EmiittingMensaje();
+    socket.emit("asignacion_agente", {
+      cuenta_id: GetTokenDecoded().cuenta_id,
+      contacto_id: item.contacto_id,
+      conversacion_id: item.conversacion_id,
+      agente_id: GetTokenDecoded().id,
+    });
     }
   };
 
@@ -462,23 +525,10 @@ export default function Mensajeria() {
       nombreunico: covActiva.nombreunico,
       estado: estado,
     });
-    // actualizamos el estado en localstorage
-    if(estado === "Eliminado" || estado === "Resuelta"){
-      DeletManejoConversacion();
-      setConversacionActiva([]);
-    }else{
+    if(estado !== "Eliminado" || estado !== "Resuelta"){
       localStorage.setItem("conversacion_activa",JSON.stringify({...covActiva,estado: estado}));
+      setConvEstado(estado);
     }
-
-    setConvEstado(estado);
-    // setTimeout(() => {
-      socket.emit("listar_conversacion", {
-        cuenta_id: GetTokenDecoded().cuenta_id,
-        equipo_id: null,
-        agente_id: null,
-        estado: null,
-      });
-    // }, 300);
   };
 
   useEffect(() => {
@@ -520,7 +570,7 @@ export default function Mensajeria() {
           <div className="d-flex py-2 px-2 flex-wrap align-items-center justify-content-between">
             <div className="">
               <Input
-                className="input-dark text-dark"
+                className="input-dark text-dark bg-white"
                 placeholder="Buscar chat"
               />
               <p className="m-2 mb-0">

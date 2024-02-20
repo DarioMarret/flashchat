@@ -51,6 +51,7 @@ function Agentes(props) {
         if (status === 200) {
             let ag = []
             data.data.map((agente, index) => {
+                console.log("Agente: ", agente.botId)
                 ag.push({
                     id: agente.id,
                     botId: agente.botId,

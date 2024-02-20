@@ -14,6 +14,7 @@ import {
 } from 'chart.js';
 import { GetTokenDecoded } from "function/storeUsuario";
 import { host } from "function/util/global";
+import moment from "moment";
 import { useEffect, useState } from "react";
 import {
   Card,
@@ -33,37 +34,109 @@ ChartJS.register(
   Tooltip,
   Legend
 );
-
+var mes = [{
+  "mes": "Enero",
+  "contar": 0
+}, {
+  "mes": "Febrero",
+  "contar": 0
+}, {
+  "mes": "Marzo",
+  "contar": 0
+}, {
+  "mes": "Abril",
+  "contar": 0
+}, {
+  "mes": "Mayo",
+  "contar": 0
+}, {
+  "mes": "Junio",
+  "contar": 0
+}, {
+  "mes": "Julio",
+  "contar": 0
+}, {
+  "mes": "Agosto",
+  "contar": 0
+}, {
+  "mes": "Septiembre",
+  "contar": 0
+}, {
+  "mes": "Octubre",
+  "contar": 0
+}, {
+  "mes": "Noviembre",
+  "contar": 0
+}, {
+  "mes": "Diciembre",
+  "contar": 0
+}]
+var dias = [{
+  "dia": "Lunes",
+  "contar": 0
+}, {
+  "dia": "Martes",
+  "contar": 0
+},{
+  "dia": "Miercoles",
+  "contar": 0
+},{
+  "dia": "Jueves",
+  "contar": 0
+},{
+  "dia": "Viernes",
+  "contar": 0
+},{
+  "dia": "Sabado",
+  "contar": 0
+},{
+  "dia": "Domingo",
+  "contar": 0
+}]
 function Dashboard() {
 
   const [bots, setBots] = useState([]);
   const [contactos, setContactos] = useState([]);
   const [conversaciones, setConversaciones] = useState();
   const [agentes, setAgentes] = useState([]);
+  
 
 
   const ListarBots = async() => {
     const url = `${host}bots/${GetTokenDecoded().cuenta_id}`;
     const { data, status } = await axios.get(url);
     if (status === 200) {
+      const fechaActual = moment().format('YYYY-MM-DD');
+      const fechaAtras = moment().subtract(6, 'days').format('YYYY-MM-DD');
       const conversacionBot = await axios.get(`${host}bots_conversacion/${GetTokenDecoded().cuenta_id}`);
-      console.log(conversacionBot.data);
-      let count = 0;
+      // const conversacionBot = await axios.get(`http://localhost:5002/bots_conversacion/${GetTokenDecoded().cuenta_id}`);
       if(conversacionBot.status === 200){
         data.data.forEach((bot, index) => {
           conversacionBot.data.data.forEach((conversacion, index) => {
             if(bot.nombreunico === conversacion.nombreunico){
-              bot["conversaciones"] = index+1;
-              
+              console.log("bot: ", bot);
+              console.log("contador: ", parseInt(conversacion.contar) + " bot: ", bot.nombreunico);
+              bot['conversaciones'] = bot['conversaciones'] ? bot['conversaciones'] + parseInt(conversacion.contar) : parseInt(conversacion.contar);
+              if(conversacion.mes){
+                mes.filter(m => {
+                  if(m.mes === conversacion.mes){
+                    m.contar = m.contar + parseInt(conversacion.contar);
+                  }
+                })
+              }
+              dias.filter(d => {
+                if(fechaActual >= conversacion.fecha && fechaAtras <= conversacion.fecha){
+                  if(d.dia === conversacion.dia){
+                    d.contar = d.contar + parseInt(conversacion.contar);
+                    // d.dia = d.dia + " / " + moment(conversacion.fecha).format('DD');
+                  }
+                }
+              })
             }
           })
         });
         setBots(data.data);
-        data.data.forEach((bot, index) => {
-          count += bot.conversaciones;
-        });
-        setConversaciones(count);
-
+        setConversaciones(conversacionBot.data.totalConversacion);
       }
     }
   }
@@ -106,6 +179,8 @@ function Dashboard() {
     },
   };
   const labels = bots.map(bot => bot.nombre_bot);
+  const labelsMes = mes.map(m => m.mes);
+  const labelsDias = dias.map(d => d.dia);
   return (
     <>
       <Container fluid>
@@ -289,11 +364,11 @@ function Dashboard() {
                 <Bar
                   data={
                     {
-                      labels: ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo'],
+                      labels:labelsDias,
                       datasets: [
                         {
                           label: 'Conversaciones',
-                          data: [12, 19, 3, 5, 2, 3, 10],
+                          data: dias.map(d => d.contar),
                           backgroundColor: "rgba(75,192,192,0.2)",
                           borderColor: "rgba(75,192,192,1)",
                           borderWidth: 1
@@ -316,11 +391,11 @@ function Dashboard() {
                 <Bar
                   data={
                     {
-                      labels: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', "Diciembre"],
+                      labels: labelsMes,
                       datasets: [
                         {
                           label: 'Conversaciones',
-                          data: [5, 5, 3, 5, 2, 3, 5, 5],
+                          data: mes.map(m => m.contar),
                           backgroundColor: "rgba(75,192,192,0.2)",
                           borderColor: "rgba(75,192,192,1)",
                           borderWidth: 1,

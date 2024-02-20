@@ -14,9 +14,9 @@ import Mensajeria from "views/Pages/Mensajeria";
 
 var routes = [
     {
-      path: "/dashboard",
+      path: "/panel",
       layout: "/admin",
-      name: "Dashboard",
+      name: "Panel",
       icon: "nc-icon nc-chart-pie-35",
       component: Dashboard
     },
