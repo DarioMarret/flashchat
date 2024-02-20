@@ -23,8 +23,8 @@ import io from "socket.io-client";
 
 var socket = null;
 try {
-  // if(proxy === ""){
-  if(true){
+  if(proxy === ""){
+  // if(true){
     socket = io.connect("http://localhost:5002", {
       path: "/socket.io/socket.io.js",
       transports: ["websocket"],
@@ -120,7 +120,7 @@ export default function Mensajeria() {
       return null
     }
   }
-  
+
   const GetMisConversaciones = () => {
     const local = localStorage.getItem('misConversaciones');
     if (local) {
