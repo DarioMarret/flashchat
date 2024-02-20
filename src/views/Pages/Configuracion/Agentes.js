@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { GetTokenDecoded, SubirMedia } from 'function/storeUsuario';
 import { host } from 'function/util/global';
+import Multiselect from 'multiselect-react-dropdown';
 import { useEffect, useState } from 'react';
 import {
     Container,
@@ -8,7 +9,6 @@ import {
     Modal
 } from 'react-bootstrap';
 import Swal from 'sweetalert2';
-
 
 function Agentes(props) {
     const [show, setShow] = useState(false);
@@ -25,7 +25,10 @@ function Agentes(props) {
         menu: [],
         contacto: '',
         perfil: '',
+        botId: []
     })
+
+    const [bots, setBots] = useState([])
     const handleClose = () => {
         setShow(!show)
         setAgente({
@@ -41,6 +44,7 @@ function Agentes(props) {
             perfil: '',
         })
     }
+
     const ListarAgentes = async() => {
         const url = `${host}agentes/${GetTokenDecoded().cuenta_id}`
         const { data, status } = await axios.get(url)
@@ -49,6 +53,7 @@ function Agentes(props) {
             data.data.map((agente, index) => {
                 ag.push({
                     id: agente.id,
+                    botId: agente.botId,
                     cuenta_id: agente.cuenta_id,
                     equipo_id: agente.equipo_id,
                     equipo: agente.equipos.equipos,
@@ -92,6 +97,21 @@ function Agentes(props) {
         }
     }
 
+    const ListarBots = async() => {
+        const url = `${host}bots/${GetTokenDecoded().cuenta_id}`
+        const { data, status } = await axios.get(url)
+        if (status === 200) {
+            let labels = []
+            data.data.map(bot => {
+                labels.push({
+                    name: bot.nombre_bot,
+                    id: bot.id
+                })
+            })
+            setBots(labels)
+        }
+    }
+
     const ListarEquipos = async() => {
         const url = `${host}equipo/${GetTokenDecoded().cuenta_id}`
         const { data, status } = await axios.get(url)
@@ -108,6 +128,7 @@ function Agentes(props) {
             handleClose()
         }
     }
+
     const CargarAvatar = async(file) => {
         const url = await SubirMedia(file)
         if(url !== null){
@@ -120,6 +141,20 @@ function Agentes(props) {
             return null
         }
     }
+
+    const handlebotSelect = (e) => {
+        setAgente({
+            ...agente,
+            botId: e
+        })
+    }
+    const handlebotRemove = (e) => {
+        setAgente({
+            ...agente,
+            botId: e
+        })
+    }
+
 
     const EliminarAgente = async(id, nombre) => {
         const url = `${host}agentes/${id}`
@@ -153,8 +188,11 @@ function Agentes(props) {
         (async()=>{
             await ListarAgentes()
             await ListarEquipos()
+            await ListarBots()
         })()
     }, [])
+
+    console.log(agentes)
 
     return (
         <>
@@ -243,19 +281,15 @@ function Agentes(props) {
                 <Modal.Body>
                     <Form>
                         <Form.Group controlId="exampleForm.ControlSelect1">
-                            <Form.Label>Equipo</Form.Label>
-                            <Form.Control as="select"
-                                value={agente.equipo_id}
-                                name='equipo_id'
-                                onChange={(e) => setAgente({...agente, equipo_id: parseInt(e.target.value)})}
-                            >
-                                <option value={0}>Seleccione un equipo</option>
-                                {
-                                    equipos.map((equipo, index) => (
-                                        <option value={equipo.id} key={index}>{equipo.equipos}</option>
-                                    ))
-                                }
-                            </Form.Control>
+                            <Form.Label>Atencion bot</Form.Label>
+                            <Multiselect
+                                options={bots}
+                                displayValue="name"
+                                avoidHighlightFirstOption="true"
+                                onSelect={handlebotSelect}
+                                onRemove={handlebotRemove}
+                                selectedValues={agente.botId}
+                            />
                         </Form.Group>
                         <Form.Group controlId="exampleForm.ControlInput1">
                             <Form.Label>Nombre</Form.Label>

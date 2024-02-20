@@ -225,7 +225,6 @@ function Equipos(props) {
                             type="submit" onClick={(e)=>CrearEquipo(e)}>
                                 Crear
                             </button>
-                            
                         }
                     </Form>
                 </Modal.Body>

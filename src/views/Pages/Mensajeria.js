@@ -23,7 +23,8 @@ import io from "socket.io-client";
 
 var socket = null;
 try {
-  if(proxy === ""){
+  // if(proxy === ""){
+  if(true){
     socket = io.connect("http://localhost:5002", {
       path: "/socket.io/socket.io.js",
       transports: ["websocket"],
@@ -154,18 +155,24 @@ export default function Mensajeria() {
         setEquipoUsuario(GetTokenDecoded());
         let new_card = [];
         let equipos = []
+        let bots = []
         GetTokenDecoded().equipos.map((item) => {
           equipos.push(item.id)
-        });
+        })
+        GetTokenDecoded().botId.map((item) => {
+          bots.push(item.name)
+        })
         const covActiva = GetManejoConversacion();
         if (data.length > 0) {
-          data.map((item) => {
-              console.log(item.Contactos.nombre, "Estado: ", item.estado)
-            if(equipos.includes(item.equipo_id)){
+          for (let index = 0; index < data.length; index++) {
+            const item = data[index];
+            if(equipos.includes(item.equipo_id) && bots.includes(item.nombre_bot)){
               new_card.push({
                 id: item.id,
+                bot: item.nombre_bot,
                 conversacion_id: item.conversacion_id,
                 name: item.Contactos.nombre,
+                telefono: item.Contactos.telefono,
                 Contactos: item.Contactos,
                 contacto_id: item.contacto_id,
                 channel_id: item.channel_id,
@@ -173,10 +180,8 @@ export default function Mensajeria() {
                 equipo_id: item.equipo_id,
                 tipo: item.tipo,
                 estado: item.estado,
-                fecha:
-                  moment(item.updatedAt) >= moment().subtract(1, "days")
-                    ? moment(item.updatedAt).format("hh:mm a")
-                    : moment(item.updatedAt).format("DD/MM/YYYY hh:mm a"),
+                fecha: moment(item.updatedAt) >= moment().subtract(1, "days")
+                    ? moment(item.updatedAt).format("hh:mm a") : moment(item.updatedAt).format("DD/MM/YYYY hh:mm a"),
                 url_avatar: item.Contactos.avatar,
                 proveedor: item.channel.proveedor,
                 active: true,
@@ -195,11 +200,10 @@ export default function Mensajeria() {
                     conversacion_id: item.conversacion_id,
                     nombreunico: item.nombreunico,
                   })
-                  
                 }
               }
             }
-          });
+          }
           setCard_mensajes(new_card);
         }
       });
@@ -213,15 +217,15 @@ export default function Mensajeria() {
             agente_id: null,
             estado: null,
           });
-          dummy.current.scrollIntoView({ behavior: 'smooth' })
         }
       });
 
       socket.on(`get_conversacion_activa_${cuenta_id}`, (msg) => {//listamos los mensajes de la conversacion activa (la que esta siendo atendida por el agente)
         const { type, data, listMensajes } = msg;
         if (type === "response_get_conversacion_activa" &&
-          data.cuenta_id === cuenta_id && data.conversacion_id === JSON.parse(localStorage.getItem("conversacion_activa")).conversacion_id &&
-          data.nombreunico === JSON.parse(localStorage.getItem("conversacion_activa")).nombreunico) {
+        data.cuenta_id === cuenta_id && data.conversacion_id === JSON.parse(localStorage.getItem("conversacion_activa")).conversacion_id &&
+        data.nombreunico === JSON.parse(localStorage.getItem("conversacion_activa")).nombreunico &&
+        data.contacto_id === JSON.parse(localStorage.getItem("conversacion_activa")).contacto_id) {
           setConversacionActiva(listMensajes);
           dummy.current.scrollIntoView({ behavior: 'smooth' })
         }
@@ -588,14 +592,29 @@ export default function Mensajeria() {
                     key={index + 1}
                     className="chat-item cursor-pointer rounded d-flex gap-2 align-items-center"
                     onClick={() => ManejarConversacion(item)}
-                  >
-                    <div className="w-25 rounded d-flex align-items-center justify-content-center">
-                      <img
-                        src={item.url_avatar}
-                        className="rounded-circle"
-                        width="40px"
-                        height="40px"
-                      />
+                    >
+                    <div className="w-25 d-flex flex-column align-items-center justify-content-center">
+                      <span
+                        className="w-20 font-bold text-center"
+                        style={{ 
+                          fontSize: "11px", 
+                          position: "relative",
+                          top: "-15px",
+                          backgroundColor: "#3F98F8",
+                          color: "white",
+                          padding: "2px",
+                          borderRadius: "5px",
+                          zIndex: "100"
+                        }}
+                      >{item.bot}</span>
+                      <div className="w-25 rounded d-flex align-items-center justify-content-center">
+                          <img
+                            src={item.url_avatar}
+                            className="rounded-circle"
+                            width="40px"
+                            height="40px"
+                          />
+                      </div>
                     </div>
 
                     <div className="w-75 p-1 d-flex flex-column">
@@ -603,7 +622,7 @@ export default function Mensajeria() {
                         className="d-flex flex-row justify-content-between"
                         style={{ lineHeight: "15px" }}
                       >
-                        <span className="w-100 text-dark font-bold">
+                        <span className="w-100 text-dark font-bold text-center">
                           {item.name}
                         </span>
                         <small className="text-warning">{item.fecha}</small>
@@ -664,13 +683,28 @@ export default function Mensajeria() {
                     className="chat-item cursor-pointer rounded d-flex gap-2 align-items-center"
                     onClick={() => ManejarConversacion(item)}
                   >
-                    <div className="w-25 rounded d-flex align-items-center justify-content-center">
-                      <img
-                        src={item.url_avatar}
-                        className="rounded-circle"
-                        width="40px"
-                        height="40px"
-                      />
+                    <div className="w-25 d-flex flex-column align-items-center justify-content-center">
+                      <span
+                        className="w-20 font-bold text-center"
+                        style={{ 
+                          fontSize: "11px", 
+                          position: "relative",
+                          top: "-15px",
+                          backgroundColor: "#3F98F8",
+                          color: "white",
+                          padding: "2px",
+                          borderRadius: "5px",
+                          zIndex: "100"
+                        }}
+                      >{item.bot}</span>
+                      <div className="w-25 rounded d-flex align-items-center justify-content-center">
+                          <img
+                            src={item.url_avatar}
+                            className="rounded-circle"
+                            width="40px"
+                            height="40px"
+                          />
+                      </div>
                     </div>
 
                     <div className="w-75 p-1 d-flex flex-column">
@@ -728,6 +762,11 @@ export default function Mensajeria() {
                             );
                           }
                         })}
+                      <span className="w-20 text-dark font-bold"
+                        style={{ fontSize: "12px" }}
+                      >
+                       Ag: {NombreAgente(item.agente_id)}
+                      </span>
                       </div>
                     </div>
                   </div>
@@ -739,13 +778,28 @@ export default function Mensajeria() {
                     className="chat-item cursor-pointer rounded d-flex gap-2 align-items-center"
                     onClick={() => ManejarConversacion(item)}
                   >
-                    <div className="w-25 rounded d-flex align-items-center justify-content-center ">
-                      <img
-                        src={item.url_avatar}
-                        className="rounded-circle"
-                        width="40px"
-                        height="40px"
-                      />
+                    <div className="w-25 d-flex flex-column align-items-center justify-content-center">
+                      <span
+                        className="w-20 font-bold text-center"
+                        style={{ 
+                          fontSize: "11px", 
+                          position: "relative",
+                          top: "-15px",
+                          backgroundColor: "#3F98F8",
+                          color: "white",
+                          padding: "2px",
+                          borderRadius: "5px",
+                          zIndex: "100"
+                        }}
+                      >{item.bot}</span>
+                      <div className="w-25 rounded d-flex align-items-center justify-content-center">
+                          <img
+                            src={item.url_avatar}
+                            className="rounded-circle"
+                            width="40px"
+                            height="40px"
+                          />
+                      </div>
                     </div>
 
                     <div className="w-75 p-1 d-flex flex-column">
@@ -815,6 +869,7 @@ export default function Mensajeria() {
               }
             })}
           </div>
+          
         </div>
 
         <div className="chat-messages bg-white rounded-end">
@@ -842,7 +897,7 @@ export default function Mensajeria() {
                 <div className="d-flex align-items-center gap-2">
                   <span className="d-block font-bold chat-title d-flex">
                     {GetManejoConversacion()
-                      ? GetManejoConversacion().Contacto.nombre
+                      ? GetManejoConversacion().Contacto.nombre+ " - " + GetManejoConversacion().Contacto.telefono
                       : "Seleccione una conversación"}
                   </span>
                   {GetManejoConversacion() ? (
