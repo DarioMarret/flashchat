@@ -114,8 +114,6 @@ function Dashboard() {
         data.data.forEach((bot, index) => {
           conversacionBot.data.data.forEach((conversacion, index) => {
             if(bot.nombreunico === conversacion.nombreunico){
-              console.log("bot: ", bot);
-              console.log("contador: ", parseInt(conversacion.contar) + " bot: ", bot.nombreunico);
               bot['conversaciones'] = bot['conversaciones'] ? bot['conversaciones'] + parseInt(conversacion.contar) : parseInt(conversacion.contar);
               if(conversacion.mes){
                 mes.filter(m => {
@@ -145,7 +143,6 @@ function Dashboard() {
     const url = `${host}contactos/${GetTokenDecoded().cuenta_id}`;
     const { data, status } = await axios.get(url);
     if (status === 200) {
-      console.log(data);
       setContactos(data.data);
     }
   }
@@ -158,7 +155,6 @@ function Dashboard() {
   }
 
   useEffect(() => {
-    console.log("useEffect App: ", GetTokenDecoded());
     (async()=>{
       await ListarContactos();
       await ListarAgentes();
