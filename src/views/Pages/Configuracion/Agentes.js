@@ -51,7 +51,6 @@ function Agentes(props) {
         if (status === 200) {
             let ag = []
             data.data.map((agente, index) => {
-                console.log("Agente: ", agente.botId)
                 ag.push({
                     id: agente.id,
                     botId: agente.botId,
@@ -72,6 +71,7 @@ function Agentes(props) {
                             onClick={() => {
                                 setAgente({
                                     id: agente.id,
+                                    botId: agente.botId,
                                     cuenta_id: agente.cuenta_id,
                                     equipo_id: agente.equipo_id,
                                     nombre: agente.nombre,
@@ -173,7 +173,6 @@ function Agentes(props) {
                 })
             }
         })
- 
     }
 
     const ActualizarAgente = async() => {
@@ -192,8 +191,6 @@ function Agentes(props) {
             await ListarBots()
         })()
     }, [])
-
-    console.log(agentes)
 
     return (
         <>

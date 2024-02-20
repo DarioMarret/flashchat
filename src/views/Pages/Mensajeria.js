@@ -148,7 +148,8 @@ export default function Mensajeria() {
         equipo_id: null,
         agente_id: null,
         estado: null,
-      });
+      })
+      const covActiva = GetManejoConversacion();
       socket.on(`response_conversacion_${cuenta_id}`, (data) => {
         setEquipoUsuario(GetTokenDecoded());
         let new_card = [];
@@ -160,15 +161,12 @@ export default function Mensajeria() {
         GetTokenDecoded().botId.map((item) => {
           bots.push(item.name)
         })
-        const covActiva = GetManejoConversacion();
+        
         if (data.length > 0) {
           for (let index = 0; index < data.length; index++) {
             const item = data[index];
-            if (covActiva) {
+            if (covActiva && covActiva !== null && covActiva !== undefined) {
               if (item.conversacion_id === covActiva.conversacion_id && item.nombreunico === covActiva.nombreunico) {
-                // validar si la conversacion activa aun sigue siendo atendida por el agente
-                console.log("item.agente_id.conversacion: ", item.agente_id);
-                console.log("item.agente_id.GetTokenDecoded: ", GetTokenDecoded().id);
                 if(item.agente_id === GetTokenDecoded().id){
                   socket.emit("get_conversacion_activa", {
                     cuenta_id: GetTokenDecoded().cuenta_id,
@@ -179,9 +177,10 @@ export default function Mensajeria() {
                     conversacion_id: item.conversacion_id,
                     nombreunico: item.nombreunico,
                   })
-                }else{
-                  // DeletManejoConversacion()
-                  // setConversacionActiva([])
+                }else if(item.agente_id !== GetTokenDecoded().id){
+                  // si la conversacion activa ya no esta siendo atendida por el agente, se debe eliminar la conversacion activa
+                  DeletManejoConversacion()
+                  setConversacionActiva([])
                 }
               }
             }
@@ -217,26 +216,17 @@ export default function Mensajeria() {
       socket.on("mensaje", (msg) => {
         const { type, data } = msg;
         if (type === "update-conversacion" && data.cuenta_id === cuenta_id) {
-          EmiittingMensaje()
+          CardMensajes(data);
         }
       });
 
-      socket.on(`get_conversacion_activa_${cuenta_id}`, (msg) => {//listamos los mensajes de la conversacion activa (la que esta siendo atendida por el agente)
-        const { type, data, listMensajes } = msg;
-        if (type === "response_get_conversacion_activa" &&
-        data.cuenta_id === cuenta_id && data.conversacion_id === JSON.parse(localStorage.getItem("conversacion_activa")).conversacion_id &&
-        data.nombreunico === JSON.parse(localStorage.getItem("conversacion_activa")).nombreunico &&
-        data.contacto_id === JSON.parse(localStorage.getItem("conversacion_activa")).contacto_id) {
-          setConversacionActiva(listMensajes);
-          dummy.current.scrollIntoView({ behavior: 'smooth' })
-        }
-      })
       socket.on("asignacion_agente", (msg) => {
         const { type, data } = msg;
         if (type === "response_asignacion_agente" && data.cuenta_id === GetTokenDecoded().cuenta_id) {
           CambiodeAgente(data)
         }
       })
+
       socket.on("cambiar_estado", (msg) => {
         const { type, data } = msg;
         if (type === "response_cambiar_estado" && data.cuenta_id === GetTokenDecoded().cuenta_id) {
@@ -252,10 +242,95 @@ export default function Mensajeria() {
       socket.off(`get_conversacion_activa_${GetTokenDecoded().cuenta_id}`);
       socket.off("mensaje");
     };
-  }, []);
+  }, [])
 
+  useEffect(() => {
+    const cuenta_id = GetTokenDecoded().cuenta_id;
+    socket.on(`get_conversacion_activa_${cuenta_id}`, (msg) => {//listamos los mensajes de la conversacion activa (la que esta siendo atendida por el agente)
+      const covActiva = GetManejoConversacion();
+      const { type, data, listMensajes } = msg;
+      if(covActiva && covActiva !== null && covActiva !== undefined){
+        if (type === "response_get_conversacion_activa" && data.cuenta_id === cuenta_id && data.conversacion_id === covActiva.conversacion_id && data.nombreunico === covActiva.nombreunico && data.contacto_id === covActiva.contacto_id) {
+          if(data.agente_id === GetTokenDecoded().id){
+            setConversacionActiva(listMensajes)
+            dummy.current.scrollIntoView({ behavior: 'smooth' })
+          }else if(data.agente_id !== GetTokenDecoded().id){
+            Swal.fire({
+              title: 'Conversación Tomada',
+              html: 'La conversación fue tomada por el agente <b className="w-100 text-dark font-bold">' + NombreAgente(data.agente_id)+'</b>',
+              icon: 'info',
+              confirmButtonColor: "#8F8F8F",
+              timer: 1500,
+            })
+            DeletManejoConversacion()
+            setConversacionActiva([])
+          }
+        }
+      }
+    })
+  }, [])
 
-
+  const CardMensajes = (data) => {
+    setEquipoUsuario(GetTokenDecoded());
+    const covActiva = GetManejoConversacion();
+    let new_card = [];
+    let equipos = []
+    let bots = []
+    GetTokenDecoded().equipos.map((item) => {
+      equipos.push(item.id)
+    })
+    GetTokenDecoded().botId.map((item) => {
+      bots.push(item.name)
+    })
+    if (data.length > 0) {
+      for (let index = 0; index < data.length; index++) {
+        const item = data[index];
+        if (covActiva && covActiva !== null && covActiva !== undefined) {
+          if (item.conversacion_id === covActiva.conversacion_id && item.nombreunico === covActiva.nombreunico && item.contacto_id === covActiva.contacto_id) {
+            if(item.agente_id === GetTokenDecoded().id){
+              socket.emit("get_conversacion_activa", {
+                cuenta_id: GetTokenDecoded().cuenta_id,
+                contacto_id: item.contacto_id,
+                equipo_id: item.equipo_id,
+                channel_id: item.channel_id,
+                agente_id: GetTokenDecoded().id,
+                conversacion_id: item.conversacion_id,
+                nombreunico: item.nombreunico,
+              })
+            }else if(item.agente_id !== GetTokenDecoded().id){
+              DeletManejoConversacion()
+              setConversacionActiva([])
+            }
+          }
+        }
+        if(equipos.includes(item.equipo_id) && bots.includes(item.nombre_bot)){
+          new_card.push({
+            id: item.id,
+            bot: item.nombre_bot,
+            conversacion_id: item.conversacion_id,
+            name: item.Contactos.nombre,
+            telefono: item.Contactos.telefono,
+            Contactos: item.Contactos,
+            contacto_id: item.contacto_id,
+            channel_id: item.channel_id,
+            mensaje: item.mensajes,
+            equipo_id: item.equipo_id,
+            tipo: item.tipo,
+            estado: item.estado,
+            fecha: moment(item.updatedAt) >= moment().subtract(1, "days")
+                ? moment(item.updatedAt).format("hh:mm a") : moment(item.updatedAt).format("DD/MM/YYYY hh:mm a"),
+            url_avatar: item.Contactos.avatar,
+            proveedor: item.channel.proveedor,
+            active: true,
+            nombreunico: item.nombreunico,
+            etiqueta: item.etiquetas,
+            agente_id: item.agente_id,
+          })
+        }
+      }
+      setCard_mensajes(new_card);
+    }
+  }
 
   // buscar la conversacion y por cuenta_id, contacto_id, conversacion_id, agente_id, y reemplazar los valores
   const CambiodeAgente = (data) => {
@@ -344,12 +419,13 @@ export default function Mensajeria() {
             })
           );
           setConvEstado(item.estado);
+
           socket.emit("asignacion_agente", {
             cuenta_id: GetTokenDecoded().cuenta_id,
             contacto_id: item.contacto_id,
             conversacion_id: item.conversacion_id,
             agente_id: GetTokenDecoded().id,
-          });
+          })
           socket.emit("get_conversacion_activa", {
             cuenta_id: GetTokenDecoded().cuenta_id,
             conversacion_id: item.conversacion_id,
@@ -376,23 +452,23 @@ export default function Mensajeria() {
         })
       );
     setConvEstado(item.estado);
-    socket.emit("asignacion_agente", {
-      cuenta_id: GetTokenDecoded().cuenta_id,
-      contacto_id: item.contacto_id,
-      conversacion_id: item.conversacion_id,
-      agente_id: GetTokenDecoded().id,
-    });
-    socket.emit("get_conversacion_activa", {
-      cuenta_id: GetTokenDecoded().cuenta_id,
-      conversacion_id: item.conversacion_id,
-      equipo_id: item.equipo_id,
-      channel_id: item.channel_id,
-      contacto_id: item.contacto_id,
-      agente_id: GetTokenDecoded().id,
-      nombreunico: item.nombreunico,
-    });
+      socket.emit("asignacion_agente", {
+        cuenta_id: GetTokenDecoded().cuenta_id,
+        contacto_id: item.contacto_id,
+        conversacion_id: item.conversacion_id,
+        agente_id: GetTokenDecoded().id,
+      });
+      socket.emit("get_conversacion_activa", {
+        cuenta_id: GetTokenDecoded().cuenta_id,
+        conversacion_id: item.conversacion_id,
+        equipo_id: item.equipo_id,
+        channel_id: item.channel_id,
+        contacto_id: item.contacto_id,
+        agente_id: GetTokenDecoded().id,
+        nombreunico: item.nombreunico,
+      });
     }
-  };
+  }
 
   const GetManejoConversacion = () => {
     const local = localStorage.getItem("conversacion_activa");
@@ -401,7 +477,7 @@ export default function Mensajeria() {
     } else {
       return null;
     }
-  };
+  }
 
   const DeletManejoConversacion = () => {
     localStorage.removeItem("conversacion_activa");
@@ -445,7 +521,7 @@ export default function Mensajeria() {
       EmiittingMensaje();
       dummy.current.scrollIntoView({ behavior: 'smooth' })
     }
-  };
+  }
 
   const CompomenteMultimedis = (item) => {
     if(item === null || item === undefined){
@@ -510,7 +586,7 @@ export default function Mensajeria() {
     } else {
       return null;
     }
-  };
+  }
 
   const ActualizarEstadoConversacion = (estado) => {
     const covActiva = GetManejoConversacion();
@@ -525,11 +601,11 @@ export default function Mensajeria() {
       localStorage.setItem("conversacion_activa",JSON.stringify({...covActiva,estado: estado}));
       setConvEstado(estado);
     }
-  };
+  }
 
   useEffect(() => {
     ListarEstados();
-  }, []);
+  }, [])
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const toggle = () => setDropdownOpen((prevState) => !prevState);
