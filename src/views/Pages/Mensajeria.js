@@ -232,7 +232,8 @@ export default function Mensajeria() {
         const { type, data } = msg;
         if (type === "response_cambiar_estado" && data.cuenta_id === GetTokenDecoded().cuenta_id) {
           // CambiarEstadoConversacion(data)
-          EmiittingMensaje()
+          // EmiittingMensaje()
+          socket.emit("mensaje", {cuenta_id: GetTokenDecoded().cuenta_id})
         }
       })
       
