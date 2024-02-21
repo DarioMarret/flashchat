@@ -22,8 +22,8 @@ import { SubirMedia } from "function/storeUsuario";
 import io from "socket.io-client";
 
 var socket = null;
-  // if(proxy === ""){
-  if(true){
+  if(proxy === ""){
+  // if(true){
     socket = io.connect("http://localhost:5002", {
       path: "/socket.io/socket.io.js",
       transports: ["websocket"],
