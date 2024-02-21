@@ -18,7 +18,9 @@ import {
 import Swal from 'sweetalert2';
 // import socket from "views/SocketIO";
 import Picker from "emoji-picker-react";
-import { SubirMedia } from "function/storeUsuario";
+import { SubirMedia, setDatosUsuario } from "function/storeUsuario";
+import Tab from 'react-bootstrap/Tab';
+import Tabs from 'react-bootstrap/Tabs';
 import io from "socket.io-client";
 
 var socket = null;
@@ -234,7 +236,20 @@ export default function Mensajeria() {
           socket.emit("mensaje", {cuenta_id: GetTokenDecoded().cuenta_id})
         }
       })
-      
+
+      socket.on("infoUsuario", (msg) => {
+        try {
+          const { type, data, agente_id } = msg;
+          if (type === "recargarToken" && agente_id === GetTokenDecoded().id) {
+            if(cardMensage.length > 0){
+              setDatosUsuario(data)
+            }
+          }
+        } catch (error) {
+          console.log(error)
+        }
+      })
+
     } catch (error) {
       console.log(error);
     }
@@ -242,6 +257,8 @@ export default function Mensajeria() {
       socket.off(`response_conversacion_${GetTokenDecoded().cuenta_id}`);
       socket.off(`get_conversacion_activa_${GetTokenDecoded().cuenta_id}`);
       socket.off("mensaje");
+      socket.off("cambiar_estado");
+      socket.off("infoUsuario");
     };
   }, [])
 
@@ -285,13 +302,13 @@ export default function Mensajeria() {
       console.log(error)
     }
   })
+
+
   //buscar la conversacion y por cuenta_id, contacto_id, conversacion_id, agente_id, y reemplazar los valores
   const CambiodeAgente = (data) => {
     try {
       const { cuenta_id, contacto_id, conversacion_id, agente_id } = data;
       var card = [...cardMensage];
-      console.log("card: ", card);
-      console.log("cardMensage: ", cardMensage);
       card.map((item) => {
         if (item.conversacion_id === conversacion_id && item.contacto_id === contacto_id && cuenta_id === GetTokenDecoded().cuenta_id) {
           item.agente_id = agente_id;
@@ -301,24 +318,6 @@ export default function Mensajeria() {
     } catch (error) {
       alert("Error al cambiar de agente")
     }
-  }
-
-  const CambiarEstadoConversacion = (data) => {
-    const { cuenta_id, conversacion_id, contacto_id, estado, nombreunico } = data;
-    var card_mensajes_agent = [...cardMensage];
-    card_mensajes_agent.map((item, index) => {
-      if (item.conversacion_id === conversacion_id && cuenta_id === GetTokenDecoded().cuenta_id 
-      && item.contacto_id === contacto_id && nombreunico === item.nombreunico) {
-        if(estado === "Eliminado" || estado === "Resuelta"){
-          DeletManejoConversacion()
-          setConversacionActiva([])
-          card_mensajes_agent.splice(index, 1);
-        }else{
-          card_mensajes_agent[index].estado = estado;
-        }
-      }
-    })
-    setCard_mensajes(card_mensajes_agent)
   }
 
   const EmiittingMensaje = () => {
@@ -432,6 +431,7 @@ export default function Mensajeria() {
       nombreunico: item.nombreunico,
     })
   }
+
   const EventoAsignacionAgente = (item) => {
     socket.emit("asignacion_agente", {
       cuenta_id: GetTokenDecoded().cuenta_id,
@@ -619,11 +619,11 @@ export default function Mensajeria() {
                 className="input-dark text-dark bg-white"
                 placeholder="Buscar chat"
               />
-              <p className="m-2 mb-0">
+              {/* <p className="m-2 mb-0">
                 {misConversaciones}
-              </p>
+              </p> */}
             </div>
-            <div className="d-flex">
+            {/* <div className="d-flex">
               <Dropdown isOpen={dropdownOpen} toggle={toggle} direction="down">
                 <DropdownToggle
                   data-toggle="dropdown"
@@ -655,7 +655,6 @@ export default function Mensajeria() {
                     </span>
                     Sin leer
                   </DropdownItem>
-                  {/* todas */}
                   {
                     GetTokenDecoded().perfil === 'Administrador' ?
                       <DropdownItem className="d-flex align-items-center gap-2"
@@ -670,10 +669,355 @@ export default function Mensajeria() {
                   }
                 </DropdownMenu>
               </Dropdown>
-            </div>
+            </div> */}
           </div>
+            <Tabs
+              defaultActiveKey="Sin leer"
+              id="uncontrolled-tab-example"
+              // className="mb-3"
+              fill
+            >
+              <Tab eventKey="home" title="Sin leer"
+                onClick={() => VerConversaciones('Sin leer')}
+              >
+              <div className="w-100 py-2 px-2 d-flex flex-column gap-3 box-items-chat"
+                  style={{
+                    height: "calc(100% - 100px)",
+                    overflowY: "auto",
+                    overflowX: "hidden",
+                  
+                  }}
+                >
+                  {card_mensajes.map((item, index) => {
+                    if(item.mensaje){
+                      if(item.agente_id === 0){
+                        return (
+                          <div
+                            key={index + 1}
+                            className="chat-item cursor-pointer rounded d-flex gap-2 align-items-center"
+                            onClick={() => ManejarConversacion(item)}
+                            >
+                            <div className="w-25 d-flex flex-column align-items-center justify-content-center">
+                              <span
+                                className="w-20 font-bold text-center"
+                                style={{ 
+                                  fontSize: "11px", 
+                                  position: "relative",
+                                  top: "-15px",
+                                  backgroundColor: "#3F98F8",
+                                  color: "white",
+                                  padding: "2px",
+                                  borderRadius: "5px",
+                                }}
+                              >{item.bot}</span>
+                              <div className="w-25 rounded d-flex align-items-center justify-content-center">
+                                  <img
+                                    src={item.url_avatar}
+                                    className="rounded-circle"
+                                    width="40px"
+                                    height="40px"
+                                  />
+                              </div>
+                            </div>
+        
+                            <div className="w-75 p-1 d-flex flex-column">
+                              <div
+                                className="d-flex flex-row justify-content-between"
+                                style={{ lineHeight: "15px" }}
+                              >
+                                <span className="w-100 text-dark font-bold text-start">
+                                  {item.name}
+                                </span>
+                                <small className="text-warning">{item.fecha}</small>
+                              </div>
+        
+                              <div className="d-flex flex-row justify-content-between my-1">
+                                <small className="text-dark">
+                                  {
+                                    // limitar la cantidad de caracteres a mostrar
+                                    item.mensaje.type === "text"
+                                      ? String(item.mensaje.text).length > 30
+                                        ? String(item.mensaje.text).substring(0, 30) +
+                                          "..."
+                                        : item.mensaje.text
+                                      : // si es imagen o video mostrar el tipo de archivo
+                                      item.mensaje.type === "image" ||
+                                        item.mensaje.type === "video"
+                                      ? item.mensaje.type
+                                      : // si es audio mostrar el nombre del archivo
+                                      item.mensaje.type === "audio"
+                                      ? item.mensaje.type
+                                      : // si es archivo mostrar el nombre del archivo
+                                      item.mensaje.type === "file"
+                                      ? item.mensaje.type
+                                      : null
+                                  }
+                                </small>
+                                <div
+                                  className="rounded-circle p-0 d-flex justify-content-center aligns-items-center bg-warning"
+                                  style={{ width: "24px", height: "24px" }}
+                                >
+                                  1
+                                </div>
+                              </div>
+        
+                              <div className="d-flex gap-2 flex-wrap">
+                                {item.etiqueta.map((et, index) => {
+                                  if(et !== null && et !== "" && et !== undefined){
+                                    return (
+                                      <span
+                                        key={index + 1}
+                                        className="chat-tag rounded bg-gray text-white"
+                                      >
+                                        {et}
+                                      </span>
+                                    );
+                                  }
+                                })}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      }
+                    }
+                  })}
+                  <div style={{ padding: "10px" }} />
+                </div>
+              </Tab>
+              <Tab eventKey="profile" title="Mis Conversaciones"
+                onClick={() => VerConversaciones('Mis Conversaciones')}
+              >
+              <div className="w-100 py-2 px-2 d-flex flex-column gap-3 box-items-chat"
+                style={{
+                  height: "calc(100% - 100px)",
+                  overflowY: "auto",
+                  overflowX: "hidden",
+                
+                }}
+              >
+                {card_mensajes.map((item, index) => {
+                  if(item.mensaje){
+                    if(item.agente_id === GetTokenDecoded().id){
+                      // se permite mostrar todas las conversaciones que tienen el agente_id igual al id del agente logueado
+                      return (
+                        <div
+                          key={index + 1}
+                          className="chat-item cursor-pointer rounded d-flex gap-2 align-items-center"
+                          onClick={() => ManejarConversacion(item)}
+                        >
+                          <div className="w-25 d-flex flex-column align-items-center justify-content-center">
+                            <span
+                              className="w-20 font-bold text-center"
+                              style={{ 
+                                fontSize: "11px", 
+                                position: "relative",
+                                top: "-15px",
+                                backgroundColor: "#3F98F8",
+                                color: "white",
+                                padding: "2px",
+                                borderRadius: "5px",
+                                zIndex: "100"
+                              }}
+                            >{item.bot}</span>
+                            <div className="w-25 rounded d-flex align-items-center justify-content-center">
+                                <img
+                                  src={item.url_avatar}
+                                  className="rounded-circle"
+                                  width="40px"
+                                  height="40px"
+                                />
+                            </div>
+                          </div>
+      
+                          <div className="w-75 p-1 d-flex flex-column">
+                            <div
+                              className="d-flex flex-row justify-content-between"
+                              style={{ lineHeight: "15px" }}
+                            >
+                              <span className="w-100 text-dark font-bold">
+                                {item.name}
+                              </span>
+                              <small className="text-warning">{item.fecha}</small>
+                            </div>
+      
+                            <div className="d-flex flex-row justify-content-between my-1">
+                              <small className="text-dark">
+                                {
+                                  // limitar la cantidad de caracteres a mostrar
+                                  item.mensaje.type === "text"
+                                    ? String(item.mensaje.text).length > 30
+                                      ? String(item.mensaje.text).substring(0, 30) +
+                                        "..."
+                                      : item.mensaje.text
+                                    : // si es imagen o video mostrar el tipo de archivo
+                                    item.mensaje.type === "image" ||
+                                      item.mensaje.type === "video"
+                                    ? item.mensaje.type
+                                    : // si es audio mostrar el nombre del archivo
+                                    item.mensaje.type === "audio"
+                                    ? item.mensaje.type
+                                    : // si es archivo mostrar el nombre del archivo
+                                    item.mensaje.type === "file"
+                                    ? item.mensaje.type
+                                    : null
+                                }
+                              </small>
+                              <div
+                                className="rounded-circle p-0 d-flex justify-content-center aligns-items-center bg-warning"
+                                style={{ width: "24px", height: "24px" }}
+                              >
+                                1
+                              </div>
+                            </div>
+      
+                            <div className="d-flex gap-2 flex-wrap">
+      
+                              {item.etiqueta.map((et, index) => {
+                                if(et !== null && et !== "" && et !== undefined){
+                                  return (
+                                    <span
+                                      key={index + 1}
+                                      className="chat-tag rounded bg-gray text-white"
+                                    >
+                                      {et}
+                                    </span>
+                                  );
+                                }
+                              })}
+                            <span className="w-20 text-dark font-bold"
+                              style={{ fontSize: "12px" }}
+                            >
+                            Ag: {NombreAgente(item.agente_id)}
+                            </span>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    }
+                  }
+                })}
+                <div style={{ padding: "10px" }} />
+              </div>
+              </Tab>
+              <Tab 
+                eventKey="contact" title="Todas"
+                onClick={() => VerConversaciones('Todas')}
+                >
+              <div 
+                className="w-100 py-2 px-2 d-flex flex-column gap-3 box-items-chat"
+                // hacer que tengo scroll el div
+                style={{
+                  // height: "calc(100% - 100px)",
+                  height: "1111px",
+                  overflowY: "auto !important",
+                  overflowX: "hidden !important",
+                  bottom: "0px",
+                }}
+              >
+                {card_mensajes.map((item, index) => {
+                  if(item.mensaje){
+                    return (
+                      <div
+                        key={index + 1}
+                        className="chat-item cursor-pointer rounded d-flex gap-2 align-items-center"
+                        onClick={() => ManejarConversacion(item)}
+                      >
+                        <div className="w-25 d-flex flex-column align-items-center justify-content-center">
+                          <span
+                            className="w-20 font-bold text-center"
+                            style={{ 
+                              fontSize: "11px", 
+                              position: "relative",
+                              top: "-15px",
+                              backgroundColor: "#3F98F8",
+                              color: "white",
+                              padding: "2px",
+                              borderRadius: "5px",
+                              zIndex: "100"
+                            }}
+                          >{item.bot}</span>
+                          <div className="w-25 rounded d-flex align-items-center justify-content-center">
+                              <img
+                                src={item.url_avatar}
+                                className="rounded-circle"
+                                width="40px"
+                                height="40px"
+                              />
+                          </div>
+                        </div>
+    
+                        <div className="w-75 p-1 d-flex flex-column">
+                          <div
+                            className="d-flex flex-row justify-content-between"
+                            style={{ lineHeight: "15px" }}
+                          >
+                            <span className="w-100 text-dark font-bold">
+                              {item.name}
+                            </span>
+                            <small className="text-warning">{item.fecha}</small>
+                          </div>
+    
+                          <div className="d-flex flex-row justify-content-between my-1">
+                            <small className="text-dark">
+                              {
+                                // limitar la cantidad de caracteres a mostrar
+                                item.mensaje.type === "text"
+                                  ? String(item.mensaje.text).length > 30
+                                    ? String(item.mensaje.text).substring(0, 30) +
+                                      "..."
+                                    : item.mensaje.text
+                                  : // si es imagen o video mostrar el tipo de archivo
+                                  item.mensaje.type === "image" ||
+                                    item.mensaje.type === "video"
+                                  ? item.mensaje.type
+                                  : // si es audio mostrar el nombre del archivo
+                                  item.mensaje.type === "audio"
+                                  ? item.mensaje.type
+                                  : // si es archivo mostrar el nombre del archivo
+                                  item.mensaje.type === "file"
+                                  ? item.mensaje.type
+                                  : null
+                              }
+                            </small>
+                            <div
+                              className="rounded-circle p-0 d-flex justify-content-center aligns-items-center bg-warning"
+                              style={{ width: "24px", height: "24px" }}
+                            >
+                              1
+                            </div>
+                          </div>
+    
+                          <div className="d-flex gap-2 flex-wrap">
+                            {item.etiqueta.map((et, index) => {
+                              if(et !== null && et !== "" && et !== undefined){
+                                return (
+                                  <span
+                                    key={index + 1}
+                                    className="chat-tag rounded bg-gray text-white"
+                                  >
+                                    {et}
+                                  </span>
+                                );
+                              }
+                            })}
+                          <span className="w-20 text-dark font-bold"
+                            style={{ fontSize: "12px" }}
+                          >
+                          Ag: {NombreAgente(item.agente_id)}
+                          </span>
+                          </div>
+    
+                        </div>
+                      </div>
+                    );
+                  }
+                })}
+                <div style={{ padding: "10px" }} />
+              </div>
+              </Tab>
+            </Tabs>
 
-          <div className="w-100 py-2 px-2 d-flex flex-column gap-3 box-items-chat"
+          {/* <div className="w-100 py-2 px-2 d-flex flex-column gap-3 box-items-chat"
             style={{
               height: "calc(100% - 100px)",
               overflowY: "auto",
@@ -965,7 +1309,7 @@ export default function Mensajeria() {
                 }
               }
             })}
-          </div>
+          </div> */}
           
         </div>
 
