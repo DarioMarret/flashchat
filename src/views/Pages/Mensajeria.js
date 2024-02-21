@@ -305,7 +305,7 @@ export default function Mensajeria() {
 
   const CambiarEstadoConversacion = (data) => {
     const { cuenta_id, conversacion_id, contacto_id, estado, nombreunico } = data;
-    var card_mensajes_agent = [...card_mensajes];
+    var card_mensajes_agent = [...cardMensage];
     card_mensajes_agent.map((item, index) => {
       if (item.conversacion_id === conversacion_id && cuenta_id === GetTokenDecoded().cuenta_id 
       && item.contacto_id === contacto_id && nombreunico === item.nombreunico) {
