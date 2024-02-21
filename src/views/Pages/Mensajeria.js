@@ -68,7 +68,6 @@ export default function Mensajeria() {
   const [inputStr, setInputStr] = useState("");
   const [typeInput, setTypeInput] = useState("text");
   const [showPicker, setShowPicker] = useState(false);
-  const [openGrande, setOpenGrande] = useState(false);
 
   const onEmojiClick = (emojiObject, event) => {
     setInputStr((prevInput) => prevInput + emojiObject.emoji);
@@ -106,12 +105,10 @@ export default function Mensajeria() {
     try {
       const url = `${host}/mensaje_predeterminado/${GetTokenDecoded().cuenta_id}`
       const { data, status } = await axios.get(url)
-      console.log(data)
       if (status === 200 && data.data !== null) {
         setRespuestaRapidas(data.data)
       }
     } catch (error) {
-      console.log(error)
       return null
     }
   }
@@ -138,17 +135,11 @@ export default function Mensajeria() {
     setMisConversaciones(item)
   }
 
-
   
   useEffect(() => {
     try {
       const cuenta_id = GetTokenDecoded().cuenta_id;
-      socket.emit("listar_conversacion", {
-        cuenta_id: cuenta_id,
-        equipo_id: null,
-        agente_id: null,
-        estado: null,
-      })
+      socket.emit("conectado", {cuenta_id});
       const covActiva = GetManejoConversacion();
       socket.on(`response_conversacion_${cuenta_id}`, (data) => {
         setEquipoUsuario(GetTokenDecoded());
@@ -184,6 +175,7 @@ export default function Mensajeria() {
                 }
               }
             }
+
             if(equipos.includes(item.equipo_id) && bots.includes(item.nombre_bot)){
               new_card.push({
                 id: item.id,
@@ -209,21 +201,26 @@ export default function Mensajeria() {
               })
             }
           }
-          setCard_mensajes(new_card);
+          if(new_card.length > 0){
+            setCard_mensajes(new_card);
+          }
         }
       });
 
       socket.on("mensaje", (msg) => {
         const { type, data } = msg;
+        console.log("data: ", data);
         if (type === "update-conversacion" && data.cuenta_id === cuenta_id) {
           CardMensajes(data);
         }
       });
 
       socket.on("asignacion_agente", (msg) => {
-        const { type, data } = msg;
+        const { type, data, card } = msg;
         if (type === "response_asignacion_agente" && data.cuenta_id === GetTokenDecoded().cuenta_id) {
-          CambiodeAgente(data)
+          if(card.length > 0){
+            CambiodeAgente(data, card)
+          }
         }
       })
 
@@ -254,7 +251,7 @@ export default function Mensajeria() {
           if(data.agente_id === GetTokenDecoded().id){
             setConversacionActiva(listMensajes)
             dummy.current.scrollIntoView({ behavior: 'smooth' })
-          }else if(data.agente_id !== GetTokenDecoded().id){
+          }else if(data.agente_id !== GetTokenDecoded().id && data.agente_id !== 0){
             Swal.fire({
               title: 'Conversación Tomada',
               html: 'La conversación fue tomada por el agente <b className="w-100 text-dark font-bold">' + NombreAgente(data.agente_id)+'</b>',
@@ -328,24 +325,25 @@ export default function Mensajeria() {
           })
         }
       }
-      setCard_mensajes(new_card);
+      if(new_card.length > 0){
+        setCard_mensajes(new_card);
+      }
     }
   }
 
-  // buscar la conversacion y por cuenta_id, contacto_id, conversacion_id, agente_id, y reemplazar los valores
-  const CambiodeAgente = (data) => {
-    const { cuenta_id, contacto_id, conversacion_id, agente_id } = data;
-    var card_mensajes_agent = [];
-    card_mensajes.map((item, index) => {
-      if (item.conversacion_id === conversacion_id && item.contacto_id === contacto_id && cuenta_id === GetTokenDecoded().cuenta_id) {
-        card_mensajes[index].agente_id = agente_id;
-        console.log("card_mensajes: ", card_mensajes[index]);
-        card_mensajes_agent.push(card_mensajes[index]);
-      }else{
-        card_mensajes_agent.push(card_mensajes[index]);
-      }
-    })
-    setCard_mensajes(card_mensajes_agent)
+  //buscar la conversacion y por cuenta_id, contacto_id, conversacion_id, agente_id, y reemplazar los valores
+  const CambiodeAgente = (data, card) => {
+    try {
+      const { cuenta_id, contacto_id, conversacion_id, agente_id } = data;
+      card.forEach((item) => {
+        if (item.conversacion_id === conversacion_id && item.contacto_id === contacto_id && cuenta_id === GetTokenDecoded().cuenta_id) {
+          item.agente_id = agente_id;
+        }
+      })
+      setCard_mensajes(card)
+    } catch (error) {
+      alert("Error al cambiar de agente")
+    }
   }
 
   const CambiarEstadoConversacion = (data) => {
@@ -419,26 +417,32 @@ export default function Mensajeria() {
             })
           );
           setConvEstado(item.estado);
-
-          socket.emit("asignacion_agente", {
-            cuenta_id: GetTokenDecoded().cuenta_id,
-            contacto_id: item.contacto_id,
-            conversacion_id: item.conversacion_id,
-            agente_id: GetTokenDecoded().id,
-          })
-          socket.emit("get_conversacion_activa", {
-            cuenta_id: GetTokenDecoded().cuenta_id,
-            conversacion_id: item.conversacion_id,
-            equipo_id: item.equipo_id,
-            channel_id: item.channel_id,
-            contacto_id: item.contacto_id,
-            agente_id: GetTokenDecoded().id,
-            nombreunico: item.nombreunico,
-          });
+          GetActivaConversacion(item)
+          EventoAsignacionAgente(item)
         }else{
           return
         }
       })
+    }else if(item.agente_id === GetTokenDecoded().id){
+      localStorage.setItem("conversacion_activa", JSON.stringify({
+        cuenta_id: GetTokenDecoded().cuenta_id,
+        conversacion_id: item.conversacion_id,
+        nombreunico: item.nombreunico,
+        equipo_id: item.equipo_id,
+        channel_id: item.channel_id,
+        contacto_id: item.contacto_id,
+        estado: item.estado,
+        Contacto: item.Contactos,
+      }));
+      socket.emit("get_conversacion_activa", {
+        cuenta_id: GetTokenDecoded().cuenta_id,
+        conversacion_id: item.conversacion_id,
+        equipo_id: item.equipo_id,
+        channel_id: item.channel_id,
+        contacto_id: item.contacto_id,
+        agente_id: GetTokenDecoded().id,
+        nombreunico: item.nombreunico,
+      });
     }else{
       localStorage.setItem("conversacion_activa", JSON.stringify({
           cuenta_id: GetTokenDecoded().cuenta_id,
@@ -451,23 +455,36 @@ export default function Mensajeria() {
           Contacto: item.Contactos,
         })
       );
-    setConvEstado(item.estado);
+      setConvEstado(item.estado);
       socket.emit("asignacion_agente", {
         cuenta_id: GetTokenDecoded().cuenta_id,
         contacto_id: item.contacto_id,
         conversacion_id: item.conversacion_id,
         agente_id: GetTokenDecoded().id,
       });
-      socket.emit("get_conversacion_activa", {
-        cuenta_id: GetTokenDecoded().cuenta_id,
-        conversacion_id: item.conversacion_id,
-        equipo_id: item.equipo_id,
-        channel_id: item.channel_id,
-        contacto_id: item.contacto_id,
-        agente_id: GetTokenDecoded().id,
-        nombreunico: item.nombreunico,
-      });
+      GetActivaConversacion(item)
     }
+  }
+
+
+  const GetActivaConversacion = async(item) => {
+    socket.emit("get_conversacion_activa", {
+      cuenta_id: GetTokenDecoded().cuenta_id,
+      conversacion_id: item.conversacion_id,
+      equipo_id: item.equipo_id,
+      channel_id: item.channel_id,
+      contacto_id: item.contacto_id,
+      agente_id: GetTokenDecoded().id,
+      nombreunico: item.nombreunico,
+    })
+  }
+  const EventoAsignacionAgente = (item) => {
+    socket.emit("asignacion_agente", {
+      cuenta_id: GetTokenDecoded().cuenta_id,
+      contacto_id: item.contacto_id,
+      conversacion_id: item.conversacion_id,
+      agente_id: GetTokenDecoded().id,
+    });
   }
 
   const GetManejoConversacion = () => {
@@ -726,7 +743,6 @@ export default function Mensajeria() {
                           color: "white",
                           padding: "2px",
                           borderRadius: "5px",
-                          zIndex: "100"
                         }}
                       >{item.bot}</span>
                       <div className="w-25 rounded d-flex align-items-center justify-content-center">
