@@ -25,7 +25,7 @@ function MensajesAutomaticos(props) {
 
 
     const ListarMensajes = async () => {
-        const url = `${host}/mensaje_predeterminado/${GetTokenDecoded().cuenta_id}`
+        const url = `${host}mensaje_predeterminado/${GetTokenDecoded().cuenta_id}`
         const { data, status } = await axios.get(url)
         console.log(data)
         if (status === 200 && data.data !== null) {
@@ -33,7 +33,7 @@ function MensajesAutomaticos(props) {
         }
     }
     const ListarMensajeEstados = async () => {
-        const url = `${host}/mensaje_estado/${GetTokenDecoded().cuenta_id}`
+        const url = `${host}mensaje_estado/${GetTokenDecoded().cuenta_id}`
         const { data, status } = await axios.get(url)
         console.log(data)
         if (status === 200 && data.data !== null) {
@@ -69,8 +69,9 @@ function MensajesAutomaticos(props) {
                 })
             }
         }else{
-            const url = `${host}/mensaje_predeterminado/${mensaje.id}`
+            const url = `${host}/mensaje_predeterminado`
             const data = {
+                id: mensaje.id,
                 mensaje: mensaje.mensaje,
                 cuenta_id: GetTokenDecoded().cuenta_id
             }
@@ -83,8 +84,30 @@ function MensajesAutomaticos(props) {
                     showConfirmButton: false,
                     timer: 1500
                 })
+                handleClose()
             }
         }
+    }
+
+    const EliminarMensaje = async (id) => {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Eliminar Mensaje',
+            text: '¿Estas seguro de eliminar este mensaje?',
+            showCancelButton: true,
+            confirmButtonText: 'Si, eliminar',
+            cancelButtonText: 'Cancelar',
+            cancelButtonColor: '#d33',
+            confirmButtonColor: '#3085d6',
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                const url = `${host}/mensaje_predeterminado/${id}`
+                const { status } = await axios.delete(url)
+                if (status === 200) {
+                    await ListarMensajes()
+                }
+            }
+        })
     }
 
     useEffect(() => {
@@ -138,7 +161,7 @@ function MensajesAutomaticos(props) {
                                         <i className="fas fa-edit"></i>
                                     </button>
                                     <button className="btn btn m-0"
-                                        onClick={handleClose}
+                                        onClick={()=>EliminarMensaje(item.id)}
                                     >
                                         <i className="fas fa-trash-alt text-danger"></i>
                                     </button>
