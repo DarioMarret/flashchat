@@ -84,7 +84,8 @@ export default function App() {
               <Sidebar routes={routes} image={sidebarImage} background={sidebarBackground} />
               <div className="main-panel">
                 <AdminNavbar />
-                <div className="content">
+                <div className="content"
+                style={{ overflow: 'hidden'}}>
                   <Routes
                     basename="/"
                     forceRefresh={true}
