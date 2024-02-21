@@ -681,13 +681,12 @@ export default function Mensajeria() {
                 onClick={() => VerConversaciones('Sin leer')}
               >
               <div className="w-100 py-2 px-2 d-flex flex-column gap-3 box-items-chat"
-                  style={{
-                    height: "calc(100% - 100px)",
-                    overflowY: "auto",
-                    overflowX: "hidden",
-                  
-                  }}
-                >
+                style={{
+                  height: "calc(100% - 100px)",
+                  overflowY: "auto",
+                  overflowX: "hidden",
+                }}
+              >
                   {card_mensajes.map((item, index) => {
                     if(item.mensaje){
                       if(item.agente_id === 0){
@@ -774,6 +773,11 @@ export default function Mensajeria() {
                                     );
                                   }
                                 })}
+                                <span className="w-20 text-dark font-bold"
+                                  style={{ fontSize: "12px" }}
+                                >
+                                Ag: {NombreAgente(item.agente_id)}
+                                </span>
                               </div>
                             </div>
                           </div>
