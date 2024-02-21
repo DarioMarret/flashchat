@@ -231,7 +231,8 @@ export default function Mensajeria() {
       socket.on("cambiar_estado", (msg) => {
         const { type, data } = msg;
         if (type === "response_cambiar_estado" && data.cuenta_id === GetTokenDecoded().cuenta_id) {
-          CambiarEstadoConversacion(data)
+          // CambiarEstadoConversacion(data)
+          EmiittingMensaje()
         }
       })
       
@@ -312,7 +313,6 @@ export default function Mensajeria() {
         if(estado === "Eliminado" || estado === "Resuelta"){
           DeletManejoConversacion()
           setConversacionActiva([])
-          // lo eliminamos de la lista de conversaciones
           card_mensajes_agent.splice(index, 1);
         }else{
           card_mensajes_agent[index].estado = estado;
