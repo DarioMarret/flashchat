@@ -22,8 +22,8 @@ import { SubirMedia } from "function/storeUsuario";
 import io from "socket.io-client";
 
 var socket = null;
-  if(proxy === ""){
-  // if(true){
+  // if(proxy === ""){
+  if(true){
     socket = io.connect("http://localhost:5002", {
       path: "/socket.io/socket.io.js",
       transports: ["websocket"],
@@ -38,7 +38,7 @@ var socket = null;
 
 
 moment.locale("es");
-
+var cardMensage = [];
 export default function Mensajeria() {
   const [card_mensajes, setCard_mensajes] = useState([]);
   const [conversacionActiva, setConversacionActiva] = useState([]);
@@ -139,7 +139,12 @@ export default function Mensajeria() {
   useEffect(() => {
     try {
       const cuenta_id = GetTokenDecoded().cuenta_id;
-      socket.emit("conectado", {cuenta_id});
+      socket.emit("listar_conversacion", {
+        cuenta_id: cuenta_id,
+        equipo_id: null,
+        agente_id: null,
+        estado: null,
+      });
       const covActiva = GetManejoConversacion();
       socket.on(`response_conversacion_${cuenta_id}`, (data) => {
         setEquipoUsuario(GetTokenDecoded());
@@ -203,6 +208,7 @@ export default function Mensajeria() {
           }
           if(new_card.length > 0){
             setCard_mensajes(new_card);
+            cardMensage = new_card;
           }
         }
       });
@@ -211,18 +217,16 @@ export default function Mensajeria() {
         const { type, data } = msg;
         console.log("data: ", data);
         if (type === "update-conversacion" && data.cuenta_id === cuenta_id) {
-          CardMensajes(data);
+          socket.emit("listar_conversacion", {
+            cuenta_id: cuenta_id,
+            equipo_id: null,
+            agente_id: null,
+            estado: null,
+          });
         }
       });
 
-      socket.on("asignacion_agente", (msg) => {
-        const { type, data, card } = msg;
-        if (type === "response_asignacion_agente" && data.cuenta_id === GetTokenDecoded().cuenta_id) {
-          if(card.length > 0){
-            CambiodeAgente(data, card)
-          }
-        }
-      })
+
 
       socket.on("cambiar_estado", (msg) => {
         const { type, data } = msg;
@@ -241,6 +245,8 @@ export default function Mensajeria() {
     };
   }, [])
 
+
+
   useEffect(() => {
     const cuenta_id = GetTokenDecoded().cuenta_id;
     socket.on(`get_conversacion_activa_${cuenta_id}`, (msg) => {//listamos los mensajes de la conversacion activa (la que esta siendo atendida por el agente)
@@ -252,13 +258,13 @@ export default function Mensajeria() {
             setConversacionActiva(listMensajes)
             dummy.current.scrollIntoView({ behavior: 'smooth' })
           }else if(data.agente_id !== GetTokenDecoded().id && data.agente_id !== 0){
-            Swal.fire({
-              title: 'Conversación Tomada',
-              html: 'La conversación fue tomada por el agente <b className="w-100 text-dark font-bold">' + NombreAgente(data.agente_id)+'</b>',
-              icon: 'info',
-              confirmButtonColor: "#8F8F8F",
-              timer: 1500,
-            })
+            // Swal.fire({
+            //   title: 'Conversación Tomada',
+            //   html: 'La conversación fue tomada por el agente <b className="w-100 text-dark font-bold">' + NombreAgente(data.agente_id)+'</b>',
+            //   icon: 'info',
+            //   confirmButtonColor: "#8F8F8F",
+            //   timer: 1500,
+            // })
             DeletManejoConversacion()
             setConversacionActiva([])
           }
@@ -267,75 +273,26 @@ export default function Mensajeria() {
     })
   }, [])
 
-  const CardMensajes = (data) => {
-    setEquipoUsuario(GetTokenDecoded());
-    const covActiva = GetManejoConversacion();
-    let new_card = [];
-    let equipos = []
-    let bots = []
-    GetTokenDecoded().equipos.map((item) => {
-      equipos.push(item.id)
-    })
-    GetTokenDecoded().botId.map((item) => {
-      bots.push(item.name)
-    })
-    if (data.length > 0) {
-      for (let index = 0; index < data.length; index++) {
-        const item = data[index];
-        if (covActiva && covActiva !== null && covActiva !== undefined) {
-          if (item.conversacion_id === covActiva.conversacion_id && item.nombreunico === covActiva.nombreunico && item.contacto_id === covActiva.contacto_id) {
-            if(item.agente_id === GetTokenDecoded().id){
-              socket.emit("get_conversacion_activa", {
-                cuenta_id: GetTokenDecoded().cuenta_id,
-                contacto_id: item.contacto_id,
-                equipo_id: item.equipo_id,
-                channel_id: item.channel_id,
-                agente_id: GetTokenDecoded().id,
-                conversacion_id: item.conversacion_id,
-                nombreunico: item.nombreunico,
-              })
-            }else if(item.agente_id !== GetTokenDecoded().id){
-              DeletManejoConversacion()
-              setConversacionActiva([])
-            }
-          }
-        }
-        if(equipos.includes(item.equipo_id) && bots.includes(item.nombre_bot)){
-          new_card.push({
-            id: item.id,
-            bot: item.nombre_bot,
-            conversacion_id: item.conversacion_id,
-            name: item.Contactos.nombre,
-            telefono: item.Contactos.telefono,
-            Contactos: item.Contactos,
-            contacto_id: item.contacto_id,
-            channel_id: item.channel_id,
-            mensaje: item.mensajes,
-            equipo_id: item.equipo_id,
-            tipo: item.tipo,
-            estado: item.estado,
-            fecha: moment(item.updatedAt) >= moment().subtract(1, "days")
-                ? moment(item.updatedAt).format("hh:mm a") : moment(item.updatedAt).format("DD/MM/YYYY hh:mm a"),
-            url_avatar: item.Contactos.avatar,
-            proveedor: item.channel.proveedor,
-            active: true,
-            nombreunico: item.nombreunico,
-            etiqueta: item.etiquetas,
-            agente_id: item.agente_id,
-          })
+  socket.on("asignacion_agente", (msg) => {
+    try {
+      const { type, data } = msg;
+      if (type === "response_asignacion_agente" && data.cuenta_id === GetTokenDecoded().cuenta_id) {
+        if(cardMensage.length > 0){
+          CambiodeAgente(data)
         }
       }
-      if(new_card.length > 0){
-        setCard_mensajes(new_card);
-      }
+    } catch (error) {
+      console.log(error)
     }
-  }
-
+  })
   //buscar la conversacion y por cuenta_id, contacto_id, conversacion_id, agente_id, y reemplazar los valores
-  const CambiodeAgente = (data, card) => {
+  const CambiodeAgente = (data) => {
     try {
       const { cuenta_id, contacto_id, conversacion_id, agente_id } = data;
-      card.forEach((item) => {
+      var card = [...cardMensage];
+      console.log("card: ", card);
+      console.log("cardMensage: ", cardMensage);
+      card.map((item) => {
         if (item.conversacion_id === conversacion_id && item.contacto_id === contacto_id && cuenta_id === GetTokenDecoded().cuenta_id) {
           item.agente_id = agente_id;
         }
@@ -419,8 +376,6 @@ export default function Mensajeria() {
           setConvEstado(item.estado);
           GetActivaConversacion(item)
           EventoAsignacionAgente(item)
-        }else{
-          return
         }
       })
     }else if(item.agente_id === GetTokenDecoded().id){
@@ -725,285 +680,287 @@ export default function Mensajeria() {
             }}
           >
             {card_mensajes.map((item, index) => {
-              if(misConversaciones === 'Sin leer' && item.agente_id === 0){
-                return (
-                  <div
-                    key={index + 1}
-                    className="chat-item cursor-pointer rounded d-flex gap-2 align-items-center"
-                    onClick={() => ManejarConversacion(item)}
+              if(item.mensaje){
+                if(misConversaciones === 'Sin leer' && item.agente_id === 0){
+                  return (
+                    <div
+                      key={index + 1}
+                      className="chat-item cursor-pointer rounded d-flex gap-2 align-items-center"
+                      onClick={() => ManejarConversacion(item)}
+                      >
+                      <div className="w-25 d-flex flex-column align-items-center justify-content-center">
+                        <span
+                          className="w-20 font-bold text-center"
+                          style={{ 
+                            fontSize: "11px", 
+                            position: "relative",
+                            top: "-15px",
+                            backgroundColor: "#3F98F8",
+                            color: "white",
+                            padding: "2px",
+                            borderRadius: "5px",
+                          }}
+                        >{item.bot}</span>
+                        <div className="w-25 rounded d-flex align-items-center justify-content-center">
+                            <img
+                              src={item.url_avatar}
+                              className="rounded-circle"
+                              width="40px"
+                              height="40px"
+                            />
+                        </div>
+                      </div>
+  
+                      <div className="w-75 p-1 d-flex flex-column">
+                        <div
+                          className="d-flex flex-row justify-content-between"
+                          style={{ lineHeight: "15px" }}
+                        >
+                          <span className="w-100 text-dark font-bold text-center">
+                            {item.name}
+                          </span>
+                          <small className="text-warning">{item.fecha}</small>
+                        </div>
+  
+                        <div className="d-flex flex-row justify-content-between my-1">
+                          <small className="text-dark">
+                            {
+                              // limitar la cantidad de caracteres a mostrar
+                              item.mensaje.type === "text"
+                                ? String(item.mensaje.text).length > 30
+                                  ? String(item.mensaje.text).substring(0, 30) +
+                                    "..."
+                                  : item.mensaje.text
+                                : // si es imagen o video mostrar el tipo de archivo
+                                item.mensaje.type === "image" ||
+                                  item.mensaje.type === "video"
+                                ? item.mensaje.type
+                                : // si es audio mostrar el nombre del archivo
+                                item.mensaje.type === "audio"
+                                ? item.mensaje.type
+                                : // si es archivo mostrar el nombre del archivo
+                                item.mensaje.type === "file"
+                                ? item.mensaje.type
+                                : null
+                            }
+                          </small>
+                          <div
+                            className="rounded-circle p-0 d-flex justify-content-center aligns-items-center bg-warning"
+                            style={{ width: "24px", height: "24px" }}
+                          >
+                            1
+                          </div>
+                        </div>
+  
+                        <div className="d-flex gap-2 flex-wrap">
+                          {item.etiqueta.map((et, index) => {
+                            if(et !== null && et !== "" && et !== undefined){
+                              return (
+                                <span
+                                  key={index + 1}
+                                  className="chat-tag rounded bg-gray text-white"
+                                >
+                                  {et}
+                                </span>
+                              );
+                            }
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                }else if(misConversaciones === 'Mis Conversaciones' && item.agente_id === GetTokenDecoded().id){
+                  // se permite mostrar todas las conversaciones que tienen el agente_id igual al id del agente logueado
+                  return (
+                    <div
+                      key={index + 1}
+                      className="chat-item cursor-pointer rounded d-flex gap-2 align-items-center"
+                      onClick={() => ManejarConversacion(item)}
                     >
-                    <div className="w-25 d-flex flex-column align-items-center justify-content-center">
-                      <span
-                        className="w-20 font-bold text-center"
-                        style={{ 
-                          fontSize: "11px", 
-                          position: "relative",
-                          top: "-15px",
-                          backgroundColor: "#3F98F8",
-                          color: "white",
-                          padding: "2px",
-                          borderRadius: "5px",
-                        }}
-                      >{item.bot}</span>
-                      <div className="w-25 rounded d-flex align-items-center justify-content-center">
-                          <img
-                            src={item.url_avatar}
-                            className="rounded-circle"
-                            width="40px"
-                            height="40px"
-                          />
-                      </div>
-                    </div>
-
-                    <div className="w-75 p-1 d-flex flex-column">
-                      <div
-                        className="d-flex flex-row justify-content-between"
-                        style={{ lineHeight: "15px" }}
-                      >
-                        <span className="w-100 text-dark font-bold text-center">
-                          {item.name}
-                        </span>
-                        <small className="text-warning">{item.fecha}</small>
-                      </div>
-
-                      <div className="d-flex flex-row justify-content-between my-1">
-                        <small className="text-dark">
-                          {
-                            // limitar la cantidad de caracteres a mostrar
-                            item.mensaje.type === "text"
-                              ? String(item.mensaje.text).length > 30
-                                ? String(item.mensaje.text).substring(0, 30) +
-                                  "..."
-                                : item.mensaje.text
-                              : // si es imagen o video mostrar el tipo de archivo
-                              item.mensaje.type === "image" ||
-                                item.mensaje.type === "video"
-                              ? item.mensaje.type
-                              : // si es audio mostrar el nombre del archivo
-                              item.mensaje.type === "audio"
-                              ? item.mensaje.type
-                              : // si es archivo mostrar el nombre del archivo
-                              item.mensaje.type === "file"
-                              ? item.mensaje.type
-                              : null
-                          }
-                        </small>
-                        <div
-                          className="rounded-circle p-0 d-flex justify-content-center aligns-items-center bg-warning"
-                          style={{ width: "24px", height: "24px" }}
-                        >
-                          1
+                      <div className="w-25 d-flex flex-column align-items-center justify-content-center">
+                        <span
+                          className="w-20 font-bold text-center"
+                          style={{ 
+                            fontSize: "11px", 
+                            position: "relative",
+                            top: "-15px",
+                            backgroundColor: "#3F98F8",
+                            color: "white",
+                            padding: "2px",
+                            borderRadius: "5px",
+                            zIndex: "100"
+                          }}
+                        >{item.bot}</span>
+                        <div className="w-25 rounded d-flex align-items-center justify-content-center">
+                            <img
+                              src={item.url_avatar}
+                              className="rounded-circle"
+                              width="40px"
+                              height="40px"
+                            />
                         </div>
                       </div>
-
-                      <div className="d-flex gap-2 flex-wrap">
-                        {item.etiqueta.map((et, index) => {
-                          if(et !== null && et !== "" && et !== undefined){
-                            return (
-                              <span
-                                key={index + 1}
-                                className="chat-tag rounded bg-gray text-white"
-                              >
-                                {et}
-                              </span>
-                            );
-                          }
-                        })}
-                      </div>
-                    </div>
-                  </div>
-                );
-              }else if(misConversaciones === 'Mis Conversaciones' && item.agente_id === GetTokenDecoded().id){
-                // se permite mostrar todas las conversaciones que tienen el agente_id igual al id del agente logueado
-                return (
-                  <div
-                    key={index + 1}
-                    className="chat-item cursor-pointer rounded d-flex gap-2 align-items-center"
-                    onClick={() => ManejarConversacion(item)}
-                  >
-                    <div className="w-25 d-flex flex-column align-items-center justify-content-center">
-                      <span
-                        className="w-20 font-bold text-center"
-                        style={{ 
-                          fontSize: "11px", 
-                          position: "relative",
-                          top: "-15px",
-                          backgroundColor: "#3F98F8",
-                          color: "white",
-                          padding: "2px",
-                          borderRadius: "5px",
-                          zIndex: "100"
-                        }}
-                      >{item.bot}</span>
-                      <div className="w-25 rounded d-flex align-items-center justify-content-center">
-                          <img
-                            src={item.url_avatar}
-                            className="rounded-circle"
-                            width="40px"
-                            height="40px"
-                          />
-                      </div>
-                    </div>
-
-                    <div className="w-75 p-1 d-flex flex-column">
-                      <div
-                        className="d-flex flex-row justify-content-between"
-                        style={{ lineHeight: "15px" }}
-                      >
-                        <span className="w-100 text-dark font-bold">
-                          {item.name}
-                        </span>
-                        <small className="text-warning">{item.fecha}</small>
-                      </div>
-
-                      <div className="d-flex flex-row justify-content-between my-1">
-                        <small className="text-dark">
-                          {
-                            // limitar la cantidad de caracteres a mostrar
-                            item.mensaje.type === "text"
-                              ? String(item.mensaje.text).length > 30
-                                ? String(item.mensaje.text).substring(0, 30) +
-                                  "..."
-                                : item.mensaje.text
-                              : // si es imagen o video mostrar el tipo de archivo
-                              item.mensaje.type === "image" ||
-                                item.mensaje.type === "video"
-                              ? item.mensaje.type
-                              : // si es audio mostrar el nombre del archivo
-                              item.mensaje.type === "audio"
-                              ? item.mensaje.type
-                              : // si es archivo mostrar el nombre del archivo
-                              item.mensaje.type === "file"
-                              ? item.mensaje.type
-                              : null
-                          }
-                        </small>
+  
+                      <div className="w-75 p-1 d-flex flex-column">
                         <div
-                          className="rounded-circle p-0 d-flex justify-content-center aligns-items-center bg-warning"
-                          style={{ width: "24px", height: "24px" }}
+                          className="d-flex flex-row justify-content-between"
+                          style={{ lineHeight: "15px" }}
                         >
-                          1
+                          <span className="w-100 text-dark font-bold">
+                            {item.name}
+                          </span>
+                          <small className="text-warning">{item.fecha}</small>
+                        </div>
+  
+                        <div className="d-flex flex-row justify-content-between my-1">
+                          <small className="text-dark">
+                            {
+                              // limitar la cantidad de caracteres a mostrar
+                              item.mensaje.type === "text"
+                                ? String(item.mensaje.text).length > 30
+                                  ? String(item.mensaje.text).substring(0, 30) +
+                                    "..."
+                                  : item.mensaje.text
+                                : // si es imagen o video mostrar el tipo de archivo
+                                item.mensaje.type === "image" ||
+                                  item.mensaje.type === "video"
+                                ? item.mensaje.type
+                                : // si es audio mostrar el nombre del archivo
+                                item.mensaje.type === "audio"
+                                ? item.mensaje.type
+                                : // si es archivo mostrar el nombre del archivo
+                                item.mensaje.type === "file"
+                                ? item.mensaje.type
+                                : null
+                            }
+                          </small>
+                          <div
+                            className="rounded-circle p-0 d-flex justify-content-center aligns-items-center bg-warning"
+                            style={{ width: "24px", height: "24px" }}
+                          >
+                            1
+                          </div>
+                        </div>
+  
+                        <div className="d-flex gap-2 flex-wrap">
+  
+                          {item.etiqueta.map((et, index) => {
+                            if(et !== null && et !== "" && et !== undefined){
+                              return (
+                                <span
+                                  key={index + 1}
+                                  className="chat-tag rounded bg-gray text-white"
+                                >
+                                  {et}
+                                </span>
+                              );
+                            }
+                          })}
+                        <span className="w-20 text-dark font-bold"
+                          style={{ fontSize: "12px" }}
+                        >
+                         Ag: {NombreAgente(item.agente_id)}
+                        </span>
                         </div>
                       </div>
-
-                      <div className="d-flex gap-2 flex-wrap">
-
-                        {item.etiqueta.map((et, index) => {
-                          if(et !== null && et !== "" && et !== undefined){
-                            return (
-                              <span
-                                key={index + 1}
-                                className="chat-tag rounded bg-gray text-white"
-                              >
-                                {et}
-                              </span>
-                            );
-                          }
-                        })}
-                      <span className="w-20 text-dark font-bold"
-                        style={{ fontSize: "12px" }}
-                      >
-                       Ag: {NombreAgente(item.agente_id)}
-                      </span>
-                      </div>
                     </div>
-                  </div>
-                );
-              }else if(misConversaciones === 'Todas'){
-                return (
-                  <div
-                    key={index + 1}
-                    className="chat-item cursor-pointer rounded d-flex gap-2 align-items-center"
-                    onClick={() => ManejarConversacion(item)}
-                  >
-                    <div className="w-25 d-flex flex-column align-items-center justify-content-center">
-                      <span
-                        className="w-20 font-bold text-center"
-                        style={{ 
-                          fontSize: "11px", 
-                          position: "relative",
-                          top: "-15px",
-                          backgroundColor: "#3F98F8",
-                          color: "white",
-                          padding: "2px",
-                          borderRadius: "5px",
-                          zIndex: "100"
-                        }}
-                      >{item.bot}</span>
-                      <div className="w-25 rounded d-flex align-items-center justify-content-center">
-                          <img
-                            src={item.url_avatar}
-                            className="rounded-circle"
-                            width="40px"
-                            height="40px"
-                          />
-                      </div>
-                    </div>
-
-                    <div className="w-75 p-1 d-flex flex-column">
-                      <div
-                        className="d-flex flex-row justify-content-between"
-                        style={{ lineHeight: "15px" }}
-                      >
-                        <span className="w-100 text-dark font-bold">
-                          {item.name}
-                        </span>
-                        <small className="text-warning">{item.fecha}</small>
-                      </div>
-
-                      <div className="d-flex flex-row justify-content-between my-1">
-                        <small className="text-dark">
-                          {
-                            // limitar la cantidad de caracteres a mostrar
-                            item.mensaje.type === "text"
-                              ? String(item.mensaje.text).length > 30
-                                ? String(item.mensaje.text).substring(0, 30) +
-                                  "..."
-                                : item.mensaje.text
-                              : // si es imagen o video mostrar el tipo de archivo
-                              item.mensaje.type === "image" ||
-                                item.mensaje.type === "video"
-                              ? item.mensaje.type
-                              : // si es audio mostrar el nombre del archivo
-                              item.mensaje.type === "audio"
-                              ? item.mensaje.type
-                              : // si es archivo mostrar el nombre del archivo
-                              item.mensaje.type === "file"
-                              ? item.mensaje.type
-                              : null
-                          }
-                        </small>
-                        <div
-                          className="rounded-circle p-0 d-flex justify-content-center aligns-items-center bg-warning"
-                          style={{ width: "24px", height: "24px" }}
-                        >
-                          1
+                  );
+                }else if(misConversaciones === 'Todas'){
+                  return (
+                    <div
+                      key={index + 1}
+                      className="chat-item cursor-pointer rounded d-flex gap-2 align-items-center"
+                      onClick={() => ManejarConversacion(item)}
+                    >
+                      <div className="w-25 d-flex flex-column align-items-center justify-content-center">
+                        <span
+                          className="w-20 font-bold text-center"
+                          style={{ 
+                            fontSize: "11px", 
+                            position: "relative",
+                            top: "-15px",
+                            backgroundColor: "#3F98F8",
+                            color: "white",
+                            padding: "2px",
+                            borderRadius: "5px",
+                            zIndex: "100"
+                          }}
+                        >{item.bot}</span>
+                        <div className="w-25 rounded d-flex align-items-center justify-content-center">
+                            <img
+                              src={item.url_avatar}
+                              className="rounded-circle"
+                              width="40px"
+                              height="40px"
+                            />
                         </div>
                       </div>
-
-                      <div className="d-flex gap-2 flex-wrap">
-                        {item.etiqueta.map((et, index) => {
-                          if(et !== null && et !== "" && et !== undefined){
-                            return (
-                              <span
-                                key={index + 1}
-                                className="chat-tag rounded bg-gray text-white"
-                              >
-                                {et}
-                              </span>
-                            );
-                          }
-                        })}
-                      <span className="w-20 text-dark font-bold"
-                        style={{ fontSize: "12px" }}
-                      >
-                       Ag: {NombreAgente(item.agente_id)}
-                      </span>
+  
+                      <div className="w-75 p-1 d-flex flex-column">
+                        <div
+                          className="d-flex flex-row justify-content-between"
+                          style={{ lineHeight: "15px" }}
+                        >
+                          <span className="w-100 text-dark font-bold">
+                            {item.name}
+                          </span>
+                          <small className="text-warning">{item.fecha}</small>
+                        </div>
+  
+                        <div className="d-flex flex-row justify-content-between my-1">
+                          <small className="text-dark">
+                            {
+                              // limitar la cantidad de caracteres a mostrar
+                              item.mensaje.type === "text"
+                                ? String(item.mensaje.text).length > 30
+                                  ? String(item.mensaje.text).substring(0, 30) +
+                                    "..."
+                                  : item.mensaje.text
+                                : // si es imagen o video mostrar el tipo de archivo
+                                item.mensaje.type === "image" ||
+                                  item.mensaje.type === "video"
+                                ? item.mensaje.type
+                                : // si es audio mostrar el nombre del archivo
+                                item.mensaje.type === "audio"
+                                ? item.mensaje.type
+                                : // si es archivo mostrar el nombre del archivo
+                                item.mensaje.type === "file"
+                                ? item.mensaje.type
+                                : null
+                            }
+                          </small>
+                          <div
+                            className="rounded-circle p-0 d-flex justify-content-center aligns-items-center bg-warning"
+                            style={{ width: "24px", height: "24px" }}
+                          >
+                            1
+                          </div>
+                        </div>
+  
+                        <div className="d-flex gap-2 flex-wrap">
+                          {item.etiqueta.map((et, index) => {
+                            if(et !== null && et !== "" && et !== undefined){
+                              return (
+                                <span
+                                  key={index + 1}
+                                  className="chat-tag rounded bg-gray text-white"
+                                >
+                                  {et}
+                                </span>
+                              );
+                            }
+                          })}
+                        <span className="w-20 text-dark font-bold"
+                          style={{ fontSize: "12px" }}
+                        >
+                         Ag: {NombreAgente(item.agente_id)}
+                        </span>
+                        </div>
+  
                       </div>
-
                     </div>
-                  </div>
-                );
+                  );
+                }
               }
             })}
           </div>
