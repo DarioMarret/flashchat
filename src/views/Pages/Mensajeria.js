@@ -677,7 +677,7 @@ export default function Mensajeria() {
               // className="mb-3"
               fill
             >
-              <Tab eventKey="home" title="Sin leer"
+              <Tab eventKey="Sin leer" title="Sin leer"
                 onClick={() => VerConversaciones('Sin leer')}
               >
               <div className="w-100 py-2 px-2 d-flex flex-column gap-3 box-items-chat"
@@ -784,7 +784,7 @@ export default function Mensajeria() {
                   <div style={{ padding: "10px" }} />
                 </div>
               </Tab>
-              <Tab eventKey="profile" title="Mis Conversaciones"
+              <Tab eventKey="Mis Conversaciones" title="Mis Conversaciones"
                 onClick={() => VerConversaciones('Mis Conversaciones')}
               >
               <div className="w-100 py-2 px-2 d-flex flex-column gap-3 box-items-chat"
@@ -900,7 +900,7 @@ export default function Mensajeria() {
               </div>
               </Tab>
               <Tab 
-                eventKey="contact" title="Todas"
+                eventKey="Todas" title="Todas"
                 onClick={() => VerConversaciones('Todas')}
                 >
               <div 
