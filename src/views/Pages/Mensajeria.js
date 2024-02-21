@@ -226,8 +226,6 @@ export default function Mensajeria() {
         }
       });
 
-
-
       socket.on("cambiar_estado", (msg) => {
         const { type, data } = msg;
         if (type === "response_cambiar_estado" && data.cuenta_id === GetTokenDecoded().cuenta_id) {
@@ -573,6 +571,9 @@ export default function Mensajeria() {
     if(estado !== "Eliminado" || estado !== "Resuelta"){
       localStorage.setItem("conversacion_activa",JSON.stringify({...covActiva,estado: estado}));
       setConvEstado(estado);
+    }else{
+      DeletManejoConversacion()
+      setConversacionActiva([])
     }
   }
 
