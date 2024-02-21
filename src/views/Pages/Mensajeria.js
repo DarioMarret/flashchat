@@ -577,6 +577,29 @@ export default function Mensajeria() {
     }
   }
 
+  const handleBusqueda = (e) => {
+    // se tiene que buscar coincidencias con el nombre del contacto, numero de telefono y el mensaje
+    console.log("e.target.value: ", e.target.value);
+    let busqueda = e.target.value;
+    let card = cardMensage;
+    let new_card = [];
+    if(e.target.value === ""){
+      setCard_mensajes(cardMensage);
+      return;
+    }else{
+      card.map((item) => {
+        let mensaje = item.mensaje.type === "text" ? item.mensaje.text : item.mensaje.url
+        if (
+          item.bot.toLowerCase().includes(busqueda.toLowerCase()) || item.name.toLowerCase().includes(busqueda.toLowerCase()) ||
+          item.telefono.toLowerCase().includes(busqueda.toLowerCase()) || mensaje.toLowerCase().includes(busqueda.toLowerCase())
+        ) {
+          new_card.push(item);
+        }
+      });
+      setCard_mensajes(new_card);
+    }
+  }
+
   useEffect(() => {
     ListarEstados();
   }, [])
@@ -618,6 +641,7 @@ export default function Mensajeria() {
               <Input
                 className="input-dark text-dark bg-white"
                 placeholder="Buscar chat"
+                onChange={(e) => handleBusqueda(e)}
               />
               {/* <p className="m-2 mb-0">
                 {misConversaciones}
@@ -682,7 +706,7 @@ export default function Mensajeria() {
               >
               <div className="w-100 py-2 px-2 d-flex flex-column gap-3 box-items-chat"
                 style={{
-                  height: "calc(100% - 100px)",
+                  height: "1111px",
                   overflowY: "auto",
                   overflowX: "hidden",
                 }}
@@ -793,10 +817,9 @@ export default function Mensajeria() {
               >
               <div className="w-100 py-2 px-2 d-flex flex-column gap-3 box-items-chat"
                 style={{
-                  height: "calc(100% - 100px)",
+                  height: "1111px",
                   overflowY: "auto",
                   overflowX: "hidden",
-                
                 }}
               >
                 {card_mensajes.map((item, index) => {
