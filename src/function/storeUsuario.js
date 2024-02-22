@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { DecodeJwt, DescryptCualquierDato } from "./util/ecrypt";
-import { host, usuario_token } from "./util/global";
+import { conversacion_activa, host, usuario_token } from "./util/global";
 
 
 export const GetToken = () => {
@@ -30,7 +30,6 @@ export function setDatosUsuario(data) {
         console.log(error);
     }
 }
-
 
   
 export function getDatosUsuario() {
@@ -70,4 +69,23 @@ export const SubirMedia = async (imagen) => {
     }else{
         return null;
     }
+}
+
+export const GetManejoConversacion = () => {
+    const local = localStorage.getItem(conversacion_activa);
+    if (local) {
+      return JSON.parse(local);
+    } else {
+      return null;
+    }
+}
+
+export const SetManejoConversacionStorange = (data) => {
+    localStorage.setItem(conversacion_activa, JSON.stringify(data));
+    return true;
+}
+
+export const DeletManejoConversacionStorange = () => {
+    localStorage.removeItem(conversacion_activa);
+    return true;
 }

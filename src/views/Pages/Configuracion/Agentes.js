@@ -22,6 +22,7 @@ function Agentes(props) {
         avatar: '',
         correo: '',
         clave: '',
+        newclave: '',
         menu: [],
         contacto: '',
         perfil: '',
@@ -64,7 +65,8 @@ function Agentes(props) {
                     : <button disabled={true} className="btn btn text-success">Online</button>,
                     contacto: agente.contacto,
                     fecha: agente.fecha,
-                    clave: agente.clave,
+                    // clave: agente.clave,
+                    newclave: "",
                     perfil: agente.perfil,
                     accion: <div className="d-flex justify-content-center gap-2">
                         <button className="btn btn "
@@ -323,13 +325,24 @@ function Agentes(props) {
                         </Form.Group>
                         <Form.Group controlId="exampleForm.ControlInput1">
                             <Form.Label>Clave</Form.Label>
-                            <Form.Control 
-                                type="password"
-                                name='clave'
-                                autoComplete='off'
-                                aria-autocomplete='none'
-                                onChange={(e) => setAgente({...agente, clave: e.target.value})}
-                            />
+                            {
+                                agente.id === 0 ?
+                                <Form.Control 
+                                    type="password"
+                                    name='clave'
+                                    autoComplete='off'
+                                    aria-autocomplete='none'
+                                    onChange={(e) => setAgente({...agente, clave: e.target.value})}
+                                />
+                                :
+                                <Form.Control 
+                                    type="password"
+                                    name='clave'
+                                    autoComplete='off'
+                                    aria-autocomplete='none'
+                                    onChange={(e) => setAgente({...agente, newclave: e.target.value})}
+                                />
+                            }
                         </Form.Group>
                         <Form.Group controlId="exampleForm.ControlInput1">
                             <Form.Label>Perfil</Form.Label>

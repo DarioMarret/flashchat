@@ -18,26 +18,27 @@ import {
 import Swal from 'sweetalert2';
 // import socket from "views/SocketIO";
 import Picker from "emoji-picker-react";
-import { SubirMedia, setDatosUsuario } from "function/storeUsuario";
+import { DeletManejoConversacionStorange, GetManejoConversacion, SetManejoConversacionStorange, SubirMedia, removeDatosUsuario, setDatosUsuario } from "function/storeUsuario";
+import { dev } from "function/util/global";
+import useAuth from "hook/useAuth";
+import Nav from 'react-bootstrap/Nav';
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
 import io from "socket.io-client";
 import { CardChat } from "./CardChat";
-import Nav from 'react-bootstrap/Nav';
 
 var socket = null;
-  if(proxy === ""){
-  // if(true){
-    socket = io.connect("http://localhost:5002", {
-      path: "/socket.io/socket.io.js",
-      transports: ["websocket"],
-    });
-  }else{
-    socket = io.connect(String(host).replace(`/${proxy}/`, ""), {
-      path: `/${proxy}/socket.io/socket.io.js`,
-      transports: ["websocket"],
-    });
-  }
+if(dev){
+  socket = io.connect("http://localhost:5002", {
+    path: "/socket.io/socket.io.js",
+    transports: ["websocket"],
+  });
+}else{
+  socket = io.connect(String(host).replace(`/${proxy}/`, ""), {
+    path: `/${proxy}/socket.io/socket.io.js`,
+    transports: ["websocket"],
+  });
+}
 
 
 
@@ -46,10 +47,16 @@ var cardMensage = [];
 export default function Mensajeria() {
   const [card_mensajes, setCard_mensajes] = useState([]);
   const [conversacionActiva, setConversacionActiva] = useState([]);
+  const [ping, setPing] = useState(false)
   const [estados, setEstados] = useState([]);
   const [misConversaciones, setMisConversaciones] = useState('Sin leer')
   const [respuestaRapidas, setRespuestaRapidas] = useState([]);
   const [showRespuesta, setShowRespuesta] = useState(false)
+  const [countC, setCountC] = useState({
+    sinLeer: 0,
+    misConversaciones: 0,
+    todas: 0,
+  })
   const dummy = useRef(null)
   const [equipoUsuario , setEquipoUsuario] = useState({
     correo: '',
@@ -125,6 +132,7 @@ export default function Mensajeria() {
       setMisConversaciones('Sin leer')
     }
   }
+
   useEffect(() => {
     (async()=>{
       GetMisConversaciones()
@@ -139,6 +147,15 @@ export default function Mensajeria() {
     setMisConversaciones(item)
   }
 
+  const LimpiarCounC = () => {
+    setCountC({
+      sinLeer: 0,
+      misConversaciones: 0,
+      todas: 0,
+    })
+  }
+
+  const { logout } = useAuth();
   
   useEffect(() => {
     try {
@@ -163,14 +180,20 @@ export default function Mensajeria() {
         })
         
         if (data.length > 0) {
+          LimpiarCounC()
+          let sinLeer = 0
+          let todo = 0
+          let misConversaciones = 0
           for (let index = 0; index < data.length; index++) {
             const item = data[index];
             if (covActiva && covActiva !== null && covActiva !== undefined) {
-              if (item.conversacion_id === covActiva.conversacion_id && item.nombreunico === covActiva.nombreunico) {
+              if (item.conversacion_id === covActiva.conversacion_id 
+                && item.nombreunico === covActiva.nombreunico 
+                && item.Contactos.id === covActiva.Contactos.id) {
                 if(item.agente_id === GetTokenDecoded().id){
                   socket.emit("get_conversacion_activa", {
                     cuenta_id: GetTokenDecoded().cuenta_id,
-                    contacto_id: item.contacto_id,
+                    contacto_id: item.Contactos.id,
                     equipo_id: item.equipo_id,
                     channel_id: item.channel_id,
                     agente_id: GetTokenDecoded().id,
@@ -208,7 +231,19 @@ export default function Mensajeria() {
                 etiqueta: item.etiquetas,
                 agente_id: item.agente_id,
               })
+              // contar las conversaciones sin leer, las mis conversaciones y todas
+              if(item.agente_id === 0){
+                sinLeer = sinLeer + 1
+                setCountC({...countC, sinLeer: sinLeer})
+              }else if(item.agente_id === GetTokenDecoded().id){
+                misConversaciones = misConversaciones + 1
+                setCountC({...countC, misConversaciones:misConversaciones})
+              }else{
+                todo = todo + 1
+                setCountC({...countC, todas: todo})
+              }
             }
+            
           }
           if(new_card.length > 0){
             setCard_mensajes(new_card);
@@ -219,7 +254,6 @@ export default function Mensajeria() {
 
       socket.on("mensaje", (msg) => {
         const { type, data } = msg;
-
         if (type === "update-conversacion" && data.cuenta_id === cuenta_id) {
           socket.emit("listar_conversacion", {
             cuenta_id: cuenta_id,
@@ -233,11 +267,32 @@ export default function Mensajeria() {
       socket.on("cambiar_estado", (msg) => {
         const { type, data } = msg;
         if (type === "response_cambiar_estado" && data.cuenta_id === GetTokenDecoded().cuenta_id) {
-          // CambiarEstadoConversacion(data)
-          // EmiittingMensaje()
-          socket.emit("mensaje", {cuenta_id: GetTokenDecoded().cuenta_id})
+          CambiarEstadoConversacion(data)
         }
       })
+
+      socket.on("borrar_conversacion_agente", (msg) => {
+        const { agente_id } = msg;
+        const local = GetManejoConversacion()
+        if(local && agente_id === GetTokenDecoded().id){
+          DeletManejoConversacion()
+          setConversacionActiva([])
+        }
+      });
+
+      socket.on("liberar_chat", (msg) => {
+        const { type, data } = msg;
+        if (type === "response_liberar_chat" && data.cuenta_id === GetTokenDecoded().cuenta_id) {
+          LiberarChat(data)
+        }
+      })
+
+      socket.on("transferir_chat", (msg) => {
+        const { type, data } = msg;
+        if (type === "response_transferir_chat" && data.cuenta_id === GetTokenDecoded().cuenta_id) {
+          TransferirChat(data)
+        }
+      });
 
       socket.on("infoUsuario", (msg) => {
         try {
@@ -252,16 +307,50 @@ export default function Mensajeria() {
         }
       })
 
+      socket.on("asignacion_agente", (msg) => {
+        try {
+          const { type, data } = msg;
+          if (type === "response_asignacion_agente" && data.cuenta_id === GetTokenDecoded().cuenta_id) {
+            if(cardMensage.length > 0){
+              CambiodeAgente(data)
+            }
+          }
+        } catch (error) {
+          console.log(error)
+        }
+      })
+      // recargar navegador
+      socket.on("recargar", (msg) => {
+        const { type, data } = msg;
+        if (type === "recargar" && data.cuenta_id === GetTokenDecoded().cuenta_id) {
+          window.location.reload()
+        }else if(type === "cerrar_session" && data.cuenta_id !== GetTokenDecoded().cuenta_id){
+          Swal.fire({
+            title: 'Cuenta cerrada',
+            text: 'La cuenta fue cerrada por otro usuario',
+            icon: 'warning',
+            confirmButtonColor: "#8F8F8F",
+            timer: 1800,
+          })
+          logout()
+          removeDatosUsuario()
+          // lo redirigimos al login
+          window.location.href = "/"
+        }
+      })
     } catch (error) {
       console.log(error);
     }
+
     return () => {
       socket.off(`response_conversacion_${GetTokenDecoded().cuenta_id}`);
       socket.off(`get_conversacion_activa_${GetTokenDecoded().cuenta_id}`);
       socket.off("mensaje");
       socket.off("cambiar_estado");
       socket.off("infoUsuario");
-    };
+      socket.off("asignacion_agente");
+      socket.off("recargar");
+    }
   }, [])
 
 
@@ -271,18 +360,13 @@ export default function Mensajeria() {
       const covActiva = GetManejoConversacion();
       const { type, data, listMensajes } = msg;
       if(covActiva && covActiva !== null && covActiva !== undefined){
-        if (type === "response_get_conversacion_activa" && data.cuenta_id === cuenta_id && data.conversacion_id === covActiva.conversacion_id && data.nombreunico === covActiva.nombreunico && data.contacto_id === covActiva.contacto_id) {
+        if (type === "response_get_conversacion_activa" && data.cuenta_id === cuenta_id 
+        && data.conversacion_id === covActiva.conversacion_id && data.nombreunico === covActiva.nombreunico 
+        && data.contacto_id === covActiva.Contactos.id) {
           if(data.agente_id === GetTokenDecoded().id){
             setConversacionActiva(listMensajes)
             dummy.current.scrollIntoView({ behavior: 'smooth' })
           }else if(data.agente_id !== GetTokenDecoded().id && data.agente_id !== 0){
-            // Swal.fire({
-            //   title: 'Conversación Tomada',
-            //   html: 'La conversación fue tomada por el agente <b className="w-100 text-dark font-bold">' + NombreAgente(data.agente_id)+'</b>',
-            //   icon: 'info',
-            //   confirmButtonColor: "#8F8F8F",
-            //   timer: 1500,
-            // })
             DeletManejoConversacion()
             setConversacionActiva([])
           }
@@ -291,19 +375,67 @@ export default function Mensajeria() {
     })
   }, [])
 
-  socket.on("asignacion_agente", (msg) => {
-    try {
-      const { type, data } = msg;
-      if (type === "response_asignacion_agente" && data.cuenta_id === GetTokenDecoded().cuenta_id) {
-        if(cardMensage.length > 0){
-          CambiodeAgente(data)
-        }
-      }
-    } catch (error) {
-      console.log(error)
-    }
-  })
 
+  const CambiarEstadoConversacion = (data) => {
+    try {
+      const { cuenta_id, contacto_id, conversacion_id, estado, nombreunico } = data;
+      var card = [...cardMensage];
+      card.map((item) => {
+        console.log("CambiarEstadoConversacion: ", item);
+        if (item.conversacion_id === conversacion_id && cuenta_id === GetTokenDecoded().cuenta_id 
+          && contacto_id === item.Contactos.id && nombreunico === item.nombreunico) {
+          if(estado === "Eliminado" || estado === "Resuelta"){
+            // lo quitamos del listado de conversaciones
+            console.log("Eliminado")
+            card = card.filter((item) => item.conversacion_id !== conversacion_id 
+            && contacto_id !== item.Contactos.id && nombreunico !== item.nombreunico)
+            DeletManejoConversacion()
+            setConversacionActiva([])
+          }else{
+            console.log("No eliminado cambio de estado")
+            item.estado = estado;
+          }
+        }
+      })
+      setCard_mensajes(card)
+    } catch (error) {
+      alert("Error al cambiar el estado de la conversacion")
+    }
+  }
+
+
+
+  // se libero el chat 
+  const LiberarChat = (data) => {
+    try {
+      const { cuenta_id, contacto_id, conversacion_id, nombreunico } = data;
+      var card = [...cardMensage];
+      card.map((item) => {
+        if (item.conversacion_id === conversacion_id && item.Contactos.id === contacto_id 
+          && cuenta_id === GetTokenDecoded().cuenta_id && nombreunico === item.nombreunico) {
+          item.agente_id = 0;
+        }
+      })
+      setCard_mensajes(card)
+    } catch (error) {
+      console.log("Error al liberar el chat")
+    }
+  }
+  // se transfirio el chat
+  const TransferirChat = (data) => {
+    try {
+      const { cuenta_id, contacto_id, conversacion_id, agente_id } = data;
+      var card = [...cardMensage];
+      card.map((item) => {
+        if (item.conversacion_id === conversacion_id && item.Contactos.id === contacto_id && cuenta_id === GetTokenDecoded().cuenta_id) {
+          item.agente_id = agente_id;
+        }
+      })
+      setCard_mensajes(card)
+    } catch (error) {
+      console.log("Error al transferir el chat")
+    }
+  }
 
   //buscar la conversacion y por cuenta_id, contacto_id, conversacion_id, agente_id, y reemplazar los valores
   const CambiodeAgente = (data) => {
@@ -311,7 +443,7 @@ export default function Mensajeria() {
       const { cuenta_id, contacto_id, conversacion_id, agente_id } = data;
       var card = [...cardMensage];
       card.map((item) => {
-        if (item.conversacion_id === conversacion_id && item.contacto_id === contacto_id && cuenta_id === GetTokenDecoded().cuenta_id) {
+        if (item.conversacion_id === conversacion_id && item.Contactos.id === contacto_id && cuenta_id === GetTokenDecoded().cuenta_id) {
           item.agente_id = agente_id;
         }
       })
@@ -349,7 +481,8 @@ export default function Mensajeria() {
   }
 
   const ManejarConversacion = (item) => {
-    if(misConversaciones === 'Todas' && item.agente_id !== 0 && item.agente_id !== GetTokenDecoded().id){
+    if(misConversaciones === 'Todas' && item.agente_id !== 0 
+    && item.agente_id !== GetTokenDecoded().id){
       Swal.fire({
         title: 'Conversación en curso',
         text: 'Esta conversación ya está siendo atendida por el agente *' + NombreAgente(item.agente_id)+'*',
@@ -361,58 +494,29 @@ export default function Mensajeria() {
         cancelButtonColor: '#d33',
       }).then((result) => {
         if (result.isConfirmed) {
-            localStorage.setItem("conversacion_activa", JSON.stringify({
-              cuenta_id: GetTokenDecoded().cuenta_id,
-              conversacion_id: item.conversacion_id,
-              nombreunico: item.nombreunico,
-              equipo_id: item.equipo_id,
-              channel_id: item.channel_id,
-              contacto_id: item.contacto_id,
-              estado: item.estado,
-              Contacto: item.Contactos,
-            })
-          );
+          SetManejoConversacionStorange({...item, cuenta_id: GetTokenDecoded().cuenta_id})
           setConvEstado(item.estado);
           GetActivaConversacion(item)
           EventoAsignacionAgente(item)
         }
       })
     }else if(item.agente_id === GetTokenDecoded().id){
-      localStorage.setItem("conversacion_activa", JSON.stringify({
-        cuenta_id: GetTokenDecoded().cuenta_id,
-        conversacion_id: item.conversacion_id,
-        nombreunico: item.nombreunico,
-        equipo_id: item.equipo_id,
-        channel_id: item.channel_id,
-        contacto_id: item.contacto_id,
-        estado: item.estado,
-        Contacto: item.Contactos,
-      }));
+      SetManejoConversacionStorange({...item, cuenta_id: GetTokenDecoded().cuenta_id})
       socket.emit("get_conversacion_activa", {
         cuenta_id: GetTokenDecoded().cuenta_id,
         conversacion_id: item.conversacion_id,
         equipo_id: item.equipo_id,
         channel_id: item.channel_id,
-        contacto_id: item.contacto_id,
+        contacto_id: item.Contactos.id,
         agente_id: GetTokenDecoded().id,
         nombreunico: item.nombreunico,
       });
     }else{
-      localStorage.setItem("conversacion_activa", JSON.stringify({
-          cuenta_id: GetTokenDecoded().cuenta_id,
-          conversacion_id: item.conversacion_id,
-          nombreunico: item.nombreunico,
-          equipo_id: item.equipo_id,
-          channel_id: item.channel_id,
-          contacto_id: item.contacto_id,
-          estado: item.estado,
-          Contacto: item.Contactos,
-        })
-      );
+      SetManejoConversacionStorange({...item, cuenta_id: GetTokenDecoded().cuenta_id})
       setConvEstado(item.estado);
       socket.emit("asignacion_agente", {
         cuenta_id: GetTokenDecoded().cuenta_id,
-        contacto_id: item.contacto_id,
+        contacto_id: item.Contactos.id,
         conversacion_id: item.conversacion_id,
         agente_id: GetTokenDecoded().id,
       });
@@ -427,7 +531,7 @@ export default function Mensajeria() {
       conversacion_id: item.conversacion_id,
       equipo_id: item.equipo_id,
       channel_id: item.channel_id,
-      contacto_id: item.contacto_id,
+      contacto_id: item.Contactos.id,
       agente_id: GetTokenDecoded().id,
       nombreunico: item.nombreunico,
     })
@@ -436,23 +540,16 @@ export default function Mensajeria() {
   const EventoAsignacionAgente = (item) => {
     socket.emit("asignacion_agente", {
       cuenta_id: GetTokenDecoded().cuenta_id,
-      contacto_id: item.contacto_id,
+      contacto_id: item.Contactos.id,
       conversacion_id: item.conversacion_id,
       agente_id: GetTokenDecoded().id,
     });
   }
 
-  const GetManejoConversacion = () => {
-    const local = localStorage.getItem("conversacion_activa");
-    if (local) {
-      return JSON.parse(local);
-    } else {
-      return null;
-    }
-  }
+
 
   const DeletManejoConversacion = () => {
-    localStorage.removeItem("conversacion_activa");
+    DeletManejoConversacionStorange()
   }
 
   const random = () => {
@@ -472,7 +569,7 @@ export default function Mensajeria() {
         conversacion_id: covActiva.conversacion_id,
         equipo_id: covActiva.equipo_id,
         channel_id: covActiva.channel_id,
-        contacto_id: covActiva.contacto_id,
+        contacto_id: covActiva.Contactos.id,
         agente_id: GetTokenDecoded().id,
         updatedAt: new Date(),
         nombreunico: covActiva.nombreunico,
@@ -565,12 +662,13 @@ export default function Mensajeria() {
     socket.emit("actualizar_estado_conversacion", {
       cuenta_id: GetTokenDecoded().cuenta_id,
       conversacion_id: covActiva.conversacion_id,
-      contacto_id: covActiva.contacto_id,
+      contacto_id: covActiva.Contactos.id,
       nombreunico: covActiva.nombreunico,
       estado: estado,
     });
     if(estado !== "Eliminado" || estado !== "Resuelta"){
-      localStorage.setItem("conversacion_activa",JSON.stringify({...covActiva,estado: estado}));
+      SetManejoConversacionStorange({...covActiva,estado: estado})
+      // localStorage.setItem("conversacion_activa",JSON.stringify({...covActiva,estado: estado}));
       setConvEstado(estado);
     }else{
       DeletManejoConversacion()
@@ -630,15 +728,11 @@ export default function Mensajeria() {
     }
   }
 
-  const sinLeerCount = 2;
-  const misConversacionesCount = 4;
-  const todasCount = 20;
-
   return (
     <>
       <div
-        className="d-flex box-chat box-chat-container flex-column flex-md-row"
-        style={{ margin: "0px", height: '100%' }}
+        className="d-flex box-chat box-chat-container flex-column flex-md-row px-0 py-0"
+        style={{ margin: "0px", height: '100%'}}
       >
         <div className="chat-list bg-chat rounded-start">
           <div className="d-flex py-2 px-2 flex-wrap align-items-center justify-content-between">
@@ -658,7 +752,7 @@ export default function Mensajeria() {
                   className="gap-1 d-flex"
                   style={{ fontSize: '13px' }}>
                   <span className="">Sin leer</span>
-                  <span className="text-warning">{sinLeerCount}</span>
+                  <span className="text-warning">{countC.sinLeer}</span>
                 </Nav.Link>
               </Nav.Item>
 
@@ -667,7 +761,7 @@ export default function Mensajeria() {
                   className="gap-1 d-flex"
                   style={{ fontSize: '13px' }}>
                   <span className="">Mis conversaciones</span>
-                  <span className="text-warning">{misConversacionesCount}</span>
+                  <span className="text-warning">{countC.misConversaciones}</span>
                 </Nav.Link>
               </Nav.Item>
 
@@ -675,7 +769,7 @@ export default function Mensajeria() {
                 <Nav.Link eventKey="Todas" 
                   className="gap-1 d-flex"
                   style={{ fontSize: '13px' }}>
-                  Todos <span className="text-warning">{todasCount}</span>
+                  Todos <span className="text-warning">{countC.todas}</span>
                 </Nav.Link>
               </Nav.Item>
             </Nav>
@@ -692,7 +786,7 @@ export default function Mensajeria() {
                             index={index}
                             agente={NombreAgente(item.agente_id)}
                             verConversacion={() => ManejarConversacion(item)}
-                          />                     
+                          />
                         );
                       }
                     }
@@ -732,7 +826,7 @@ export default function Mensajeria() {
                           index={index}
                           agente={NombreAgente(item.agente_id)}
                           verConversacion={() => ManejarConversacion(item)}
-                        />                     
+                        />
                       );
                     }
                   })}
@@ -747,10 +841,14 @@ export default function Mensajeria() {
             id="uncontrolled-tab-example"
             fill
           >
-            <Tab eventKey="Sin leer" title={`Sin leer ${sinLeerCount}`}
+            <Tab eventKey="Sin leer" title={`Sin leer ${countC.sinLeer}`}
               onClick={() => VerConversaciones('Sin leer')}
             >
               <div className="w-100 py-2 px-2 d-flex flex-column gap-3 box-items-chat"
+                style={{
+                  overflowY: "auto",
+                  height: "calc(100% - 1100px)",
+                }}
             >
                 {card_mensajes.map((item, index) => {
                   if(item.mensaje){
@@ -761,16 +859,18 @@ export default function Mensajeria() {
                           index={index}
                           agente={NombreAgente(item.agente_id)}
                           verConversacion={() => ManejarConversacion(item)}
-                        />                     
+                          ping={ping}
+                          setPing={setPing}
+                        />
                       );
                     }
                   }
                 })}
-                <div style={{ padding: "10px" }} />
+                <div style={{ padding: "40px" }} />
               </div>
             </Tab>
 
-            <Tab eventKey="Mis Conversaciones" title={`Mis Conversaciones ${misConversacionesCount}`}
+            <Tab eventKey="Mis Conversaciones" title={`Mis Conversaciones ${countC.misConversaciones}`}
               onClick={() => VerConversaciones('Mis Conversaciones')}
             >
               <div className="w-100 py-2 px-2 d-flex flex-column gap-3 box-items-chat">
@@ -783,20 +883,22 @@ export default function Mensajeria() {
                           index={index}
                           agente={NombreAgente(item.agente_id)}
                           verConversacion={() => ManejarConversacion(item)}
-                        />                     
+                          ping={ping}
+                          setPing={setPing}
+                        />
                       );
                     }
                   }
                 })}
-                <div style={{ padding: "10px" }} />
+                <div style={{ padding: "40px" }} />
               </div>
             </Tab>
 
             <Tab 
-              eventKey="Todas" title="Todas"
+              eventKey="Todas" title={`Todas ${countC.todas}`}
               onClick={() => VerConversaciones('Todas')}
               >
-            <div 
+            <div
               className="w-100 d-flex flex-column gap-3 box-items-chat"
             >
               {card_mensajes.map((item, index) => {
@@ -807,11 +909,13 @@ export default function Mensajeria() {
                       index={index}
                       agente={NombreAgente(item.agente_id)}
                       verConversacion={() => ManejarConversacion(item)}
-                    />                     
+                      ping={ping}
+                      setPing={setPing}
+                    />
                   );
                 }
               })}
-              <div style={{ padding: "10px" }} />
+              <div style={{ padding: "40px" }} />
             </div>
             </Tab>
           </Tabs>
@@ -834,7 +938,7 @@ export default function Mensajeria() {
                   <img
                     src={
                       GetManejoConversacion()
-                        ? GetManejoConversacion().Contacto.avatar
+                        ? GetManejoConversacion().Contactos.avatar
                         : null
                     }
                     className="rounded-circle"
@@ -848,11 +952,11 @@ export default function Mensajeria() {
                     {GetManejoConversacion()
                       ? 
                       <>
-                        <span>{GetManejoConversacion().Contacto.nombre}</span>
+                        <span>{GetManejoConversacion().Contactos.nombre}</span>
                         <span 
                           className="text-span"
                           style={{ fontSize: '12px' }}>
-                            {GetManejoConversacion().Contacto.telefono}
+                            {GetManejoConversacion().Contactos.telefono}
                         </span>
                       </>
                       : "Seleccione una conversación"}
