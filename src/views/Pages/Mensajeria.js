@@ -409,8 +409,6 @@ export default function Mensajeria() {
     }
   }
 
-
-
   // se libero el chat 
   const LiberarChat = (data) => {
     try {
@@ -570,7 +568,6 @@ export default function Mensajeria() {
     e.preventDefault();
     const covActiva = GetManejoConversacion();
     if (covActiva == null || covActiva.estado === "Eliminado") {
-      alert("Seleccione una conversacion");
       return;
     }
     if (inputStr !== null && inputStr !== "") {

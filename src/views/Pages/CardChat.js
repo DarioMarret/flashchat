@@ -64,7 +64,6 @@ function CardChat(props) {
   }
   
   const VerConversacionesSinAsignar = (items) => {
-    console.log("VerConversacionesSinAsignar: ", items)
     SetManejoConversacionStorange(items)
     socket.emit("get_conversacion_activa", {
       cuenta_id: GetTokenDecoded().cuenta_id,
@@ -93,7 +92,7 @@ function CardChat(props) {
           backgroundColor: "#3F98F8",
           color: "white",
           fontSize: "13px" }}>
-            <span>{ messageItem.bot }</span>
+            <span>{ messageItem.bot +" - "+messageItem.telefono }</span>
             <Dropdown 
               isOpen={dropdownOpen}
               toggle={toggle}>
