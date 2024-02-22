@@ -85,7 +85,7 @@ export default function App() {
               <div className="main-panel">
                 <AdminNavbar />
                 <div className="content"
-                style={{ overflow: 'hidden'}}>
+                style={{ overflow: 'auto'}}>
                   <Routes
                     basename="/"
                     forceRefresh={true}
