@@ -9,6 +9,7 @@ import {
     Modal
 } from 'react-bootstrap';
 import Swal from 'sweetalert2';
+import socket from 'views/SocketIO';
 
 function Agentes(props) {
     const [show, setShow] = useState(false);
@@ -46,6 +47,31 @@ function Agentes(props) {
         })
     }
 
+    const RecargarPaginaAgente = (item) => {
+        socket.emit("recargar_pagina", {
+            type: "recargar_agente_id",
+            data:{
+                agente_id: item.id,
+                cuenta_id: GetTokenDecoded().cuenta_id
+            }
+        })
+        Swal.fire({
+            icon: 'success',
+            title: 'Se envio la solicitud de recarga',
+            showConfirmButton: false,
+            timer: 1500
+        })
+    }
+    const CerrarSessionAgente = (item) => {
+        socket.emit("recargar_pagina", {
+            type: "cerrar_session",
+            data:{
+                agente_id: item.id,
+                cuenta_id: GetTokenDecoded().cuenta_id
+            }
+        })
+    }
+
     const ListarAgentes = async() => {
         const url = `${host}agentes/${GetTokenDecoded().cuenta_id}`
         const { data, status } = await axios.get(url)
@@ -69,6 +95,14 @@ function Agentes(props) {
                     newclave: "",
                     perfil: agente.perfil,
                     accion: <div className="d-flex justify-content-center gap-2">
+                        {/* recargar pagina del agente */}
+                        <button className="btn btn"
+                            onClick={() => {
+                                RecargarPaginaAgente(agente)
+                            }}
+                        >
+                            <i className="fas fa-sync-alt"></i>
+                        </button>
                         <button className="btn btn "
                             onClick={() => {
                                 setAgente({

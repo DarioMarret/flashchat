@@ -323,19 +323,35 @@ export default function Mensajeria() {
       socket.on("recargar", (msg) => {
         const { type, data } = msg;
         if (type === "recargar" && data.cuenta_id === GetTokenDecoded().cuenta_id) {
-          window.location.reload()
+          Swal.fire({
+            title: 'Alerta',
+            text: 'Por favor recarge el navegador o cierre sesión y vuelva a iniciar sesión',
+            icon: 'info',
+            confirmButtonColor: "#8F8F8F",
+            timer: 2000,
+          })
+        }else if(type === "recargar_agente_id" && data.agente_id === GetTokenDecoded().id){
+          Swal.fire({
+            title: 'Alerta',
+            text: 'Su cuenta se recarga por otro usuario',
+            icon: 'info',
+            confirmButtonColor: "#8F8F8F",
+            timer: 2500,
+          }).then(() => {
+            window.location.reload()
+          })
         }else if(type === "cerrar_session" && data.cuenta_id !== GetTokenDecoded().cuenta_id){
           Swal.fire({
-            title: 'Cuenta cerrada',
+            title: 'Alerta',
             text: 'La cuenta fue cerrada por otro usuario',
             icon: 'warning',
             confirmButtonColor: "#8F8F8F",
-            timer: 1800,
+            timer: 2000,
+          }).then(() => {
+            logout()
+            removeDatosUsuario()
+            window.location.href = "/"
           })
-          logout()
-          removeDatosUsuario()
-          // lo redirigimos al login
-          window.location.href = "/"
         }
       })
     } catch (error) {
@@ -357,13 +373,17 @@ export default function Mensajeria() {
   useEffect(() => {
     const cuenta_id = GetTokenDecoded().cuenta_id;
     socket.on(`get_conversacion_activa_${cuenta_id}`, (msg) => {//listamos los mensajes de la conversacion activa (la que esta siendo atendida por el agente)
+      console.log("msg: ", msg);
       const covActiva = GetManejoConversacion();
+      console.log("covActiva: ", covActiva);
       const { type, data, listMensajes } = msg;
       if(covActiva && covActiva !== null && covActiva !== undefined){
         if (type === "response_get_conversacion_activa" && data.cuenta_id === cuenta_id 
-        && data.conversacion_id === covActiva.conversacion_id && data.nombreunico === covActiva.nombreunico 
-        && data.contacto_id === covActiva.Contactos.id) {
-          if(data.agente_id === GetTokenDecoded().id){
+        && data.conversacion_id === covActiva.conversacion_id 
+        && data.nombreunico === covActiva.nombreunico 
+        && data.contacto_id === covActiva.contacto_id) {
+          if(data.agente_id === GetTokenDecoded().id || data.agente_id === 0){
+            console.log("listMensajes: ", listMensajes);
             setConversacionActiva(listMensajes)
             dummy.current.scrollIntoView({ behavior: 'smooth' })
           }else if(data.agente_id !== GetTokenDecoded().id && data.agente_id !== 0){
