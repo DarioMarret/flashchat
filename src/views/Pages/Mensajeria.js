@@ -219,8 +219,7 @@ export default function Mensajeria() {
                 equipo_id: item.equipo_id,
                 tipo: item.tipo,
                 estado: item.estado,
-                fecha: moment(item.updatedAt) >= moment().subtract(1, "days")
-                    ? moment(item.updatedAt).format("hh:mm a") : moment(item.updatedAt).format("DD/MM/YYYY hh:mm a"),
+                fecha: moment(item.updatedAt) >= moment().subtract(1, "days") ? moment(item.updatedAt).format("hh:mm a") : moment(item.updatedAt).format("DD/MM/YYYY hh:mm a"),
                 url_avatar: item.Contactos.avatar,
                 proveedor: item.channel.proveedor,
                 active: true,
