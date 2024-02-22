@@ -181,9 +181,6 @@ export default function Mensajeria() {
         
         if (data.length > 0) {
           LimpiarCounC()
-          let sinLeer = 0
-          let todo = 0
-          let misConversaciones = 0
           for (let index = 0; index < data.length; index++) {
             const item = data[index];
             if (covActiva && covActiva !== null && covActiva !== undefined) {
@@ -232,22 +229,12 @@ export default function Mensajeria() {
                 agente_id: item.agente_id,
               })
               // contar las conversaciones sin leer, las mis conversaciones y todas
-              if(item.agente_id === 0){
-                sinLeer = sinLeer + 1
-                setCountC({...countC, sinLeer: sinLeer})
-              }else if(item.agente_id === GetTokenDecoded().id){
-                misConversaciones = misConversaciones + 1
-                setCountC({...countC, misConversaciones:misConversaciones})
-              }else{
-                todo = todo + 1
-                setCountC({...countC, todas: todo})
-              }
             }
-            
           }
           if(new_card.length > 0){
             setCard_mensajes(new_card);
             cardMensage = new_card;
+            ContadorCon(new_card)
           }
         }
       });
@@ -395,6 +382,7 @@ export default function Mensajeria() {
 
   const CambiarEstadoConversacion = (data) => {
     try {
+
       const { cuenta_id, contacto_id, conversacion_id, estado, nombreunico } = data;
       var card = [...cardMensage];
       card.map((item) => {
@@ -415,6 +403,7 @@ export default function Mensajeria() {
         }
       })
       setCard_mensajes(card)
+      ContadorCon(card)
     } catch (error) {
       alert("Error al cambiar el estado de la conversacion")
     }
@@ -434,6 +423,7 @@ export default function Mensajeria() {
         }
       })
       setCard_mensajes(card)
+      ContadorCon(card)
     } catch (error) {
       console.log("Error al liberar el chat")
     }
@@ -449,6 +439,7 @@ export default function Mensajeria() {
         }
       })
       setCard_mensajes(card)
+      ContadorCon(card)
     } catch (error) {
       console.log("Error al transferir el chat")
     }
@@ -465,6 +456,8 @@ export default function Mensajeria() {
         }
       })
       setCard_mensajes(card)
+      // contar las conversaciones sin leer, las mis conversaciones y todas
+      ContadorCon(card)
     } catch (error) {
       alert("Error al cambiar de agente")
     }
@@ -743,6 +736,22 @@ export default function Mensajeria() {
       const url = await SubirMedia(blob)
       console.log('URL:', url);
     }
+  }
+
+  const ContadorCon = (card) => {
+    let sinLeer = 0
+    let todo = 0
+    let misConversaciones = 0
+    LimpiarCounC()
+    card.map((item) => {
+      if(item.agente_id === 0){
+        sinLeer = sinLeer + 1
+      }else if(item.agente_id === GetTokenDecoded().id){
+        misConversaciones = misConversaciones + 1
+      }
+      todo = todo + 1
+    })
+    setCountC({...countC, sinLeer: sinLeer, misConversaciones: misConversaciones, todas: todo})
   }
 
   return (
