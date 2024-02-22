@@ -373,9 +373,7 @@ export default function Mensajeria() {
   useEffect(() => {
     const cuenta_id = GetTokenDecoded().cuenta_id;
     socket.on(`get_conversacion_activa_${cuenta_id}`, (msg) => {//listamos los mensajes de la conversacion activa (la que esta siendo atendida por el agente)
-      console.log("msg: ", msg);
       const covActiva = GetManejoConversacion();
-      console.log("covActiva: ", covActiva);
       const { type, data, listMensajes } = msg;
       if(covActiva && covActiva !== null && covActiva !== undefined){
         if (type === "response_get_conversacion_activa" && data.cuenta_id === cuenta_id 
@@ -383,7 +381,6 @@ export default function Mensajeria() {
         && data.nombreunico === covActiva.nombreunico 
         && data.contacto_id === covActiva.contacto_id) {
           if(data.agente_id === GetTokenDecoded().id || data.agente_id === 0){
-            console.log("listMensajes: ", listMensajes);
             setConversacionActiva(listMensajes)
             dummy.current.scrollIntoView({ behavior: 'smooth' })
           }else if(data.agente_id !== GetTokenDecoded().id && data.agente_id !== 0){
