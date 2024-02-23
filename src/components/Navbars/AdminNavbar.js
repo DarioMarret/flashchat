@@ -1,3 +1,4 @@
+import { colorPrimario } from "function/util/global";
 import useAuth from "hook/useAuth";
 import React from "react";
 
@@ -22,19 +23,25 @@ function AdminNavbar() {
           <div className="navbar-wrapper">
             <div className="navbar-minimize">
               <Button
-                className="btn-fill btn-round btn-icon d-none d-lg-block border-dark"
+                className="btn-fill btn-round btn-icon d-none d-lg-block"
                 variant="dark"
                 onClick={() => document.body.classList.toggle("sidebar-mini")}
+                style={{
+                  background: colorPrimario,
+                }}
               >
                 <i className="fas fa-ellipsis-v visible-on-sidebar-regular icon-dak"></i>
                 <i className="fas fa-bars visible-on-sidebar-mini icon-dak"></i>
               </Button>
               <Button
-                className="btn-fill btn-round btn-icon d-block d-lg-none bg-dark border-dark"
+                className="btn-fill btn-round btn-icon d-block d-lg-none"
                 variant="dark"
                 onClick={() =>
                   document.documentElement.classList.toggle("nav-open")
                 }
+                style={{
+                  background: colorPrimario,
+                }}
               >
                 <i className="fas fa-ellipsis-v visible-on-sidebar-regular icon-dak"></i>
                 <i className="fas fa-bars visible-on-sidebar-mini icon-dak"></i>
@@ -48,6 +55,9 @@ function AdminNavbar() {
             className="navbar-toggler navbar-toggler-right border-0"
             type="button"
             onClick={() => setCollapseOpen(!collapseOpen)}
+            style={{
+              background: colorPrimario,
+            }}
           >
             <span className="navbar-toggler-bar burger-lines"></span>
             <span className="navbar-toggler-bar burger-lines"></span>
@@ -213,8 +223,12 @@ function AdminNavbar() {
               </Dropdown> */}
 
                 <Button
-                  className="btn-fill btn d-block bg-dark border-dark"
-                  variant="dark"
+                  // className="btn-fill btn d-block bg-dark border-dark"
+                  // variant={colorPrimario}
+                  style={{
+                    color: 'white',
+                    background: colorPrimario
+                  }}
                   onClick={() =>
                     logout()
                   }

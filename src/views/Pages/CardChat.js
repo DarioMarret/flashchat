@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { GetTokenDecoded, SetManejoConversacionStorange } from 'function/storeUsuario';
-import { host } from 'function/util/global';
+import { colorPrimario, host } from 'function/util/global';
 import { useState } from 'react';
 import {
   Dropdown, DropdownItem, DropdownMenu, DropdownToggle,
@@ -89,7 +89,8 @@ function CardChat(props) {
       className="chat-item rounded w-100">
         <div className="w-100 rounded px-2 rounded-1 rounded-bottom-0 d-flex justify-content-between align-items-center" 
         style={{ 
-          backgroundColor: "#3F98F8",
+          // backgroundColor: "#3F98F8",
+          backgroundColor: colorPrimario,
           color: "white",
           fontSize: "13px" }}>
             <span>{ messageItem.bot +" - "+messageItem.telefono }</span>

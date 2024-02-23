@@ -57,6 +57,7 @@ function ChatBots(props) {
         setShow(!show);
         Limpiar();
     }
+    
     const handleopQr = () => {
         setOpQr(!opQr);
     }

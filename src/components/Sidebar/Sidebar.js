@@ -5,6 +5,7 @@ import { Link, useLocation } from "react-router-dom";
 
 // react-bootstrap components
 import { GetTokenDecoded } from "function/storeUsuario";
+import { colorPrimario } from "function/util/global";
 import {
   Collapse,
   Nav
@@ -130,9 +131,12 @@ function Sidebar({ routes, image, background }) {
 
   return (
     <>
-      <div className="sidebar"
-      data-color={background}
-      data-image={image}>
+      <div 
+        className="sidebar"
+      // data-color={background}
+        // data-image={image}
+        style={{ backgroundColor: colorPrimario }}
+        >
         <div className="sidebar-wrapper">
           <div className="logo">
             <a

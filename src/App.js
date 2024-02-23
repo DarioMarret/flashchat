@@ -81,7 +81,10 @@ export default function App() {
         ) : (
           <>
             <div className="wrapper">
-              <Sidebar routes={routes} image={sidebarImage} background={sidebarBackground} />
+              <Sidebar routes={routes} image={sidebarImage} 
+                // background={colorPrimario}
+                background={sidebarBackground}
+              />
               <div className="main-panel">
                 <AdminNavbar />
                 <div className="content"

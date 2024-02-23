@@ -3,6 +3,7 @@ import { GetTokenDecoded, SubirMedia } from 'function/storeUsuario';
 import { host } from 'function/util/global';
 import { useEffect, useState } from 'react';
 import { Card, Container, Modal } from 'react-bootstrap';
+import Table from 'react-bootstrap/Table';
 
 export default function Contactos (props) {
     console.log(props)
@@ -109,7 +110,7 @@ export default function Contactos (props) {
                 <button className="btn btn-dark active mx-2">Importar contactos</button>
             </div>
             <Card>
-                <table className="table table-responsive">
+                <Table responsive>
                     <thead>
                         <tr
                             className='text-white text-center font-weight-bold text-uppercase text-monospace align-middle table-dark table-active'  
@@ -153,6 +154,19 @@ export default function Contactos (props) {
                                     <td
                                         className='d-flex justify-content-center'
                                     >
+                                        {/* redireccionamiento */}
+                                        <button className="btn btn mr-1"
+                                            onClick={() => console.log(`redireccionar a ${contacto.id}`)}
+                                        >
+                                        {/* ver historial */}
+                                            <i className="fas fa-eye"></i>
+                                        </button>
+                                        {/* iniciar una conversacion */}
+                                        <button className="btn btn mr-1"
+                                            onClick={() => console.log(`iniciar conversacion con ${contacto.id}`)}
+                                        >
+                                            <i className="fas fa-comments"></i>
+                                        </button>
                                         <button className="btn btn mr-1" onClick={()=>EditarContacto(contacto)}>
                                             <i className="fas fa-edit"></i>
                                         </button>
@@ -166,7 +180,7 @@ export default function Contactos (props) {
                             ))
                         }
                     </tbody>
-                </table>
+                </Table>
                 {/* si hay mas de  10 contacto solo mostrar los primero 10 y hay visible la paginacion */}
                 <div className="d-flex justify-content-center">
                     <nav aria-label="Page navigation example">

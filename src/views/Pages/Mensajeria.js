@@ -19,7 +19,7 @@ import Swal from 'sweetalert2';
 // import socket from "views/SocketIO";
 import Picker from "emoji-picker-react";
 import { DeletManejoConversacionStorange, GetManejoConversacion, SetManejoConversacionStorange, SubirMedia, removeDatosUsuario, setDatosUsuario } from "function/storeUsuario";
-import { dev } from "function/util/global";
+import { colorPrimario, dev } from "function/util/global";
 import useAuth from "hook/useAuth";
 import Nav from 'react-bootstrap/Nav';
 import Tab from 'react-bootstrap/Tab';
@@ -1198,7 +1198,14 @@ export default function Mensajeria() {
                   <span class="material-symbols-outlined">attach_file</span>
                 </button>
 
-                <button className="btn-chat btn-chat-send d-flex align-items-center justify-content-center" onClick={EnvianMensaje}>
+                <button className="btn-chat d-flex align-items-center justify-content-center rounded-circle" 
+                  onClick={EnvianMensaje}
+                  style={{
+                    background: colorPrimario,
+                    color: "#fff",
+
+                  }}
+                >
                   <span class="material-symbols-outlined">send</span>
                 </button>
               </div>
