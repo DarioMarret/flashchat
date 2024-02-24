@@ -7,7 +7,8 @@ import axios from "axios";
 import { GetTokenDecoded } from "function/storeUsuario";
 import { host, proxy } from "function/util/global";
 import moment from "moment";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
+import { AudioRecorder } from 'react-audio-voice-recorder';
 import {
   Dropdown,
   DropdownItem,
@@ -57,7 +58,7 @@ export default function Mensajeria() {
     misConversaciones: 0,
     todas: 0,
   })
-  const dummy = useRef(null)
+
   const [equipoUsuario , setEquipoUsuario] = useState({
     correo: '',
     estado: '',
@@ -372,7 +373,6 @@ export default function Mensajeria() {
         && data.contacto_id === covActiva.contacto_id) {
           if(data.agente_id === GetTokenDecoded().id || data.agente_id === 0){
             setConversacionActiva(listMensajes)
-            dummy.current.scrollIntoView({ behavior: 'smooth' })
           }else if(data.agente_id !== GetTokenDecoded().id && data.agente_id !== 0){
             DeletManejoConversacion()
             setConversacionActiva([])
@@ -598,7 +598,6 @@ export default function Mensajeria() {
       setInputStr("");
       setTypeInput("text");
       EmiittingMensaje();
-      dummy.current.scrollIntoView({ behavior: 'smooth' })
     }
   }
 
@@ -688,7 +687,6 @@ export default function Mensajeria() {
 
   const handleBusqueda = (e) => {
     // se tiene que buscar coincidencias con el nombre del contacto, numero de telefono y el mensaje
-    console.log("e.target.value: ", e.target.value);
     let busqueda = e.target.value;
     let card = cardMensage;
     let new_card = [];
@@ -726,15 +724,41 @@ export default function Mensajeria() {
 
   // funcion para grabar audio
   const addAudioElement = (blob) => {
-    // const url = URL.createObjectURL(blob);
-    // obtener el buffer del audio
     const reader = new FileReader();
     reader.readAsArrayBuffer(blob);
     reader.onloadend = async () => {
-      const buffer = reader.result;
-      console.log('Buffer:', buffer);
-      const url = await SubirMedia(blob)
-      console.log('URL:', url);
+      let nombre = `audio_${moment().format('YYYYMMDDHHmmss')}.pm3`;
+      const url = await SubirMedia(blob, true, nombre);
+      if(url !== null){
+        const covActiva = GetManejoConversacion();
+        if (covActiva == null || covActiva.estado === "Eliminado") {
+          return;
+        }
+          let infoClient = {
+            cuenta_id: GetTokenDecoded().cuenta_id,
+            conversacion_id: covActiva.conversacion_id,
+            equipo_id: covActiva.equipo_id,
+            channel_id: covActiva.channel_id,
+            contacto_id: covActiva.Contactos.id,
+            agente_id: GetTokenDecoded().id,
+            updatedAt: new Date(),
+            nombreunico: covActiva.nombreunico,
+          };
+          let mensaje = {
+            id: random(),
+            text: null,
+            url: url,
+            type: "audio",
+            parems: null,
+          };
+          socket.emit("enviando_mensajes", {
+            infoClient: infoClient,
+            mensaje: mensaje,
+          });
+          setInputStr("");
+          setTypeInput("text");
+          EmiittingMensaje();
+      }
     }
   }
 
@@ -1157,22 +1181,29 @@ export default function Mensajeria() {
                   // onClick={()=>setOpenGrande(!openGrande)}
                 >
                   {/* <span class="material-symbols-outlined">mic</span> */}
-                  {/* <AudioRecorder 
+                  <AudioRecorder
                     onRecordingComplete={addAudioElement}
                     audioTrackConstraints={{
                       noiseSuppression: true,
                       echoCancellation: true,
                     }} 
-                    downloadOnSavePress={true}
-                    downloadFileExtension="webm"
-                  /> */}
+                    // downloadOnSavePress={true}
+                    downloadFileExtension="mp3"
+                    classes={{
+                      display: "none",
+                    }}
+                    style={{
+                      background: colorPrimario,
+                      color: "#fff",
+                      display: "none",
+                    }}
+                  />
                 </button>
 
                 <button className="btn-chat"
                   onClick={() => {
                     setTypeInput("image");
                     document.getElementById("file").click();
-
                   }}
                 >
                   <input
@@ -1217,7 +1248,6 @@ export default function Mensajeria() {
           </div>
         </div>
       </div>
-      <span ref={dummy}></span>
     </>
   );
 }
