@@ -2429,7 +2429,8 @@ input:focus {
 .card .table tbody td:last-child,
 .card .table thead th:last-child {
   padding-right: 15px;
-  display: block; }
+  display: block; 
+}
 
 .table-bigboy > thead > tr > th {
   font-size: 0.875rem;

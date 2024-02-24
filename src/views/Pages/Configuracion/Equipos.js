@@ -8,6 +8,7 @@ import {
     Form,
     Modal
 } from "react-bootstrap";
+import Table from 'react-bootstrap/Table';
 
 function Equipos(props) {
     const [show, setShow] = useState(false);
@@ -107,24 +108,26 @@ function Equipos(props) {
     }
 
     useEffect(() => {
+
         (async () => {
             await ListarAgentes()
             await ListarEquipos()
         })()
+
     }, [])
 
     return (
         <>
             <Container fluid>
             <div className='d-flex justify-content-start mb-3'>
-                <button className="btn btn-dark ml-2"
+                <button className="button-bm ml-2"
                     onClick={handleClose}
                 >Crear nuevo equipo</button>
             </div>
-            <table className="table table-striped table-responsive">
+            <Table responsive className='table-personalisado'>
                 <thead>
                     <tr
-                        className="table-dark text-center table-active"
+                        className="text-center table-active"
                     >
                         <th
                             className="text-white"
@@ -163,7 +166,7 @@ function Equipos(props) {
                         })
                     }
                 </tbody>
-            </table>
+            </Table>
             </Container>
             <Modal
                 show={show}
@@ -216,12 +219,12 @@ function Equipos(props) {
                         {
                             equipo.id !== 0 ?
                             <button 
-                                className='btn btn-dark active mr-2 w-100 mt-3'
+                                className='button-bm mr-2 w-100 mt-3'
                             type="submit" onClick={(e)=>EditarEquipo(equipo.id)}>
                                 Editar
                             </button>:
                             <button 
-                                className='btn btn-dark active mr-2 w-100 mt-3'
+                                className='button-bm mr-2 w-100 mt-3'
                             type="submit" onClick={(e)=>CrearEquipo(e)}>
                                 Crear
                             </button>

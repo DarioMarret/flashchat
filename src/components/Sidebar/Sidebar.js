@@ -141,7 +141,7 @@ function Sidebar({ routes, image, background }) {
           <div className="logo">
             <a
               className="simple-text logo-mini"
-              href="http://www.creative-tim.com"
+              href="https://flashchat.chat"
             >
               <div className="logo-img">
                 <img
@@ -153,7 +153,7 @@ function Sidebar({ routes, image, background }) {
             </a>
             <a
               className="simple-text logo-normal"
-              href="http://www.creative-tim.com"
+              href="http://flashchat.chat"
             >
               FlashChat
             </a>

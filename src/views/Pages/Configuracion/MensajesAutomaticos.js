@@ -7,6 +7,7 @@ import {
     Modal,
 } from 'react-bootstrap';
 import Tab from 'react-bootstrap/Tab';
+import Table from 'react-bootstrap/Table';
 import Tabs from 'react-bootstrap/Tabs';
 import Swal from 'sweetalert2';
 
@@ -128,21 +129,21 @@ function MensajesAutomaticos(props) {
             >
             <Tab eventKey="respuestas_rapidas" title="Respuestas Rapidas">
                 <div className='d-flex justify-content-start mb-3'>
-                    <button className="btn btn-dark ml-2"
+                    <button className="button-bm ml-2"
                         onClick={handleClose}
                     >Crea respuesta rapida</button>
                 </div>
 
-                <table className="table table-response">
+                <Table responsive className='table-personalisado'>
                     <thead>
                         <tr
-                            className='text-white text-center font-weight-bold text-uppercase text-monospace align-middle table-dark table-active'
+                            className='text-white text-center font-weight-bold text-uppercase text-monospace align-middle'
                         >
                             <th scope="col-9"
-                                className="text-start"
+                                className="text-start text-white"
                             >Mensaje</th>
                             <th scope="col-2"
-                                className="text-center"
+                                className="text-center text-white"
                             >Acciones</th>
                         </tr>
                     </thead>
@@ -169,7 +170,7 @@ function MensajesAutomaticos(props) {
                             </tr>
                         ))}
                     </tbody>
-                </table>
+                </Table>
                 <Modal
                     size='md'
                     show={show}
@@ -225,20 +226,20 @@ function MensajesAutomaticos(props) {
             </Tab>
             <Tab eventKey="Estados" title="Estados">
             <div className='d-flex justify-content-start mb-3'>
-                    <button className="btn btn-dark ml-2"
+                    <button className="button-bm ml-2"
                         onClick={handleClose}
                     >Crea mensaje de estado</button>
                 </div>
-                <table className="table table-response">
+                <Table responsive className='table-personalisado'>
                     <thead>
                         <tr
-                            className='text-white text-center font-weight-bold text-uppercase text-monospace align-middle table-dark table-active'
+                            className='text-white text-center font-weight-bold text-uppercase text-monospace align-middle'
                         >
                             <th scope="col-9"
-                                className="text-start"
+                                className="text-start text-white"
                             >Mensaje</th>
                             <th scope="col-2"
-                                className="text-center"
+                                className="text-center text-white"
                             >Acciones</th>
                         </tr>
                     </thead>
@@ -265,7 +266,7 @@ function MensajesAutomaticos(props) {
                             </tr>
                         ))}
                     </tbody>
-                </table>
+                </Table>
                 <Modal
                     size='md'
                     show={show}

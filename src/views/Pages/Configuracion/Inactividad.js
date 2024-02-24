@@ -6,27 +6,9 @@ import {
     Container,
     Modal
 } from "react-bootstrap";
+import Table from 'react-bootstrap/Table';
 
-const equipos = [
-    {
-        id: 1,
-        description: 'Alerta',
-        tiempo: 10,
-        mensaje: 'Su conversación está a punto de expirar, ¿desea continuar?'
-    },
-    {
-        id: 2,
-        description: 'Expirado',
-        tiempo: 15,
-        mensaje: 'Su conversación ha expirado, por favor inicie una nueva conversación'
-    },
-    {
-        id: 3,
-        description: 'Expira 24 horas',
-        tiempo: 1440,
-        mensaje: 'Su conversación ha expirado, por favor inicie una nueva conversación'
-    }
-];
+
 function Inactividad(props) {
     const [show, setShow] = useState(false);
     const handleClose = () => setShow(!show);
@@ -96,9 +78,9 @@ function Inactividad(props) {
                 <h4 className="font-weight-bold mt-2">Inactividad</h4>
             </div>
 
-            <table className="table table-striped response">
+            <Table responsive className='table-personalisado'>
                 <thead
-                    className="table-dark table-active text-center"
+                    className="table-active text-center"
                 >
                     <tr>
                         <th
@@ -133,7 +115,7 @@ function Inactividad(props) {
                         </tr>
                     ))}
                 </tbody>
-            </table>
+            </Table>
             <Modal
                 show={show}
                 onHide={handleClose}
@@ -142,7 +124,7 @@ function Inactividad(props) {
             >
                 <Modal.Header>
                 <Modal.Title>Editar Inactividad</Modal.Title>
-                <button type="button" className="btn-dark" onClick={handleClose}>
+                <button type="button" className="button-bm" onClick={handleClose}>
                     <i className="fa fa-times"></i>
                 </button>
                 </Modal.Header>
@@ -172,7 +154,7 @@ function Inactividad(props) {
                                 onChange={handleMensaje}
                             ></textarea>
                         </div>
-                        <button type="submit" className="btn btn-dark w-100"
+                        <button type="submit" className="btn button-bm w-100"
                             onClick={(e)=>ActualizarInactividad(e)}
                         >Guardar</button>
                     </form>

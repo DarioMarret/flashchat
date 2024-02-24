@@ -1,12 +1,13 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import axios from 'axios';
 import { GetTokenDecoded, SubirMedia } from 'function/storeUsuario';
-import { host } from 'function/util/global';
+import { colorPrimario, host } from 'function/util/global';
 import { useEffect, useState } from 'react';
 import { Card, Container, Modal } from 'react-bootstrap';
 import Table from 'react-bootstrap/Table';
+import Swal from 'sweetalert2';
 
 export default function Contactos (props) {
-    console.log(props)
     const [show, setShow] = useState(false);
     const handleClose = () => {
         Limpiar()
@@ -14,6 +15,13 @@ export default function Contactos (props) {
     }
     const [canales, setCanales] = useState([])
     const [contactos, setContactos] = useState([])
+    const [limitContactos, setLimitContactos] = useState(10)
+    const [offsetContactos, setOffsetContactos] = useState(0)
+    const [contac, setContac] = useState([])
+    const [totalContactos, setTotalContactos] = useState(0)
+    const [pageContactos, setPageContactos] = useState(1)
+    const [totalPaginasContactos, setTotalPaginasContactos] = useState(0)
+
     const [contacto, setContacto] = useState({
         id: 0,
         nombre: '',
@@ -28,7 +36,11 @@ export default function Contactos (props) {
         const url = `${host}contactos/${GetTokenDecoded().cuenta_id}`
         const { data, status } = await axios.get(url)
         if (status === 200) {
+            setTotalContactos(data.data.length)
+            setContac(data.data.slice(offsetContactos, limitContactos))
+            MostrarCantidadContactos(data.data)
             setContactos(data.data)
+            Paginacion(data.data)
         }
     }
 
@@ -90,30 +102,74 @@ export default function Contactos (props) {
 
 
     const EliminarContacto = async(id) => {
-        const url = `${host}contactos/${id}`
-        const { status } = await axios.delete(url)
-        if (status === 200) {
-            ListarContactos()
-        }
+        Swal.fire({
+            title: '¿Estas seguro?',
+            text: "No podras revertir esto!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Si, eliminar!'
+        }).then(async(result) => {
+            if (result.isConfirmed) {
+                const url = `${host}contactos/${id}`
+                const { status } = await axios.delete(url)
+                if (status === 200) {
+                    ListarContactos()
+                }
+            }
+        })
+    }
+    // cantidad de contactos que se mostrarán la primera vez que se cargue la pagina
+    const MostrarCantidadContactos = (contac) => {
+        setContac(contac.slice(offsetContactos, limitContactos))
     }
 
+    // cantidad de paginas que se mostraran devuelve la cantidad de paginas
+    const Paginacion = (contac) => {
+        let paginas = Math.ceil(contac.length / limitContactos)
+        let paginacion = 0
+        for (let i = 0; i < paginas; i++) {
+            paginacion = i + 1
+        }
+        setTotalPaginasContactos(paginas)
+        return paginacion
+    }
+    // Siguente pagina
+    const SiguientePagina = () => {
+        if (pageContactos < totalPaginasContactos) {
+            setPageContactos(pageContactos + 1)
+            setOffsetContactos(offsetContactos + limitContactos)
+            MostrarCantidadContactos(contactos)
+        }
+    }
+    // Anterior pagina
+    const AnteriorPagina = () => {
+        if (pageContactos > 1) {
+            setPageContactos(pageContactos - 1)
+            setOffsetContactos(offsetContactos - limitContactos)
+            MostrarCantidadContactos(contactos)
+        }
+    }
+    
     useEffect(() => {
         ListarCanal()
         ListarContactos()
     }, [])
+
   return (
     <>
         <Container fluid>
             <div className='d-flex justify-content-start mb-3'>
-                <button className="btn btn-dark active mx-2" onClick={handleClose}>Crear contacto</button>
-                <button className="btn btn-dark active mx-2">Exportar contactos</button>
-                <button className="btn btn-dark active mx-2">Importar contactos</button>
+                <button className="mx-2 button-bm" onClick={handleClose}>Crear contacto</button>
+                <button className="mx-2 button-bm">Exportar contactos</button>
+                <button className="mx-2 button-bm">Importar contactos</button>
             </div>
             <Card>
-                <Table responsive>
+                <Table responsive className='table-personalisado table-active table-hover'>
                     <thead>
                         <tr
-                            className='text-white text-center font-weight-bold text-uppercase text-monospace align-middle table-dark table-active'  
+                            className='text-white text-center font-weight-bold text-uppercase text-monospace align-middle'
                         >
                             <th
                                 className='text-white'
@@ -140,12 +196,12 @@ export default function Contactos (props) {
                     </thead>
                     <tbody>
                         {
-                            contactos.map((contacto, index) => (
+                            contac.map((contacto, index) => (
                                 <tr key={index}
                                     className='text-center'
                                 >
                                     <td>{index + 1}</td>
-                                    <td><img src={contacto.avatar} alt="" width={50} className="rounded-circle"
+                                    <td><img src={contacto.avatar} alt="" width={40} className="rounded-circle"
                                     /></td>
                                     <td>{contacto.nombre}</td>
                                     <td>{contacto.correo}</td>
@@ -155,22 +211,22 @@ export default function Contactos (props) {
                                         className='d-flex justify-content-center'
                                     >
                                         {/* redireccionamiento */}
-                                        <button className="btn btn mr-1"
+                                        <button className="btn btn"
                                             onClick={() => console.log(`redireccionar a ${contacto.id}`)}
                                         >
                                         {/* ver historial */}
                                             <i className="fas fa-eye"></i>
                                         </button>
                                         {/* iniciar una conversacion */}
-                                        <button className="btn btn mr-1"
+                                        <button className="btn btn"
                                             onClick={() => console.log(`iniciar conversacion con ${contacto.id}`)}
                                         >
                                             <i className="fas fa-comments"></i>
                                         </button>
-                                        <button className="btn btn mr-1" onClick={()=>EditarContacto(contacto)}>
+                                        <button className="btn btn" onClick={()=>EditarContacto(contacto)}>
                                             <i className="fas fa-edit"></i>
                                         </button>
-                                        <button className="btn btn mr-1"
+                                        <button className="btn btn"
                                             onClick={() => EliminarContacto(contacto.id)}
                                         >
                                             <i className="fas fa-trash-alt"></i>
@@ -185,15 +241,21 @@ export default function Contactos (props) {
                 <div className="d-flex justify-content-center">
                     <nav aria-label="Page navigation example">
                         <ul className="pagination">
-                            <li className="page-item">
+                            <li className="page-item"
+                                onClick={() => AnteriorPagina()}
+                            >
                                 <button className="page-link" aria-label="Previous">
                                     <span aria-hidden="true">&laquo;</span>
                                 </button>
                             </li>
-                            <li className="page-item"><button className="page-link">1</button></li>
-                            <li className="page-item"><button className="page-link">2</button></li>
-                            <li className="page-item"><button className="page-link">3</button></li>
-                            <li className="page-item">
+
+                            <div className="d-flex justify-content-center">
+                                <li className="page-item"><button className="page-link">{totalPaginasContactos}</button></li>
+                            </div>
+
+                            <li className="page-item"
+                                onClick={() => SiguientePagina()}
+                            >
                                 <button className="page-link" aria-label="Next">
                                     <span aria-hidden="true">&raquo;</span>
                                 </button>
@@ -217,8 +279,10 @@ export default function Contactos (props) {
                             :
                             <Modal.Title>Editar contacto</Modal.Title>
                         }
-                        <button type="button" className="btn-dark ml-auto" onClick={handleClose} >
-                            <i className="fa fa-times"></i>
+                        <button type="button" className="btn ml-auto" onClick={handleClose} >
+                            <i className="fa fa-times"
+                                style={{fontSize: '1.1em', backgroundColor: 'transparent', color:colorPrimario}}
+                            ></i>
                         </button>
                     </div>
                 </Modal.Header>
@@ -259,11 +323,11 @@ export default function Contactos (props) {
                 <Modal.Footer>
                     {
                         contacto.id === 0 ?
-                        <button className="btn btn-dark w-100"
+                        <button className="btn btn button-bm w-100"
                             onClick={CrearContacto}
                         >Crear contacto</button>
                         :
-                        <button className="btn btn-dark w-100"
+                        <button className="btn btn button-bm w-100"
                             onClick={CrearContacto}
                         >Editar contacto</button>
                     }

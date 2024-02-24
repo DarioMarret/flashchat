@@ -8,7 +8,7 @@ import instagram from 'assets/img/instagram.jpeg';
 import telegram from 'assets/img/telegram.jpeg';
 import axios from 'axios';
 import { GetTokenDecoded } from 'function/storeUsuario';
-import { host } from 'function/util/global';
+import { colorPrimario, host } from "function/util/global";
 import { useEffect, useState } from 'react';
 import {
     Card,
@@ -256,19 +256,42 @@ function ChatBots(props) {
     const RecargarQr = () => {
         if(estadoQr.estado && estadoQr.nombreunico){
             let linkQr = `${host}qr/${estadoQr.nombreunico}.png`;
-            setLinkQr(linkQr);
+            setLinkQr(linkQr)
         }
     }
 
-    // quiero que RecargarQr se ejecunte cada 300 milisegundos mientra esta abiento el modal de qr
+    const DesconectarQr = (nombreunico) => {
+        Swal.fire({
+            title:"¿Estas seguro de desconectar el bot?",
+            text: "Se cerrara la sesion del bot",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Si",
+            cancelButtonText: "No",
+        }).then(async(result) => {
+            if (result.isConfirmed) {
+                const url = `${host}qr_close/${nombreunico}`;
+               const {data} = await axios.post(url)
+               console.log(data)
+            }
+        }).catch((error) => {
+            console.log(error)
+        })
+    
+    }
 
     useEffect(() => {
-        if (opQr) {
-            const interval = setInterval(() => {
-                RecargarQr();
+        EstadoSession()
+        RecargarQr()
+        var interval = null;
+        if(opQr){
+            interval = setInterval(() => {
                 EstadoSession()
-            }, 500);
-            return () => clearInterval(interval);
+                RecargarQr()
+                console.log('This will run every 3 seconds!');
+            }, 3000);
+        }else{
+            clearInterval(interval)
         }
     }, [opQr]);
 
@@ -329,7 +352,7 @@ function ChatBots(props) {
         <>
           <Container fluid>
             <div className='d-flex justify-content-start mb-3'>
-                <button className="btn btn-dark active ml-2"
+                <button className="button-bm active ml-2"
                     onClick={handleClose}
                 >Crear nuevo bot</button>
             </div>
@@ -622,14 +645,14 @@ function ChatBots(props) {
                         }
                         {
                             bot.id === 0 ?  (
-                                <button type="submit" className="btn btn-dark active w-100 mt-3"
+                                <button type="submit" className="button-bm w-100 mt-3"
                                     onClick={(e) => {
                                         e.preventDefault();
                                         GuardarBot();
                                     }}
                                 >Guardar</button>
                             ): (
-                                <button type="submit" className="btn btn-dark active w-100 mt-3"
+                                <button type="submit" className="button-bm w-100 mt-3"
                                     onClick={(e) => {
                                         e.preventDefault();
                                         Actualizar();
@@ -661,7 +684,11 @@ function ChatBots(props) {
                 </Modal.Header>
                 <Modal.Body>
                     <div className="form-group d-flex justify-content-center align-items-center">
-                        <p>Estado: <span className="text-success ">{
+                        <p>Estado: <span className=""
+                            style={{
+                                color: estadoQr.estado === 'QR: online' ? colorPrimario: 'red'
+                            }}
+                        >{
                             estadoQr.estado
                         }</span></p>
                     </div>
@@ -674,10 +701,17 @@ function ChatBots(props) {
                                     width: '347px',
                                     borderRadius: '5px',
                                     border: '2px solid #fff',
-                                    boxShadow: '0 0 10px #000',
+                                    boxShadow: '0 0 10px 0 rgba(0,0,0,0.2)',
                                 }}
                             >
-                                <img src={linkQr} alt="Qr"/>
+                                {/* que se recarge la imagen  */}
+                                {
+                                    linkQr ? (
+                                        <img src={linkQr} alt="qr" width="100%" height="100%"/>
+                                    ) : (
+                                        <img src={`${host}qr/${estadoQr.nombreunico}.png`} alt="qr" width="100%" height="100%"/>
+                                    )
+                                }
                             </div>
                         </div>
                     <div
@@ -686,12 +720,19 @@ function ChatBots(props) {
                         <span
                             className="text-center text-muted small"
                         >Escanea el codigo QR para iniciar sesion</span>
-                        <div>
-                            <button className="btn btn-dark active w-100 mt-3"
+                        <div
+                            className="d-flex justify-content-center align-items-center"
+                        >
+                            <button className="button-bm w-100 mt-3"
                                 onClick={() => {
                                     reconnexionQr(estadoQr.nombreunico);
                                 }}
-                            >Volver a escanea el codigo QR</button>
+                            >Recargar QR</button>
+                            <button className="button-bm w-100 mt-3"
+                                onClick={() => {
+                                    DesconectarQr(estadoQr.nombreunico);
+                                }}
+                            >Desconectar</button>
                        </div>
                     </div>
                 </Modal.Body>

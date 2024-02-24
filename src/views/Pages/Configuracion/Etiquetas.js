@@ -7,6 +7,7 @@ import {
     Form,
     Modal
 } from "react-bootstrap";
+import Table from 'react-bootstrap/Table';
 
 function Etiquetas(props) {
     const [show, setShow] = useState(false);
@@ -88,14 +89,14 @@ function Etiquetas(props) {
         <>
             <Container fluid>
             <div className='d-flex justify-content-start mb-3'>
-                <button className="btn btn-dark active mr-2 w-25"
+                <button className="button-bm mr-2 w-25"
                     onClick={handleClose}
                 >Crear etiqueta</button>
             </div>
-                <table className="table table-responsive">
-                    <thead>
+                <Table className="table table-personalisado">
+                    <thead className='table-active' >
                         <tr
-                            className='text-center text-white table-dark table-active'
+                            className='text-center text-white'
                         >
                             <th
                                 className='text-white'
@@ -151,7 +152,7 @@ function Etiquetas(props) {
                             })
                         }
                     </tbody>
-                </table>
+                </Table>
             </Container>
 
             <Modal
@@ -198,12 +199,12 @@ function Etiquetas(props) {
                         {
                             etiqueta.id !== 0 ?
                             <button 
-                                className='btn btn-dark active mr-2 w-100'
+                                className='button-bm mr-2 w-100'
                             type="submit" onClick={(e)=>ActualizarEtiqueta(e)}>
                                 Actualizar Etiqueta
                             </button>:
                             <button 
-                                className='btn btn-dark active mr-2 w-100'
+                                className='button-bm mr-2 w-100'
                             type="submit" onClick={(e)=>CrearEquipo(e)}>
                                 Crear Etiqueta
                             </button>

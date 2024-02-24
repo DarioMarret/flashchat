@@ -172,12 +172,16 @@ export default function Mensajeria() {
         let new_card = [];
         let equipos = []
         let bots = []
-        GetTokenDecoded().equipos.map((item) => {
-          equipos.push(item.id)
-        })
-        GetTokenDecoded().botId.map((item) => {
-          bots.push(item.name)
-        })
+        if(GetTokenDecoded().equipos !== null){
+          GetTokenDecoded().equipos.map((item) => {
+            equipos.push(item.id)
+          })
+        }
+        if(GetTokenDecoded().botId !== null){
+          GetTokenDecoded().botId.map((item) => {
+            bots.push(item.name)
+          })
+        }
         
         if (data.length > 0) {
           LimpiarCounC()

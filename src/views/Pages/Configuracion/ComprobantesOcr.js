@@ -80,12 +80,12 @@ function ComprobantesOcr(props) {
                 {
                     ocrs.key_ocr !== undefined ? 
                     <button 
-                        className='btn btn-dark active mr-2 w-25'
+                        className='button-bm mr-2 w-25'
                         onClick={handleClose}>
                         Actualizar key
                     </button>:
                     <button 
-                        className='btn btn-dark active mr-2 w-25'
+                        className='button-bm mr-2 w-25'
                     onClick={handleClose}>
                         Agregar key
                     </button>
@@ -167,7 +167,7 @@ function ComprobantesOcr(props) {
                                 <br />
                             </Form.Group>
                             <Button 
-                            className='btn btn-dark active mr-2 w-100'
+                            className='button-bm mr-2 w-100'
                             type="submit">
                                 Guardar
                             </Button>

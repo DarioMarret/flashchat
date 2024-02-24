@@ -1,5 +1,5 @@
 git add .
-git commit -m "factorizacion de socket.io"
+git commit -m "cambios de color"
 git push
 export SHORT_COMMIT=$(git log -1 --pretty="%H" | cut -b -8)
 export DOCKER_IMAGE_VERSION="dev_${SHORT_COMMIT}"

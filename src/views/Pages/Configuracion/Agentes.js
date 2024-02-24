@@ -8,6 +8,7 @@ import {
     Form,
     Modal
 } from 'react-bootstrap';
+import Table from 'react-bootstrap/Table';
 import Swal from 'sweetalert2';
 import socket from 'views/SocketIO';
 
@@ -62,6 +63,7 @@ function Agentes(props) {
             timer: 1500
         })
     }
+
     const CerrarSessionAgente = (item) => {
         socket.emit("recargar_pagina", {
             type: "cerrar_session",
@@ -161,8 +163,22 @@ function Agentes(props) {
         const url = `${host}agentes`
         const { data, status } = await axios.post(url, agente)
         if (status === 200) {
-            ListarAgentes()
-            handleClose()
+            Swal.fire({
+                icon: 'success',
+                title: 'Agente creado',
+                showConfirmButton: false,
+                timer: 1500
+            }).then(() => {
+                ListarAgentes()
+                handleClose()
+            })
+        }else if(status === 400){
+            Swal.fire({
+                icon: 'error',
+                title: 'El correo ya existe',
+                showConfirmButton: false,
+                timer: 1500
+            })
         }
     }
 
@@ -232,14 +248,14 @@ function Agentes(props) {
         <>
          <Container fluid>
             <div className='d-flex justify-content-start mb-3'>
-                <button className="btn btn-dark ml-2"
+                <button className="button-bm ml-2"
                     onClick={handleClose}
                 >Crear agente</button>
             </div>
-                <table className="table table-responsive">
-                    <thead className=''>
+                <Table responsive className="table-personalisado ">
+                    <thead className='table-active'>
                         <tr 
-                            className='text-white text-center font-weight-bold text-uppercase text-monospace align-middle table-dark table-active'
+                            className='text-white text-center font-weight-bold text-uppercase text-monospace align-middle'
                         >
                             <th
                                 className='align-middle text-white'
@@ -285,7 +301,7 @@ function Agentes(props) {
                             ))
                         }
                     </tbody>
-                </table>
+                </Table>
             <Modal
                 show={show}
                 onHide={handleClose}
@@ -395,12 +411,12 @@ function Agentes(props) {
                 {
                     agente.id !== 0 ?
                     <button 
-                        className='btn btn-dark active mr-2 w-100'
+                        className='button-bm mr-2 w-100'
                         onClick={ActualizarAgente}
                     >Actualizar</button>
                     :
                     <button 
-                        className='btn btn-dark active mr-2 w-100'
+                        className='button-bm mr-2 w-100'
                         onClick={CrearAgente}
                     >Guardar</button>
                 }

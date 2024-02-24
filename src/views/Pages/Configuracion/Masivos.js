@@ -208,7 +208,7 @@ function Masivos(props) {
         <>
             <Container fluid>
             <div className='d-flex justify-content-start mb-3'>
-                <button className="btn btn-dark active ml-2"
+                <button className="button-bm btn-dark active ml-2"
                     onClick={handleClose}
                 >Programar envio masivo</button>
             </div>
@@ -238,12 +238,12 @@ function Masivos(props) {
                                         >{item.mensaje.substring(0, 50)}...</>
                                     </div>
                                     <div className="w-fit d-flex flex-column px-3 py-2 ">
-                                        <button className="btn btn "
+                                        <button className="button-bm btn "
                                             onClick={()=>handleEditar(item)}
                                         >
                                             <i className="fa fa-edit"></i>
                                         </button>
-                                        <button className="btn btn "
+                                        <button className="button-bm btn "
                                             onClick={()=>EliminarMasivo(item.id)}
                                         >
                                             <i className="fa fa-trash text-danger"></i>
@@ -388,7 +388,7 @@ function Masivos(props) {
                                 />
                             </div> : null
                         }
-                        <button type="submit" className="btn btn-dark w-100 mt-4"
+                        <button type="submit" className="button-bm btn-dark w-100 mt-4"
                             onClick={(e) => GuardarEnvio(e)}
                         >
                             {

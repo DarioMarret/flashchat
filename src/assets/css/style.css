@@ -306,6 +306,39 @@
   height: 20px !important;
 }
 
+/* la cabecera de la tabla que sea de este colo 3F98F8 */
+.table-personalisado thead th {
+  background-color: #3F98F8;
+  color: white;
+  border: none;
+  padding: 10px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.button-bm {
+  background-color: #3F98F8;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 14px;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: all 0.5s;
+}
+/* hover del button-bm */
+.button-bm:hover {
+  background-color: #3F98F8;
+  color: white;
+  /* animation: shake 0.5s; */
+}
+
+
 @media (min-width: 768px) {
   .box-chat-container {
     overflow: hidden;

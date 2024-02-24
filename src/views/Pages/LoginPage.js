@@ -218,7 +218,7 @@ const LoginPage =(props)=> {
                         </Form.Group>
                       </Card.Body>
                     <Card.Footer className="ml-auto mr-auto">
-                      <Button className="btn-wd w-100" type="submit" variant="dark"
+                      <Button className="btn button-bm w-100" type="submit" variant="dark"
                         onClick={AgendarDemo}
                       >
                         {/* en espanol */}
@@ -271,17 +271,17 @@ const LoginPage =(props)=> {
   
                       </Card.Body>
                     <Card.Footer className="ml-auto mr-auto">
-                      <Button className="btn-wd w-100" type="submit" variant="dark"
+                      <Button className="btn button-bm w-100" type="submit" variant="dark"
                         onClick={Login}
                       >
                         {/* en espanol */}
                         Iniciar sesión 
                       </Button>
   
-                      {/* <div className="mt-2 d-flex flex-column justify-content-center align-items-center">
+                      <div className="mt-2 d-flex flex-column justify-content-center align-items-center">
                         <span className="text-span">- No tienes cuenta - </span>
                         <a className="text-link" onClick={() => props.setEstados(false)}>Regístrate</a>
-                      </div> */}
+                      </div>
                     </Card.Footer>
                   </Card>
                 </Form>

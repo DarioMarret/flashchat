@@ -9,6 +9,7 @@ import {
     Modal,
     Row
 } from "react-bootstrap";
+import Table from 'react-bootstrap/Table';
 
 function HorarioAtencion(props) {
     const [show, setShow] = useState(false);
@@ -111,12 +112,12 @@ function HorarioAtencion(props) {
         <>
             <Container fluid>
                 <div className='d-flex justify-content-start mb-3'>
-                    <button className="btn btn-dark active ml-2"
+                    <button className="btn button-bm ml-2"
                         onClick={handleClose}
                     >Crear Horario</button>
                 </div>
-                <table className="table table-striped table-responsive">
-                    <thead className="table-dark table-active">
+                <Table responsive className='table-personalisado'>
+                    <thead className="table-active">
                         <tr className="text-center" >
                             <th
                                 className='text-white'
@@ -140,12 +141,12 @@ function HorarioAtencion(props) {
                                     <td>{item.horario}</td>
                                     <td>{item.mensaje_fuera_horario}</td>
                                     <td>
-                                        <button className="btn btn mx-1"
+                                        <button className="btn button-bm mx-1"
                                             onClick={()=>EditarHorario(item)}
                                         >
                                             <i className="fas fa-edit"></i>
                                         </button>
-                                        <button className="btn btn mx-1"
+                                        <button className="btn button-bm mx-1"
                                             onClick={()=>EliminarHorario(item.id)}
                                         >
                                             <i className="fas fa-trash-alt text-danger"></i>
@@ -155,7 +156,7 @@ function HorarioAtencion(props) {
                             ))
                         }
                     </tbody>
-                </table>
+                </Table>
             </Container>
             <Modal
                 show={show}
@@ -170,7 +171,7 @@ function HorarioAtencion(props) {
                         <Modal.Title>Crear Horario</Modal.Title>
                     }
                     <button type="button" 
-                        className="btn-dark active"
+                        className="btn button-bm"
                         onClick={handleClose}>
                         <i className="fa fa-times"></i>
                     </button>
@@ -228,12 +229,12 @@ function HorarioAtencion(props) {
                         {
                             horario.id !== 0 ?
                             <button 
-                                className='btn btn-dark active mr-2 w-100 mt-3'
+                                className='btn button-bm mr-2 w-100 mt-3'
                             type="submit" onClick={(e)=>ActualizarHorario(e)}>
                                 Editar
                             </button>:
                             <button 
-                                className='btn btn-dark active mr-2 w-100 mt-3'
+                                className='btn button-bm mr-2 w-100 mt-3'
                             type="submit" onClick={(e)=>GuardarHorario(e)}>
                                 Crear
                             </button>

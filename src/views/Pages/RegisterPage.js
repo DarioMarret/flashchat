@@ -110,7 +110,7 @@ function RegisterPage(props) {
                       </Form.Group>
                     </Card.Body>
                   <Card.Footer className="ml-auto mr-auto">
-                    <Button className="btn-wd w-100" type="submit" variant="dark"
+                    <Button className="btn button-bm w-100" type="submit" variant="dark"
                       onClick={(event) => Register(event)}
                     >
                       Registrarme
