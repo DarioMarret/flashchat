@@ -11,6 +11,7 @@ import MensajesAutomaticos from "views/Pages/Configuracion/MensajesAutomaticos";
 import Contactos from "views/Pages/Contactos";
 import LoginPage from "views/Pages/LoginPage";
 import Mensajeria from "views/Pages/Mensajeria";
+import Suscripciones from "views/Pages/Suscripcion/Suscripcion";
 
 var routes = [
     {
@@ -19,6 +20,13 @@ var routes = [
       name: "Panel",
       icon: "nc-icon nc-chart-pie-35",
       component: Dashboard
+    },
+    {
+      path: "/suscripciones",
+      layout: "/admin",
+      name: "Suscripciones",
+      icon: "nc-icon nc-money-coins",
+      component: Suscripciones
     },
     {
       path: "/mensajeria",

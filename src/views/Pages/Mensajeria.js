@@ -72,7 +72,8 @@ export default function Mensajeria() {
       limite_bots: '',
     },
     equipos:[]
-  });
+  })
+  
   const [newMensaje, setNewMensaje] = useState(null);
   const [convEstado, setConvEstado] = useState(null);
   const [agentes, setAgentes] = useState([]);
@@ -727,7 +728,7 @@ export default function Mensajeria() {
     const reader = new FileReader();
     reader.readAsArrayBuffer(blob);
     reader.onloadend = async () => {
-      let nombre = `audio_${moment().format('YYYYMMDDHHmmss')}.pm3`;
+      let nombre = `audio_${moment().format('YYYYMMDDHHmmss')}.ogg`;
       const url = await SubirMedia(blob, true, nombre);
       if(url !== null){
         const covActiva = GetManejoConversacion();

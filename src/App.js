@@ -24,6 +24,7 @@ import Contactos from "views/Pages/Contactos";
 import Mensajeria from "views/Pages/Mensajeria";
 import Auths from "views/Pages/auth/Auths";
 
+import Suscripciones from "views/Pages/Suscripcion/Suscripcion";
 import "./assets/css/style.css";
 
 export default function App() {
@@ -99,6 +100,12 @@ export default function App() {
                       element={<Dashboard />}
                       exact
                     />
+                    <Route
+                      path="/admin/suscripciones"
+                      element={<Suscripciones />}
+                      exact
+                    />
+
                     <Route path="/*" element={<Navigate to="admin/dashboard" replace />} />
                     <Route
                       path="/admin/mensajeria"
