@@ -1192,11 +1192,6 @@ export default function Mensajeria() {
                     classes={{
                       display: "none",
                     }}
-                    style={{
-                      background: colorPrimario,
-                      color: "#fff",
-                      display: "none",
-                    }}
                   />
                 </button>
 
