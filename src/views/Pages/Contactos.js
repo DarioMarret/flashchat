@@ -4,7 +4,6 @@ import { GetTokenDecoded, SubirMedia } from "function/storeUsuario";
 import { colorPrimario, host } from "function/util/global";
 import { useEffect, useState } from "react";
 import { Card, Container, Modal } from "react-bootstrap";
-import Table from "react-bootstrap/Table";
 import { Input } from "reactstrap";
 import Swal from "sweetalert2";
 
@@ -157,6 +156,49 @@ export default function Contactos(props) {
     ListarContactos();
   }, []);
 
+  // crear un execl con los contactos y descargarlo
+  const ExportarContactos = () => {
+    let data = [];
+    for (let i = 0; i < contactos.length; i++) {
+      data.push({
+        id: contactos[i].id,
+        nombre: contactos[i].nombre,
+        correo: contactos[i].correo,
+        telefono: contactos[i].telefono,
+        canal: contactos[i].channel.proveedor,
+      });
+    }
+    let csv = "ID,Nombre,Correo,Telefono,Canal\n";
+    data.forEach(function (row) {
+      csv += row.id + "," + row.nombre + "," + row.correo + ",";
+      csv += row.telefono + "," + row.canal + "\n";
+    });
+    let hiddenElement = document.createElement("a");
+    hiddenElement.href = "data:text/csv;charset=utf-8," + encodeURI(csv);
+    hiddenElement.target = "_blank";
+    hiddenElement.download = "contactos.csv";
+    hiddenElement.click();
+  };
+
+  const hanbleBuscar = (e) => {
+    let busqueda = e.target.value;
+    if (busqueda !== "") {
+      let filtro = contactos.filter((item) => {
+        if (
+          item.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
+          item.correo.toLowerCase().includes(busqueda.toLowerCase()) ||
+          item.telefono.toLowerCase().includes(busqueda.toLowerCase()) ||
+          item.channel.proveedor.toLowerCase().includes(busqueda.toLowerCase())
+        ) {
+          return item;
+        }
+      });
+      setContac(filtro);
+    } else {
+      MostrarCantidadContactos(contactos);
+    }
+  };
+
   return (
     <>
       <Container fluid>
@@ -165,12 +207,14 @@ export default function Contactos(props) {
             <button className="mx-2 button-bm" onClick={handleClose}>
               Crear contacto
             </button>
-            <button className="mx-2 button-bm">Exportar contactos</button>
+            <button className="mx-2 button-bm" onClick={()=>ExportarContactos()}>Exportar contactos</button>
             <button className="mx-2 button-bm">Importar contactos</button>
           </div>
 
           <div>
-            <Input placeholder="Buscar contacto" />
+            <Input placeholder="Buscar contacto"
+              onChange={(e) => hanbleBuscar(e)}
+            />
           </div>
         </div>
 

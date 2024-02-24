@@ -3,11 +3,12 @@ import { GetTokenDecoded } from 'function/storeUsuario';
 import { host } from 'function/util/global';
 import { useEffect, useState } from 'react';
 import {
+    Card,
     Container,
     Form,
     Modal
 } from "react-bootstrap";
-import Table from 'react-bootstrap/Table';
+import Swal from "sweetalert2";
 
 function Etiquetas(props) {
     const [show, setShow] = useState(false);
@@ -56,17 +57,44 @@ function Etiquetas(props) {
         let url = host + 'etiqueta/'+etiqueta.id
         const { data, status } = await axios.put(url, etiqueta)
         if(status === 200){
-            ListarEtiquetas()
-            setShow(false)
+            Swal.fire({
+                icon: 'success',
+                title: 'Etiqueta actualizada',
+                showConfirmButton: false,
+                timer: 1500
+            }).then(() => {
+                ListarEtiquetas()
+                setShow(false)
+            })
+        }else{
+            Swal.fire({
+                icon: 'error',
+                title: 'Error al actualizar la etiqueta',
+                showConfirmButton: false,
+                timer: 1500
+            })
         }
     }
 
     const EliminarEquipo = async (id) => {
-        let url = host + 'etiqueta/'+id
-        const { status } = await axios.delete(url)
-        if(status === 200){
-            ListarEtiquetas()
-        }
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: "No podrás revertir esto!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            cancelButtonText: 'Cancelar',
+            confirmButtonText: 'Sí, eliminar'
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                let url = host + 'etiqueta/'+id
+                const { status } = await axios.delete(url)
+                if(status === 200){
+                    ListarEtiquetas()
+                }
+            }
+        })
     }
 
     const CrearEquipo = async (e) => {
@@ -74,7 +102,14 @@ function Etiquetas(props) {
         let url = host + 'etiqueta'
         const { status } = await axios.post(url, etiqueta)
         if(status === 200){
-            ListarEtiquetas()
+            Swal.fire({
+                icon: 'success',
+                title: 'Etiqueta creada',
+                showConfirmButton: false,
+                timer: 1500
+            }).then(() => {
+                ListarEtiquetas()
+            })
         }
     }
 
@@ -93,7 +128,8 @@ function Etiquetas(props) {
                     onClick={handleClose}
                 >Crear etiqueta</button>
             </div>
-                <Table className="table table-personalisado">
+            <Card style={{ overflow:'auto'}}>
+                <table className="table table-personalisado table-hover">
                     <thead className='table-active' >
                         <tr
                             className='text-center text-white'
@@ -122,7 +158,7 @@ function Etiquetas(props) {
                                         >
                                             <div style={{
                                                 width: '60px',
-                                                height: '20px',
+                                                height: '15px',
                                                 backgroundColor: item.color,
                                                 margin: 'auto'
                                             }}></div>
@@ -131,7 +167,7 @@ function Etiquetas(props) {
                                             className='text-center'
                                         >
                                             <button 
-                                            className="btn btn w-20 mx-1"
+                                            className="btn btn w-20"
                                                 onClick={() => EditarEquipo(item)}
                                             >
                                                     <i className="fas fa-edit
@@ -139,7 +175,7 @@ function Etiquetas(props) {
                                                     "></i>
                                             </button>
                                             
-                                            <button className="btn btn mx-1 w-20"
+                                            <button className="btn btn w-20"
                                                 onClick={() => EliminarEquipo(item.id)}
                                             >
                                                     <i className="fas fa-trash-alt 
@@ -152,7 +188,8 @@ function Etiquetas(props) {
                             })
                         }
                     </tbody>
-                </Table>
+                </table>
+            </Card>
             </Container>
 
             <Modal

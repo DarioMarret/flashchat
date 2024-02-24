@@ -3,11 +3,11 @@ import { GetTokenDecoded } from 'function/storeUsuario';
 import { host } from 'function/util/global';
 import { useEffect, useState } from 'react';
 import {
+    Card,
     Container,
     Modal,
 } from 'react-bootstrap';
 import Tab from 'react-bootstrap/Tab';
-import Table from 'react-bootstrap/Table';
 import Tabs from 'react-bootstrap/Tabs';
 import Swal from 'sweetalert2';
 
@@ -17,7 +17,8 @@ function MensajesAutomaticos(props) {
     const [mensaje, setMensaje] = useState({
         id: 0,
         mensaje: '',
-        cuenta_id: GetTokenDecoded().cuenta_id
+        cuenta_id: GetTokenDecoded().cuenta_id,
+        estado: ''
     })
 
     const [mensajes, setMensajes] = useState([])
@@ -33,14 +34,37 @@ function MensajesAutomaticos(props) {
             setMensajes(data.data)
         }
     }
+    // estados mensajes
     const ListarMensajeEstados = async () => {
-        const url = `${host}mensaje_estado/${GetTokenDecoded().cuenta_id}`
-        const { data, status } = await axios.get(url)
-        console.log(data)
-        if (status === 200 && data.data !== null) {
+        const url = `${host}estado_mensaje/${GetTokenDecoded().cuenta_id}`
+        const { data } = await axios.get(url)
+        console.log(data.data)
+        if (data.status === 200) {
             setMensajeEstado(data.data)
         }
     }
+    const ActualizarMensajeEstado = async () => {
+        const url = `${host}estado_mensaje`
+        const data = {
+            id: mensaje.id,
+            cuenta_id: GetTokenDecoded().cuenta_id,
+            mensaje: mensaje.mensaje,
+            estado: mensaje.estado
+        }
+        console.log(data)
+        const { status } = await axios.put(url, data)
+        if (status === 200) {
+            await ListarMensajeEstados()
+            Swal.fire({
+                icon: 'success',
+                title: 'Mensaje Actualizado',
+                showConfirmButton: false,
+                timer: 1500
+            })
+            handleClose()
+        }
+    }
+
     const ListaEstados = async () => {
         const url = `${host}/estados`
         const { data, status } = await axios.get(url)
@@ -115,6 +139,7 @@ function MensajesAutomaticos(props) {
         (async()=>{
             await ListarMensajes()
             await ListaEstados()
+            await ListarMensajeEstados()
         })()
     }, [])
 
@@ -133,44 +158,45 @@ function MensajesAutomaticos(props) {
                         onClick={handleClose}
                     >Crea respuesta rapida</button>
                 </div>
-
-                <Table responsive className='table-personalisado'>
-                    <thead>
-                        <tr
-                            className='text-white text-center font-weight-bold text-uppercase text-monospace align-middle'
-                        >
-                            <th scope="col-9"
-                                className="text-start text-white"
-                            >Mensaje</th>
-                            <th scope="col-2"
-                                className="text-center text-white"
-                            >Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {mensajes.map((item) => (
-                            <tr key={item.id}>
-                                <td
-                                    className="text-start m-0 p-0"
-                                >{item.mensaje}</td>
-                                <td
-                                    className="text-center d-flex justify-content-center align-items-center gap-2 m-0 p-0"
-                                >
-                                    <button className="btn btn m-0"
-                                        onClick={()=>handleShow(item)}
-                                    >
-                                        <i className="fas fa-edit"></i>
-                                    </button>
-                                    <button className="btn btn m-0"
-                                        onClick={()=>EliminarMensaje(item.id)}
-                                    >
-                                        <i className="fas fa-trash-alt text-danger"></i>
-                                    </button>
-                                </td>
+                <Card style={{ overflow: 'auto' }}>
+                    <table responsive className='table-personalisado table-hover'>
+                        <thead>
+                            <tr
+                                className='text-white text-center font-weight-bold text-uppercase text-monospace align-middle'
+                            >
+                                <th scope="col-9"
+                                    className="text-start text-white"
+                                >Mensaje</th>
+                                <th scope="col-2"
+                                    className="text-center text-white"
+                                >Acciones</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </Table>
+                        </thead>
+                        <tbody>
+                            {mensajes.map((item) => (
+                                <tr key={item.id}>
+                                    <td
+                                        className="text-start m-0 p-0"
+                                    >{item.mensaje}</td>
+                                    <td
+                                        className="text-center d-flex justify-content-center align-items-center gap-2 m-0 p-0"
+                                    >
+                                        <button className="btn btn m-0"
+                                            onClick={()=>handleShow(item)}
+                                        >
+                                            <i className="fas fa-edit"></i>
+                                        </button>
+                                        <button className="btn btn m-0"
+                                            onClick={()=>EliminarMensaje(item.id)}
+                                        >
+                                            <i className="fas fa-trash-alt text-danger"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </Card>
                 <Modal
                     size='md'
                     show={show}
@@ -225,48 +251,46 @@ function MensajesAutomaticos(props) {
                 </Modal>
             </Tab>
             <Tab eventKey="Estados" title="Estados">
-            <div className='d-flex justify-content-start mb-3'>
-                    <button className="button-bm ml-2"
-                        onClick={handleClose}
-                    >Crea mensaje de estado</button>
-                </div>
-                <Table responsive className='table-personalisado'>
-                    <thead>
-                        <tr
-                            className='text-white text-center font-weight-bold text-uppercase text-monospace align-middle'
-                        >
-                            <th scope="col-9"
-                                className="text-start text-white"
-                            >Mensaje</th>
-                            <th scope="col-2"
-                                className="text-center text-white"
-                            >Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {mensajes.map((item) => (
-                            <tr key={item.id}>
-                                <td
-                                    className="text-start m-0 p-0"
-                                >{item.mensaje}</td>
-                                <td
-                                    className="text-center d-flex justify-content-center align-items-center gap-2 m-0 p-0"
-                                >
-                                    <button className="btn btn m-0"
-                                        onClick={()=>handleShow(item)}
-                                    >
-                                        <i className="fas fa-edit"></i>
-                                    </button>
-                                    <button className="btn btn m-0"
-                                        onClick={handleClose}
-                                    >
-                                        <i className="fas fa-trash-alt text-danger"></i>
-                                    </button>
-                                </td>
+                <Card style={{ overflow: 'auto' }}>
+                    <table responsive className='table-personalisado table-hover'>  
+                        <thead>
+                            <tr
+                                className='text-white text-center font-weight-bold text-uppercase text-monospace align-middle'
+                            >
+                                <th scope="col-9"
+                                    className="text-center text-white"
+                                >Estado</th>
+                                <th scope="col-9"
+                                    className="text-center text-white"
+                                >Mensaje</th>
+                                <th scope="col-2"
+                                    className="text-center text-white"
+                                >Acciones</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </Table>
+                        </thead>
+                        <tbody>
+                            {mensajeEstado.map((item) => (
+                                <tr key={item.id}>
+                                    <td
+                                        className="text-center m-0 p-0"
+                                    >{item.estado}</td>
+                                    <td
+                                        className="text-center m-0 p-0"
+                                    >{item.mensaje}</td>
+                                    <td
+                                        className="text-center d-flex justify-content-center align-items-center gap-2 m-0 p-0"
+                                    >
+                                        <button className="btn btn m-0"
+                                            onClick={()=>handleShow(item)}
+                                        >
+                                            <i className="fas fa-edit"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </Card>
                 <Modal
                     size='md'
                     show={show}
@@ -300,16 +324,23 @@ function MensajesAutomaticos(props) {
                                 <label htmlFor="mensaje">Mensaje</label>
                                 <textarea className="form-control" id="mensaje" 
                                 value={mensaje.mensaje}
+                                cols={3}
+                                rows={10}
+                                style={{
+                                    // resize: 'none',
+                                    overflow: 'auto',
+                                    height: 'auto'
+                                }}
                                 onChange={(e) => setMensaje({...mensaje, mensaje: e.target.value})}
-                                rows="3"></textarea>
+                                ></textarea>
                             </div>
                         </form>
                     </Modal.Body>
                     <Modal.Footer
                         className="d-flex justify-content-end"
                     >
-                        <button className="btn btn-dark ml-2"
-                            onClick={CrearMensaje}
+                        <button className="btn button-bm w-100 ml-2"
+                            onClick={ActualizarMensajeEstado}
                         >
                             {
                                 mensaje.id === 0

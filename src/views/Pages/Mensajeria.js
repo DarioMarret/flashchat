@@ -155,15 +155,6 @@ export default function Mensajeria() {
     })
   }
 
-  const calculateHeigth = () => {
-    setTimeout(() => {
-      const scrollableDiv = document.getElementsByClassName('chat-body')[0];
-      if (scrollableDiv) {
-        scrollableDiv.scrollTop = scrollableDiv.scrollHeight;
-      }
-    }, 0);
-  }
-
   const { logout } = useAuth();
   
   useEffect(() => {
@@ -175,10 +166,9 @@ export default function Mensajeria() {
         agente_id: null,
         estado: null,
       });
+      const covActiva = GetManejoConversacion();
       socket.on(`response_conversacion_${cuenta_id}`, (data) => {
-        const covActiva = GetManejoConversacion();
         setEquipoUsuario(GetTokenDecoded());
-
         let new_card = [];
         let equipos = []
         let bots = []
@@ -193,15 +183,15 @@ export default function Mensajeria() {
           })
         }
         
-        if (data.length > 0) {          
+        if (data.length > 0) {
           LimpiarCounC()
           for (let index = 0; index < data.length; index++) {
             const item = data[index];
             if (covActiva && covActiva !== null && covActiva !== undefined) {
               if (item.conversacion_id === covActiva.conversacion_id 
                 && item.nombreunico === covActiva.nombreunico 
-                && item.contacto_id === covActiva.contacto_id) {
-                if(item.agente_id === GetTokenDecoded().id) {
+                && item.Contactos.id === covActiva.Contactos.id) {
+                if(item.agente_id === GetTokenDecoded().id){
                   socket.emit("get_conversacion_activa", {
                     cuenta_id: GetTokenDecoded().cuenta_id,
                     contacto_id: item.Contactos.id,
@@ -375,17 +365,14 @@ export default function Mensajeria() {
     socket.on(`get_conversacion_activa_${cuenta_id}`, (msg) => {//listamos los mensajes de la conversacion activa (la que esta siendo atendida por el agente)
       const covActiva = GetManejoConversacion();
       const { type, data, listMensajes } = msg;
-
       if(covActiva && covActiva !== null && covActiva !== undefined){
         if (type === "response_get_conversacion_activa" && data.cuenta_id === cuenta_id 
         && data.conversacion_id === covActiva.conversacion_id 
         && data.nombreunico === covActiva.nombreunico 
         && data.contacto_id === covActiva.contacto_id) {
           if(data.agente_id === GetTokenDecoded().id || data.agente_id === 0){
-            setConversacionActiva(listMensajes);
-            calculateHeigth();
-
-            // dummy.current.scrollIntoView({ behavior: 'smooth' })
+            setConversacionActiva(listMensajes)
+            dummy.current.scrollIntoView({ behavior: 'smooth' })
           }else if(data.agente_id !== GetTokenDecoded().id && data.agente_id !== 0){
             DeletManejoConversacion()
             setConversacionActiva([])
@@ -540,8 +527,9 @@ export default function Mensajeria() {
       setConvEstado(item.estado);
       socket.emit("asignacion_agente", {
         cuenta_id: GetTokenDecoded().cuenta_id,
-        contacto_id: item.Contactos.id,
+        contacto_id: item.contacto_id,
         conversacion_id: item.conversacion_id,
+        nombreunico: item.nombreunico,
         agente_id: GetTokenDecoded().id,
       });
       GetActivaConversacion(item)
@@ -566,6 +554,7 @@ export default function Mensajeria() {
       cuenta_id: GetTokenDecoded().cuenta_id,
       contacto_id: item.Contactos.id,
       conversacion_id: item.conversacion_id,
+      nombreunico: item.nombreunico,
       agente_id: GetTokenDecoded().id,
     });
   }
@@ -828,7 +817,7 @@ export default function Mensajeria() {
                       }
                     }
                   })}
-                  <div style={{ padding: "10px", marginTop: '90px' }} />
+                  <div style={{ padding: "10px" }} />
                 </div>
               </Tab.Pane>
 
@@ -848,7 +837,7 @@ export default function Mensajeria() {
                       }
                     }
                   })}
-                  <div style={{ padding: "10px", marginTop: '90px' }} />
+                  <div style={{ padding: "10px" }} />
                 </div>
               </Tab.Pane>
 
@@ -867,7 +856,7 @@ export default function Mensajeria() {
                       );
                     }
                   })}
-                  <div className="offisde-chat" />
+                  <div style={{ padding: "10px" }} />
                 </div>
               </Tab.Pane>
             </Tab.Content>
@@ -903,7 +892,7 @@ export default function Mensajeria() {
                     }
                   }
                 })}
-                <div className="offisde-chat" />
+                <div style={{ padding: "40px" }} />
               </div>
             </Tab>
 
@@ -927,7 +916,7 @@ export default function Mensajeria() {
                     }
                   }
                 })}
-                <div className="offisde-chat" />
+                <div style={{ padding: "40px" }} />
               </div>
             </Tab>
 
@@ -1142,15 +1131,10 @@ export default function Mensajeria() {
                     }
                   }}
                   // detectar cuando el usuario digite / para mostrar las opciones de respuesta rapida
-                  onKeyDown={(e) => {                    
+                  onKeyUp={(e) => {
                     if (e.key === "/") {
                       setShowRespuesta(true);
-                    } else 
-                    if (e.shiftKey && e.which === 55) {
-                      console.log("2", e.shiftKey);
-                      setShowRespuesta(true);
-                    }
-                    else{
+                    }else{
                       setShowRespuesta(false);
                     }
                   }}

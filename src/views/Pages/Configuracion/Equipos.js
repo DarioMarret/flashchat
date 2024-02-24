@@ -4,11 +4,12 @@ import { host } from "function/util/global";
 import Multiselect from 'multiselect-react-dropdown';
 import { useEffect, useState } from 'react';
 import {
+    Card,
     Container,
     Form,
     Modal
 } from "react-bootstrap";
-import Table from 'react-bootstrap/Table';
+import Swal from "sweetalert2";
 
 function Equipos(props) {
     const [show, setShow] = useState(false);
@@ -77,19 +78,46 @@ function Equipos(props) {
         let url = host + 'equipo'
         const { data, status } = await axios.post(url, equipo)
         if(status === 200){
-            Limpiar()
-            ListarEquipos()
-            handleClose()
+            Swal.fire({
+                icon: 'success',
+                title: 'Equipo creado con éxito',
+                showConfirmButton: false,
+                timer: 1500
+            }).then(() => {
+                Limpiar()
+                ListarEquipos()
+                handleClose()
+            })
+        }else{
+            Swal.fire({
+                icon: 'error',
+                title: 'Error al crear el equipo',
+                showConfirmButton: false,
+                timer: 1500
+            })
         }
     }
 
     const EliminarEquipo = async (id) => {
-        let url = host + 'equipo/'+id
-        const { data, status } = await axios.delete(url)
-        if(status === 200){
-            Limpiar()
-            ListarEquipos()
-        }
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: "¡No podrás revertir esto!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            cancelButtonText: 'Cancelar',
+            confirmButtonText: 'Sí, eliminar'
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                let url = host + 'equipo/'+id
+                const { data, status } = await axios.delete(url)
+                if(status === 200){
+                    Limpiar()
+                    ListarEquipos()
+                }
+            }
+        })
     }
 
     const handleEquipoEdit = (e) => {
@@ -101,9 +129,23 @@ function Equipos(props) {
         let url = host + 'equipo/'+id
         const { status } = await axios.put(url, equipo)
         if(status === 200){
-            ListarEquipos()
-            setShow(true)
-            Limpiar()
+            Swal.fire({
+                icon: 'success',
+                title: 'Equipo editado con éxito',
+                showConfirmButton: false,
+                timer: 1500
+            }).then(() => {
+                ListarEquipos()
+                setShow(true)
+                Limpiar()
+            })
+        }else{
+            Swal.fire({
+                icon: 'error',
+                title: 'Error al editar el equipo',
+                showConfirmButton: false,
+                timer: 1800
+            })
         }
     }
 
@@ -124,49 +166,51 @@ function Equipos(props) {
                     onClick={handleClose}
                 >Crear nuevo equipo</button>
             </div>
-            <Table responsive className='table-personalisado'>
-                <thead>
-                    <tr
-                        className="text-center table-active"
-                    >
-                        <th
-                            className="text-white"
-                        >Equipo</th>
-                        <th
-                            className="text-white"
-                        >Descripción</th>
-                        <th
-                            className="text-white"
-                        >Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {
-                        equipos.map((item, key) => {
-                            return(
-                                <tr key={key}
-                                    className="text-center"
-                                >
-                                    <td>{item.equipos}</td>
-                                    <td>{item.descripcion}</td>
-                                    <td>
-                                        <button className="btn btn ml-2"
-                                            onClick={() => handleEquipoEdit(item)}
-                                        >
-                                            <i className="fas fa-edit"></i>
-                                        </button>
-                                        <button className="btn btn ml-2"
-                                            onClick={() => EliminarEquipo(item.id)}
-                                        >
-                                            <i className="fas fa-trash-alt text-danger"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                            )
-                        })
-                    }
-                </tbody>
-            </Table>
+            <Card style={{ overflow: 'auto' }}>
+                <table responsive className='table-personalisado table-hover'>
+                    <thead>
+                        <tr
+                            className="text-center table-active"
+                        >
+                            <th
+                                className="text-white"
+                            >Equipo</th>
+                            <th
+                                className="text-white"
+                            >Descripción</th>
+                            <th
+                                className="text-white"
+                            >Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {
+                            equipos.map((item, key) => {
+                                return(
+                                    <tr key={key}
+                                        className="text-center"
+                                    >
+                                        <td>{item.equipos}</td>
+                                        <td>{item.descripcion}</td>
+                                        <td>
+                                            <button className="btn btn ml-2"
+                                                onClick={() => handleEquipoEdit(item)}
+                                            >
+                                                <i className="fas fa-edit"></i>
+                                            </button>
+                                            <button className="btn btn ml-2"
+                                                onClick={() => EliminarEquipo(item.id)}
+                                            >
+                                                <i className="fas fa-trash-alt text-danger"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                )
+                            })
+                        }
+                    </tbody>
+                </table>
+            </Card>
             </Container>
             <Modal
                 show={show}
@@ -223,7 +267,7 @@ function Equipos(props) {
                             type="submit" onClick={(e)=>EditarEquipo(equipo.id)}>
                                 Editar
                             </button>:
-                            <button 
+                            <button
                                 className='button-bm mr-2 w-100 mt-3'
                             type="submit" onClick={(e)=>CrearEquipo(e)}>
                                 Crear

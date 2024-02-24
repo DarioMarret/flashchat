@@ -3,13 +3,14 @@ import { GetTokenDecoded } from 'function/storeUsuario';
 import { host } from 'function/util/global';
 import { useEffect, useState } from 'react';
 import {
+    Card,
     Col,
     Container,
     Form,
     Modal,
     Row
 } from "react-bootstrap";
-import Table from 'react-bootstrap/Table';
+import Swal from "sweetalert2";
 
 function HorarioAtencion(props) {
     const [show, setShow] = useState(false);
@@ -57,17 +58,37 @@ function HorarioAtencion(props) {
         }
         const { status } = await axios.put(url, data)
         if(status === 200){
-            ListarHorarios()
-            setShow(false)
+            Swal.fire({
+                icon: 'success',
+                title: 'Horario Actualizado',
+                showConfirmButton: false,
+                timer: 1500
+            }).then(() => {
+                ListarHorarios()
+                setShow(false)
+            })
         }
     }
 
     const EliminarHorario = async (id) => {
-        let url = host + 'horarios/'+id
-        const { status } = await axios.delete(url)
-        if(status === 200){
-            ListarHorarios()
-        }
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: "¡No podrás revertir esto!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            cancelButtonText: 'Cancelar',
+            confirmButtonText: 'Sí, eliminar'
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                let url = host + 'horarios/'+id
+                const { status } = await axios.delete(url)
+                if(status === 200){
+                    ListarHorarios()
+                }
+            }
+        })
     }
 
     const GuardarHorario = async (e) => {
@@ -80,8 +101,15 @@ function HorarioAtencion(props) {
         }
         const { status } = await axios.post(url, data)
         if(status === 200){
-            ListarHorarios()
-            setShow(false)
+            Swal.fire({
+                icon: 'success',
+                title: 'Horario Creado',
+                showConfirmButton: false,
+                timer: 1500
+            }).then(() => {
+                ListarHorarios()
+                setShow(false)
+            })
         }
     }
 
@@ -96,10 +124,7 @@ function HorarioAtencion(props) {
             ...horario,
             [e.target.name]: e.target.value,
         });
-    
     }
-
-
 
     useEffect(() => {
         (async()=>{
@@ -116,47 +141,49 @@ function HorarioAtencion(props) {
                         onClick={handleClose}
                     >Crear Horario</button>
                 </div>
-                <Table responsive className='table-personalisado'>
-                    <thead className="table-active">
-                        <tr className="text-center" >
-                            <th
-                                className='text-white'
-                            >Equipo</th>
-                            <th
-                                className='text-white'
-                            >Horario</th>
-                            <th
-                                className='text-white'
-                            >Mensaje Fuera de Horario</th>
-                            <th
-                                className='text-white'
-                            >Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {
-                            horarios.map((item, key) => (
-                                <tr key={key} className="text-center">
-                                    <td>{item.equipos.equipos}</td>
-                                    <td>{item.horario}</td>
-                                    <td>{item.mensaje_fuera_horario}</td>
-                                    <td>
-                                        <button className="btn button-bm mx-1"
-                                            onClick={()=>EditarHorario(item)}
-                                        >
-                                            <i className="fas fa-edit"></i>
-                                        </button>
-                                        <button className="btn button-bm mx-1"
-                                            onClick={()=>EliminarHorario(item.id)}
-                                        >
-                                            <i className="fas fa-trash-alt text-danger"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))
-                        }
-                    </tbody>
-                </Table>
+                <Card style={{ overflow: 'auto' }}>
+                    <table responsive className='table-personalisado table-hover'>
+                        <thead className="table-active">
+                            <tr className="text-center" >
+                                <th
+                                    className='text-white'
+                                >Equipo</th>
+                                <th
+                                    className='text-white'
+                                >Horario</th>
+                                <th
+                                    className='text-white'
+                                >Mensaje Fuera de Horario</th>
+                                <th
+                                    className='text-white'
+                                >Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {
+                                horarios.map((item, key) => (
+                                    <tr key={key} className="text-center">
+                                        <td>{item.equipos.equipos}</td>
+                                        <td>{item.horario}</td>
+                                        <td>{item.mensaje_fuera_horario}</td>
+                                        <td>
+                                            <button className="btn mx-1"
+                                                onClick={()=>EditarHorario(item)}
+                                            >
+                                                <i className="fas fa-edit"></i>
+                                            </button>
+                                            <button className="btn mx-1"
+                                                onClick={()=>EliminarHorario(item.id)}
+                                            >
+                                                <i className="fas fa-trash-alt text-danger"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))
+                            }
+                        </tbody>
+                    </table>
+                </Card>
             </Container>
             <Modal
                 show={show}

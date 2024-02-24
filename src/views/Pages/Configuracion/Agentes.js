@@ -4,11 +4,11 @@ import { host } from 'function/util/global';
 import Multiselect from 'multiselect-react-dropdown';
 import { useEffect, useState } from 'react';
 import {
+    Card,
     Container,
     Form,
     Modal
 } from 'react-bootstrap';
-import Table from 'react-bootstrap/Table';
 import Swal from 'sweetalert2';
 import socket from 'views/SocketIO';
 
@@ -80,6 +80,7 @@ function Agentes(props) {
         if (status === 200) {
             let ag = []
             data.data.map((agente, index) => {
+                console.log(agente.avatar)
                 ag.push({
                     id: agente.id,
                     botId: agente.botId,
@@ -87,7 +88,9 @@ function Agentes(props) {
                     equipo_id: agente.equipo_id,
                     equipo: agente.equipos.equipos,
                     nombre: agente.nombre,
-                    avatar: <img src="https://codigomarret.online/upload/img/chatbot.jpeg" alt="avatar" width={50} className="rounded-circle"/>,
+                    avatar: agente.avatar === "" ?
+                    <img src="https://codigomarret.online/upload/img/chatbot.jpeg" alt="avatar" width={40} className="rounded-circle"/> :   
+                    <img src={agente.avatar} alt="avatar" width={40} className="rounded-circle"/>,
                     correo: agente.correo,
                     estado: agente.estado === 'offline' ? <button className="btn btn text-danger" disabled={true} >Offline</button>
                     : <button disabled={true} className="btn btn text-success">Online</button>,
@@ -252,7 +255,8 @@ function Agentes(props) {
                     onClick={handleClose}
                 >Crear agente</button>
             </div>
-                <Table responsive className="table-personalisado ">
+            <Card style={{ overflow: 'auto' }}>
+                <table responsive className="table-personalisado ">
                     <thead className='table-active'>
                         <tr 
                             className='text-white text-center font-weight-bold text-uppercase text-monospace align-middle'
@@ -301,7 +305,8 @@ function Agentes(props) {
                             ))
                         }
                     </tbody>
-                </Table>
+                </table>
+            </Card>
             <Modal
                 show={show}
                 onHide={handleClose}
