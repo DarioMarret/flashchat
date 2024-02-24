@@ -24,6 +24,7 @@ import Contactos from "views/Pages/Contactos";
 import Mensajeria from "views/Pages/Mensajeria";
 import Auths from "views/Pages/auth/Auths";
 
+import Cuenta from "views/Pages/Cuenta/Cuenta";
 import Suscripciones from "views/Pages/Suscripcion/Suscripcion";
 import "./assets/css/style.css";
 
@@ -98,6 +99,11 @@ export default function App() {
                     <Route
                       path="/admin/dashboard"
                       element={<Dashboard />}
+                      exact
+                    />
+                    <Route
+                      path="/admin/cuenta"
+                      element={<Cuenta />}
                       exact
                     />
                     <Route

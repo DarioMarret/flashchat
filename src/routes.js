@@ -22,10 +22,10 @@ var routes = [
       component: Dashboard
     },
     {
-      path: "/suscripciones",
+      path: "/cuenta",
       layout: "/admin",
-      name: "Suscripciones",
-      icon: "nc-icon nc-money-coins",
+      name: "Cuenta",
+      icon: "nc-icon nc-single-02",
       component: Suscripciones
     },
     {
@@ -120,6 +120,13 @@ var routes = [
       name: "Login Page",
       mini: "LP",
       component: LoginPage
+    },
+    {
+      path: "/suscripciones",
+      layout: "/admin",
+      name: "Suscripciones",
+      icon: "nc-icon nc-money-coins",
+      component: Suscripciones
     },
     //   {
     //   path: "/sweet-alert",
