@@ -74,6 +74,9 @@
 
 .typing {
   animation: animation 3.5s steps(40), transparent .5s step-end infinite alternate;
+  -webkit-animation: animation 3.5s steps(40), transparent .5s step-end infinite alternate;
+  -moz-animation: animation 3.5s steps(40), transparent .5s step-end infinite alternate;
+  -o-animation: animation 3.5s steps(40), transparent .5s step-end infinite alternate;
   white-space: nowrap;
   overflow: hidden;
   border-right: 3px solid; 
@@ -306,6 +309,17 @@
   height: 20px !important;
 }
 
+.offisde-chat {
+  padding: 10px;
+  margin-top: 100px;
+}
+
+.table-personalisado {
+  width: 100%;
+  margin-bottom: 1rem;
+  vertical-align: top;
+}
+
 /* la cabecera de la tabla que sea de este colo 3F98F8 */
 .table-personalisado thead th {
   background-color: #3F98F8;
@@ -316,7 +330,26 @@
   font-size: 14px;
   font-weight: 600;
   text-transform: uppercase;
+  padding-bottom: 12px !important;
 }
+
+.table-personalisado tbody tr {
+  background-color: transparent !important;
+  border-bottom: 1px solid #cdcdcd;
+}
+
+.table-personalisado tbody tr:nth-child(odd) {
+  background-color: #f2f2f2 !important;
+}
+
+.table-personalisado tbody tr:hover {
+  background-color: #ccc !important;
+}
+
+.table-personalisado tbody tr td {
+  padding: 10px 0px !important;
+}
+
 .button-bm {
   background-color: #3F98F8;
   color: white;
@@ -338,6 +371,9 @@
   /* animation: shake 0.5s; */
 }
 
+.card .table thead th:last-child  {
+  display: table-cell;
+}
 
 @media (min-width: 768px) {
   .box-chat-container {
