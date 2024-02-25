@@ -170,8 +170,8 @@ export default function Mensajeria() {
         agente_id: null,
         estado: null,
       });
-      const covActiva = GetManejoConversacion();
       socket.on(`response_conversacion_${cuenta_id}`, (data) => {
+        const covActiva = GetManejoConversacion();
         setEquipoUsuario(GetTokenDecoded());
         let new_card = [];
         let equipos = []
