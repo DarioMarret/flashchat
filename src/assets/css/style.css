@@ -39,6 +39,7 @@
   color: #585652;
   font-weight: 600;
 }
+
 .dark{
   background: #495057;
 }
@@ -379,6 +380,93 @@
   display: table-cell;
 }
 
+/* Planes */
+.box-plan {
+  background-color: #fff;
+  padding: 12px;
+  border-radius: 5px;
+}
+
+.box-plan-title {
+  text-transform: uppercase;
+  min-height: 40px;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 5px;
+  color: #fff;
+  opacity: 0.75;
+}
+
+.box-plan-basic {
+  background: #006684;
+  background: linear-gradient(135deg, #006684, #73CD4B);
+}
+
+.box-plan-plus {
+  background: #8543B4;
+  background: linear-gradient(135deg, #8543B4, #BA2B46);
+}
+
+.box-plan-gold {
+  background: #C32C17;
+  background: linear-gradient(135deg, #C32C17, #EEC036);
+}
+
+.box-plan-feature-price {
+  font-size: 60px;
+}
+
+.box-plan-feature-price > sup,
+.box-plan-feature-price > sub {
+  font-size: 18px;
+}
+
+.box-plan-feature-price > sup {
+  top: -34px;
+}
+
+.box-plan-feature-item > div > p, 
+.box-plan-feature-item > p {
+  line-height: 24px;
+  font-size: 18px;
+}
+
+.box-plan-button-suscribir {
+  outline: none;
+  border: 1px solid #3F98F8;
+  border-radius: 5px;
+  min-height: 40px;
+  background-color: transparent;
+  color: #3F98F8;
+  font-weight: bold;
+  font-size: 20px;
+  transition: transform 0.5s ease-in-out;
+}
+
+.button-plus {
+  border: none;
+  background-color: #3F98F8;
+  color: #fff;
+}
+
+.box-plan-button-suscribir:hover {
+  transform: scale(1.03);
+}
+
+.box-plan-descripcion > ul {
+  line-height: 27px;
+  list-style: none;
+  padding-left: 0px;
+}
+
+.button-operation {
+  border: none;
+  outline: none;
+  background-color: transparent;
+}
+
 @media (min-width: 768px) {
   .box-chat-container {
     overflow: hidden;
@@ -390,6 +478,16 @@
 
   .chat-messages {
     width: 75%;
+  }
+
+  .content {
+    display: grid;
+    place-content: center;
+  }
+
+  .box-plan-active {
+    height: 110%;
+    transform: translateY(-23px);
   }
 }
 
