@@ -679,6 +679,7 @@ export default function Mensajeria() {
       contacto_id: covActiva.Contactos.id,
       nombreunico: covActiva.nombreunico,
       estado: estado,
+      agente_id: GetTokenDecoded().id,
     });
     if(estado !== "Eliminado" || estado !== "Resuelta"){
       SetManejoConversacionStorange({...covActiva,estado: estado})
