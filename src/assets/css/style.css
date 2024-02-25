@@ -175,6 +175,10 @@
   color: rgba(255, 255, 255, 0.40);
 }
 
+.text-blue {
+  color: #3F98F8
+}
+
 .chat-text {
   max-height: 58px;
 }
