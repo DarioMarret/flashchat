@@ -208,7 +208,7 @@ export default function Contactos(props) {
               Crear contacto
             </button>
             <button className="mx-2 button-bm" onClick={()=>ExportarContactos()}>Exportar contactos</button>
-            <button className="mx-2 button-bm">Importar contactos</button>
+            {/* <button className="mx-2 button-bm">Importar contactos</button> */}
           </div>
 
           <div>

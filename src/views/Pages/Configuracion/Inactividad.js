@@ -3,10 +3,10 @@ import { GetTokenDecoded } from "function/storeUsuario";
 import { host } from "function/util/global";
 import { useEffect, useState } from "react";
 import {
+    Card,
     Container,
     Modal
 } from "react-bootstrap";
-import Table from 'react-bootstrap/Table';
 
 
 function Inactividad(props) {
@@ -77,45 +77,46 @@ function Inactividad(props) {
             <div className="d-flex justify-content-between">
                 <h4 className="font-weight-bold mt-2">Inactividad</h4>
             </div>
-
-            <Table responsive className='table-personalisado'>
-                <thead
-                    className="table-active text-center"
-                >
-                    <tr>
-                        <th
-                            className="text-white"
-                        >Descripción</th>
-                        <th
-                            className="text-white"
-                        >Tiempo</th>
-                        <th
-                            className="text-white"
-                        >Mensaje</th>
-                        <th
-                            className="text-white"
-                        >Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {inactividades.map((item, index) => (
-                        <tr key={index}
-                            className="text-center"
-                        >
-                            <td>{item.description}</td>
-                            <td>{item.tiempo}</td>
-                            <td>{item.mensaje}</td>
-                            <td>
-                                <button className="btn btn ml-2"
-                                    onClick={() => handleEditInactividad(item)}
-                                >
-                                    <i className="fa fa-edit"></i>
-                                </button>
-                            </td>
+            <Card style={{ overflow: 'auto' }}> 
+                <table responsive className='table-personalisado'>
+                    <thead
+                        className="table-active text-center"
+                    >
+                        <tr>
+                            <th
+                                className="text-white"
+                            >Descripción</th>
+                            <th
+                                className="text-white"
+                            >Tiempo</th>
+                            <th
+                                className="text-white"
+                            >Mensaje</th>
+                            <th
+                                className="text-white"
+                            >Acciones</th>
                         </tr>
-                    ))}
-                </tbody>
-            </Table>
+                    </thead>
+                    <tbody>
+                        {inactividades.map((item, index) => (
+                            <tr key={index}
+                                className="text-center"
+                            >
+                                <td>{item.description}</td>
+                                <td>{item.tiempo}</td>
+                                <td>{item.mensaje}</td>
+                                <td>
+                                    <button className="btn btn ml-2"
+                                        onClick={() => handleEditInactividad(item)}
+                                    >
+                                        <i className="fa fa-edit"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </Card>
             <Modal
                 show={show}
                 onHide={handleClose}

@@ -15,6 +15,7 @@ import {
   DropdownMenu,
   DropdownToggle,
   Input,
+  Spinner,
 } from "reactstrap";
 import Swal from 'sweetalert2';
 // import socket from "views/SocketIO";
@@ -24,7 +25,6 @@ import { colorPrimario, dev } from "function/util/global";
 import useAuth from "hook/useAuth";
 import Nav from 'react-bootstrap/Nav';
 import Tab from 'react-bootstrap/Tab';
-import Tabs from 'react-bootstrap/Tabs';
 import io from "socket.io-client";
 import { CardChat } from "./CardChat";
 
@@ -49,6 +49,7 @@ export default function Mensajeria() {
   const [card_mensajes, setCard_mensajes] = useState([]);
   const [conversacionActiva, setConversacionActiva] = useState([]);
   const [ping, setPing] = useState(false)
+  const [loading, setLoading] = useState(false)
   const [estados, setEstados] = useState([]);
   const [misConversaciones, setMisConversaciones] = useState('Sin leer')
   const [respuestaRapidas, setRespuestaRapidas] = useState([]);
@@ -161,6 +162,7 @@ export default function Mensajeria() {
   
   useEffect(() => {
     try {
+      setLoading(true)
       const cuenta_id = GetTokenDecoded().cuenta_id;
       socket.emit("listar_conversacion", {
         cuenta_id: cuenta_id,
@@ -237,9 +239,12 @@ export default function Mensajeria() {
             }
           }
           if(new_card.length > 0){
+            setLoading(false)
             setCard_mensajes(new_card);
             cardMensage = new_card;
             ContadorCon(new_card)
+          }else{
+            setLoading(false)
           }
         }
       });
@@ -386,7 +391,6 @@ export default function Mensajeria() {
 
   const CambiarEstadoConversacion = (data) => {
     try {
-
       const { cuenta_id, contacto_id, conversacion_id, estado, nombreunico } = data;
       var card = [...cardMensage];
       card.map((item) => {
@@ -825,6 +829,18 @@ export default function Mensajeria() {
               </Nav.Item>
             </Nav>
 
+            {
+              loading ? (
+                <div className="w-100 d-flex justify-content-center align-items-center mt-1">
+                  <Spinner animation="border" 
+                    style={{
+                      color: colorPrimario
+                    }}
+                  >
+                  </Spinner>
+                </div>
+              ) : null
+            }
             <Tab.Content>
               <Tab.Pane eventKey="Sin leer">
                 <div className="w-100 py-2 px-2 d-flex flex-column gap-3 box-items-chat">
@@ -885,6 +901,7 @@ export default function Mensajeria() {
                 </div>
               </Tab.Pane>
             </Tab.Content>
+
           </Tab.Container>
         </div>
 
@@ -1137,7 +1154,10 @@ export default function Mensajeria() {
                     document.getElementById("cualquiercosa").click();
                   }}
                 >
-                  <input type="file" id="cualquiercosa" name="file" accept="*" style={{ display: "none" }}
+                  <input type="file" id="cualquiercosa" name="file" 
+                  // que acepte cualquier tipo de archivo menos imagen .exe
+                  accept="application/*,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.zip,.rar,.pdf,.json"
+                  style={{ display: "none" }}
                     onChange={(e) => {
                       CargarAvatar(e.target.files[0])
                     }}
@@ -1150,7 +1170,6 @@ export default function Mensajeria() {
                   style={{
                     background: colorPrimario,
                     color: "#fff",
-
                   }}
                 >
                   <span class="material-symbols-outlined">send</span>

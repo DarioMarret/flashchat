@@ -65,7 +65,7 @@ function MensajesAutomaticos(props) {
     }
 
     const ListaEstados = async () => {
-        const url = `${host}/estados`
+        const url = `${host}estados`
         const { data, status } = await axios.get(url)
         if (status === 200 && data.data !== null) {
             setEstados(data.data)
