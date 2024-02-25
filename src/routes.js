@@ -9,6 +9,7 @@ import Inactividad from "views/Pages/Configuracion/Inactividad";
 import Masivos from "views/Pages/Configuracion/Masivos";
 import MensajesAutomaticos from "views/Pages/Configuracion/MensajesAutomaticos";
 import Contactos from "views/Pages/Contactos";
+import Factura from "views/Pages/Factura/Factura";
 import LoginPage from "views/Pages/LoginPage";
 import Mensajeria from "views/Pages/Mensajeria";
 import Suscripciones from "views/Pages/Suscripcion/Suscripcion";
@@ -127,6 +128,13 @@ var routes = [
       name: "Suscripciones",
       icon: "nc-icon nc-money-coins",
       component: Suscripciones
+    },
+    {
+      path: "/factura",
+      layout: "/admin",
+      name: "Facturas",
+      icon: "nc-icon nc-single-copy-04",
+      component: Factura
     },
     //   {
     //   path: "/sweet-alert",

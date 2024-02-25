@@ -25,6 +25,7 @@ import Mensajeria from "views/Pages/Mensajeria";
 import Auths from "views/Pages/auth/Auths";
 
 import Cuenta from "views/Pages/Cuenta/Cuenta";
+import Factura from "views/Pages/Factura/Factura";
 import Suscripciones from "views/Pages/Suscripcion/Suscripcion";
 import "./assets/css/style.css";
 
@@ -109,6 +110,11 @@ export default function App() {
                     <Route
                       path="/admin/suscripciones"
                       element={<Suscripciones />}
+                      exact
+                    />
+                    <Route
+                      path="/admin/factura"
+                      element={<Factura />}
                       exact
                     />
 
