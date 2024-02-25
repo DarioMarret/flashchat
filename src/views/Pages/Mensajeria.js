@@ -842,7 +842,7 @@ export default function Mensajeria() {
                       }
                     }
                   })}
-                  <div style={{ padding: "10px" }} />
+                  <div className="offside-chat"></div>
                 </div>
               </Tab.Pane>
 
@@ -862,7 +862,7 @@ export default function Mensajeria() {
                       }
                     }
                   })}
-                  <div style={{ padding: "10px" }} />
+                  <div className="offside-chat"></div>
                 </div>
               </Tab.Pane>
 
@@ -881,95 +881,11 @@ export default function Mensajeria() {
                       );
                     }
                   })}
-                  <div style={{ padding: "10px" }} />
+                  <div className="offside-chat"></div>
                 </div>
               </Tab.Pane>
             </Tab.Content>
           </Tab.Container>
-
-          <Tabs
-            defaultActiveKey="Sin leer"
-            id="uncontrolled-tab-example"
-            fill
-          >
-            <Tab eventKey="Sin leer" title={`Sin leer ${countC.sinLeer}`}
-              onClick={() => VerConversaciones('Sin leer')}
-            >
-              <div className="w-100 py-2 px-2 d-flex flex-column gap-3 box-items-chat"
-                style={{
-                  overflowY: "auto",
-                  height: "calc(100% - 1100px)",
-                }}
-            >
-                {card_mensajes.map((item, index) => {
-                  if(item.mensaje){
-                    if(item.agente_id === 0){
-                      return (
-                        <CardChat 
-                          messageItem={item} 
-                          index={index}
-                          agente={NombreAgente(item.agente_id)}
-                          verConversacion={() => ManejarConversacion(item)}
-                          ping={ping}
-                          setPing={setPing}
-                        />
-                      );
-                    }
-                  }
-                })}
-                <div style={{ padding: "40px" }} />
-              </div>
-            </Tab>
-
-            <Tab eventKey="Mis Conversaciones" title={`Mis Conversaciones ${countC.misConversaciones}`}
-              onClick={() => VerConversaciones('Mis Conversaciones')}
-            >
-              <div className="w-100 py-2 px-2 d-flex flex-column gap-3 box-items-chat">
-                {card_mensajes.map((item, index) => {
-                  if(item.mensaje){
-                    if(item.agente_id === GetTokenDecoded().id){
-                      return (
-                        <CardChat 
-                          messageItem={item} 
-                          index={index}
-                          agente={NombreAgente(item.agente_id)}
-                          verConversacion={() => ManejarConversacion(item)}
-                          ping={ping}
-                          setPing={setPing}
-                        />
-                      );
-                    }
-                  }
-                })}
-                <div style={{ padding: "40px" }} />
-              </div>
-            </Tab>
-
-            <Tab 
-              eventKey="Todas" title={`Todas ${countC.todas}`}
-              onClick={() => VerConversaciones('Todas')}
-              >
-            <div
-              className="w-100 d-flex flex-column gap-3 box-items-chat"
-            >
-              {card_mensajes.map((item, index) => {
-                if(item.mensaje) {
-                  return (
-                    <CardChat 
-                      messageItem={item} 
-                      index={index}
-                      agente={NombreAgente(item.agente_id)}
-                      verConversacion={() => ManejarConversacion(item)}
-                      ping={ping}
-                      setPing={setPing}
-                    />
-                  );
-                }
-              })}
-              <div style={{ padding: "40px" }} />
-            </div>
-            </Tab>
-          </Tabs>
         </div>
 
         <div className="chat-messages bg-white rounded-end">
