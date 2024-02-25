@@ -39,7 +39,7 @@ var routes = [
       path: "/contactos",
       layout: "/admin",
       name: "Contactos",
-      icon: "nc-icon nc-single-02",
+      icon: "nc-icon bi bi-people",
       component: Contactos
     },
     {
