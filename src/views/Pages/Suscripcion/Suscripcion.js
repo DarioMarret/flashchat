@@ -43,7 +43,7 @@ export default function Suscripciones() {
           style={{ letterSpacing: '2px', color: '#6c6c6e' }}>Elige tu plan ideal..!
         </h2>
 
-        <div className='w-100 h-100 content'>
+        <div className='w-100 h-100 content-custom'>
           <div className='d-flex flex-column flex-lg-row py-2 gap-3 justify-content-center'>
             <div className='box-plan d-flex flex-column w-100 gap-2'>
               <div className='box-plan-title text-center box-plan-basic'>Plan Básico</div>

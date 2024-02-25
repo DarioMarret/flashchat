@@ -480,7 +480,7 @@
     width: 75%;
   }
 
-  .content {
+  .content-custom {
     display: grid;
     place-content: center;
   }
