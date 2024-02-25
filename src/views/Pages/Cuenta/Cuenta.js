@@ -11,13 +11,25 @@ import {
 
 export default function Cuenta() {
   const [cuenta, setCuenta] = useState(null);
+  const [planes, setPlanes] = useState(null);
+  const [diasrestante , setDiasrestante] = useState(0);
 
 
   const ListarCuenta = async () => {
     const url = `${host}cuenta_plan/${GetTokenDecoded().cuenta_id}`
     const { data } = await axios.get(url)
-    console.log(data.data[0].cuenta.empresa);  
     setCuenta(data.data[0]);
+    setPlanes(data.data[0].planes);
+    // sacamos los dias restantes de fecha del plan free vemos cuantos dias han pasado desde que se creo la cuenta
+    if(data.data[0].planes.plan === 'Free'){
+      const fecha = moment(data.data[0].fecha).format("YYYY/MM/DD");
+      const fechaActual = moment().format("YYYY/MM/DD");
+      const fecha1 = moment(fecha);
+      const fecha2 = moment(fechaActual);
+      const dias = fecha2.diff(fecha1, 'days');
+      const diasRestantes = 15 - dias;
+      setDiasrestante(diasRestantes);
+    }
   }
 
   useEffect(() => {
@@ -30,7 +42,7 @@ export default function Cuenta() {
   return (
     <>
       <Container fluid>
-        <h1 className='p-2'>Infomación de la cuenta</h1>
+        <h1 className='p-2'>Información de la cuenta</h1>
 
         <Card className='mb-4'>
           <Card.Body>
@@ -149,10 +161,9 @@ export default function Cuenta() {
                 </div>
 
                 <div className='gap-0 h-100 border-start'>
-                  <div className='mr-2 d-flex flex-column' 
-                  style={{ paddingLeft: '15px', lineHeight: '20px' }}>
+                  <div className='mr-2 d-flex flex-column' style={{ paddingLeft: '15px', lineHeight: '20px' }}>
                     <span className='text-span'>Bots creados</span>
-                    <span className='text-span font-bold'>{cuenta ? cuenta.agentes.botId.length : ''}</span>
+                    <span className='text-span font-bold'>{cuenta ? cuenta.cuenta.Bots.length : ''}</span>
                   </div>
                 </div>
               </div>
@@ -175,32 +186,38 @@ export default function Cuenta() {
                     <div className='mr-2 d-flex flex-column' 
                     style={{ paddingLeft: '15px', lineHeight: '20px' }}>
                       <span className='text-span'>Plan</span>
-                      <span className='text-span font-bold'>Free</span>
+                      <span className='text-span font-bold'>{planes ? planes.plan : ''}</span>
                     </div>
                   </div>
 
                   <div
                   style={{ marginLeft: '40px' }}>
-                    <button className='btn btn-outline-success'>
+                    <button className='btn btn-outline-success'
+                      // redirect to /plan
+                      onClick={() => window.location.href = '/admin/suscripciones'}
+                    >
                       Actualizar
                     </button>
                   </div>
                 </div>
               </div>
 
-              <div className='d-flex flex-row gap-2 align-items-center mt-3'>
-                <div className='h-100'>
-                  <span class="material-symbols-outlined text-span">timer</span>
-                </div>
-
-                <div className='gap-0 h-100 border-start'>
-                  <div className='mr-2 d-flex flex-column' 
-                  style={{ paddingLeft: '15px', lineHeight: '20px' }}>
-                    <span className='text-span'>Demostración</span>
-                    <span className='text-danger font-bold'>3 días restantes</span>
+                {
+                planes && planes.plan === 'Free' ?
+                <div className='d-flex flex-row gap-2 align-items-center mt-3'>
+                  <div className='h-100'>
+                    <span class="material-symbols-outlined text-span">timer</span>
+                  </div>
+                  <div className='gap-0 h-100 border-start'>
+                    <div className='mr-2 d-flex flex-column' 
+                    style={{ paddingLeft: '15px', lineHeight: '20px' }}>
+                      <span className='text-span'>Demostración</span>
+                      <span className='text-danger font-bold'>le quedan {diasrestante} días de demostración</span>
+                    </div>
                   </div>
                 </div>
-              </div>
+                : ''
+                }
               
               <div className='d-flex flex-row gap-2 align-items-center mt-2'>
                 <div className='h-100'>
@@ -208,8 +225,7 @@ export default function Cuenta() {
                 </div>
 
                 <div className='gap-0 h-100 border-start'>
-                  <div className='mr-2 d-flex flex-column' 
-                  style={{ paddingLeft: '15px', lineHeight: '20px' }}>
+                  <div className='mr-2 d-flex flex-column' style={{ paddingLeft: '15px', lineHeight: '20px' }}>
                     <span className='text-span'>Precio</span>
                     <span className='text-span font-bold'>0</span>
                   </div>
@@ -225,7 +241,7 @@ export default function Cuenta() {
                   <div className='mr-2 d-flex flex-column' 
                   style={{ paddingLeft: '15px', lineHeight: '20px' }}>
                     <span className='text-span'>Capacidad de Bots</span>
-                    <span className='text-span font-bold'>4 máximo</span>
+                    <span className='text-span font-bold'>{planes ? planes.cantidad_bots : ''} máximo</span>
                   </div>
                 </div>
               </div>
@@ -239,7 +255,7 @@ export default function Cuenta() {
                   <div className='mr-2 d-flex flex-column' 
                   style={{ paddingLeft: '15px', lineHeight: '20px' }}>
                     <span className='text-span'>Capacidad de Agentes</span>
-                    <span className='text-span font-bold'>10 máximo</span>
+                    <span className='text-span font-bold'>{planes ? planes.cantidad_agentes : ''} máximo</span>
                   </div>
                 </div>
               </div>

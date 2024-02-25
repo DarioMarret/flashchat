@@ -26,7 +26,7 @@ var routes = [
       path: "/cuenta",
       layout: "/admin",
       name: "Cuenta",
-      icon: "nc-icon nc-single-02",
+      icon: "nc-icon nc-circle-09",
       component: Suscripciones
     },
     {
@@ -40,7 +40,8 @@ var routes = [
       path: "/contactos",
       layout: "/admin",
       name: "Contactos",
-      icon: "nc-icon bi bi-people",
+      // icono de contactos de varios usuarios
+      icon: "nc-icon nc-single-02",
       component: Contactos
     },
     {

@@ -51,7 +51,6 @@ function MensajesAutomaticos(props) {
             mensaje: mensaje.mensaje,
             estado: mensaje.estado
         }
-        console.log(data)
         const { status } = await axios.put(url, data)
         if (status === 200) {
             await ListarMensajeEstados()
