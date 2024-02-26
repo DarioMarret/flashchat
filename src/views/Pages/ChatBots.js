@@ -10,7 +10,7 @@ import axios from "axios";
 import { GetTokenDecoded } from "function/storeUsuario";
 import { colorPrimario, host } from "function/util/global";
 import { useEffect, useState } from "react";
-import { Card, Container, Modal, Row } from "react-bootstrap";
+import { Container, Modal } from "react-bootstrap";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import Swal from "sweetalert2";
 
@@ -220,11 +220,10 @@ function ChatBots(props) {
     if (id === 2) {
       return (
         <>
-          <button
-            className="btn btn active mr-2"
+          <button className="bot-card-buttons-btn"
             onClick={() => OpenModalQr(nombreunico, estado)}
           >
-            <i className="fas fa-qrcode"></i>
+            <span className="material-symbols-outlined text-success">qr_code_2</span> 
           </button>
         </>
       );
@@ -356,100 +355,45 @@ function ChatBots(props) {
         </div>
 
         <div className="row my-4">
-          <div className="col-12 col-md-6 col-lg-4 mb-5">
-            <div className="bot-card shadow">
-              <div className="bot-card-img p-1 rounded-circle shadow">
-                <img src={QR} width={60} className="rounded-circle"/>
-              </div>
-
-              <div className="w-100 bot-card-detail mt-2">
-                <h4 className="text-blue font-bold" 
-                  style={{ lineHeight: '15px' }}>Tickets</h4>
-                <h5 className="text-secondary" 
-                style={{ fontSize: '16px' }}>0999999999</h5>
-              </div>
-
-              <div className="w-100 d-flex flex-row gap-3 justify-content-center flex-wrap 
-              bot-card-buttons">
-                <button className="bot-card-buttons-btn">
-                  <span class="material-symbols-outlined text-success">qr_code_2</span>
-                </button>
-
-                <button className="bot-card-buttons-btn">
-                  <span class="material-symbols-outlined text-secondary">edit_square</span>
-                </button>
-
-                <button className="bot-card-buttons-btn">
-                  <span class="material-symbols-outlined text-secondary">delete</span>
-                </button>
-
-                <button className="bot-card-buttons-btn">
-                  <span class="material-symbols-outlined text-secondary">manufacturing</span>
-                </button>
-              </div>  
-            </div>
-          </div>
-        </div>
-
-        <Row className="d-flex justify-content-start align-items-start flex-wrap">
           {bots.map((bot, index) => (
-            <>
-              <Card key={index} className="mx-1 col-lg-4 col-md-3 col-sm-1">
-                <Card.Body>
-                  <div className="d-flex justify-content-between align-items-start">
-                    <div className="d-flex">
-                      <img
-                        src={InconBot(bot.channel_id, bot.url_perfil)}
-                        alt=""
-                        width={90}
-                      />
-                      <div className="px-2">
-                        <h5>
-                          {String(bot.nombre_bot).length > 15
-                            ? String(bot.nombre_bot).substring(0, 10) + "..."
-                            : bot.nombre_bot}
-                        </h5>
-                        <p className="text-muted text-truncate m-0">
-                          {bot.numero_telefono.substring(0, 11)}
-                        </p>
-                        {ScannerQR(bot.channel_id, bot.nombreunico, bot.estado)}
-                      </div>
-                    </div>
+            <div className="col-12 col-md-6 col-lg-4 mb-5">
+              <div className="bot-card shadow">
+                <div className="bot-card-img p-1 rounded-circle shadow">
+                  <img src={InconBot(bot.channel_id, bot.url_perfil)} width={60} className="rounded-circle"/>
+                </div>
 
-                    <div className="d-flex flex-column mx-x">
-                      <button
-                        className="btn btn active mr-2"
-                        onClick={() =>
-                          window.open(
-                            `${bot.url}?cuenta_id=${bot.cuenta_id}`,
-                            "_blank"
-                          )
-                        }
-                      >
-                        {/* icono de construir */}
-                        <i className="fas fa-cogs"></i>
-                      </button>
-                      <button
-                        className="btn btn active mr-2"
-                        onClick={() => ActivaModalEditar(bot)}
-                      >
-                        {/* icono de editar */}
-                        <i className="fas fa-edit"></i>
-                      </button>
-                      <button
-                        className="btn btn active mr-2"
-                        onClick={() => EliminarBots(bot.id)}
-                      >
-                        {/* icono de eliminar */}
-                        <i className="fas fa-trash-alt"></i>
-                      </button>
-                    </div>
-                  </div>
-                </Card.Body>
-              </Card>
-            </>
+                <div className="w-100 bot-card-detail mt-2">
+                  <h4 className="text-blue font-bold" 
+                    style={{ lineHeight: '15px' }}>{String(bot.nombre_bot).length > 15
+                      ? String(bot.nombre_bot).substring(0, 10) + "..."
+                      : bot.nombre_bot}</h4>
+                  <h5 className="text-secondary" 
+                  style={{ fontSize: '16px' }}>{bot.numero_telefono.substring(0, 11)}</h5>
+                </div>
+
+                <div className="w-100 d-flex flex-row gap-3 justify-content-center flex-wrap 
+                bot-card-buttons">
+                  {ScannerQR(bot.channel_id, bot.nombreunico, bot.estado)}
+
+
+                  <button className="bot-card-buttons-btn" onClick={() => ActivaModalEditar(bot)}>
+                    <span class="material-symbols-outlined text-secondary">edit_square</span>
+                  </button>
+
+                  <button className="bot-card-buttons-btn" onClick={() => EliminarBots(bot.id)}>
+                    <span class="material-symbols-outlined text-secondary">delete</span>
+                  </button>
+
+                  <button className="bot-card-buttons-btn"
+                    onClick={() =>window.open(`${bot.url}?cuenta_id=${bot.cuenta_id}`,"_blank")}
+                  >
+                    <span class="material-symbols-outlined text-secondary">manufacturing</span>
+                  </button>
+                </div>  
+              </div>
+            </div>
           ))}
-        </Row>
+        </div>
 
         <Modal
           size="md"
