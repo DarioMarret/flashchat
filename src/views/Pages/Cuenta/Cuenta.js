@@ -44,7 +44,7 @@ export default function Cuenta() {
       <Container fluid>
         <h1 className='p-2'>Información de la cuenta</h1>
 
-        <Card className='mb-4'>
+        <Card className='mb-4 border-0 shadow'>
           <Card.Body>
             <div className='d-flex flex-column'>
               <h5 className='text-blue'><b>Datos de la cuenta</b></h5>
@@ -108,7 +108,7 @@ export default function Cuenta() {
           </Card.Body>
         </Card>
 
-        <Card className='mb-4'>
+        <Card className='mb-4 border-0 shadow'>
           <Card.Body>
             <div className='d-flex flex-column'>
               <h5 className='text-blue'><b>Datos del Administrador</b></h5>
@@ -171,7 +171,7 @@ export default function Cuenta() {
           </Card.Body>
         </Card>
 
-        <Card className='mb-4'>
+        <Card className='mb-4 border-0 shadow'>
           <Card.Body>
             <div className='d-flex flex-column'>
               <h5 className='text-blue'><b>Datos del Plan</b></h5>

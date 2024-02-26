@@ -506,6 +506,15 @@
   color: #3F98F8 !important;
 }
 
+/* Navbar menu */
+.btn-fill {
+  background-color: transparent !important;
+}
+
+.btn-fill:hover, .btn-fill:focus, .btn-fill:active {
+  background-color: transparent;
+}
+
 @media (min-width: 768px) {
   .box-chat-container {
     overflow: hidden;
