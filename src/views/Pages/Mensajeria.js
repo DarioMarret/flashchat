@@ -192,9 +192,7 @@ export default function Mensajeria() {
           for (let index = 0; index < data.length; index++) {
             const item = data[index];
             if (covActiva && covActiva !== null && covActiva !== undefined) {
-              if (item.conversacion_id === covActiva.conversacion_id 
-                && item.nombreunico === covActiva.nombreunico 
-                && item.Contactos.id === covActiva.Contactos.id) {
+              if (item.conversacion_id === covActiva.conversacion_id && item.nombreunico === covActiva.nombreunico && item.Contactos.id === covActiva.Contactos.id) {
                 if(item.agente_id === GetTokenDecoded().id){
                   socket.emit("get_conversacion_activa", {
                     cuenta_id: GetTokenDecoded().cuenta_id,
@@ -205,11 +203,12 @@ export default function Mensajeria() {
                     conversacion_id: item.conversacion_id,
                     nombreunico: item.nombreunico,
                   })
-                }else if(item.agente_id !== GetTokenDecoded().id){
-                  // si la conversacion activa ya no esta siendo atendida por el agente, se debe eliminar la conversacion activa
-                  DeletManejoConversacion()
-                  setConversacionActiva([])
                 }
+                // else if(item.agente_id !== GetTokenDecoded().id){
+                //   // si la conversacion activa ya no esta siendo atendida por el agente, se debe eliminar la conversacion activa
+                //   DeletManejoConversacion()
+                //   setConversacionActiva([])
+                // }
               }
             }
 
@@ -379,10 +378,11 @@ export default function Mensajeria() {
         && data.contacto_id === covActiva.contacto_id) {
           if(data.agente_id === GetTokenDecoded().id || data.agente_id === 0){
             setConversacionActiva(listMensajes)
-          }else if(data.agente_id !== GetTokenDecoded().id && data.agente_id !== 0){
-            DeletManejoConversacion()
-            setConversacionActiva([])
           }
+          // else if(data.agente_id !== GetTokenDecoded().id && data.agente_id !== 0){
+          //   DeletManejoConversacion()
+          //   setConversacionActiva([])
+          // }
         }
       }
     })
@@ -812,11 +812,11 @@ export default function Mensajeria() {
                 </Nav.Link>
               </Nav.Item>
 
-              <Nav.Item onClick={() => VerConversaciones('Mis Conversaciones')}>
-                <Nav.Link eventKey="Mis Conversaciones" 
+              <Nav.Item onClick={() => VerConversaciones('Mias')}>
+                <Nav.Link eventKey="Mias" 
                   className="gap-1 d-flex"
                   style={{ fontSize: '13px' }}>
-                  <span className="">Mis conversaciones</span>
+                  <span className="">Mias</span>
                   <span className="text-warning">{countC.misConversaciones}</span>
                 </Nav.Link>
               </Nav.Item>
@@ -863,7 +863,7 @@ export default function Mensajeria() {
                 </div>
               </Tab.Pane>
 
-              <Tab.Pane eventKey="Mis Conversaciones">
+              <Tab.Pane eventKey="Mias">
                 <div className="w-100 py-2 px-2 d-flex flex-column gap-3 box-items-chat">
                   {card_mensajes.map((item, index) => {
                     if(item.mensaje){
@@ -874,7 +874,7 @@ export default function Mensajeria() {
                             index={index}
                             agente={NombreAgente(item.agente_id)}
                             verConversacion={() => ManejarConversacion(item)}
-                          />                     
+                          />
                         );
                       }
                     }
