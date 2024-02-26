@@ -227,7 +227,7 @@ export default function Cuenta() {
                 <div className='gap-0 h-100 border-start'>
                   <div className='mr-2 d-flex flex-column' style={{ paddingLeft: '15px', lineHeight: '20px' }}>
                     <span className='text-span'>Precio</span>
-                    <span className='text-span font-bold'>0</span>
+                    <span className='text-span font-bold'>{planes ? planes.precio : ''}</span>
                   </div>
                 </div>
               </div>
