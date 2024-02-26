@@ -182,7 +182,7 @@ function Dashboard() {
       <Container fluid>
         <Row>
           <Col lg="3" sm="6">
-            <Card className="card-stats">
+            <Card className="card-stats border-0 shadow">
               <Card.Body>
                 <Row>
                   <Col xs="5">
@@ -209,8 +209,9 @@ function Dashboard() {
               </Card.Footer>
             </Card>
           </Col>
+
           <Col lg="3" sm="6">
-            <Card className="card-stats">
+            <Card className="card-stats border-0 shadow">
               <Card.Body>
                 <Row>
                   <Col xs="5">
@@ -237,8 +238,9 @@ function Dashboard() {
               </Card.Footer>
             </Card>
           </Col>
+
           <Col lg="3" sm="6">
-            <Card className="card-stats">
+            <Card className="card-stats border-0 shadow">
               <Card.Body>
                 <Row>
                   <Col xs="5">
@@ -265,8 +267,9 @@ function Dashboard() {
               </Card.Footer>
             </Card>
           </Col>
+
           <Col lg="3" sm="6">
-            <Card className="card-stats">
+            <Card className="card-stats border-0 shadow">
               <Card.Body>
                 <Row>
                   <Col xs="5">
@@ -294,9 +297,10 @@ function Dashboard() {
             </Card>
           </Col>
         </Row>
+
         <Row>
           <Col md="12">
-            <Card>
+            <Card className="border-0 shadow">
               <Card.Header>
                 <Card.Title as="h4">Conversaciones por bot</Card.Title>
               </Card.Header>
@@ -350,9 +354,10 @@ function Dashboard() {
             </Card>
           </Col>
         </Row>
+
         <Row>
           <Col md="6">
-            <Card>
+            <Card className="border-0 shadow">
               <Card.Header>
                 <Card.Title as="h4">Conversaciones por dias </Card.Title>
               </Card.Header>
@@ -377,8 +382,9 @@ function Dashboard() {
               </Card.Body>
             </Card>
           </Col>
+
           <Col md="6">
-            <Card>
+            <Card className="border-0 shadow">
               <Card.Header>
                 <Card.Title as="h4">Conversacion por mes</Card.Title>
                 <p className="card-category">24/7</p>
