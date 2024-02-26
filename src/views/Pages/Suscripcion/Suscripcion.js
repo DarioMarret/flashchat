@@ -138,7 +138,7 @@ export default function Suscripciones() {
     
                     <div className='text-center d-flex flex-column box-plan-feature-item mt-2'>
                       <p className='m-0'>{plan.cantidad_agentes} Agentes</p>
-                      <p className='m-0'>{plan.cantidad_bots} Conexiones</p>
+                      <p className='m-0'>{plan.cantidad_bots} Conexion</p>
                     </div>
                   </div>
     
