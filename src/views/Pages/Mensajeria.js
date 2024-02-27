@@ -787,7 +787,7 @@ export default function Mensajeria() {
   return (
     <>
       <div
-        className="d-flex box-chat box-chat-container flex-column flex-md-row px-0 py-0"
+        className="d-flex box-chat box-chat-container flex-column flex-md-row px-0 py-0 position-relative"
         style={{ margin: "0px", height: '100%'}}
       >
         <div className="chat-list bg-chat rounded-start">
@@ -955,6 +955,7 @@ export default function Mensajeria() {
                     isOpen={dropdownOpenTag}
                     toggle={toggleTag}
                     direction="down"
+                    className="mt-2"
                   >
                     <DropdownToggle
                       data-toggle="dropdown"
@@ -962,7 +963,7 @@ export default function Mensajeria() {
                       className="cursor-pointer"
                     >
                       <span class="material-symbols-outlined text-dark">
-                        more
+                        inbox
                       </span>
                     </DropdownToggle>
 
@@ -976,6 +977,8 @@ export default function Mensajeria() {
                       })}
                     </DropdownMenu>
                   </Dropdown>
+
+                  <span class="material-symbols-outlined cursor-pointer">info</span>
                 </div>
               </div>
             </div>
@@ -1033,13 +1036,14 @@ export default function Mensajeria() {
                 })}
               </div>
             </div>
+
             <div
-                className="col-12 d-flex flex-wrap gap-2"
-                style={{
-                  zIndex: "400",
-                  position: "absolute",
-                  bottom: "100px",
-                }}
+              className="col-12 d-flex flex-wrap gap-2"
+              style={{
+                zIndex: "400",
+                position: "absolute",
+                bottom: "100px",
+              }}
               >
               {/* <div className="col-12 picker-icon"> */}
                 {showPicker && (
@@ -1068,7 +1072,8 @@ export default function Mensajeria() {
                         })
                     ): null
                   }
-              </div>
+            </div>
+
             <div
               className="row rounded border-top d-flex d-flex flex-column flex-md-row align-items-center pt-2"
               style={{ minHeight: "50px" }}
@@ -1175,6 +1180,80 @@ export default function Mensajeria() {
                 >
                   <span class="material-symbols-outlined">send</span>
                 </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Aki se cierra y abre el layout de info  -> close-box-info */}
+        <div className="border position-absolute box-info" 
+        style={{ overflow: 'auto' }}>
+          <div className="h-100 box-info-body position-relative">
+            <div className="box-info-body-close rounded-circle d-flex justify-content-center align-items-center position-absolute">
+              <span class="material-symbols-outlined text-danger cursor-pointer">close</span>
+            </div>
+
+            <div className="w-100 d-flex gap-2 pb-3">
+              <div className="rounded-circle overflow-hidden">
+                <img src={ 'https://www.w3schools.com/howto/img_avatar2.png' } 
+                className="rounded-circle"
+                width={50}
+                />
+              </div>
+
+              <div className="d-flex flex-column">
+                <span className="text-span font-bold"
+                  style={{ fontSize: '18px' }}>Kendra Lord</span>
+                <span className="text-span">0999999999</span>
+              </div>
+            </div>
+            
+            <div className="w-100 py-2 d-flex flex-column gap-2 pb-3">
+              <div className="bg-blue p-2 rounded">
+                <span className="text-white font-bold">Información</span>
+              </div>
+
+              <div className="d-flex gap-2 align-items-center">
+                <span className="material-symbols-outlined text-span" 
+                  style={{fontSize: '20px'}}>smart_toy</span>
+                <span className="font-bold text-span box-info-text" >Speed_Ventas</span>
+              </div>
+
+              <div className="d-flex gap-2 align-items-center">
+                <span className="material-symbols-outlined text-span" 
+                  style={{fontSize: '20px'}}>schedule</span>
+                <span className="font-bold text-span box-info-text">23:24</span>
+              </div>
+            </div>
+
+            <div className="w-100 py-2 d-flex flex-column gap-3">
+              <div className="bg-blue p-2 rounded">
+                <span className="text-white font-bold">Etiquetas</span>
+              </div>
+
+              <div className="d-flex gap-2 align-items-center flex-wrap">
+                <span className="chat-tag rounded bg-gray text-white">Chatbot</span>
+              </div>
+            </div>
+
+            <div className="w-100 py-2 d-flex flex-column gap-2 pb-3" 
+            style={{maxHeight: '300px' }}>
+              <div className="bg-blue p-2 rounded">
+                <span className="text-white font-bold">Conversaciones anteriores</span>
+              </div>
+
+              <div className="w-100 d-flex flex-column gap-2">
+                <div className="border w-100 p-2 rounded d-flex flex-column gap-1">
+                  <section className="w-100 d-flex justify-content-between">
+                    <span className="text-span font-bold box-info-text">Edith Gerrero</span>
+                    <span className="text-span box-info-text">10:30</span>
+                  </section>
+
+                  <p className="box-info-text m-0 text-span">
+                    <span class="material-symbols-outlined box-info-text">arrow_top_left</span>
+                    Hola mundo, que tal ? 
+                  </p>
+                </div>
               </div>
             </div>
           </div>
