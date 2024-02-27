@@ -120,7 +120,6 @@ function CardChat(props) {
             </Dropdown>
         </div>
 
-
         <div className="d-flex gap-2 align-items-center p-2 cursor-pointer" 
         onClick={verConversacion}>
           <div className="w-25 d-flex flex-column align-items-center justify-content-center">

@@ -40,7 +40,7 @@
   font-weight: 600;
 }
 
-.dark{
+.dark {
   background: #495057;
 }
 
@@ -74,10 +74,10 @@
 }
 
 .typing {
-  animation: animation 3.5s steps(40), transparent .5s step-end infinite alternate;
-  -webkit-animation: animation 3.5s steps(40), transparent .5s step-end infinite alternate;
-  -moz-animation: animation 3.5s steps(40), transparent .5s step-end infinite alternate;
-  -o-animation: animation 3.5s steps(40), transparent .5s step-end infinite alternate;
+  animation: animationTyping 3.5s steps(40), transparent .5s step-end infinite alternate;
+  -webkit-animation: animationTyping 3.5s steps(40), transparent .5s step-end infinite alternate;
+  -moz-animation: animationTyping 3.5s steps(40), transparent .5s step-end infinite alternate;
+  -o-animation: animationTyping 3.5s steps(40), transparent .5s step-end infinite alternate;
   white-space: nowrap;
   overflow: hidden;
   border-right: 3px solid; 
@@ -177,7 +177,11 @@
 }
 
 .text-blue {
-  color: #3F98F8
+  color: #3F98F8;
+}
+
+.bg-blue {
+  background-color: #3F98F8;
 }
 
 .chat-text {
@@ -515,6 +519,41 @@
   background-color: transparent;
 }
 
+.box-info {
+  right: 0;
+  max-width: 284px;
+  min-width: 284px;
+  min-height: 100%;
+  background-color: #fff;
+  /* backdrop-filter: blur(10px); */
+  padding: 10px 15px;
+  z-index: 999;
+  border-radius: 10px;
+  transform: translateX(0px);
+  transition: all 0.6s ease-in;
+}
+
+.close-box-info {
+  transform: translateX(444px);
+}
+
+.box-info-body {
+  min-height: 100%;
+}
+
+.box-info-body-close {
+  width: 35px;
+  height: 35px;
+  top: 0px;
+  right: 0;
+  z-index: 1
+}
+
+.box-info-text {
+  font-size: 14px;
+}
+
+
 @media (min-width: 768px) {
   .box-chat-container {
     overflow: hidden;
@@ -539,7 +578,7 @@
   }
 }
 
-@keyframes animation {
+@keyframes animationTyping {
   from {
     width: 0px;
   }
