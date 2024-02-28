@@ -174,22 +174,10 @@ function MensajesAutomaticos(props) {
                         <tbody>
                             {mensajes.map((item) => (
                                 <tr key={item.id}>
-                                    <td
-                                        className="text-start m-0 p-0"
-                                    >{item.mensaje}</td>
-                                    <td
-                                        className="text-center d-flex justify-content-center align-items-center gap-2 m-0 p-0"
-                                    >
-                                        <button className="btn btn m-0"
-                                            onClick={()=>handleShow(item)}
-                                        >
-                                            <i className="fas fa-edit"></i>
-                                        </button>
-                                        <button className="btn btn m-0"
-                                            onClick={()=>EliminarMensaje(item.id)}
-                                        >
-                                            <i className="fas fa-trash-alt text-danger"></i>
-                                        </button>
+                                    <td className="m-2 p-2 text-start">{item.mensaje}</td>
+                                    <td className="text-center d-flex justify-content-center align-items-center gap-2 m-0 p-0" >
+                                        <button className="btn btn m-0" onClick={()=>handleShow(item)}><i className="fas fa-edit"></i></button>
+                                        <button className="btn btn m-0" onClick={()=>EliminarMensaje(item.id)}><i className="fas fa-trash-alt text-danger"></i></button>
                                     </td>
                                 </tr>
                             ))}

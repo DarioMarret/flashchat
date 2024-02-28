@@ -29,16 +29,20 @@ import io from "socket.io-client";
 import { CardChat } from "./CardChat";
 
 var socket = null;
-if(dev){
-  socket = io.connect("http://localhost:5002", {
-    path: "/socket.io/socket.io.js",
-    transports: ["websocket"],
-  });
-}else{
-  socket = io.connect(String(host).replace(`/${proxy}/`, ""), {
-    path: `/${proxy}/socket.io/socket.io.js`,
-    transports: ["websocket"],
-  });
+try {
+  if(dev){
+    socket = io.connect("http://localhost:5002", {
+      path: "/socket.io/socket.io.js",
+      transports: ["websocket"],
+    });
+  }else{
+    socket = io.connect(String(host).replace(`/${proxy}/`, ""), {
+      path: `/${proxy}/socket.io/socket.io.js`,
+      transports: ["websocket"],
+    });
+  }
+} catch (error) {
+  console.log(error) 
 }
 
 
@@ -766,7 +770,6 @@ export default function Mensajeria() {
 
 
   const AgregarEtiqueta = async(etiqueta) => {
-    console.log("etiqueta: ", etiqueta)
     var covActiva = GetManejoConversacion();
     const { data, status } = await axios.post(`${host}conversacion_etiqueta`,{
       cuenta_id: GetTokenDecoded().cuenta_id,
@@ -779,7 +782,6 @@ export default function Mensajeria() {
       setDropdownOpenEtiqueta(false)
       covActiva['etiquetas_estado'] = data.data.etiquetas_estado
       SetManejoConversacionStorange(covActiva)
-      console.log("Se agrego la etiqueta: ", data.data)
     }
   }
 
@@ -1078,7 +1080,7 @@ export default function Mensajeria() {
 
             {/* Chat conversation */}
             <div className="row chat-body">
-              <div className="col-12">
+              <div className="col-12" onClick={() => setInfoContacto('close-box-info')} >
                 {conversacionActiva.map((item, index) => {
                   if (item.tipo === "ingoing") {
                     return (
@@ -1167,11 +1169,7 @@ export default function Mensajeria() {
                   }
             </div>
 
-            <div
-              className="row rounded border-top d-flex d-flex flex-column flex-md-row align-items-center pt-2"
-              style={{ minHeight: "50px" }}
-            >
-
+            <div className="row rounded border-top d-flex d-flex flex-column flex-md-row align-items-center pt-2" style={{ minHeight: "50px" }}>
               <div className="col-9 d-flex align-items-center py-1">
                 {/* se hace visible las respuesta rapidas que el usuario las puedas seleccionar  */}
                 <textarea
@@ -1181,7 +1179,7 @@ export default function Mensajeria() {
                   placeholder="Escribir ..."
                   value={inputStr}
                   onChange={(e) => {
-                    setInfoContacto('')
+                    setInfoContacto('close-box-info')
                     setInputStr(e.target.value)
                   }}
                   // cuando se presione enter enviar el mensaje
@@ -1382,10 +1380,12 @@ export default function Mensajeria() {
                             <span className="text-span font-bold box-info-text">Conversacion #{item.conversacion_id}</span>
                             <span className="text-span font-bold box-info-text">Estado: {item.estado}</span>
                           </section>
+                          
                           <section className="w-100 d-flex justify-content-between">
                             <span className="text-span font-bold box-info-text">{GetManejoConversacion() ? GetManejoConversacion().Contactos.nombre : null}</span>
                             <span className="text-span box-info-text">{moment(item.updatedAt).format("YYYY/MM/DD HH:mm")}</span>
                           </section>
+                          <span className="text-span box-info-text font-bold">Agente: {NombreAgente(item.agente_id)}</span>
                           <p className="box-info-text m-0 text-span">
                             <span class="material-symbols-outlined box-info-text">arrow_top_left</span>
                             {
@@ -1393,7 +1393,7 @@ export default function Mensajeria() {
                             }
                           </p>
                           <section className="w-100 d-flex justify-content-between">
-                            <span className="text-span font-bold box-info-text">Etiquetas:{item.etiquetas}</span>
+                            {/* <span className="text-span font-bold box-info-text">Estados :{item.etiquetas}</span> */}
                           </section>
                         </div>
                       )
