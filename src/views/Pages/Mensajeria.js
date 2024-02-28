@@ -7,7 +7,7 @@ import axios from "axios";
 import { GetTokenDecoded } from "function/storeUsuario";
 import { host, proxy } from "function/util/global";
 import moment from "moment";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AudioRecorder } from 'react-audio-voice-recorder';
 import {
   Dropdown,
@@ -56,7 +56,8 @@ export default function Mensajeria() {
   const [loading, setLoading] = useState(false)
   const [estados, setEstados] = useState([]);
   const [misConversaciones, setMisConversaciones] = useState('Sin leer')
-  const [respuestaRapidas, setRespuestaRapidas] = useState([]);
+  const [respuestaRapidas, setRespuestaRapidas] = useState([])
+  const dummy = useRef(null);
   const [etiquetas, setEtiquetas] = useState([])
   const [showRespuesta, setShowRespuesta] = useState(false)
   const [infoContacto, setInfoContacto] = useState('close-box-info')
@@ -260,10 +261,6 @@ export default function Mensajeria() {
                     conversacion_id: item.conversacion_id,
                     nombreunico: item.nombreunico,
                   })
-                //}else if(item.agente_id !== GetTokenDecoded().id){
-                // si la conversacion activa ya no esta siendo atendida por el agente, se debe eliminar la conversacion activa
-                //  DeletManejoConversacion()
-                //  setConversacionActiva([])
                 }
               }
             }
@@ -321,20 +318,17 @@ export default function Mensajeria() {
         const { type, data, listMensajes } = msg;
         if (type === "response_cambiar_estado" && data.cuenta_id === GetTokenDecoded().cuenta_id) {
           CambiarEstadoConversacion(data, listMensajes)
-          if(listMensajes.length  > conversacionActiva.length){
-            setConversacionActiva(listMensajes)
-          }
         }
       })
 
-      socket.on("borrar_conversacion_agente", (msg) => {
-        const { agente_id } = msg;
-        const local = GetManejoConversacion()
-        if(local && agente_id === GetTokenDecoded().id){
-          DeletManejoConversacion()
-          setConversacionActiva([])
-        }
-      });
+      // socket.on("borrar_conversacion_agente", (msg) => {
+      //   const { agente_id } = msg;
+      //   const local = GetManejoConversacion()
+      //   if(local && agente_id === GetTokenDecoded().id){
+      //     DeletManejoConversacion()
+      //     setConversacionActiva([])
+      //   }
+      // })
 
       socket.on("liberar_chat", (msg) => {
         const { type, data } = msg;
@@ -416,12 +410,12 @@ export default function Mensajeria() {
 
     return () => {
       socket.off(`response_conversacion_${GetTokenDecoded().cuenta_id}`);
-      socket.off(`get_conversacion_activa_${GetTokenDecoded().cuenta_id}`);
+      // socket.off(`get_conversacion_activa_${GetTokenDecoded().cuenta_id}`);
       socket.off("mensaje");
       socket.off("cambiar_estado");
       socket.off("infoUsuario");
       socket.off("asignacion_agente");
-      socket.off("recargar");
+      socket.off("recargar")
     }
   }, [])
 
@@ -435,13 +429,38 @@ export default function Mensajeria() {
         if (type === "response_get_conversacion_activa" && data.cuenta_id === cuenta_id 
         && data.conversacion_id === covActiva.conversacion_id && data.nombreunico === covActiva.nombreunico  && data.contacto_id === covActiva.contacto_id) {
           if(data.agente_id === GetTokenDecoded().id){
-            if(listMensajes.length  > conversacionActiva.length){
+            if(listMensajes.length !== 0 && listMensajes.length  > conversacionActiva.length){
               setConversacionActiva(listMensajes)
+              dummy.current.scrollIntoView({ behavior: "smooth", block: "end", inline: "nearest" });
+              // Crear un contexto de audio 
+              // const audioContext = new AudioContext();
+              // // Obtener el archivo de audio a través de una URL
+              // fetch('https://codigomarret.online/upload/img/livechat-129007.mp3')
+              //   .then(response => response.arrayBuffer())
+              //   .then(arrayBuffer => audioContext.decodeAudioData(arrayBuffer))
+              //   .then(audioBuffer => {
+              //     // Crear un buffer de audio
+              //     const source = audioContext.createBufferSource();
+              //     source.buffer = audioBuffer;
+              //     source.connect(audioContext.destination);
+              //     // Reproducir el sonido
+              //     source.start(0);
+              //     // Pausar el sonido después de 1.2 segundos
+              //     setTimeout(() => {
+              //       source.stop();
+              //     }, 1000); // 1200 milisegundos = 1.2 segundos
+              //   })
+              //   .catch(error => {
+              //     console.error('Error al cargar el archivo de audio:', error);
+              //   });
             }
           }
         }
       }
     })
+    return () => {
+      socket.off(`get_conversacion_activa_${cuenta_id}`);
+    }
   }, [])
 
 
@@ -449,30 +468,12 @@ export default function Mensajeria() {
     try {
       const { cuenta_id, contacto_id, conversacion_id, estado, nombreunico } = data;
       if(estado === "Eliminado" || estado === "Resuelta"){
-        if(GetManejoConversacion() !== null && GetManejoConversacion().conversacion_id === conversacion_id && GetManejoConversacion().nombreunico === nombreunico && GetManejoConversacion().contacto_id === contacto_id){
+        if(GetManejoConversacion() !== null && GetManejoConversacion().conversacion_id === conversacion_id && 
+        GetManejoConversacion().nombreunico === nombreunico && GetManejoConversacion().contacto_id === contacto_id){
           DeletManejoConversacion()
           setConversacionActiva([])
         }
       }
-      // var card = [...cardMensage];
-      // card.map((item) => {
-      //   if (item.conversacion_id === conversacion_id && cuenta_id === GetTokenDecoded().cuenta_id 
-      //     && contacto_id === item.Contactos.id && nombreunico === item.nombreunico) {
-      //     if(estado === "Eliminado" || estado === "Resuelta"){
-      //       // lo quitamos del listado de conversaciones
-      //       console.log("Eliminado")
-      //       item.estado = estado;
-      //       // ver si la conversacion activa es la misma que tengo en localstorage
-      //       if(GetManejoConversacion() !== null && GetManejoConversacion().conversacion_id === conversacion_id && GetManejoConversacion().nombreunico === nombreunico && GetManejoConversacion().contacto_id === contacto_id){
-      //         DeletManejoConversacion()
-      //         setConversacionActiva([])
-      //       }
-      //     }else{
-      //       console.log("No eliminado cambio de estado")
-      //       item.estado = estado;
-      //     }
-      //   }
-      // })
       setCard_mensajes(listMensajes)
       ContadorCon(listMensajes)
     } catch (error) {
@@ -722,7 +723,6 @@ export default function Mensajeria() {
       }
 
     } else if (item.type === "audio") {
-      console.log("item.mensajes.url: ", item.url);
       return (
         <audio controls>
           <source src={item.url} type="audio/ogg" />
@@ -1129,6 +1129,7 @@ export default function Mensajeria() {
                     );
                   }
                 })}
+                <p className="text-center mt-3" ref={dummy}></p>
               </div>
             </div>
 
