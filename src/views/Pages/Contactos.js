@@ -42,7 +42,7 @@ export default function Contactos(props) {
       setContactos(data.data);
       Paginacion(data.data);
     }
-  };
+  }
 
   const CrearContacto = async () => {
     if (contacto.id !== 0) {
@@ -60,7 +60,7 @@ export default function Contactos(props) {
         handleClose();
       }
     }
-  };
+  }
 
   const EditarContacto = (item) => {
     setContacto(item);

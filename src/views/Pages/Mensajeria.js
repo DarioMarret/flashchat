@@ -53,12 +53,16 @@ export default function Mensajeria() {
   const [estados, setEstados] = useState([]);
   const [misConversaciones, setMisConversaciones] = useState('Sin leer')
   const [respuestaRapidas, setRespuestaRapidas] = useState([]);
+  const [etiquetas, setEtiquetas] = useState([])
   const [showRespuesta, setShowRespuesta] = useState(false)
+  const [infoContacto, setInfoContacto] = useState('close-box-info')
   const [countC, setCountC] = useState({
     sinLeer: 0,
     misConversaciones: 0,
     todas: 0,
   })
+  const [contactoHistorial, setContactoHistorial] = useState([])
+
 
   const [equipoUsuario , setEquipoUsuario] = useState({
     correo: '',
@@ -83,6 +87,53 @@ export default function Mensajeria() {
   const [typeInput, setTypeInput] = useState("text");
   const [showPicker, setShowPicker] = useState(false);
 
+  const HistorialContacto = async() => {
+    try {
+      const conV = GetManejoConversacion()
+      const { data, status } = await axios.post(`${host}conversacion_historial`,{
+        cuenta_id: GetTokenDecoded().cuenta_id,
+        contacto_id: conV.contacto_id,
+        nombreunico: conV.nombreunico,
+      })
+      if(status === 200 && data.data !== null && data.data.length > 0){
+        // console.log(data.data)
+        var card = []
+        // biscar todas las conversaciones con el contacto_id y el nombreunico de la convresacion activa
+        console.log(conV)
+        data.data.map((item) => {
+          if(conV.contacto_id === item.contacto_id && conV.nombreunico === item.nombreunico){
+            // que no se repita conversacione_id
+            card.push(item)
+          }
+        })
+        // sacar el ultimo mensaje de cada conversacion
+        card = card.filter((item, index, self) =>
+          index === self.findIndex((t) => (
+            t.conversacion_id === item.conversacion_id
+        )))
+        setContactoHistorial(card)
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
+  const handleInfoContacto = async() => {
+    if(infoContacto === 'close-box-info'){
+      setInfoContacto('')
+      await HistorialContacto()
+    }else{
+      setInfoContacto('close-box-info')
+    }
+  }
+
+  const ListarEtiquetas = async () => {
+    let url = host + 'etiqueta/'+GetTokenDecoded().cuenta_id
+    const { data, status } = await axios.get(url)
+    if(status === 200){
+        setEtiquetas(data.data)
+    }
+}
+  
   const onEmojiClick = (emojiObject, event) => {
     setInputStr((prevInput) => prevInput + emojiObject.emoji);
     setShowPicker(false);
@@ -141,6 +192,7 @@ export default function Mensajeria() {
       GetMisConversaciones()
       await ListarAgentes()
       await ListarMensajesRespuestaRapida()
+      await ListarEtiquetas()
     })()
   }, []);
 
@@ -170,6 +222,7 @@ export default function Mensajeria() {
         agente_id: null,
         estado: null,
       });
+      //listar las conversaciones y las precenta en una card con el nombre del contacto, el mensaje, el estado, la fecha y la hora
       socket.on(`response_conversacion_${cuenta_id}`, (data) => {
         const covActiva = GetManejoConversacion();
         setEquipoUsuario(GetTokenDecoded());
@@ -191,10 +244,10 @@ export default function Mensajeria() {
           LimpiarCounC()
           for (let index = 0; index < data.length; index++) {
             const item = data[index];
-            if (covActiva && covActiva !== null && covActiva !== undefined) {
+            if (covActiva && covActiva !== null && covActiva !== undefined) {// verificamos si hay una conversacion activa
               if (item.conversacion_id === covActiva.conversacion_id && item.nombreunico === covActiva.nombreunico && item.Contactos.id === covActiva.Contactos.id) {
                 if(item.agente_id === GetTokenDecoded().id){
-                  socket.emit("get_conversacion_activa", {
+                  socket.emit("get_conversacion_activa", {//si hay convresacion activa se debe obtener los mensajes de la conversacion activa
                     cuenta_id: GetTokenDecoded().cuenta_id,
                     contacto_id: item.Contactos.id,
                     equipo_id: item.equipo_id,
@@ -203,12 +256,11 @@ export default function Mensajeria() {
                     conversacion_id: item.conversacion_id,
                     nombreunico: item.nombreunico,
                   })
+                //}else if(item.agente_id !== GetTokenDecoded().id){
+                // si la conversacion activa ya no esta siendo atendida por el agente, se debe eliminar la conversacion activa
+                //  DeletManejoConversacion()
+                //  setConversacionActiva([])
                 }
-                // else if(item.agente_id !== GetTokenDecoded().id){
-                //   // si la conversacion activa ya no esta siendo atendida por el agente, se debe eliminar la conversacion activa
-                //   DeletManejoConversacion()
-                //   setConversacionActiva([])
-                // }
               }
             }
 
@@ -226,6 +278,7 @@ export default function Mensajeria() {
                 equipo_id: item.equipo_id,
                 tipo: item.tipo,
                 estado: item.estado,
+                etiquetas_estado: item.etiquetas_estado,
                 fecha: moment(item.updatedAt) >= moment().subtract(1, "days") ? moment(item.updatedAt).format("hh:mm a") : moment(item.updatedAt).format("DD/MM/YYYY hh:mm a"),
                 url_avatar: item.Contactos.avatar,
                 proveedor: item.channel.proveedor,
@@ -237,10 +290,10 @@ export default function Mensajeria() {
               // contar las conversaciones sin leer, las mis conversaciones y todas
             }
           }
+          cardMensage = new_card;
           if(new_card.length > 0){
             setLoading(false)
             setCard_mensajes(new_card);
-            cardMensage = new_card;
             ContadorCon(new_card)
           }else{
             setLoading(false)
@@ -261,9 +314,12 @@ export default function Mensajeria() {
       });
 
       socket.on("cambiar_estado", (msg) => {
-        const { type, data } = msg;
+        const { type, data, listMensajes } = msg;
         if (type === "response_cambiar_estado" && data.cuenta_id === GetTokenDecoded().cuenta_id) {
-          CambiarEstadoConversacion(data)
+          CambiarEstadoConversacion(data, listMensajes)
+          if(listMensajes.length  > conversacionActiva.length){
+            setConversacionActiva(listMensajes)
+          }
         }
       })
 
@@ -373,45 +429,48 @@ export default function Mensajeria() {
       const { type, data, listMensajes } = msg;
       if(covActiva && covActiva !== null && covActiva !== undefined){
         if (type === "response_get_conversacion_activa" && data.cuenta_id === cuenta_id 
-        && data.conversacion_id === covActiva.conversacion_id 
-        && data.nombreunico === covActiva.nombreunico 
-        && data.contacto_id === covActiva.contacto_id) {
-          if(data.agente_id === GetTokenDecoded().id || data.agente_id === 0){
-            setConversacionActiva(listMensajes)
+        && data.conversacion_id === covActiva.conversacion_id && data.nombreunico === covActiva.nombreunico  && data.contacto_id === covActiva.contacto_id) {
+          if(data.agente_id === GetTokenDecoded().id){
+            if(listMensajes.length  > conversacionActiva.length){
+              setConversacionActiva(listMensajes)
+            }
           }
-          // else if(data.agente_id !== GetTokenDecoded().id && data.agente_id !== 0){
-          //   DeletManejoConversacion()
-          //   setConversacionActiva([])
-          // }
         }
       }
     })
   }, [])
 
 
-  const CambiarEstadoConversacion = (data) => {
+  const CambiarEstadoConversacion = (data, listMensajes) => {
     try {
       const { cuenta_id, contacto_id, conversacion_id, estado, nombreunico } = data;
-      var card = [...cardMensage];
-      card.map((item) => {
-        console.log("CambiarEstadoConversacion: ", item);
-        if (item.conversacion_id === conversacion_id && cuenta_id === GetTokenDecoded().cuenta_id 
-          && contacto_id === item.Contactos.id && nombreunico === item.nombreunico) {
-          if(estado === "Eliminado" || estado === "Resuelta"){
-            // lo quitamos del listado de conversaciones
-            console.log("Eliminado")
-            card = card.filter((item) => item.conversacion_id !== conversacion_id 
-            && contacto_id !== item.Contactos.id && nombreunico !== item.nombreunico)
-            DeletManejoConversacion()
-            setConversacionActiva([])
-          }else{
-            console.log("No eliminado cambio de estado")
-            item.estado = estado;
-          }
+      if(estado === "Eliminado" || estado === "Resuelta"){
+        if(GetManejoConversacion() !== null && GetManejoConversacion().conversacion_id === conversacion_id && GetManejoConversacion().nombreunico === nombreunico && GetManejoConversacion().contacto_id === contacto_id){
+          DeletManejoConversacion()
+          setConversacionActiva([])
         }
-      })
-      setCard_mensajes(card)
-      ContadorCon(card)
+      }
+      // var card = [...cardMensage];
+      // card.map((item) => {
+      //   if (item.conversacion_id === conversacion_id && cuenta_id === GetTokenDecoded().cuenta_id 
+      //     && contacto_id === item.Contactos.id && nombreunico === item.nombreunico) {
+      //     if(estado === "Eliminado" || estado === "Resuelta"){
+      //       // lo quitamos del listado de conversaciones
+      //       console.log("Eliminado")
+      //       item.estado = estado;
+      //       // ver si la conversacion activa es la misma que tengo en localstorage
+      //       if(GetManejoConversacion() !== null && GetManejoConversacion().conversacion_id === conversacion_id && GetManejoConversacion().nombreunico === nombreunico && GetManejoConversacion().contacto_id === contacto_id){
+      //         DeletManejoConversacion()
+      //         setConversacionActiva([])
+      //       }
+      //     }else{
+      //       console.log("No eliminado cambio de estado")
+      //       item.estado = estado;
+      //     }
+      //   }
+      // })
+      setCard_mensajes(listMensajes)
+      ContadorCon(listMensajes)
     } catch (error) {
       alert("Error al cambiar el estado de la conversacion")
     }
@@ -423,8 +482,7 @@ export default function Mensajeria() {
       const { cuenta_id, contacto_id, conversacion_id, nombreunico } = data;
       var card = [...cardMensage];
       card.map((item) => {
-        if (item.conversacion_id === conversacion_id && item.Contactos.id === contacto_id 
-          && cuenta_id === GetTokenDecoded().cuenta_id && nombreunico === item.nombreunico) {
+        if (item.conversacion_id === conversacion_id && item.Contactos.id === contacto_id && cuenta_id === GetTokenDecoded().cuenta_id && nombreunico === item.nombreunico) {
           item.agente_id = 0;
         }
       })
@@ -528,9 +586,9 @@ export default function Mensajeria() {
         nombreunico: item.nombreunico,
       });
     }else{
-      SetManejoConversacionStorange({...item, cuenta_id: GetTokenDecoded().cuenta_id})
-      setConvEstado(item.estado);
-      socket.emit("asignacion_agente", {
+      SetManejoConversacionStorange({...item, cuenta_id: GetTokenDecoded().cuenta_id})//se guarda en localstorage la conversacion activa
+      setConvEstado(item.estado); // se guarda el estado de la conversacion
+      socket.emit("asignacion_agente", { // se asigna el agente a la conversacion
         cuenta_id: GetTokenDecoded().cuenta_id,
         contacto_id: item.contacto_id,
         conversacion_id: item.conversacion_id,
@@ -672,6 +730,7 @@ export default function Mensajeria() {
   }
 
   const ActualizarEstadoConversacion = (estado) => {
+    var card = [...card_mensajes];
     const covActiva = GetManejoConversacion();
     socket.emit("actualizar_estado_conversacion", {
       cuenta_id: GetTokenDecoded().cuenta_id,
@@ -683,11 +742,44 @@ export default function Mensajeria() {
     });
     if(estado !== "Eliminado" || estado !== "Resuelta"){
       SetManejoConversacionStorange({...covActiva,estado: estado})
-      // localStorage.setItem("conversacion_activa",JSON.stringify({...covActiva,estado: estado}));
-      setConvEstado(estado);
+      setConvEstado(estado)
+      card.map((item) => {
+        if (item.conversacion_id === covActiva.conversacion_id && item.Contactos.id === covActiva.Contactos.id && covActiva.nombreunico === item.nombreunico) {
+          item.estado = estado;
+        }
+      })
+      setCard_mensajes(card)
     }else{
-      DeletManejoConversacion()
-      setConversacionActiva([])
+      const conV = GetManejoConversacion()
+      if(conV !== null){
+        console.log("se quita: ", card_mensajes)
+        card = card.filter((item) => item.conversacion_id !== covActiva.conversacion_id  && item.Contactos.id !== covActiva.Contactos.id && covActiva.nombreunico !== item.nombreunico)
+        setCard_mensajes(card)
+        ContadorCon(card)
+        DeletManejoConversacion()
+      //   setConversacionActiva([])
+      }
+    }
+  }
+  const [dropdownOpenEtiqueta, setDropdownOpenEtiqueta] = useState(false);
+  const toggleEtiqueta = () => setDropdownOpenEtiqueta((prevState) => !prevState);
+
+
+  const AgregarEtiqueta = async(etiqueta) => {
+    console.log("etiqueta: ", etiqueta)
+    var covActiva = GetManejoConversacion();
+    const { data, status } = await axios.post(`${host}conversacion_etiqueta`,{
+      cuenta_id: GetTokenDecoded().cuenta_id,
+      conversacion_id: covActiva.conversacion_id,
+      contacto_id: covActiva.contacto_id,
+      nombreunico: covActiva.nombreunico,
+      etiqueta: etiqueta,
+    })
+    if(status === 200){
+      setDropdownOpenEtiqueta(false)
+      covActiva['etiquetas_estado'] = data.data.etiquetas_estado
+      SetManejoConversacionStorange(covActiva)
+      console.log("Se agrego la etiqueta: ", data.data)
     }
   }
 
@@ -717,8 +809,7 @@ export default function Mensajeria() {
     ListarEstados();
   }, [])
 
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const toggle = () => setDropdownOpen((prevState) => !prevState);
+
 
   // transferir
   const [dropdownOpenTransferir, setDropdownOpenTransferir] = useState(false);
@@ -846,7 +937,7 @@ export default function Mensajeria() {
               <Tab.Pane eventKey="Sin leer">
                 <div className="w-100 py-2 px-2 d-flex flex-column gap-3 box-items-chat">
                   {card_mensajes.map((item, index) => {
-                    if(item.mensaje){
+                    if(item.mensaje && item.estado !== "Eliminado" && item.estado !== "Resuelta"){
                       if(item.agente_id === 0){
                         return (
                           <CardChat 
@@ -866,7 +957,7 @@ export default function Mensajeria() {
               <Tab.Pane eventKey="Mias">
                 <div className="w-100 py-2 px-2 d-flex flex-column gap-3 box-items-chat">
                   {card_mensajes.map((item, index) => {
-                    if(item.mensaje){
+                    if(item.mensaje && item.estado !== "Eliminado" && item.estado !== "Resuelta"){
                       if(item.agente_id === GetTokenDecoded().id){
                         return (
                           <CardChat 
@@ -887,7 +978,7 @@ export default function Mensajeria() {
               <div 
                 className="w-100 d-flex flex-column gap-3 box-items-chat">
                   {card_mensajes.map((item, index) => {
-                    if(item.mensaje) {
+                    if(item.mensaje && item.estado !== "Eliminado" && item.estado !== "Resuelta"){
                       return (
                         <CardChat 
                           messageItem={item} 
@@ -978,7 +1069,9 @@ export default function Mensajeria() {
                     </DropdownMenu>
                   </Dropdown>
 
-                  <span class="material-symbols-outlined cursor-pointer">info</span>
+                  <span class="material-symbols-outlined cursor-pointer"
+                    onClick={() => handleInfoContacto()}
+                  >info</span>
                 </div>
               </div>
             </div>
@@ -1087,7 +1180,10 @@ export default function Mensajeria() {
                   rows={"2"}
                   placeholder="Escribir ..."
                   value={inputStr}
-                  onChange={(e) => setInputStr(e.target.value)}
+                  onChange={(e) => {
+                    setInfoContacto('')
+                    setInputStr(e.target.value)
+                  }}
                   // cuando se presione enter enviar el mensaje
                   onKeyPress={(e) => {
                     if (e.key === "Enter") {
@@ -1102,7 +1198,6 @@ export default function Mensajeria() {
                       setShowRespuesta(false);
                     }
                   }}
-
                 ></textarea>
               </div>
 
@@ -1186,16 +1281,18 @@ export default function Mensajeria() {
         </div>
 
         {/* Aki se cierra y abre el layout de info  -> close-box-info */}
-        <div className="border position-absolute box-info" 
+        <div className={`border position-absolute box-info ${infoContacto}`}
         style={{ overflow: 'auto' }}>
           <div className="h-100 box-info-body position-relative">
             <div className="box-info-body-close rounded-circle d-flex justify-content-center align-items-center position-absolute">
-              <span class="material-symbols-outlined text-danger cursor-pointer">close</span>
+              <span class="material-symbols-outlined text-danger cursor-pointer"
+              onClick={() => setInfoContacto('close-box-info')}
+              >close</span>
             </div>
 
             <div className="w-100 d-flex gap-2 pb-3">
               <div className="rounded-circle overflow-hidden">
-                <img src={ 'https://www.w3schools.com/howto/img_avatar2.png' } 
+                <img src={ GetManejoConversacion() ? GetManejoConversacion().Contactos.avatar : null}
                 className="rounded-circle"
                 width={50}
                 />
@@ -1203,8 +1300,8 @@ export default function Mensajeria() {
 
               <div className="d-flex flex-column">
                 <span className="text-span font-bold"
-                  style={{ fontSize: '18px' }}>Kendra Lord</span>
-                <span className="text-span">0999999999</span>
+                  style={{ fontSize: '18px' }}>{GetManejoConversacion() ? GetManejoConversacion().Contactos.nombre : null}</span>
+                <span className="text-span">{GetManejoConversacion() ? GetManejoConversacion().Contactos.telefono: null}</span>
               </div>
             </div>
             
@@ -1216,23 +1313,57 @@ export default function Mensajeria() {
               <div className="d-flex gap-2 align-items-center">
                 <span className="material-symbols-outlined text-span" 
                   style={{fontSize: '20px'}}>smart_toy</span>
-                <span className="font-bold text-span box-info-text" >Speed_Ventas</span>
+                <span className="font-bold text-span box-info-text" >{GetManejoConversacion() ? GetManejoConversacion().bot : null}</span>
               </div>
 
               <div className="d-flex gap-2 align-items-center">
                 <span className="material-symbols-outlined text-span" 
                   style={{fontSize: '20px'}}>schedule</span>
-                <span className="font-bold text-span box-info-text">23:24</span>
+                <span className="font-bold text-span box-info-text">{GetManejoConversacion() ? GetManejoConversacion().fecha : null}</span>
               </div>
             </div>
 
             <div className="w-100 py-2 d-flex flex-column gap-3">
-              <div className="bg-blue p-2 rounded">
+              <div className="bg-blue p-2 rounded justify-content-between d-flex">
                 <span className="text-white font-bold">Etiquetas</span>
+                <Dropdown
+                  isOpen={dropdownOpenEtiqueta}
+                  toggle={setDropdownOpenEtiqueta}
+                  direction="up"
+                  className="mt-2">
+                  <DropdownToggle
+                    data-toggle="dropdown"
+                    tag="span"
+                    className="cursor-pointer"
+                  >
+                    <span class="material-symbols-outlined text-white cursor-pointer">
+                      more
+                    </span>
+                  </DropdownToggle>
+                  <DropdownMenu>
+                    {etiquetas.map((item, index) => {
+                      return (
+                        <DropdownItem key={index + 1} className="d-flex align-items-center gap-2" onClick={()=>AgregarEtiqueta(item)} >
+                          <span style={{ color: item.color }}>{item.etiquetas}</span>
+                        </DropdownItem>
+                      );
+                    })}
+                  </DropdownMenu>
+                </Dropdown>
               </div>
 
               <div className="d-flex gap-2 align-items-center flex-wrap">
-                <span className="chat-tag rounded bg-gray text-white">Chatbot</span>
+                {
+                  GetManejoConversacion() && GetManejoConversacion().etiquetas_estado  ? GetManejoConversacion().etiquetas_estado.map((item, index) => {
+                    return (
+                      <span key={index + 1} className="chat-tag rounded text-white p-1"
+                        style={{ background: item.color }}
+                      >
+                        {item.etiquetas}
+                      </span>
+                    )
+                  }) : null
+                }
               </div>
             </div>
 
@@ -1243,17 +1374,31 @@ export default function Mensajeria() {
               </div>
 
               <div className="w-100 d-flex flex-column gap-2">
-                <div className="border w-100 p-2 rounded d-flex flex-column gap-1">
-                  <section className="w-100 d-flex justify-content-between">
-                    <span className="text-span font-bold box-info-text">Edith Gerrero</span>
-                    <span className="text-span box-info-text">10:30</span>
-                  </section>
-
-                  <p className="box-info-text m-0 text-span">
-                    <span class="material-symbols-outlined box-info-text">arrow_top_left</span>
-                    Hola mundo, que tal ? 
-                  </p>
-                </div>
+                  {
+                    contactoHistorial.map((item, index) => {
+                      return (
+                        <div className="border w-100 p-2 rounded d-flex flex-column gap-1 cursor-pointer">
+                          <section className="w-100 d-flex justify-content-between">
+                            <span className="text-span font-bold box-info-text">Conversacion #{item.conversacion_id}</span>
+                            <span className="text-span font-bold box-info-text">Estado: {item.estado}</span>
+                          </section>
+                          <section className="w-100 d-flex justify-content-between">
+                            <span className="text-span font-bold box-info-text">{GetManejoConversacion() ? GetManejoConversacion().Contactos.nombre : null}</span>
+                            <span className="text-span box-info-text">{moment(item.updatedAt).format("YYYY/MM/DD HH:mm")}</span>
+                          </section>
+                          <p className="box-info-text m-0 text-span">
+                            <span class="material-symbols-outlined box-info-text">arrow_top_left</span>
+                            {
+                              CompomenteMultimedis(item.mensajes)
+                            }
+                          </p>
+                          <section className="w-100 d-flex justify-content-between">
+                            <span className="text-span font-bold box-info-text">Etiquetas:{item.etiquetas}</span>
+                          </section>
+                        </div>
+                      )
+                    })
+                  }
               </div>
             </div>
           </div>

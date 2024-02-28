@@ -521,8 +521,8 @@
 
 .box-info {
   right: 0;
-  max-width: 284px;
-  min-width: 284px;
+  max-width: 350px;
+  min-width: 350px;
   min-height: 100%;
   background-color: #fff;
   /* backdrop-filter: blur(10px); */
