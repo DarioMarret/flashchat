@@ -364,11 +364,11 @@ function ChatBots(props) {
 
                 <div className="w-100 bot-card-detail mt-2">
                   <h4 className="text-blue font-bold" 
-                    style={{ lineHeight: '15px' }}>{String(bot.nombre_bot).length > 15
-                      ? String(bot.nombre_bot).substring(0, 10) + "..."
-                      : bot.nombre_bot}</h4>
-                  <h5 className="text-secondary" 
-                  style={{ fontSize: '16px' }}>{bot.numero_telefono.substring(0, 11)}</h5>
+                    style={{ lineHeight: '15px' }}>{String(bot.nombre_bot).length > 15 ? String(bot.nombre_bot).substring(0, 10) + "..." : bot.nombre_bot}</h4>
+                  <h5 className="text-secondary" style={{ fontSize: '16px' }}>{bot.numero_telefono.substring(0, 11)}</h5>
+                  <h5 className="text-secondary" style={{ fontSize: '16px' }}>Estado: {bot.estado}</h5>
+                  <h5 className="text-secondary" style={{ fontSize: '16px' }}>Session: {bot.nombreunico}</h5>
+
                 </div>
 
                 <div className="w-100 d-flex flex-row gap-3 justify-content-center flex-wrap 
