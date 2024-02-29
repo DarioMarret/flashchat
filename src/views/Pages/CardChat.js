@@ -64,15 +64,20 @@ function CardChat(props) {
   }
   
   const VerConversacionesSinAsignar = (items) => {
-    SetManejoConversacionStorange(items)
+    let data = {
+      ...items,
+      sin_asignar: true,
+    }
+    SetManejoConversacionStorange(data)
     socket.emit("get_conversacion_activa", {
       cuenta_id: GetTokenDecoded().cuenta_id,
       conversacion_id: items.conversacion_id,
       equipo_id: items.equipo_id,
       channel_id: items.channel_id,
-      contacto_id: items.Contactos.id,
+      contacto_id: items.contacto_id,
       agente_id: 0,
       nombreunico: items.nombreunico,
+      tipo: "sin_asignar",
     })
   }
 

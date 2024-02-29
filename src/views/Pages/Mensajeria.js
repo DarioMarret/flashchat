@@ -426,33 +426,16 @@ export default function Mensajeria() {
       const covActiva = GetManejoConversacion();
       const { type, data, listMensajes } = msg;
       if(covActiva && covActiva !== null && covActiva !== undefined){
-        if (type === "response_get_conversacion_activa" && data.cuenta_id === cuenta_id 
-        && data.conversacion_id === covActiva.conversacion_id && data.nombreunico === covActiva.nombreunico  && data.contacto_id === covActiva.contacto_id) {
+        if (type === "response_get_conversacion_activa" && data.cuenta_id === cuenta_id && data.conversacion_id === covActiva.conversacion_id && data.nombreunico === covActiva.nombreunico  && data.contacto_id === covActiva.contacto_id) {
           if(data.agente_id === GetTokenDecoded().id){
             if(listMensajes.length !== 0 && listMensajes.length  > conversacionActiva.length){
               setConversacionActiva(listMensajes)
               dummy.current.scrollIntoView({ behavior: "smooth", block: "end", inline: "nearest" });
-              // Crear un contexto de audio 
-              // const audioContext = new AudioContext();
-              // // Obtener el archivo de audio a través de una URL
-              // fetch('https://codigomarret.online/upload/img/livechat-129007.mp3')
-              //   .then(response => response.arrayBuffer())
-              //   .then(arrayBuffer => audioContext.decodeAudioData(arrayBuffer))
-              //   .then(audioBuffer => {
-              //     // Crear un buffer de audio
-              //     const source = audioContext.createBufferSource();
-              //     source.buffer = audioBuffer;
-              //     source.connect(audioContext.destination);
-              //     // Reproducir el sonido
-              //     source.start(0);
-              //     // Pausar el sonido después de 1.2 segundos
-              //     setTimeout(() => {
-              //       source.stop();
-              //     }, 1000); // 1200 milisegundos = 1.2 segundos
-              //   })
-              //   .catch(error => {
-              //     console.error('Error al cargar el archivo de audio:', error);
-              //   });
+            }
+          }else if(data.agente_id === 0 && covActiva.sin_asignar === true){
+            if(listMensajes.length !== 0 && listMensajes.length  > conversacionActiva.length){
+              setConversacionActiva(listMensajes)
+              dummy.current.scrollIntoView({ behavior: "smooth", block: "end", inline: "nearest" });
             }
           }
         }
@@ -637,9 +620,27 @@ export default function Mensajeria() {
 
   const EnvianMensaje = (e) => {
     e.preventDefault();
-    const covActiva = GetManejoConversacion();
+    var covActiva = GetManejoConversacion()
     if (covActiva == null || covActiva.estado === "Eliminado") {
       return;
+    }
+    if(covActiva.agente_id === 0 && covActiva.sin_asignar === true){
+      Swal.fire({
+        title: 'Conversación sin asignar',
+        text: 'Esta conversación no ha sido asignada a ningún agente',
+        icon: 'info',
+        confirmButtonText: 'Tomar la conversación',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          covActiva['agente_id'] = GetTokenDecoded().id
+          SetManejoConversacionStorange(covActiva)
+          EventoAsignacionAgente(covActiva)
+          GetActivaConversacion(covActiva)
+        }
+      })
     }
     if (inputStr !== null && inputStr !== "") {
       let infoClient = {
