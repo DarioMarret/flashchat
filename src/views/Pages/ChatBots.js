@@ -94,8 +94,9 @@ function ChatBots(props) {
           showConfirmButton: false,
           timer: 1500,
         }).then(() => {
-          ListarBots();
-          Limpiar();
+          ListarBots()
+          ListarBots()
+          Limpiar()
         });
       } else {
         Swal.fire({
@@ -106,7 +107,7 @@ function ChatBots(props) {
         });
       }
     }
-  };
+  }
 
   const Actualizar = async () => {
     const url = `${host}bots/${bot.id}`;
@@ -122,7 +123,7 @@ function ChatBots(props) {
       ListarBots();
       Limpiar();
     }
-  };
+  }
 
   const EliminarBots = async (id) => {
     Swal.fire({
@@ -141,7 +142,7 @@ function ChatBots(props) {
         }
       }
     });
-  };
+  }
 
   useEffect(() => {
     (async () => {
@@ -230,7 +231,8 @@ function ChatBots(props) {
     } else {
       return null;
     }
-  };
+  }
+
   const EstadoSession = () => {
     if (estadoQr.estado && estadoQr.nombreunico) {
       fetch(`${host}/estado_session?sessionName=${estadoQr.nombreunico}`)
@@ -244,14 +246,14 @@ function ChatBots(props) {
           }
         });
     }
-  };
+  }
 
   const RecargarQr = () => {
     if (estadoQr.estado && estadoQr.nombreunico) {
       let linkQr = `${host}qr/${estadoQr.nombreunico}.png`;
       setLinkQr(linkQr);
     }
-  };
+  }
 
   const DesconectarQr = (nombreunico) => {
     Swal.fire({
@@ -272,7 +274,7 @@ function ChatBots(props) {
       .catch((error) => {
         console.log(error);
       });
-  };
+  }
 
   useEffect(() => {
     EstadoSession();
@@ -318,12 +320,8 @@ function ChatBots(props) {
           email: perfil.email,
           url: perfil.picture.data.url,
         };
-        console.log(datos);
         setUserFb(null);
-        const { data, status } = await axios.post(
-          `${host}webhookFConfig?cuenta_id=${GetTokenDecoded().cuenta_id}`,
-          datos
-        );
+        const { data, status } = await axios.post(`${host}webhookFConfig?cuenta_id=${GetTokenDecoded().cuenta_id}`, datos);
         if (status === 200) {
           console.log("response: ", data);
           setShow(!show);
@@ -332,7 +330,8 @@ function ChatBots(props) {
             icon: "success",
             showConfirmButton: false,
             timer: 1500,
-          });
+          })
+          ListarBots();
           ListarBots();
           return true;
         } else {
