@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { GetTokenDecoded, SetManejoConversacionStorange } from 'function/storeUsuario';
 import { colorPrimario, host } from 'function/util/global';
+import useMensajeria from 'hook/useMensajeria';
 import { useState } from 'react';
 import {
   Dropdown, DropdownItem, DropdownMenu, DropdownToggle,
@@ -12,6 +13,7 @@ import socket from 'views/SocketIO';
 function CardChat(props) {
   const { index, messageItem, agente, verConversacion } = props;
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const { historyInfo } = useMensajeria();
 
   const toggle = () => setDropdownOpen((prevState) => !prevState);
   const [show, setShow] = useState(false);
@@ -79,6 +81,7 @@ function CardChat(props) {
       nombreunico: items.nombreunico,
       tipo: "sin_asignar",
     })
+    historyInfo()
   }
 
   useState(() => {
@@ -87,11 +90,13 @@ function CardChat(props) {
     })()
   },[])
 
+  if(messageItem === undefined){
+    return null
+  }
+
   return (
     <>
-      <div
-      key={index + 1}
-      className="chat-item rounded w-100">
+      <div key={index + 1} className="chat-item rounded w-100">
         <div className="w-100 rounded px-2 rounded-1 rounded-bottom-0 d-flex justify-content-between align-items-center" 
         style={{ 
           // backgroundColor: "#3F98F8",
@@ -129,12 +134,7 @@ function CardChat(props) {
         onClick={verConversacion}>
           <div className="w-25 d-flex flex-column align-items-center justify-content-center">
             <div className="w-25 rounded d-flex align-items-center justify-content-center">
-                <img
-                  src={ messageItem.url_avatar }
-                  className="rounded-circle"
-                  width="50px"
-                  height="50px"
-                />
+                <img src={ messageItem.url_avatar } className="rounded-circle" width="50px" height="50px"/>
             </div>
           </div>
 

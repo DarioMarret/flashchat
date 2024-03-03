@@ -31,6 +31,7 @@ import "./assets/css/style.css";
 
 export default function App() {
   const [auth, setAuth] = useState(undefined);
+  
   const [ReloadUser, setReloadUser] = useState(false);
   const [sidebarImage, setSidebarImage] = React.useState(image3);
   const [sidebarBackground, setSidebarBackground] = React.useState("black");

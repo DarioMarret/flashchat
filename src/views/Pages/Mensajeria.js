@@ -7,26 +7,25 @@ import axios from "axios";
 import { GetTokenDecoded } from "function/storeUsuario";
 import { host, proxy } from "function/util/global";
 import moment from "moment";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { AudioRecorder } from 'react-audio-voice-recorder';
 import {
   Dropdown,
   DropdownItem,
   DropdownMenu,
   DropdownToggle,
-  Input,
-  Spinner,
+  Input
 } from "reactstrap";
 import Swal from 'sweetalert2';
 // import socket from "views/SocketIO";
+import MensajeriaContext from "context/MensajeriaContext";
 import Picker from "emoji-picker-react";
 import { DeletManejoConversacionStorange, GetManejoConversacion, SetManejoConversacionStorange, SubirMedia, removeDatosUsuario, setDatosUsuario } from "function/storeUsuario";
 import { colorPrimario, dev } from "function/util/global";
 import useAuth from "hook/useAuth";
-import Nav from 'react-bootstrap/Nav';
-import Tab from 'react-bootstrap/Tab';
 import io from "socket.io-client";
-import { CardChat } from "./CardChat";
+import InfoHistorialContacto from "./Chat/components/InfoHistorial/InfoHistorialContacto";
+import TabChat from "./Chat/components/Tab";
 
 var socket = null;
 try {
@@ -50,9 +49,9 @@ try {
 moment.locale("es");
 var cardMensage = [];
 export default function Mensajeria() {
+  const [ping, setPing] = useState(undefined);
   const [card_mensajes, setCard_mensajes] = useState([]);
   const [conversacionActiva, setConversacionActiva] = useState([]);
-  const [ping, setPing] = useState(false)
   const [loading, setLoading] = useState(false)
   const [estados, setEstados] = useState([]);
   const [misConversaciones, setMisConversaciones] = useState('Sin leer')
@@ -60,14 +59,11 @@ export default function Mensajeria() {
   const dummy = useRef(null);
   const [etiquetas, setEtiquetas] = useState([])
   const [showRespuesta, setShowRespuesta] = useState(false)
-  const [infoContacto, setInfoContacto] = useState('close-box-info')
   const [countC, setCountC] = useState({
     sinLeer: 0,
     misConversaciones: 0,
     todas: 0,
   })
-  const [contactoHistorial, setContactoHistorial] = useState([])
-
 
   const [equipoUsuario , setEquipoUsuario] = useState({
     correo: '',
@@ -84,52 +80,11 @@ export default function Mensajeria() {
     equipos:[]
   })
   
-  const [newMensaje, setNewMensaje] = useState(null);
-  const [convEstado, setConvEstado] = useState(null);
   const [agentes, setAgentes] = useState([]);
-
   const [inputStr, setInputStr] = useState("");
   const [typeInput, setTypeInput] = useState("text");
   const [showPicker, setShowPicker] = useState(false);
 
-  const HistorialContacto = async() => {
-    try {
-      const conV = GetManejoConversacion()
-      const { data, status } = await axios.post(`${host}conversacion_historial`,{
-        cuenta_id: GetTokenDecoded().cuenta_id,
-        contacto_id: conV.contacto_id,
-        nombreunico: conV.nombreunico,
-      })
-      if(status === 200 && data.data !== null && data.data.length > 0){
-        // console.log(data.data)
-        var card = []
-        // biscar todas las conversaciones con el contacto_id y el nombreunico de la convresacion activa
-        console.log(conV)
-        data.data.map((item) => {
-          if(conV.contacto_id === item.contacto_id && conV.nombreunico === item.nombreunico){
-            // que no se repita conversacione_id
-            card.push(item)
-          }
-        })
-        // sacar el ultimo mensaje de cada conversacion
-        card = card.filter((item, index, self) =>
-          index === self.findIndex((t) => (
-            t.conversacion_id === item.conversacion_id
-        )))
-        setContactoHistorial(card)
-      }
-    } catch (error) {
-      console.log(error)
-    }
-  }
-  const handleInfoContacto = async() => {
-    if(infoContacto === 'close-box-info'){
-      setInfoContacto('')
-      await HistorialContacto()
-    }else{
-      setInfoContacto('close-box-info')
-    }
-  }
 
   const ListarEtiquetas = async () => {
     let url = host + 'etiqueta/'+GetTokenDecoded().cuenta_id
@@ -137,7 +92,7 @@ export default function Mensajeria() {
     if(status === 200){
         setEtiquetas(data.data)
     }
-}
+  }
   
   const onEmojiClick = (emojiObject, event) => {
     setInputStr((prevInput) => prevInput + emojiObject.emoji);
@@ -264,7 +219,6 @@ export default function Mensajeria() {
                 }
               }
             }
-
             if(equipos.includes(item.equipo_id) && bots.includes(item.nombre_bot)){
               new_card.push({
                 id: item.id,
@@ -457,8 +411,8 @@ export default function Mensajeria() {
           setConversacionActiva([])
         }
       }
-      setCard_mensajes(listMensajes)
       ContadorCon(listMensajes)
+      setCard_mensajes(listMensajes)
     } catch (error) {
       alert("Error al cambiar el estado de la conversacion")
     }
@@ -557,7 +511,6 @@ export default function Mensajeria() {
       }).then((result) => {
         if (result.isConfirmed) {
           SetManejoConversacionStorange({...item, cuenta_id: GetTokenDecoded().cuenta_id})
-          setConvEstado(item.estado);
           GetActivaConversacion(item)
           EventoAsignacionAgente(item)
         }
@@ -575,7 +528,6 @@ export default function Mensajeria() {
       });
     }else{
       SetManejoConversacionStorange({...item, cuenta_id: GetTokenDecoded().cuenta_id})//se guarda en localstorage la conversacion activa
-      setConvEstado(item.estado); // se guarda el estado de la conversacion
       socket.emit("asignacion_agente", { // se asigna el agente a la conversacion
         cuenta_id: GetTokenDecoded().cuenta_id,
         contacto_id: item.contacto_id,
@@ -747,7 +699,6 @@ export default function Mensajeria() {
     });
     if(estado !== "Eliminado" || estado !== "Resuelta"){
       SetManejoConversacionStorange({...covActiva,estado: estado})
-      setConvEstado(estado)
       card.map((item) => {
         if (item.conversacion_id === covActiva.conversacion_id && item.Contactos.id === covActiva.Contactos.id && covActiva.nombreunico === item.nombreunico) {
           item.estado = estado;
@@ -764,25 +715,6 @@ export default function Mensajeria() {
         DeletManejoConversacion()
       //   setConversacionActiva([])
       }
-    }
-  }
-  const [dropdownOpenEtiqueta, setDropdownOpenEtiqueta] = useState(false);
-  const toggleEtiqueta = () => setDropdownOpenEtiqueta((prevState) => !prevState);
-
-
-  const AgregarEtiqueta = async(etiqueta) => {
-    var covActiva = GetManejoConversacion();
-    const { data, status } = await axios.post(`${host}conversacion_etiqueta`,{
-      cuenta_id: GetTokenDecoded().cuenta_id,
-      conversacion_id: covActiva.conversacion_id,
-      contacto_id: covActiva.contacto_id,
-      nombreunico: covActiva.nombreunico,
-      etiqueta: etiqueta,
-    })
-    if(status === 200){
-      setDropdownOpenEtiqueta(false)
-      covActiva['etiquetas_estado'] = data.data.etiquetas_estado
-      SetManejoConversacionStorange(covActiva)
     }
   }
 
@@ -878,12 +810,29 @@ export default function Mensajeria() {
     setCountC({...countC, sinLeer: sinLeer, misConversaciones: misConversaciones, todas: todo})
   }
 
+  const historyInfo =()=>{
+    setPing(Math.random())
+  }
+  const verHistorial=(item)=>{
+    if(item.length>0){
+      setConversacionActiva(item)
+    }
+  }
+
+
+  const Mensajeria = useMemo(
+    () => ({
+      ping,
+      historyInfo,
+      verHistorial,
+    }),
+    [ping]
+  )
+
   return (
-    <>
-      <div
-        className="d-flex box-chat box-chat-container flex-column flex-md-row px-0 py-0 position-relative"
-        style={{ margin: "0px", height: '100%'}}
-      >
+    <MensajeriaContext.Provider value={Mensajeria}>
+      <div className="d-flex box-chat box-chat-container flex-column flex-md-row px-0 py-0 position-relative"
+        style={{ margin: "0px", height: '100%'}}>
         <div className="chat-list bg-chat rounded-start">
           <div className="d-flex py-2 px-2 flex-wrap align-items-center justify-content-between">
             <div className="w-100 m-1">
@@ -894,110 +843,13 @@ export default function Mensajeria() {
               />
             </div>
           </div>
-
-          <Tab.Container id="left-tabs-example" defaultActiveKey="Sin leer">
-            <Nav variant="tabs" className="flex-row flex-wrap">
-              <Nav.Item onClick={() => VerConversaciones('Sin leer')}>
-                <Nav.Link eventKey="Sin leer" 
-                  className="gap-1 d-flex"
-                  style={{ fontSize: '13px' }}>
-                  <span className="">Sin leer</span>
-                  <span className="text-warning">{countC.sinLeer}</span>
-                </Nav.Link>
-              </Nav.Item>
-
-              <Nav.Item onClick={() => VerConversaciones('Mias')}>
-                <Nav.Link eventKey="Mias" 
-                  className="gap-1 d-flex"
-                  style={{ fontSize: '13px' }}>
-                  <span className="">Mias</span>
-                  <span className="text-warning">{countC.misConversaciones}</span>
-                </Nav.Link>
-              </Nav.Item>
-
-              <Nav.Item onClick={() => VerConversaciones('Todas')}>
-                <Nav.Link eventKey="Todas" 
-                  className="gap-1 d-flex"
-                  style={{ fontSize: '13px' }}>
-                  Todos <span className="text-warning">{countC.todas}</span>
-                </Nav.Link>
-              </Nav.Item>
-            </Nav>
-
-            {
-              loading ? (
-                <div className="w-100 d-flex justify-content-center align-items-center mt-1">
-                  <Spinner animation="border" 
-                    style={{
-                      color: colorPrimario
-                    }}
-                  >
-                  </Spinner>
-                </div>
-              ) : null
-            }
-            <Tab.Content>
-              <Tab.Pane eventKey="Sin leer">
-                <div className="w-100 py-2 px-2 d-flex flex-column gap-3 box-items-chat">
-                  {card_mensajes.map((item, index) => {
-                    if(item.mensaje && item.estado !== "Eliminado" && item.estado !== "Resuelta"){
-                      if(item.agente_id === 0){
-                        return (
-                          <CardChat 
-                            messageItem={item} 
-                            index={index}
-                            agente={NombreAgente(item.agente_id)}
-                            verConversacion={() => ManejarConversacion(item)}
-                          />
-                        );
-                      }
-                    }
-                  })}
-                  <div className="offside-chat"></div>
-                </div>
-              </Tab.Pane>
-
-              <Tab.Pane eventKey="Mias">
-                <div className="w-100 py-2 px-2 d-flex flex-column gap-3 box-items-chat">
-                  {card_mensajes.map((item, index) => {
-                    if(item.mensaje && item.estado !== "Eliminado" && item.estado !== "Resuelta"){
-                      if(item.agente_id === GetTokenDecoded().id){
-                        return (
-                          <CardChat 
-                            messageItem={item} 
-                            index={index}
-                            agente={NombreAgente(item.agente_id)}
-                            verConversacion={() => ManejarConversacion(item)}
-                          />
-                        );
-                      }
-                    }
-                  })}
-                  <div className="offside-chat"></div>
-                </div>
-              </Tab.Pane>
-
-              <Tab.Pane eventKey="Todas">
-              <div 
-                className="w-100 d-flex flex-column gap-3 box-items-chat">
-                  {card_mensajes.map((item, index) => {
-                    if(item.mensaje && item.estado !== "Eliminado" && item.estado !== "Resuelta"){
-                      return (
-                        <CardChat 
-                          messageItem={item} 
-                          index={index}
-                          agente={NombreAgente(item.agente_id)}
-                          verConversacion={() => ManejarConversacion(item)}
-                        />
-                      );
-                    }
-                  })}
-                  <div className="offside-chat"></div>
-                </div>
-              </Tab.Pane>
-            </Tab.Content>
-
-          </Tab.Container>
+          <TabChat 
+            countC={countC}
+            card_mensajes={card_mensajes}
+            loading={loading}
+            VerConversaciones={VerConversaciones}
+            ManejarConversacion={ManejarConversacion}
+          />
         </div>
 
         <div className="chat-messages bg-white rounded-end">
@@ -1048,7 +900,7 @@ export default function Mensajeria() {
                   <Dropdown
                     isOpen={dropdownOpenTag}
                     toggle={toggleTag}
-                    direction="down"
+                    direction="start"
                     className="mt-2"
                   >
                     <DropdownToggle
@@ -1057,7 +909,7 @@ export default function Mensajeria() {
                       className="cursor-pointer"
                     >
                       <span class="material-symbols-outlined text-dark">
-                        inbox
+                        more
                       </span>
                     </DropdownToggle>
 
@@ -1071,17 +923,13 @@ export default function Mensajeria() {
                       })}
                     </DropdownMenu>
                   </Dropdown>
-
-                  <span class="material-symbols-outlined cursor-pointer"
-                    onClick={() => handleInfoContacto()}
-                  >info</span>
                 </div>
               </div>
             </div>
 
             {/* Chat conversation */}
             <div className="row chat-body">
-              <div className="col-12" onClick={() => setInfoContacto('close-box-info')} >
+              <div className="col-12">
                 {conversacionActiva.map((item, index) => {
                   if (item.tipo === "ingoing") {
                     return (
@@ -1181,7 +1029,6 @@ export default function Mensajeria() {
                   placeholder="Escribir ..."
                   value={inputStr}
                   onChange={(e) => {
-                    setInfoContacto('close-box-info')
                     setInputStr(e.target.value)
                   }}
                   // cuando se presione enter enviar el mensaje
@@ -1280,132 +1127,13 @@ export default function Mensajeria() {
           </div>
         </div>
 
+
         {/* Aki se cierra y abre el layout de info  -> close-box-info */}
-        <div className={`border position-absolute box-info ${infoContacto}`}
-        style={{ overflow: 'auto' }}>
-          <div className="h-100 box-info-body position-relative">
-            <div className="box-info-body-close rounded-circle d-flex justify-content-center align-items-center position-absolute">
-              <span class="material-symbols-outlined text-danger cursor-pointer"
-              onClick={() => setInfoContacto('close-box-info')}
-              >close</span>
-            </div>
+        <InfoHistorialContacto
+          
+        />
 
-            <div className="w-100 d-flex gap-2 pb-3">
-              <div className="rounded-circle overflow-hidden">
-                <img src={ GetManejoConversacion() ? GetManejoConversacion().Contactos.avatar : null}
-                className="rounded-circle"
-                width={50}
-                />
-              </div>
-
-              <div className="d-flex flex-column">
-                <span className="text-span font-bold"
-                  style={{ fontSize: '18px' }}>{GetManejoConversacion() ? GetManejoConversacion().Contactos.nombre : null}</span>
-                <span className="text-span">{GetManejoConversacion() ? GetManejoConversacion().Contactos.telefono: null}</span>
-              </div>
-            </div>
-            
-            <div className="w-100 py-2 d-flex flex-column gap-2 pb-3">
-              <div className="bg-blue p-2 rounded">
-                <span className="text-white font-bold">Información</span>
-              </div>
-
-              <div className="d-flex gap-2 align-items-center">
-                <span className="material-symbols-outlined text-span" 
-                  style={{fontSize: '20px'}}>smart_toy</span>
-                <span className="font-bold text-span box-info-text" >{GetManejoConversacion() ? GetManejoConversacion().bot : null}</span>
-              </div>
-
-              <div className="d-flex gap-2 align-items-center">
-                <span className="material-symbols-outlined text-span" 
-                  style={{fontSize: '20px'}}>schedule</span>
-                <span className="font-bold text-span box-info-text">{GetManejoConversacion() ? GetManejoConversacion().fecha : null}</span>
-              </div>
-            </div>
-
-            <div className="w-100 py-2 d-flex flex-column gap-3">
-              <div className="bg-blue p-2 rounded justify-content-between d-flex">
-                <span className="text-white font-bold">Etiquetas</span>
-                <Dropdown
-                  isOpen={dropdownOpenEtiqueta}
-                  toggle={setDropdownOpenEtiqueta}
-                  direction="up"
-                  className="mt-2">
-                  <DropdownToggle
-                    data-toggle="dropdown"
-                    tag="span"
-                    className="cursor-pointer"
-                  >
-                    <span class="material-symbols-outlined text-white cursor-pointer">
-                      more
-                    </span>
-                  </DropdownToggle>
-                  <DropdownMenu>
-                    {etiquetas.map((item, index) => {
-                      return (
-                        <DropdownItem key={index + 1} className="d-flex align-items-center gap-2" onClick={()=>AgregarEtiqueta(item)} >
-                          <span style={{ color: item.color }}>{item.etiquetas}</span>
-                        </DropdownItem>
-                      );
-                    })}
-                  </DropdownMenu>
-                </Dropdown>
-              </div>
-
-              <div className="d-flex gap-2 align-items-center flex-wrap">
-                {
-                  GetManejoConversacion() && GetManejoConversacion().etiquetas_estado  ? GetManejoConversacion().etiquetas_estado.map((item, index) => {
-                    return (
-                      <span key={index + 1} className="chat-tag rounded text-white p-1"
-                        style={{ background: item.color }}
-                      >
-                        {item.etiquetas}
-                      </span>
-                    )
-                  }) : null
-                }
-              </div>
-            </div>
-
-            <div className="w-100 py-2 d-flex flex-column gap-2 pb-3" 
-            style={{maxHeight: '300px' }}>
-              <div className="bg-blue p-2 rounded">
-                <span className="text-white font-bold">Conversaciones anteriores</span>
-              </div>
-
-              <div className="w-100 d-flex flex-column gap-2">
-                  {
-                    contactoHistorial.map((item, index) => {
-                      return (
-                        <div className="border w-100 p-2 rounded d-flex flex-column gap-1 cursor-pointer">
-                          <section className="w-100 d-flex justify-content-between">
-                            <span className="text-span font-bold box-info-text">Conversacion #{item.conversacion_id}</span>
-                            <span className="text-span font-bold box-info-text">Estado: {item.estado}</span>
-                          </section>
-                          
-                          <section className="w-100 d-flex justify-content-between">
-                            <span className="text-span font-bold box-info-text">{GetManejoConversacion() ? GetManejoConversacion().Contactos.nombre : null}</span>
-                            <span className="text-span box-info-text">{moment(item.updatedAt).format("YYYY/MM/DD HH:mm")}</span>
-                          </section>
-                          <span className="text-span box-info-text font-bold">Agente: {NombreAgente(item.agente_id)}</span>
-                          <p className="box-info-text m-0 text-span">
-                            <span class="material-symbols-outlined box-info-text">arrow_top_left</span>
-                            {
-                              CompomenteMultimedis(item.mensajes)
-                            }
-                          </p>
-                          <section className="w-100 d-flex justify-content-between">
-                            {/* <span className="text-span font-bold box-info-text">Estados :{item.etiquetas}</span> */}
-                          </section>
-                        </div>
-                      )
-                    })
-                  }
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
-    </>
+    </MensajeriaContext.Provider>
   );
 }

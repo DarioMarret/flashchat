@@ -1,6 +1,6 @@
-import { colorPrimario } from "function/util/global";
+import { colorPrimario, estaso_nav } from "function/util/global";
 import useAuth from "hook/useAuth";
-import React from "react";
+import React, { useEffect } from "react";
 
 // react-bootstrap components
 import {
@@ -14,6 +14,19 @@ import {
 
 function AdminNavbar() {
   const [collapseOpen, setCollapseOpen] = React.useState(false);
+  const [estado, setEstado] = React.useState(false);
+
+  useEffect(() => {
+    let estado = localStorage.getItem(estaso_nav)
+    setEstado(estado)
+    document.body.classList.toggle(estado)
+  }, [estado])
+
+  function HandleNavBar(estilos) {
+    localStorage.setItem(estaso_nav, estilos)
+    setEstado(estilos)
+    document.body.classList.toggle(estilos)
+  }
 
   const { logout } = useAuth();
   return (
@@ -24,7 +37,8 @@ function AdminNavbar() {
             <div className="navbar-minimize">
               <Button
                 className="btn-fill btn-round btn-icon d-none d-lg-block"
-                onClick={() => document.body.classList.toggle("sidebar-mini")}
+                // onClick={() => document.body.classList.toggle("sidebar-mini")}
+                onClick={() => HandleNavBar("sidebar-mini")}
               >
                 <i className="fas fa-ellipsis-v visible-on-sidebar-regular icon-dak"></i>
                 <i className="fas fa-bars visible-on-sidebar-mini icon-dak"></i>
@@ -33,7 +47,8 @@ function AdminNavbar() {
               <Button
                 className="btn-fill btn-round btn-icon d-block d-lg-none"
                 onClick={() =>
-                  document.documentElement.classList.toggle("nav-open")
+                  // document.documentElement.classList.toggle("nav-open")
+                  HandleNavBar("nav-open")
                 }
               >
                 <i className="fas fa-ellipsis-v visible-on-sidebar-regular icon-dak"></i>

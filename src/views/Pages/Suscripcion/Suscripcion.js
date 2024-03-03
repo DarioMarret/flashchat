@@ -209,14 +209,14 @@ export default function Suscripciones() {
                             // no puede ser menos a la cantidad inicial
                             onClick={()=>{
                               if(planGold.cantidad_agentes > plan.cantidad_agentes){
-                                setPlanGold({...planGold, cantidad_agentes: planGold.cantidad_agentes - 1, precio: planGold.precio - 10})
+                                setPlanGold({...planGold, cantidad_agentes: planGold.cantidad_agentes - 1, precio: planGold.precio - 20})
                               }
                             }}
                           >-</button>
                           <p className='m-0'>{planGold.cantidad_agentes} Agentes</p>
                           <button className="button-operation"
                             onClick={()=>{
-                              setPlanGold({...planGold, cantidad_agentes: planGold.cantidad_agentes + 1, precio: planGold.precio + 10})
+                              setPlanGold({...planGold, cantidad_agentes: planGold.cantidad_agentes + 1, precio: planGold.precio + 20})
                             }}
                           >+</button>
                         </div>
@@ -226,14 +226,14 @@ export default function Suscripciones() {
                             // no puede ser menos a la cantidad inicial
                             onClick={()=>{
                               if(planGold.cantidad_bots > plan.cantidad_bots){
-                                setPlanGold({...planGold, cantidad_bots: planGold.cantidad_bots - 1, precio: planGold.precio - 20})
+                                setPlanGold({...planGold, cantidad_bots: planGold.cantidad_bots - 1, precio: planGold.precio - 35})
                               }
                             }}
                           >-</button>
                           <p className='m-0'>{planGold.cantidad_bots} Conexiones</p>
                           <button className="button-operation"
                             onClick={()=>{
-                              setPlanGold({...planGold, cantidad_bots: planGold.cantidad_bots + 1, precio: planGold.precio + 20})
+                              setPlanGold({...planGold, cantidad_bots: planGold.cantidad_bots + 1, precio: planGold.precio + 35})
                             }}
                           >+</button>
                         </div>

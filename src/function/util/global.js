@@ -1,6 +1,8 @@
 export const usuario_local = "usuario:";
 export const usuario_token = "token_usuario:";
 export const card_mensajes = "card_mensajes:";
+export const estaso_nav = "estado:";
+export const tabconversacion = "tabconversacion:";
 export const conversacion_activa = "conversacion_activa";
 export const dev = false;
 export const host = dev ? "http://localhost:5002/" : "https://api.t-ickets.com/backflash/"
