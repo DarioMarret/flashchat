@@ -6,6 +6,8 @@ import { useEffect, useState } from "react";
 import { Card, Container, Modal } from "react-bootstrap";
 import { Input } from "reactstrap";
 import Swal from "sweetalert2";
+import { v4 } from "uuid";
+import socket from "views/SocketIO";
 
 export default function Contactos(props) {
   const [show, setShow] = useState(false);
@@ -13,8 +15,55 @@ export default function Contactos(props) {
     Limpiar();
     setShow(!show);
   };
+
+  const [mensaje, setMensaje] = useState({
+    contacto_id: 0,
+    channel_id: 0,
+    equipo_id: GetTokenDecoded().equipo_id,
+    agente_id: GetTokenDecoded().id,
+    cuenta_id: GetTokenDecoded().cuenta_id,
+    estado: "Abierta",
+    alerta: "Asignacion",
+    mensajes:{
+      id: v4(),
+      text: "",
+      url: null,
+      type: "text", // "text" || "image" || "video" || "audio" || "document" || "location" || "contact" || "sticker"
+      parems: null,
+      date: new Date(),
+    },
+    nombreunico: "",
+  })
+  const [showModal, setShowModal] = useState(false);
+  const handleShow = (item) => {
+    setShowModal(!showModal);
+    if (item) {
+      setMensaje({ ...mensaje, contacto_id: item.id, channel_id: item.channel_id });
+    }else{
+      // se tiene que limpia el mensaje
+      setMensaje({
+        contacto_id: 0,
+        channel_id: 0,
+        equipo_id: GetTokenDecoded().equipo_id,
+        agente_id: GetTokenDecoded().id,
+        cuenta_id: GetTokenDecoded().cuenta_id,
+        estado: "Abierta",
+        alerta: "Asignacion",
+        mensajes:{
+          id: v4(),
+          text: "",
+          url: null,
+          type: "text", // "text" || "image" || "video" || "audio" || "document" || "location" || "contact" || "sticker"
+          parems: null,
+          date: new Date(),
+        },
+        nombreunico: "",
+      });
+    }
+  }
   const [canales, setCanales] = useState([]);
   const [contactos, setContactos] = useState([]);
+  const [bot, setBot] = useState([]); 
   const [limitContactos, setLimitContactos] = useState(10);
   const [offsetContactos, setOffsetContactos] = useState(0);
   const [contac, setContac] = useState([]);
@@ -41,6 +90,14 @@ export default function Contactos(props) {
       MostrarCantidadContactos(data.data);
       setContactos(data.data);
       Paginacion(data.data);
+    }
+  }
+
+  const ListarBot = async () => {
+    const url = `${host}bots/${GetTokenDecoded().cuenta_id}`;
+    const { data, status } = await axios.get(url);
+    if (status === 200) {
+      setBot(data.data);
     }
   }
 
@@ -121,9 +178,10 @@ export default function Contactos(props) {
   };
   // cantidad de contactos que se mostrarán la primera vez que se cargue la pagina
   const MostrarCantidadContactos = (contac) => {
-    setContac(contac.slice(offsetContactos, limitContactos));
+    // setContac(contac.slice(offsetContactos, limitContactos));
+    // se tiene que hacer una copia del array para que no se modifique el original
+    setContac(contac.slice(offsetContactos, offsetContactos + limitContactos));
   };
-
   // cantidad de paginas que se mostraran devuelve la cantidad de paginas
   const Paginacion = (contac) => {
     let paginas = Math.ceil(contac.length / limitContactos);
@@ -137,23 +195,35 @@ export default function Contactos(props) {
   // Siguente pagina
   const SiguientePagina = () => {
     if (pageContactos < totalPaginasContactos) {
+      // se muestra la siguiente pagina de contactos
       setPageContactos(pageContactos + 1);
       setOffsetContactos(offsetContactos + limitContactos);
       MostrarCantidadContactos(contactos);
+
     }
   };
   // Anterior pagina
   const AnteriorPagina = () => {
-    if (pageContactos > 1) {
+    if (pageContactos >= 1) {
+      // se muestra la pagina anterior de contactos
       setPageContactos(pageContactos - 1);
       setOffsetContactos(offsetContactos - limitContactos);
       MostrarCantidadContactos(contactos);
     }
   };
 
+
+  const Enviarmensaje = async () => {
+    socket.emit("iniciar_conversacion", mensaje);
+    handleShow();
+  }
+
   useEffect(() => {
-    ListarCanal();
-    ListarContactos();
+    (async()=>{
+      await ListarBot();
+      await ListarCanal();
+      await ListarContactos();
+    })()
   }, []);
 
   // crear un execl con los contactos y descargarlo
@@ -212,6 +282,7 @@ export default function Contactos(props) {
           </div>
 
           <div>
+            
             <Input placeholder="Buscar contacto"
               onChange={(e) => hanbleBuscar(e)}
             />
@@ -262,7 +333,9 @@ export default function Contactos(props) {
                       <i className="fas fa-eye"></i>
                     </button>
                     {/* iniciar una conversacion */}
-                    <button className="btn btn" >
+                    <button className="btn btn" 
+                      onClick={() =>handleShow(contacto) }
+                    >
                       <i className="fas fa-comments"></i>
                     </button>
                     <button
@@ -284,28 +357,23 @@ export default function Contactos(props) {
           </table>
           {/* si hay mas de  10 contacto solo mostrar los primero 10 y hay visible la paginacion */}
           <div className="d-flex justify-content-center">
-            <nav aria-label="Page navigation example">
+            <nav aria-label="Page navigation example text-center">
               <ul className="pagination">
-                <li className="page-item" onClick={() => AnteriorPagina()}>
-                  <button className="page-link" aria-label="Previous">
+                  <button className="page-link" aria-label="Previous" onClick={() => AnteriorPagina()}>
                     <span aria-hidden="true">&laquo;</span>
                   </button>
-                </li>
 
-                <div className="d-flex justify-content-center">
-                  <li className="page-item">
-                    <button className="page-link">
-                      {totalPaginasContactos}
-                    </button>
-                  </li>
-                </div>
+                  <div className="d-flex justify-content-center">
+                      <button className="page-link">
+                        {totalPaginasContactos === 0 ? 0 : pageContactos}
+                      </button>
+                  </div>
 
-                <li className="page-item" onClick={() => SiguientePagina()}>
-                  <button className="page-link" aria-label="Next">
+                  <button className="page-link" aria-label="Next" onClick={() => SiguientePagina()}>
                     <span aria-hidden="true">&raquo;</span>
                   </button>
-                </li>
               </ul>
+              <p>Paginas: {totalPaginasContactos}</p>
             </nav>
           </div>
         </Card>
@@ -426,6 +494,84 @@ export default function Contactos(props) {
                 Editar contacto
               </button>
             )}
+          </Modal.Footer>
+        </Modal>
+
+        <Modal
+          size="md"
+          show={showModal}
+          onHide={handleShow}
+          aria-labelledby="example-modal-sizes-title-lg shadow"
+          className="shadow"
+        >
+          <Modal.Header>
+            <div className="d-flex justify-content-between w-100">
+              <Modal.Title>Enviar mensaje</Modal.Title>
+              <button
+                type="button"
+                className="btn ml-auto"
+                onClick={handleShow}
+              >
+                <i
+                  className="fa fa-times"
+                  style={{
+                    fontSize: "1.1em",
+                    backgroundColor: "transparent",
+                    color: colorPrimario,
+                  }}
+                ></i>
+              </button>
+            </div>
+          </Modal.Header>
+          <Modal.Body>
+            <form>
+              <div className="form-group">
+                <label htmlFor="mensaje">Conexion</label>
+                <select
+                  className="form-control"
+                  id="nombreunico"
+                  value={mensaje.nombreunico}
+                  onChange={(e) =>
+                    setMensaje({ ...mensaje, nombreunico: e.target.value })
+                  }
+                >
+                  <option value="">Seleccione</option>
+                  {
+                    bot.map((item, index) => (
+                      <option key={index} value={item.nombreunico}>{item.nombre_bot}</option>
+                    ))
+                  }
+                </select>
+              </div>
+              <div className="form-group">
+                <label htmlFor="mensaje">Mensaje</label>
+                <textarea
+                  className="form-control"
+                  id="mensaje"
+                  placeholder="Mensaje"
+                  cols={3}
+                  rows={3}
+                  style={{ 
+                    resize: "none",
+                    overflow: "auto",
+                    minHeight: "100px",
+                    maxHeight: "100px",
+                  }}
+                  value={mensaje.text}
+                  onChange={(e) =>
+                    setMensaje({ ...mensaje, mensajes: { ...mensaje.mensajes, text: e.target.value } })
+                  }
+                />
+              </div>
+            </form>
+          </Modal.Body>
+          <Modal.Footer>
+            <button
+              className="btn btn button-bm w-100"
+              onClick={Enviarmensaje}
+            >
+              Enviar mensaje
+            </button>
           </Modal.Footer>
         </Modal>
       </Container>

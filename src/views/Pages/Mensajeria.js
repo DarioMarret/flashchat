@@ -216,6 +216,16 @@ export default function Mensajeria() {
                     conversacion_id: item.conversacion_id,
                     nombreunico: item.nombreunico,
                   })
+                }else if(covActiva.sin_asignar === true){
+                  socket.emit("get_conversacion_activa", {
+                    cuenta_id: GetTokenDecoded().cuenta_id,
+                    contacto_id: item.Contactos.id,
+                    equipo_id: item.equipo_id,
+                    channel_id: item.channel_id,
+                    agente_id: 0,
+                    conversacion_id: item.conversacion_id,
+                    nombreunico: item.nombreunico,
+                  })
                 }
               }
             }

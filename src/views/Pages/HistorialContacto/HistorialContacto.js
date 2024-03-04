@@ -18,6 +18,14 @@ function HistorialContacto(props) {
     const [contactos, setContactos] = useState(null)
     const [cardMensaje, setCardMensaje] = useState([])
     const [conversacionHistorial, setConversacionHistorial] = useState([])
+    const [filtro, setFiltro] = useState({
+        fecha_desde: "",
+        fecha_hasta: "",
+        conversacion_id: "",
+        agente_id: "",
+        equipo_id: "",
+        conexion_id: ""
+    })
 
     const ListarAgentes = async () => {
         const url = `${host}agentes/${GetTokenDecoded().cuenta_id}`
@@ -77,11 +85,13 @@ function HistorialContacto(props) {
 
     const ListarCardContacto = async () => {
         let id = window.location.pathname.split('/')[3]
+        // espera a que se obtenga el id del contacto
         const url = `${host}conversacion_card_contacto`
         const { data, status } = await axios.post(url, {
-            contacto_id: id,
+            contacto_id: parseInt(id),
             cuenta_id: GetTokenDecoded().cuenta_id
         })
+
         if (status === 200) {
             if (data.length > 0) {
                 setCardMensaje(data)
@@ -171,13 +181,93 @@ function HistorialContacto(props) {
         }
     }
 
+    const BuscarConversacionFiltro  = () => {
+        // dentro de la data conversacionHistorial
+        // buscar por fecha desde y fecha hasta
+        // buscar por conversacion_id
+        // buscar por agente_id
+        // buscar por equipo_id
+        // buscar por conexion_id
+        // si no se encuentra nada mostrar un mensaje de que no se encontro nada
+        // si se encuentra algo mostrarlo
+        // validar que los campos para la busqueda tiene que venir al menos uno con datos para poder realizar la busqueda
+        if(filtro.fecha_desde === "" && filtro.fecha_hasta === "" && filtro.conversacion_id === "" && filtro.agente_id === "" && filtro.equipo_id === "" && filtro.conexion_id === ""){
+            alert('Debes seleccionar al menos un filtro para poder realizar la busqueda')
+        }else{
+            // si se selecciona fecha desde y fecha hasta
+            if(filtro.fecha_desde !== "" && filtro.fecha_hasta !== ""){
+                let fechaDesde = moment(filtro.fecha_desde).format('YYYY-MM-DD')
+                let fechaHasta = moment(filtro.fecha_hasta).format('YYYY-MM-DD')
+                let data = conversacionHistorial.filter((item) => {
+                    return moment(item.createdAt).format('YYYY-MM-DD') >= fechaDesde && moment(item.createdAt).format('YYYY-MM-DD') <= fechaHasta
+                })
+                if(data.length > 0){
+                    setConversacionHistorial(data)
+                }else{
+                    alert('No se encontro nada con las fechas seleccionadas')
+                }
+            }
+
+            // si se selecciona conversacion_id
+            if(filtro.conversacion_id !== ""){
+                let data = conversacionHistorial.filter((item) => {
+                    return item.conversacion_id === parseInt(filtro.conversacion_id)
+                })
+                if(data.length > 0){
+                    setConversacionHistorial(data)
+                }else{
+                    alert('No se encontro nada con la conversacion seleccionada')
+                }
+            }
+
+            // si se selecciona agente_id
+            if(filtro.agente_id !== ""){
+                let data = conversacionHistorial.filter((item) => {
+                    return item.agente_id === parseInt(filtro.agente_id)
+                })
+                if(data.length > 0){
+                    setConversacionHistorial(data)
+                }else{
+                    alert('No se encontro nada con el agente seleccionado')
+                }
+            }
+
+            // si se selecciona equipo_id
+            if(filtro.equipo_id !== ""){
+                let data = conversacionHistorial.filter((item) => {
+                    return item.equipo_id === parseInt(filtro.equipo_id)
+                })
+                if(data.length > 0){
+                    setConversacionHistorial(data)
+                }else{
+                    alert('No se encontro nada con el equipo seleccionado')
+                }
+            }
+
+            // si se selecciona conexion_id
+            if(filtro.conexion_id !== ""){
+                let data = conversacionHistorial.filter((item) => {
+                    return item.channel_id === parseInt(filtro.conexion_id)
+                })
+                if(data.length > 0){
+                    setConversacionHistorial(data)
+                }else{
+                    alert('No se encontro nada con la conexion seleccionada')
+                }
+            }
+        }
+
+
+    
+    }
+
     useEffect(() => {
         (async () => {
             await ListarAgentes()
             await ListarEquipos()
             await ListarBots()
-            await ListarCardContacto()
             await ObtenerContactos()
+            await ListarCardContacto()
         })()
     }, [])
 
@@ -196,24 +286,28 @@ function HistorialContacto(props) {
                             <p>Fecha desde</p>
                             <input type="date"
                                 className='form-control'
+                                onChange={(e) => setFiltro({ ...filtro, fecha_desde: e.target.value })}
                             />
                         </div>
                         <div className='mx-3 w-100'>
                             <p>Fecha hasta</p>
                             <input type="date"
                                 className='form-control'
+                                onChange={(e) => setFiltro({ ...filtro, fecha_hasta: e.target.value })}
                             />
                         </div>
                         <div className='mx-3 w-100'>
                             <p># Conversacion</p>
                             <input type="number"
                                 className='form-control'
+                                onChange={(e) => setFiltro({ ...filtro, conversacion_id: e.target.value })}
                             />
                         </div>
                         <div className='mx-3 w-100'>
                             <p>Agente</p>
                             <select
                                 className='form-control'
+                                onChange={(e) => setFiltro({ ...filtro, agente_id: e.target.value })}
                             >
                                 <option>Selecciona el agente</option>
                                 {
@@ -229,6 +323,7 @@ function HistorialContacto(props) {
                             <p>Equipo</p>
                             <select
                                 className='form-control'
+                                onChange={(e) => setFiltro({ ...filtro, equipo_id: e.target.value })}
                             >
                                 <option>Selecciona el equipo</option>
                                 {
@@ -244,6 +339,7 @@ function HistorialContacto(props) {
                             <p>Conexion</p>
                             <select
                                 className='form-control'
+                                onChange={(e) => setFiltro({ ...filtro, conexion_id: e.target.value })}
                             >
                                 <option>Selecciona la conexion</option>
                                 {
@@ -259,6 +355,7 @@ function HistorialContacto(props) {
                     <Col className='p-3 '>
                         <button
                             className="btn btn button-bm shadow"
+                            onClick={() => BuscarConversacionFiltro()}
                         >Buscar</button>
                     </Col>
                 </Card>
@@ -299,7 +396,6 @@ function HistorialContacto(props) {
                                 }) : null}
                             </div>
                         </div>
-
 
 
                         <div className="chat-messages bg-white rounded-end">
@@ -409,6 +505,15 @@ function HistorialContacto(props) {
 
                     </div>
                 </Card>
+
+                <div className="d-flex justify-content-end align-items-end">
+                    <div className="d-flex gap-3">
+                        <button
+                            className="btn btn button-bm shadow"
+                            onClick={() => window.history.back()}
+                        >Regresar</button>
+                    </div>
+                </div>
             </Container>
         </>
     );

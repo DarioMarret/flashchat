@@ -85,8 +85,8 @@ function ChatBots(props) {
       await SuccessSetuserFb();
     } else {
       const url = `${host}bots`;
-      const { status } = await axios.post(url, bot);
-      if (status === 200) {
+      const { data, status } = await axios.post(url, bot);
+      if (data.status === 200) {
         setShow(!show);
         Swal.fire({
           title: "Bot guardado",
@@ -97,6 +97,21 @@ function ChatBots(props) {
           ListarBots()
           ListarBots()
           Limpiar()
+        });
+      } else if (data.status === 400 && data.message === "No puedes crear mas bots") {
+        Swal.fire({
+          title: "Error al guardar el bot",
+          text: "No puedes crear mas bots limita de bots alcanzado actualiza tu plan",
+          icon: "info",
+          showCancelButton: true,
+          confirmButtonText: "Actualizar plan",
+          confirmButtonColor: colorPrimario,
+          cancelButtonText: "Cerrar",
+          cancelButtonColor: "red",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            window.location.href = '/admin/suscripciones'
+          }
         });
       } else {
         Swal.fire({
