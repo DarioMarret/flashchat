@@ -254,20 +254,15 @@ export default function Contactos(props) {
                     {/* redireccionamiento */}
                     <button
                       className="btn btn"
-                      onClick={() =>
-                        console.log(`redireccionar a ${contacto.id}`)
+                      onClick={() => 
+                        window.location.href = `/admin/historial-contacto/${contacto.id}`
                       }
                     >
                       {/* ver historial */}
                       <i className="fas fa-eye"></i>
                     </button>
                     {/* iniciar una conversacion */}
-                    <button
-                      className="btn btn"
-                      onClick={() =>
-                        console.log(`iniciar conversacion con ${contacto.id}`)
-                      }
-                    >
+                    <button className="btn btn" >
                       <i className="fas fa-comments"></i>
                     </button>
                     <button

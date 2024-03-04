@@ -26,6 +26,7 @@ import Auths from "views/Pages/auth/Auths";
 
 import Cuenta from "views/Pages/Cuenta/Cuenta";
 import Factura from "views/Pages/Factura/Factura";
+import HistorialContacto from "views/Pages/HistorialContacto/HistorialContacto";
 import Suscripciones from "views/Pages/Suscripcion/Suscripcion";
 import "./assets/css/style.css";
 
@@ -116,6 +117,11 @@ export default function App() {
                     <Route
                       path="/admin/factura"
                       element={<Factura />}
+                      exact
+                    />
+                    <Route
+                      path="/admin/historial-contacto/:id"
+                      element={<HistorialContacto />}
                       exact
                     />
 

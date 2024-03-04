@@ -104,6 +104,7 @@ function CardChat(props) {
           color: "white",
           fontSize: "13px" }}>
             <span>{ messageItem.bot +" - "+messageItem.telefono }</span>
+            <span>#{ messageItem.conversacion_id }</span>
             <Dropdown 
               isOpen={dropdownOpen}
               toggle={toggle}>
