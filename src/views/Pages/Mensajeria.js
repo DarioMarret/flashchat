@@ -274,16 +274,7 @@ export default function Mensajeria() {
         if (type === "response_cambiar_estado" && data.cuenta_id === GetTokenDecoded().cuenta_id) {
           CambiarEstadoConversacion(data, listMensajes)
         }
-      })
-
-      // socket.on("borrar_conversacion_agente", (msg) => {
-      //   const { agente_id } = msg;
-      //   const local = GetManejoConversacion()
-      //   if(local && agente_id === GetTokenDecoded().id){
-      //     DeletManejoConversacion()
-      //     setConversacionActiva([])
-      //   }
-      // })
+      });
 
       socket.on("liberar_chat", (msg) => {
         const { type, data } = msg;
@@ -413,7 +404,33 @@ export default function Mensajeria() {
         }
       }
       ContadorCon(listMensajes)
-      setCard_mensajes(listMensajes)
+      let card = [];
+      listMensajes.map((item) => {
+        card.push({
+          id: item.id,
+          bot: item.nombre_bot,
+          conversacion_id: item.conversacion_id,
+          name: item.Contactos.nombre,
+          telefono: item.Contactos.telefono,
+          Contactos: item.Contactos,
+          contacto_id: item.contacto_id,
+          channel_id: item.channel_id,
+          mensaje: item.mensajes,
+          mensajes: item.mensajes,
+          equipo_id: item.equipo_id,
+          tipo: item.tipo,
+          estado: item.estado,
+          etiquetas_estado: item.etiquetas_estado,
+          fecha: moment(item.updatedAt) >= moment().subtract(1, "days") ? moment(item.updatedAt).format("hh:mm a") : moment(item.updatedAt).format("DD/MM/YYYY hh:mm a"),
+          url_avatar: item.Contactos.avatar,
+          proveedor: item.channel.proveedor,
+          active: true,
+          nombreunico: item.nombreunico,
+          etiqueta: item.etiquetas,
+          agente_id: item.agente_id,
+        })
+      });
+      setCard_mensajes(card)
     } catch (error) {
       alert("Error al cambiar el estado de la conversacion")
     }
@@ -714,7 +731,7 @@ export default function Mensajeria() {
         setCard_mensajes(card)
         ContadorCon(card)
         DeletManejoConversacion()
-      //   setConversacionActiva([])
+        setConversacionActiva([])
       }
     }
   }
