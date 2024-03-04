@@ -230,6 +230,7 @@ export default function Mensajeria() {
                 contacto_id: item.contacto_id,
                 channel_id: item.channel_id,
                 mensaje: item.mensajes,
+                mensajes: item.mensajes,
                 equipo_id: item.equipo_id,
                 tipo: item.tipo,
                 estado: item.estado,
