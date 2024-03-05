@@ -711,6 +711,8 @@ export default function Mensajeria() {
           <source src={item.url} type="audio/ogg" />
         </audio>
       );
+    }else if(item.type === "location"){
+      return <span className="">{String(item.text)}</span>;
     } else {
       return null;
     }

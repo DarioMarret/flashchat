@@ -53,7 +53,7 @@ function Sidebar({ routes, image, background }) {
     return false;
   };
   // this function creates the links and collapses that appear in the sidebar (left menu)
-  const ViewAdmin = ['/configuracion', '/bots','/dashboard']
+  const ViewAdmin = ['/configuracion', '/bots','/dashboard', '/cuenta','/suscripciones', '/factura']
   const createLinks = (routes) => {
     return routes.map((prop, key) => {
       if (ViewAdmin.includes(prop.path) && GetTokenDecoded().perfil !== "Administrador") {
