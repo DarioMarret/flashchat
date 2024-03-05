@@ -264,6 +264,8 @@ export default function Mensajeria() {
           }else{
             setLoading(false)
           }
+        }else{
+          setLoading(false)
         }
       });
 
