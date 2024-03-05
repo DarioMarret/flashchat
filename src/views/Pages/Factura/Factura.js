@@ -1,4 +1,5 @@
 import { Container, Tab, Tabs } from "react-bootstrap";
+import Historital from "./Components/Historital";
 
 export default function Factura() {
   return (
@@ -10,7 +11,7 @@ export default function Factura() {
           className='justify-content-center'
           >
           <Tab eventKey="Historial" title="Historial">
-            <h2>Historial</h2>
+            <Historital/>
           </Tab>
           <Tab eventKey="Facturas" title="Facturas">
             <h2>Facturas</h2>
