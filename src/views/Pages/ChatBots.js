@@ -665,6 +665,24 @@ function ChatBots(props) {
                   </CopyToClipboard>
                 </div>
               ) : null}
+              {bot.channel_id === 5 && bot.id !== 0 ? (
+                <div className="form-group">
+                  <label htmlFor="mensaje">Webhook</label>
+                  <input
+                    className="form-control"
+                    id="WebHookGupsup"
+                    disabled={true}
+                    value={`${host}webhook_gupshup?bots=${bot.nombreunico}`}
+                  />
+                  <CopyToClipboard
+                    text={`${host}webhook_gupshup?bots=${bot.nombreunico}`}
+                  >
+                    <a href={"#"} className="">
+                      Copiar
+                    </a>
+                  </CopyToClipboard>
+                </div>
+              ) : null}
               {bot.channel_id === 3 && bot.id !== 0 ? (
                 <div className="form-group">
                   <label htmlFor="mensaje">Webhook</label>
