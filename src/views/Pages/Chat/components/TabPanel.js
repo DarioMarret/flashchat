@@ -27,6 +27,7 @@ function TabPanel(props) {
     const ListarAgentes = async() => {
         const url = `agentes/${GetTokenDecoded().cuenta_id}`
         const { data } = await BmHttp.get(url)
+        console.log(data)
         if (data.status === 200) {
             let ag = []
             data.data.map((agente, index) => {
@@ -40,8 +41,7 @@ function TabPanel(props) {
         }else{
           setAgentes([])
         }
-    }    
-
+    }
     const NombreAgente = (id) => {
         let nombre = agentes.filter((item) => item.id === id)
         if(nombre.length > 0){
@@ -50,7 +50,7 @@ function TabPanel(props) {
           return "Sin agente"
         }
     }
-    
+
     const GetActivaConversacion = async(item) => {
         socket.emit("get_conversacion_activa", {
           cuenta_id: GetTokenDecoded().cuenta_id,
@@ -77,7 +77,7 @@ function TabPanel(props) {
         if(misConversaciones === 'Todas' && item.agente_id !== 0 && item.agente_id !== GetTokenDecoded().id){
           Swal.fire({
             title: 'Conversación en curso',
-            text: 'Esta conversación ya está siendo atendida por el agente *' + NombreAgente(item.agente_id)+'*',
+            // text: 'Esta conversación ya está siendo atendida por el agente *' + NombreAgente(item.agente_id)+'*',
             html: 'Esta conversación ya está siendo atendida por el agente <b className="w-100 text-dark font-bold">' + NombreAgente(item.agente_id)+'</b>',
             icon: 'info',
             confirmButtonText: 'Tomar la conversación',
@@ -134,7 +134,6 @@ function TabPanel(props) {
                             return <CardChat
                                 messageItem={item} 
                                 index={index}
-                                agente={NombreAgente(item.agente_id)}
                                 verConversacion={() => ManejarConversacion(item)}
                             />
                         }
@@ -152,7 +151,6 @@ function TabPanel(props) {
                             return <CardChat 
                                 messageItem={item} 
                                 index={index}
-                                agente={NombreAgente(item.agente_id)}
                                 verConversacion={() => ManejarConversacion(item)}
                             />
                         }
@@ -170,7 +168,6 @@ function TabPanel(props) {
                             <CardChat 
                                 messageItem={item} 
                                 index={index}
-                                agente={NombreAgente(item.agente_id)}
                                 verConversacion={() => ManejarConversacion(item)}
                             />
                         );
@@ -189,7 +186,6 @@ function TabPanel(props) {
                                 <CardChat 
                                     messageItem={item} 
                                     index={index}
-                                    agente={NombreAgente(item.agente_id)}
                                     verConversacion={() => ManejarConversacion(item)}
                                 />
                             );

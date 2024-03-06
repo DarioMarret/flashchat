@@ -11,7 +11,7 @@ import Swal from 'sweetalert2';
 import socket from 'views/SocketIO';
 
 function CardChat(props) {
-  const { index, messageItem, agente, verConversacion } = props;
+  const { index, messageItem, verConversacion } = props;
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const { historyInfo } = useMensajeria();
 
@@ -65,6 +65,16 @@ function CardChat(props) {
     }
   }
   
+
+  const NombreAgente = (id) => {
+    let nombre = agentes.filter((item) => item.id === id)
+    if(nombre.length > 0){
+      return nombre[0].nombre
+    }else{
+      return "Sin agente"
+    }
+}
+
   const VerConversacionesSinAsignar = (items) => {
     let data = {
       ...items,
@@ -205,7 +215,7 @@ function CardChat(props) {
             <span className="w-20 text-dark font-bold"
               style={{ fontSize: "12px" }}
             >
-            Ag: {agente}
+            Ag: {NombreAgente(messageItem.agente_id)}
             </span>
           </div>
         </div>
