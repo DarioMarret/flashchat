@@ -1,3 +1,5 @@
+import { Axios } from "axios";
+
 export const usuario_local = "usuario:";
 export const usuario_token = "token_usuario:";
 export const card_mensajes = "card_mensajes:";
@@ -12,3 +14,17 @@ export const proxy = "backflash"
 export const host_facturacion = "https://ordenfacil.org/api_facturacion";
 export const colorPrimario = "#3F98F8";
 // validar si es produccion o desarrollo
+
+const bm = new Axios({
+    baseURL: host,
+    headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': '*',
+        'Access-Control-Allow-Methods': '*',
+        'Authorization': 'Bearer ' + localStorage.getItem(usuario_token)
+    },
+    timeout: 30000
+})
+
+export const BmHttp = bm;

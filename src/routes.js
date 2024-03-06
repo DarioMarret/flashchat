@@ -10,6 +10,7 @@ import Masivos from "views/Pages/Configuracion/Masivos";
 import MensajesAutomaticos from "views/Pages/Configuracion/MensajesAutomaticos";
 import Contactos from "views/Pages/Contactos";
 import Factura from "views/Pages/Factura/Factura";
+import Integraciones from "views/Pages/Integraciones/Integraciones";
 import LoginPage from "views/Pages/LoginPage";
 import Mensajeria from "views/Pages/Mensajeria";
 import Suscripciones from "views/Pages/Suscripcion/Suscripcion";
@@ -35,6 +36,13 @@ var routes = [
       name: "Mensajeria",
       icon: "nc-icon nc-chat-round",
       component: Mensajeria
+    },
+    {
+      path: "/en-cola",
+      layout: "/admin",
+      name: "En cola",
+      icon: "nc-icon nc-tv-2",
+      component: Integraciones
     },
     {
       path: "/contactos",
@@ -110,6 +118,13 @@ var routes = [
       ]
     },
     {
+      path: "/recordatorios",
+      layout: "/admin",
+      name: "Recordatorios",
+      icon: "nc-icon nc-bell-55",
+      component: Integraciones
+    },
+    {
       path: "/bots",
       layout: "/admin",
       name: "Bots",
@@ -137,6 +152,13 @@ var routes = [
       icon: "nc-icon nc-single-copy-04",
       component: Factura
     },
+    {
+      path: "/integraciones",
+      layout: "/admin",
+      name: "Integraciones",
+      icon: "nc-icon nc-spaceship",
+      component: Integraciones
+    }
     //   {
     //   path: "/sweet-alert",
     //   layout: "/admin",

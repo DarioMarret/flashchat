@@ -58,6 +58,17 @@ function TabChat(props) {
                 </Nav.Link>
               </Nav.Item>
               
+              <Nav.Item onClick={() => console.log('Enviar mensaje')}>
+                <Nav.Link
+                  className="gap-1 d-flex hover-pointer"
+                  style={{ fontSize: '13px' }}>
+                  {/* icono para envia mensaje */}
+                  <span class="material-symbols-outlined">
+                    sms
+                  </span>
+                </Nav.Link>
+              </Nav.Item>
+
             </Nav>
 
             {

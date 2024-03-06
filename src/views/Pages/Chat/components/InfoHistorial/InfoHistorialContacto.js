@@ -7,11 +7,14 @@ import { useEffect, useState } from 'react';
 import {
     Dropdown, DropdownItem, DropdownMenu, DropdownToggle
 } from 'react-bootstrap';
+import socket from 'views/SocketIO';
 
 function InfoHistorialContacto(props) {
     const [etiquetas, setEtiquetas] = useState([])
     const [agentes, setAgentes] = useState([]);
+    const [activarNota, setActivarNota] = useState(false)
     const [verHistorialC, setVerHistorialC] = useState([])
+    const [nota, setNota] = useState('')
     const [dropdownOpenEtiqueta, setDropdownOpenEtiqueta] = useState(false);
     const toggleEtiqueta = () => setDropdownOpenEtiqueta((prevState) => !prevState);
     const [contactoHistorial, setContactoHistorial] = useState([])
@@ -183,6 +186,30 @@ function InfoHistorialContacto(props) {
         }
     }
 
+    const HandleActivarNota = () => {
+        setActivarNota(!activarNota)
+    }
+
+    const HandleGuardarNota = () => {
+        // guardar la nota
+        let covActiva = GetManejoConversacion()
+        socket.emit('guardar_nota', {
+            cuenta_id: GetTokenDecoded().cuenta_id,
+            contacto_id: covActiva.contacto_id,
+            conversacion_id: covActiva.conversacion_id,
+            nombreunico: covActiva.nombreunico,
+            nota: nota,
+        })
+        // actualizar la nota en el localstorage
+        covActiva.nota = nota
+        SetManejoConversacionStorange(covActiva)
+        historyInfo()
+        //limpiar el input
+        setNota('')
+        //cerrar el input
+        setActivarNota(false)
+    }
+
     useEffect(() => {
         (async () => {
             await ListarEtiquetas()
@@ -238,16 +265,16 @@ function InfoHistorialContacto(props) {
                             isOpen={dropdownOpenEtiqueta}
                             toggle={setDropdownOpenEtiqueta}
                             direction="up"
-                            //className="mt-2"
-                            >
+                        >
                             <DropdownToggle
                                 data-toggle="dropdown"
                                 tag="span"
                                 className="cursor-pointer"
+                                style={{
+                                    padding: '0px 5px 0px 5px',
+                                    margin: '0px',
+                                }}
                             >
-                                {/* <span class="material-symbols-outlined text-white cursor-pointer">
-                                    more
-                                </span> */}
                             </DropdownToggle>
                             <DropdownMenu>
                                 {etiquetas.map((item, index) => {
@@ -272,6 +299,39 @@ function InfoHistorialContacto(props) {
                                     </span>
                                 )
                             }) : null
+                        }
+                    </div>
+                </div>
+
+                <div className="w-100 py-2 d-flex flex-column gap-3">
+                    <div className="bg-blue p-2 rounded justify-content-between d-flex">
+                        <span className="text-white font-bold">Notas</span>
+                        <span class="material-symbols-outlined text-white cursor-pointer" onClick={(e)=>HandleActivarNota()}>
+                            more
+                        </span>
+                    </div>
+                        {
+                            activarNota ?
+                                <input type="text" className="form-control" placeholder="Agregar nota"
+                                    value={nota}
+                                    onChange={(e) => setNota(e.target.value)}
+                                    // cuando se presione enter se debe guardar la nota
+                                    onKeyPress={(e) => {
+                                        if (e.key === 'Enter' || e.keyCode === 13) {
+                                            HandleGuardarNota()
+                                        }
+                                    }}
+                                />
+                            : null
+                        }
+
+                    <div className="d-flex gap-2 align-items-center flex-wrap">
+                        {
+                            infoContacto && infoContacto.nota ?
+                                <span className="chat-tag rounded text-black p-1">
+                                    {infoContacto.nota}
+                                </span>
+                             : null
                         }
                     </div>
                 </div>

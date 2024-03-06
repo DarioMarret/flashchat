@@ -24,10 +24,13 @@ import Contactos from "views/Pages/Contactos";
 import Mensajeria from "views/Pages/Mensajeria";
 import Auths from "views/Pages/auth/Auths";
 
+import { GetTokenDecoded } from "function/storeUsuario";
 import Cuenta from "views/Pages/Cuenta/Cuenta";
 import Factura from "views/Pages/Factura/Factura";
 import HistorialContacto from "views/Pages/HistorialContacto/HistorialContacto";
+import Integraciones from "views/Pages/Integraciones/Integraciones";
 import Suscripciones from "views/Pages/Suscripcion/Suscripcion";
+import socket from "views/SocketIO";
 import "./assets/css/style.css";
 
 export default function App() {
@@ -35,7 +38,8 @@ export default function App() {
   
   const [ReloadUser, setReloadUser] = useState(false);
   const [sidebarImage, setSidebarImage] = React.useState(image3);
-  const [sidebarBackground, setSidebarBackground] = React.useState("black");
+  const [sidebarBackground, setSidebarBackground] = React.useState("black")
+  const [mensajeBanner, setMensajeBanner] = useState("banner");
 
   useEffect(() => {
     (() => {
@@ -72,10 +76,28 @@ export default function App() {
     }),
     [auth]
   )
+  socket.on('banner', (data) => {
+    const { mensaje, cuenta_id } = data;
+    if (cuenta_id === GetTokenDecoded().cuenta_id) {
+      setMensajeBanner(mensaje);
+    }
+  });
 
   if (auth === undefined) return null;
   return (
     <AuthContext.Provider value={authData}>
+      <h1
+        className="text-center text-black"
+        style={{ 
+          fontSize: "20px", 
+          fontWeight: "bold",
+          color: "black",
+          position: "fixed",
+          zIndex: "100000",
+          alignContent: "center",
+          width: "100%",
+        }}
+      >{mensajeBanner}</h1>
       <Router>
         {!auth ? (
             <>
@@ -166,7 +188,11 @@ export default function App() {
                     />
                     <Route path="/admin/bots" element={<ChatBots />} exact />
                     {/* <Route path="/admin/sweet-alert" element={<SweetAlertPage />} exact /> */}
-
+                    <Route
+                      path="/admin/integraciones"
+                      element={<Integraciones />}
+                      exact
+                    />
                   </Routes>
                 </div>
                 {/* <AdminFooter /> */}
@@ -196,9 +222,9 @@ export default function App() {
               }
             /> */}
           </>
-
         )}
       </Router>
+      
     </AuthContext.Provider>
   );
 }

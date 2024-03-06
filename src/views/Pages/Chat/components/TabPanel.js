@@ -1,8 +1,7 @@
 
 
-import axios from 'axios';
 import { GetTokenDecoded, SetManejoConversacionStorange } from 'function/storeUsuario';
-import { host } from 'function/util/global';
+import { BmHttp } from 'function/util/global';
 import useMensajeria from 'hook/useMensajeria';
 import { useEffect, useState } from 'react';
 import Swal from 'sweetalert2';
@@ -26,9 +25,9 @@ function TabPanel(props) {
     }, [card_mensajes, misConversaciones])
 
     const ListarAgentes = async() => {
-        const url = `${host}agentes/${GetTokenDecoded().cuenta_id}`
-        const { data, status } = await axios.get(url)
-        if (status === 200) {
+        const url = `agentes/${GetTokenDecoded().cuenta_id}`
+        const { data } = await BmHttp.get(url)
+        if (data.status === 200) {
             let ag = []
             data.data.map((agente, index) => {
                 ag.push({

@@ -582,7 +582,7 @@ function ChatBots(props) {
                   />
                 </div>
               ) : null}
-              {bot.channel_id === 3 ? (
+              {bot.channel_id === 3 || bot.channel_id === 5 ? (
                 <div className="form-group">
                   <label htmlFor="mensaje">Token Accesso</label>
                   <input
