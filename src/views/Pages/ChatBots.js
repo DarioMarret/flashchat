@@ -399,11 +399,14 @@ function ChatBots(props) {
                   </button>
 
                   <button className="bot-card-buttons-btn"
-                    onClick={() =>window.open(`${bot.url}?cuenta_id=${bot.cuenta_id}`,"_blank")}
+                    onClick={() =>{
+                      let url = bot.url.replaceAll("http://177.234.209.101:3022", "https://flashbot.bot")
+                      window.open(`${url}?cuenta_id=${bot.cuenta_id}`,"_blank")
+                    }}
                   >
                     <span class="material-symbols-outlined text-secondary">manufacturing</span>
                   </button>
-                </div>  
+                </div>
               </div>
             </div>
           ))}
@@ -672,10 +675,10 @@ function ChatBots(props) {
                     className="form-control"
                     id="WebHookGupsup"
                     disabled={true}
-                    value={`${host}webhook_gupshup?bots=${bot.nombreunico}`}
+                    value={`${host}webhookGupshup?bots=${bot.nombreunico}`}
                   />
                   <CopyToClipboard
-                    text={`${host}webhook_gupshup?bots=${bot.nombreunico}`}
+                    text={`${host}webhookGupshup?bots=${bot.nombreunico}`}
                   >
                     <a href={"#"} className="">
                       Copiar

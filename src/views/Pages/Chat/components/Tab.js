@@ -10,7 +10,7 @@ import TabPanel from './TabPanel';
 
 
 function TabChat(props) {
-    const { countC, card_mensajes, loading } = props;
+    const { onHideMensaje, countC, card_mensajes, loading } = props;
     const [misConversaciones, setMisConversaciones] = useState('Sin leer');
 
     const { historyInfo, ping } = useMensajeria();
@@ -58,7 +58,7 @@ function TabChat(props) {
                 </Nav.Link>
               </Nav.Item>
               
-              <Nav.Item onClick={() => console.log('Enviar mensaje')}>
+              <Nav.Item onClick={() => onHideMensaje(true)}>
                 <Nav.Link
                   className="gap-1 d-flex hover-pointer"
                   style={{ fontSize: '13px' }}>

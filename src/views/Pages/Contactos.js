@@ -171,7 +171,7 @@ export default function Contactos(props) {
         const url = `${host}contactos/${id}`;
         const { status } = await axios.delete(url);
         if (status === 200) {
-          ListarContactos();
+          await ListarContactos();
         }
       }
     });

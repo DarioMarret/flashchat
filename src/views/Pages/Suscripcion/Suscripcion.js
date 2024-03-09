@@ -49,16 +49,17 @@ export default function Suscripciones() {
   const PlanAsignado = async () => {
     const url = `${host}cuenta_plan/${GetTokenDecoded().cuenta_id}`
     const { data } = await axios.get(url)
-    console.log(data.data[0])
     setListarPlanAsignado(data.data[0]);
   }
 
   const SeleccionarPlan = (plan) => {
-    if(plan.id === 4){
-      plan = planGold
-    }
+    // if(plan.id === 4){
+    //   plan = planGold
+    // }
     let info = {
       ...plan,
+      ...planGold,
+      plan_id: plan.id,
       cuenta_id: GetTokenDecoded().cuenta_id,
       agente_id: GetTokenDecoded().id
     }

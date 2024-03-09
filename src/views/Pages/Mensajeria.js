@@ -25,6 +25,7 @@ import { colorPrimario, dev } from "function/util/global";
 import useAuth from "hook/useAuth";
 import io from "socket.io-client";
 import ComponenteMultimedia from "views/Components/ComponenteMultimedia";
+import ModalMensaje from "views/Components/Modales/ModalMensaje";
 import InfoHistorialContacto from "./Chat/components/InfoHistorial/InfoHistorialContacto";
 import TabChat from "./Chat/components/Tab";
 
@@ -85,7 +86,7 @@ export default function Mensajeria() {
   const [inputStr, setInputStr] = useState("");
   const [typeInput, setTypeInput] = useState("text");
   const [showPicker, setShowPicker] = useState(false);
-
+  const [showMensaje, onHideMensaje] = useState(false);
 
   const ListarEtiquetas = async () => {
     let url = host + 'etiqueta/'+GetTokenDecoded().cuenta_id
@@ -661,7 +662,7 @@ export default function Mensajeria() {
     socket.emit("actualizar_estado_conversacion", {
       cuenta_id: GetTokenDecoded().cuenta_id,
       conversacion_id: covActiva.conversacion_id,
-      contacto_id: covActiva.Contactos.id,
+      contacto_id: covActiva.contacto_id,
       nombreunico: covActiva.nombreunico,
       estado: estado,
       agente_id: GetTokenDecoded().id,
@@ -669,7 +670,7 @@ export default function Mensajeria() {
     if(estado !== "Eliminado" || estado !== "Resuelta"){
       SetManejoConversacionStorange({...covActiva,estado: estado})
       card.map((item) => {
-        if (item.conversacion_id === covActiva.conversacion_id && item.Contactos.id === covActiva.Contactos.id && covActiva.nombreunico === item.nombreunico) {
+        if (item.conversacion_id === covActiva.conversacion_id && item.contacto_id === covActiva.contacto_id && covActiva.nombreunico === item.nombreunico) {
           item.estado = estado;
         }
       })
@@ -678,7 +679,7 @@ export default function Mensajeria() {
       const conV = GetManejoConversacion()
       if(conV !== null){
         console.log("se quita: ", card_mensajes)
-        card = card.filter((item) => item.conversacion_id !== covActiva.conversacion_id  && item.Contactos.id !== covActiva.Contactos.id && covActiva.nombreunico !== item.nombreunico)
+        card = card.filter((item) => item.conversacion_id !== covActiva.conversacion_id  && item.contacto_id !== covActiva.contacto_id && covActiva.nombreunico !== item.nombreunico)
         setCard_mensajes(card)
         ContadorCon(card)
         DeletManejoConversacion()
@@ -812,7 +813,8 @@ export default function Mensajeria() {
               />
             </div>
           </div>
-          <TabChat 
+          <TabChat
+            onHideMensaje={onHideMensaje}
             countC={countC}
             card_mensajes={card_mensajes}
             loading={loading}
@@ -1099,10 +1101,11 @@ export default function Mensajeria() {
 
 
         {/* Aki se cierra y abre el layout de info  -> close-box-info */}
-        <InfoHistorialContacto
-          
+        <InfoHistorialContacto/>
+        <ModalMensaje
+          showMensaje={showMensaje}
+          onHideMensaje={onHideMensaje}
         />
-
       </div>
     </MensajeriaContext.Provider>
   );

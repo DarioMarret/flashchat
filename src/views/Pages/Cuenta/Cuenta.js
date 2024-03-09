@@ -1,6 +1,5 @@
-import axios from 'axios';
 import { GetTokenDecoded } from 'function/storeUsuario';
-import { host } from 'function/util/global';
+import { BmHttp } from 'function/util/global';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
 import {
@@ -16,11 +15,10 @@ export default function Cuenta() {
 
 
   const ListarCuenta = async () => {
-    const url = `${host}cuenta_plan/${GetTokenDecoded().cuenta_id}`
-    const { data } = await axios.get(url)
+    const url = `cuenta_plan/${GetTokenDecoded().cuenta_id}`
+    const { data } = await BmHttp.get(url)
     setCuenta(data.data[0]);
     setPlanes(data.data[0].planes);
-    // sacamos los dias restantes de fecha del plan free vemos cuantos dias han pasado desde que se creo la cuenta
     if(data.data[0].planes.plan === 'Free'){
       const fecha = moment(data.data[0].fecha).format("YYYY/MM/DD");
       const fechaActual = moment().format("YYYY/MM/DD");
@@ -227,7 +225,7 @@ export default function Cuenta() {
                 <div className='gap-0 h-100 border-start'>
                   <div className='mr-2 d-flex flex-column' style={{ paddingLeft: '15px', lineHeight: '20px' }}>
                     <span className='text-span'>Precio</span>
-                    <span className='text-span font-bold'>{planes ? planes.precio : ''}</span>
+                    <span className='text-span font-bold'>{cuenta ? cuenta.precio : ''}</span>
                   </div>
                 </div>
               </div>
@@ -241,7 +239,7 @@ export default function Cuenta() {
                   <div className='mr-2 d-flex flex-column' 
                   style={{ paddingLeft: '15px', lineHeight: '20px' }}>
                     <span className='text-span'>Capacidad de Bots</span>
-                    <span className='text-span font-bold'>{planes ? planes.cantidad_bots : ''} máximo</span>
+                    <span className='text-span font-bold'>{cuenta ? cuenta.cantidad_bots : ''} máximo</span>
                   </div>
                 </div>
               </div>
@@ -255,7 +253,7 @@ export default function Cuenta() {
                   <div className='mr-2 d-flex flex-column' 
                   style={{ paddingLeft: '15px', lineHeight: '20px' }}>
                     <span className='text-span'>Capacidad de Agentes</span>
-                    <span className='text-span font-bold'>{planes ? planes.cantidad_agentes : ''} máximo</span>
+                    <span className='text-span font-bold'>{cuenta ? cuenta.cantidad_agentes : ''} máximo</span>
                   </div>
                 </div>
               </div>
