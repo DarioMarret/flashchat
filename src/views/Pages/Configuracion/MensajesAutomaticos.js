@@ -13,7 +13,15 @@ import Swal from 'sweetalert2';
 
 function MensajesAutomaticos(props) {
     const [show, setShow] = useState(false);
-    const handleClose = () => setShow(!show);
+    const handleClose = () => {
+        setShow(!show)
+    };
+    const [showMensajeEstado, setShowMensajeEstado] = useState(false);
+    const handleCloseMensajeEstado = () => {
+        setShowMensajeEstado(!showMensajeEstado)
+    };
+
+
     const [mensaje, setMensaje] = useState({
         id: 0,
         mensaje: '',
@@ -225,7 +233,7 @@ function MensajesAutomaticos(props) {
                     <Modal.Footer
                         className="d-flex justify-content-end"
                     >
-                        <button className="btn btn-dark ml-2"
+                        <button className="btn button-bm ml-2"
                             onClick={CrearMensaje}
                         >
                             {
@@ -280,8 +288,8 @@ function MensajesAutomaticos(props) {
                 </Card>
                 <Modal
                     size='md'
-                    show={show}
-                    onHide={handleClose}
+                    show={showMensajeEstado}
+                    onHide={handleCloseMensajeEstado}
                     // aria-labelledby="example-modal-sizes-title-lg"
                 >
                     <Modal.Header>
@@ -298,7 +306,7 @@ function MensajesAutomaticos(props) {
                         <button 
                         type="button"
                         className="btn-dark ml-auto"
-                            onClick={handleClose}
+                            onClick={handleCloseMensajeEstado}
                         >
                             <i className="fa fa-times"></i>
                         </button>

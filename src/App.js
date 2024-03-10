@@ -25,6 +25,7 @@ import Mensajeria from "views/Pages/Mensajeria";
 import Auths from "views/Pages/auth/Auths";
 
 import { GetTokenDecoded } from "function/storeUsuario";
+import Cola from "views/Pages/Cola/Cola";
 import Cuenta from "views/Pages/Cuenta/Cuenta";
 import Factura from "views/Pages/Factura/Factura";
 import HistorialContacto from "views/Pages/HistorialContacto/HistorialContacto";
@@ -134,6 +135,11 @@ export default function App() {
                     <Route
                       path="/admin/suscripciones"
                       element={<Suscripciones />}
+                      exact
+                    />
+                    <Route
+                      path="/admin/en-cola"
+                      element={<Cola />}
                       exact
                     />
                     <Route
