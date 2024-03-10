@@ -42,6 +42,7 @@
     "sweetalert2": "^11.10.5",
     "web-vitals": "2.1.4"
   },
+  "homepage": "https://flashchat.chat/",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
