@@ -34,7 +34,7 @@ export default function Cuenta() {
     (async()=>{
       await ListarCuenta()
     })()
-  }, []);
+  }, [])
   
 
   return (

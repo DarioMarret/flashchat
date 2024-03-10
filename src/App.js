@@ -39,7 +39,7 @@ export default function App() {
   const [ReloadUser, setReloadUser] = useState(false);
   const [sidebarImage, setSidebarImage] = React.useState(image3);
   const [sidebarBackground, setSidebarBackground] = React.useState("black")
-  const [mensajeBanner, setMensajeBanner] = useState("banner");
+  const [mensajeBanner, setMensajeBanner] = useState("");
 
   useEffect(() => {
     (() => {
