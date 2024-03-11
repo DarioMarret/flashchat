@@ -14,6 +14,7 @@ import {
 } from 'chart.js';
 import { GetTokenDecoded } from "function/storeUsuario";
 import { host } from "function/util/global";
+import moment from "moment";
 import { useEffect, useState } from "react";
 import {
   Card,
@@ -104,6 +105,104 @@ var dias = [{
   "dia": "Domingo",
   "contar": 0
 }]
+var horas24 = [{
+  "hora": "00:00",
+  "numero": 0,
+  "contar": 0
+}, {
+  "hora": "01:00",
+  "numero": 1,
+  "contar": 0
+}, {
+  "hora": "02:00",
+  "numero": 2,
+  "contar": 0
+}, {
+  "hora": "03:00",
+  "numero": 3,
+  "contar": 0
+}, {
+  "hora": "04:00",
+  "numero": 4,
+  "contar": 0
+}, {
+  "hora": "05:00",
+  "numero": 5,
+  "contar": 0
+}, {
+  "hora": "06:00",
+  "numero": 6,
+  "contar": 0
+}, {
+  "hora": "07:00",
+  "numero": 7,
+  "contar": 0
+}, {
+  "hora": "08:00",
+  "numero": 8,
+  "contar": 0
+}, {
+  "hora": "09:00",
+  "numero": 9,
+  "contar": 0
+}, {
+  "hora": "10:00",
+  "numero": 10,
+  "contar": 0
+}, {
+  "hora": "11:00",
+  "numero": 11,
+  "contar": 0
+}, {
+  "hora": "12:00",
+  "numero": 12,
+  "contar": 0
+}, {
+  "hora": "13:00",
+  "numero": 13,
+  "contar": 0
+}, {
+  "hora": "14:00",
+  "numero": 14,
+  "contar": 0
+}, {
+  "hora": "15:00",
+  "numero": 15,
+  "contar": 0
+}, {
+  "hora": "16:00",
+  "numero": 16,
+  "contar": 0
+}, {
+  "hora": "17:00",
+  "numero": 17,
+  "contar": 0
+}, {
+  "hora": "18:00",
+  "numero": 18,
+  "contar": 0
+}, {
+  "hora": "19:00",
+  "numero": 19,
+  "contar": 0
+}, {
+  "hora": "20:00",
+  "numero": 20,
+  "contar": 0
+}, {
+  "hora": "21:00",
+  "numero": 21,
+  "contar": 0
+}, {
+  "hora": "22:00",
+  "numero": 22,
+  "contar": 0
+}, {
+  "hora": "23:00",
+  "numero": 23,
+  "contar": 0
+
+}]
 function Dashboard() {
 
   const [bots, setBots] = useState([]);
@@ -124,14 +223,30 @@ function Dashboard() {
         conversacionBot.data.conversacion.forEach((conversacion, index) => {
           if(bot.nombreunico === conversacion.nombreunico){
             IsketObj(bot, 'contador') ? bot.contador++ : bot.contador = 1;
-            mes.concat().forEach((m, index) => {
-              if(m.mes_numero === conversacion.mes){
-                m.contar++;
-              }
-            })
           }
         })
       })
+      let anioActual = moment().format('YYYY');
+      mes.forEach((m, index) => {
+        conversacionBot.data.conversacion.forEach((conversacion, index) => {
+          if(conversacion.anio === parseInt(anioActual)){
+            if(conversacion.mes === m.mes_numero){
+              m.contar++;
+            }
+          }
+        })
+      })
+      let diaActual = moment().format('D');
+      horas24.forEach((h, index) => {
+        conversacionBot.data.conversacion.forEach((conversacion, index) => {
+          if(conversacion.dia === parseInt(diaActual)){
+            if(conversacion.hora === h.numero){
+              h.contar++;
+            }
+          }
+        })
+      })
+      console.log(horas24);
       setBots(conversacionBot.data.bot)
       setConversaciones(conversacionBot.data.conversacionesCantidad);
     }
@@ -174,7 +289,7 @@ function Dashboard() {
   };
   const labels = bots.map(bot => bot.nombre_bot);
   const labelsMes = mes.map(m => m.mes);
-  const labelsDias = dias.map(d => d.dia);
+  const labelsHora = horas24.map(h => h.hora);
   return (
     <>
       <Container fluid>
@@ -352,6 +467,36 @@ function Dashboard() {
             </Card>
           </Col>
         </Row>
+        <Row>
+          <Col md="12">
+            <Card className="border-0 shadow">
+              <Card.Header>
+                <Card.Title as="h4">Conversacion por hora</Card.Title>
+                <p className="card-category">24/7</p>
+              </Card.Header>
+              <Card.Body>
+                <Bar
+                  data={
+                    {
+                      labels: labelsHora,
+                      datasets: [
+                        {
+                          label: 'Conversaciones',
+                          data: horas24.map(h => h.contar),
+                          backgroundColor: "rgba(75,192,192,0.2)",
+                          borderColor: "rgba(75,192,192,1)",
+                          borderWidth: 1,
+                        }
+                      ]
+                    }
+                  }
+                  options={options}
+                />
+              </Card.Body>
+            </Card>
+          </Col>
+        </Row>
+
 
         <Row>
           <Col md="12">
