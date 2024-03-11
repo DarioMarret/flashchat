@@ -186,6 +186,7 @@ export default function Mensajeria() {
       });
       //listar las conversaciones y las precenta en una card con el nombre del contacto, el mensaje, el estado, la fecha y la hora
       socket.on(`response_conversacion_${cuenta_id}`, (data) => {
+        console.log(data)
         const covActiva = GetManejoConversacion();
         setEquipoUsuario(GetTokenDecoded());
         let new_card = [];
@@ -198,6 +199,7 @@ export default function Mensajeria() {
         }
         if(GetTokenDecoded().botId !== null){
           GetTokenDecoded().botId.map((item) => {
+            console.log(item)
             bots.push(item.name)
           })
         }

@@ -14,7 +14,6 @@ import {
 } from 'chart.js';
 import { GetTokenDecoded } from "function/storeUsuario";
 import { host } from "function/util/global";
-import moment from "moment";
 import { useEffect, useState } from "react";
 import {
   Card,
@@ -36,39 +35,51 @@ ChartJS.register(
 );
 var mes = [{
   "mes": "Enero",
+  "mes_numero": 1,
   "contar": 0
 }, {
   "mes": "Febrero",
+  "mes_numero": 2,
   "contar": 0
 }, {
   "mes": "Marzo",
+  "mes_numero": 3,
   "contar": 0
 }, {
   "mes": "Abril",
+  "mes_numero": 4,
   "contar": 0
 }, {
   "mes": "Mayo",
+  "mes_numero": 5,
   "contar": 0
 }, {
   "mes": "Junio",
+  "mes_numero": 6,
   "contar": 0
 }, {
   "mes": "Julio",
+  "mes_numero": 7,
   "contar": 0
 }, {
   "mes": "Agosto",
+  "mes_numero": 8,
   "contar": 0
 }, {
   "mes": "Septiembre",
+  "mes_numero": 9,
   "contar": 0
 }, {
   "mes": "Octubre",
+  "mes_numero": 10,
   "contar": 0
 }, {
   "mes": "Noviembre",
+  "mes_numero": 11,
   "contar": 0
 }, {
   "mes": "Diciembre",
+  "mes_numero": 12,
   "contar": 0
 }]
 var dias = [{
@@ -101,41 +112,28 @@ function Dashboard() {
   const [agentes, setAgentes] = useState([]);
   
 
-
+  const IsketObj = (obj, key) => {
+    return obj[key] !== undefined;
+  }
   const ListarBots = async() => {
-    const url = `${host}bots/${GetTokenDecoded().cuenta_id}`;
-    const { data, status } = await axios.get(url);
-    if (status === 200) {
-      const fechaActual = moment().format('YYYY-MM-DD');
-      const fechaAtras = moment().subtract(6, 'days').format('YYYY-MM-DD');
-      const conversacionBot = await axios.get(`${host}bots_conversacion/${GetTokenDecoded().cuenta_id}`);
-      // const conversacionBot = await axios.get(`http://localhost:5002/bots_conversacion/${GetTokenDecoded().cuenta_id}`);
-      if(conversacionBot.status === 200){
-        data.data.forEach((bot, index) => {
-          conversacionBot.data.data.forEach((conversacion, index) => {
-            if(bot.nombreunico === conversacion.nombreunico){
-              bot['conversaciones'] = bot['conversaciones'] ? bot['conversaciones'] + parseInt(conversacion.contar) : parseInt(conversacion.contar);
-              if(conversacion.mes){
-                mes.filter(m => {
-                  if(m.mes === conversacion.mes){
-                    m.contar = m.contar + parseInt(conversacion.contar);
-                  }
-                })
+    const conversacionBot = await axios.get(`${host}bots_conversacion/${GetTokenDecoded().cuenta_id}`)
+    setBots(conversacionBot.data.bot)
+    setConversaciones(conversacionBot.data.conversacionesCantidad);
+    if(conversacionBot.status === 200){
+      conversacionBot.data.bot.forEach((bot, index) => {
+        conversacionBot.data.conversacion.forEach((conversacion, index) => {
+          if(bot.nombreunico === conversacion.nombreunico){
+            IsketObj(bot, 'contador') ? bot.contador++ : bot.contador = 1;
+            mes.concat().forEach((m, index) => {
+              if(m.mes_numero === conversacion.mes){
+                m.contar++;
               }
-              dias.filter(d => {
-                if(fechaActual >= conversacion.fecha && fechaAtras <= conversacion.fecha){
-                  if(d.dia === conversacion.dia){
-                    d.contar = d.contar + parseInt(conversacion.contar);
-                    // d.dia = d.dia + " / " + moment(conversacion.fecha).format('DD');
-                  }
-                }
-              })
-            }
-          })
-        });
-        setBots(data.data);
-        setConversaciones(conversacionBot.data.totalConversacion);
-      }
+            })
+          }
+        })
+      })
+      setBots(conversacionBot.data.bot)
+      setConversaciones(conversacionBot.data.conversacionesCantidad);
     }
   }
 
@@ -321,7 +319,7 @@ function Dashboard() {
                             <tr key={index}>
                               <td>{bot.channel.proveedor}</td>
                               <td>{bot.nombre_bot}</td>
-                              <td>{bot.conversaciones}</td>
+                              <td>{bot.contador}</td>
                             </tr>
                           ))
                         }
@@ -338,7 +336,7 @@ function Dashboard() {
                           datasets: [
                             {
                               label: 'Conversaciones',
-                              data: bots.map(bot => bot.conversaciones),
+                              data: bots.map(bot => bot.contador),
                               backgroundColor: "rgba(75,192,192,0.2)",
                               borderColor: "rgba(75,192,192,1)",
                               borderWidth: 1
@@ -356,34 +354,7 @@ function Dashboard() {
         </Row>
 
         <Row>
-          <Col md="6">
-            <Card className="border-0 shadow">
-              <Card.Header>
-                <Card.Title as="h4">Conversaciones por dias </Card.Title>
-              </Card.Header>
-              <Card.Body>
-                <Bar
-                  data={
-                    {
-                      labels:labelsDias,
-                      datasets: [
-                        {
-                          label: 'Conversaciones',
-                          data: dias.map(d => d.contar),
-                          backgroundColor: "rgba(75,192,192,0.2)",
-                          borderColor: "rgba(75,192,192,1)",
-                          borderWidth: 1
-                        }
-                      ]
-                    }
-                  }
-                  options={options}
-                />
-              </Card.Body>
-            </Card>
-          </Col>
-
-          <Col md="6">
+          <Col md="12">
             <Card className="border-0 shadow">
               <Card.Header>
                 <Card.Title as="h4">Conversacion por mes</Card.Title>
@@ -409,7 +380,6 @@ function Dashboard() {
                     }
                   }
                   options={options}
-
                 />
               </Card.Body>
             </Card>
