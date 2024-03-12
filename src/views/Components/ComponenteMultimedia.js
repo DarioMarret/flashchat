@@ -53,7 +53,7 @@ function ComponenteMultimedia(props) {
             return <iframe src={item.url} height="400px"></iframe>;
         }
 
-    } else if (item.type === "audio") {
+    } else if (item.type === "audio" || item.type === "voice") {
         return (
             <audio controls>
                 <source src={item.url} type="audio/ogg" />
