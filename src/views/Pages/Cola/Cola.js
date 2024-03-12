@@ -47,38 +47,6 @@ function Cola(props) {
                     <p>Equipos</p>
                 </div>
             </Col>
-            {/* <Row>
-                <Col
-                    lg='3'
-                    md='3'
-                    sm='6'
-                    xl='3'
-                    xs='6'
-                >
-                    <Card className='shadow d-flex justify-content-center align-items-center'>
-                        <div>
-                            <p>Agentes</p>
-                        </div>
-                    </Card>
-                </Col>
-                <Col
-                    lg='3'
-                    md='3'
-                    sm='6'
-                    xl='3'
-                    xs='6'
-                >
-                    <Card className='shadow d-flex justify-content-center align-items-center'>
-                        <CardHeader>
-                            <p>Agentes</p>
-                        </CardHeader>
-                        <CardBody>
-                            <p>Agentes</p>
-                        </CardBody>
-
-                    </Card>
-                </Col>
-            </Row> */}
         </Container>
     );
 }

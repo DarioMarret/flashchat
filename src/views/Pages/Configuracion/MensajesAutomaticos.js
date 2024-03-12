@@ -17,8 +17,11 @@ function MensajesAutomaticos(props) {
         setShow(!show)
     };
     const [showMensajeEstado, setShowMensajeEstado] = useState(false);
-    const handleCloseMensajeEstado = () => {
+    const handleCloseMensajeEstado = (item) => {
         setShowMensajeEstado(!showMensajeEstado)
+        if(item){
+            setMensaje(item)
+        }
     };
 
 
@@ -68,7 +71,7 @@ function MensajesAutomaticos(props) {
                 showConfirmButton: false,
                 timer: 1500
             })
-            handleClose()
+            handleCloseMensajeEstado()
         }
     }
 
@@ -205,7 +208,7 @@ function MensajesAutomaticos(props) {
                         <Modal.Title id="example-modal-sizes-title-lg">
                             {
                                 mensaje.id === 0
-                                    ? 'Crear Mensaje'
+                                    ? 'Crear mensaje de respuesta rapida'
                                     : 'Actualizar Mensaje'
                             }
                         </Modal.Title>
@@ -225,8 +228,15 @@ function MensajesAutomaticos(props) {
                                 <label htmlFor="mensaje">Mensaje</label>
                                 <textarea className="form-control" id="mensaje" 
                                 value={mensaje.mensaje}
+                                cols={3}
+                                rows={10}
+                                style={{
+                                    // resize: 'none',
+                                    overflow: 'auto',
+                                    height: 'auto'
+                                }}
                                 onChange={(e) => setMensaje({...mensaje, mensaje: e.target.value})}
-                                rows="3"></textarea>
+                                ></textarea>
                             </div>
                         </form>
                     </Modal.Body>
@@ -276,7 +286,7 @@ function MensajesAutomaticos(props) {
                                         className="text-center d-flex justify-content-center align-items-center gap-2 m-0 p-0"
                                     >
                                         <button className="btn btn m-0"
-                                            onClick={()=>handleShow(item)}
+                                            onClick={()=>handleCloseMensajeEstado(item)}
                                         >
                                             <i className="fas fa-edit"></i>
                                         </button>

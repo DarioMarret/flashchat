@@ -5,9 +5,12 @@ import { host } from "function/util/global";
 import { useEffect, useState } from "react";
 import {
     Button,
+    Card,
+    Col,
     Container,
     Form,
     Modal,
+    Row,
 } from "react-bootstrap";
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 
@@ -15,17 +18,33 @@ function ComprobantesOcr(props) {
     const [show, setShow] = useState(false);
     const handleClose = () => setShow(!show);
     const [ocrs, setOcrs] = useState({})
+    const [inputOpen, setInputOpen] = useState({
+        cuentaOpen: false,
+        beneficiarioOpen: false,
+        tipoBancoOpen: false,
+        tipoComprobanteOpen: false,
+    })
+    const [inputValues, setInputValues] = useState({
+        cuenta: '',
+        beneficiario: '',
+        tipoBanco: '',
+        tipoComprobante: '',
+    })
 
     const [ocr, setOcr] = useState({
         id: 0,
         cuenta_id: GetTokenDecoded().cuenta_id,
         key: '{}',
+        cuentas: [],
+        nombreBeneficiarios: [],
+        endidaRecaud: [],
+        tipoCompr: [],
+        valorCompr: 0
     });
 
     const ListarOcrs = async () => {
         let url = host + 'comprobantes/'+GetTokenDecoded().cuenta_id
         const { data, status } = await axios.get(url)
-        console.log(data)
         if(status === 200 && data !== null){
             setOcrs(data)
         }
@@ -36,7 +55,6 @@ function ComprobantesOcr(props) {
             ...ocr,
             [e.target.name]: e.target.value,
         });
-    
     }
 
     const RegistrarOcr = async (e) => {
@@ -72,6 +90,49 @@ function ComprobantesOcr(props) {
             await ListarOcrs()
         })()
     }, [])
+
+
+    const ActualicarValidacion = async (typo, valor) => {
+        let info = {
+            ...ocrs,
+        }
+        if(typo === 'cuentas'){
+            info.cuentas.push(valor)
+            info.cuentas.sort()
+        }else if(typo === 'nombreBeneficiarios'){
+            info.nombreBeneficiarios.push(valor)
+            info.nombreBeneficiarios.sort()
+        }else if(typo === 'endidaRecaud'){
+            info.endidaRecaud.push(valor)
+            info.endidaRecaud.sort()
+        }else if(typo === 'tipoCompr'){
+            info.tipoCompr.push(valor)
+            info.tipoCompr.sort()
+        }
+        const { data, status } = await axios.put(host + 'comprobantes_validacion', info)
+        if(status === 200){
+            setOcrs(data)
+        }
+    }
+
+    const QuitarElementoValicacion = async (typo, valor) => {
+        let info = {
+            ...ocrs,
+        }
+        if(typo === 'cuentas'){
+            info.cuentas = info.cuentas.filter(item => item !== valor)
+        }else if(typo === 'nombreBeneficiarios'){
+            info.nombreBeneficiarios = info.nombreBeneficiarios.filter(item => item !== valor)
+        }else if(typo === 'endidaRecaud'){
+            info.endidaRecaud = info.endidaRecaud.filter(item => item !== valor)
+        }else if(typo === 'tipoCompr'){
+            info.tipoCompr = info.tipoCompr.filter(item => item !== valor)
+        }
+        const { data, status } = await axios.put(host + 'comprobantes_validacion', info)
+        if(status === 200){
+            setOcrs(data)
+        }
+    }
     
     return (
         <>
@@ -121,19 +182,17 @@ function ComprobantesOcr(props) {
                                 type="text"
                                 cols={50}
                                 rows={50}
-                                style={{height: '100px'}}
+                                style={{height: '50px'}}
                                 name="key"
-                                value={`curl --location ${host}comprobantes_scaner?cuenta_id=${ocr.cuenta_id}' \
-                                --header 'Content-Type: application/json' \
-                                --data '{
-                                    "url": "https://xfiv-content.s3.amazonaws.com/xfiv-content/external-images/share_dir/worldnet/20240123/c028effe-e033-4af9-bb4b-720ba9eaa421.jpeg"
-                                }`}
+                                value={"curl --location --request POST 'https://codigomarret.online/comprobantes_scaner?cuenta_id=1' "+
+                                "--header 'Content-Type: application/json' "+
+                                "--data-raw '{\"url\": \"https://codigomarret.online/upload/img/rodas.jpeg\"}'"}
                                 disabled
                                 />
                             <CopyToClipboard text={`curl --location ${host}comprobantes_scaner?cuenta_id=${ocr.cuenta_id}' \
                                 --header 'Content-Type: application/json' \
                                 --data '{
-                                    "url": "https://xfiv-content.s3.amazonaws.com/xfiv-content/external-images/share_dir/worldnet/20240123/c028effe-e033-4af9-bb4b-720ba9eaa421.jpeg"
+                                    "url": "https://codigomarret.online/upload/img/rodas.jpeg"
                                 }`}>
                                 {/* icono de copiar */}
                                 <button className="btn active ml-2 border-0">
@@ -143,6 +202,291 @@ function ComprobantesOcr(props) {
                         </div>
                     </div>
                 }
+                <div className='mt-2'>
+                    <Row
+                        className="d-flex justify-content-start">
+                            <Col
+                                md={3}
+                                xl={3}
+                                sm={3}
+                                lg={3}
+                            >
+                                <Card>
+                                    <Card.Header
+                                        style={{ backgroundColor: '#3F98F8'}}
+                                    >
+                                        <Card.Title className='d-flex justify-content-between text-white'>
+                                            Formatos de Cuentas
+                                            <button
+                                                type="button"
+                                                className='btn mr-2 w-10'
+                                                onClick={() => setInputOpen({...inputOpen, cuentaOpen: !inputOpen.cuentaOpen})}>
+                                                <i className="fa fa-pencil text-white"></i>
+                                            </button>
+                                        </Card.Title>
+                                    </Card.Header>
+                                    <Card.Body>
+                                    <Card.Text>
+                                            {
+                                                inputOpen.cuentaOpen ?
+                                                <div className='d-flex justify-content-between align-items-center w-100'>
+                                                    <input
+                                                        type="text"
+                                                        className="form-control w-75"
+                                                        onChange={(e) => setInputValues({...inputValues, cuenta: e.target.value})}
+                                                    />
+                                                    <button
+                                                        className='btn button-bm w-20'
+                                                        onClick={() => ActualicarValidacion('cuentas', inputValues.cuenta)}
+                                                    >
+                                                        <i className="fa fa-check"></i>
+                                                    </button>
+                                                </div>
+                                                : null
+                                            }
+                                        </Card.Text>
+                                        <div
+                                            style={{
+                                                height: '350px', 
+                                                overflow: 'auto',
+                                                scrollbarWidth: 'none',
+                                                display: 'flex', 
+                                                flexDirection: 'column'
+                                            }}
+                                        >
+                                            {
+                                                ocrs && ocrs.cuentas ? ocrs.cuentas.map((item, index) => {
+                                                    return (
+                                                        <div key={index} className='d-flex justify-content-between align-items-center'>
+                                                            <span >{item}</span>
+                                                            <button
+                                                                className='btn'
+                                                                onClick={() => QuitarElementoValicacion('cuentas', item)}
+                                                            >
+                                                                <i className="fa fa-trash"></i>
+                                                            </button>
+                                                        </div>
+                                                    )
+                                                })
+                                                : null
+                                            }
+                                        </div>
+                                    </Card.Body>
+                                </Card>
+                            </Col>
+                            <Col
+                                md={3}
+                                xl={3}
+                                sm={3}
+                                lg={3}
+                            >
+                                <Card>
+                                    <Card.Header 
+                                        style={{ backgroundColor: '#3F98F8'}}
+                                    >
+                                        <Card.Title className='d-flex justify-content-between text-white'>
+                                            Formatos de Beneficiarios
+                                            <button
+                                                type="button"
+                                                className='btn mr-2 w-10'
+                                                onClick={() => setInputOpen({...inputOpen, beneficiarioOpen: !inputOpen.beneficiarioOpen})}>
+                                                <i className="fa fa-pencil text-white"></i>
+                                            </button>
+                                        </Card.Title>
+                                    </Card.Header>
+                                    <Card.Body>
+                                    <Card.Text>
+                                            {
+                                                inputOpen.beneficiarioOpen ?
+                                                <div className='d-flex justify-content-between align-items-center w-100'>
+                                                    <input
+                                                        type="text"
+                                                        className="form-control w-75"
+                                                        onChange={(e) => setInputValues({...inputValues, beneficiario: e.target.value})}
+                                                    />
+                                                    <button
+                                                        className='btn button-bm w-20'
+                                                        onClick={() => ActualicarValidacion('nombreBeneficiarios', inputValues.beneficiario)}
+                                                    >
+                                                        <i className="fa fa-check"></i>
+                                                    </button>
+                                                </div>
+                                                : null
+                                            }
+                                        </Card.Text>
+                                        <div
+                                            style={{
+                                                height: '350px', 
+                                                overflow: 'auto',
+                                                scrollbarWidth: 'none',
+                                                display: 'flex', 
+                                                flexDirection: 'column'
+                                            }}
+                                        >
+                                            {
+                                                ocrs && ocrs.nombreBeneficiarios ? ocrs.nombreBeneficiarios.map((item, index) => {
+                                                    return (
+                                                        <div key={index} className='d-flex justify-content-between align-items-center'>
+                                                            <span >{item}</span>
+                                                            <button
+                                                                className='btn'
+                                                                onClick={() => QuitarElementoValicacion('nombreBeneficiarios', item)}
+                                                            >
+                                                                <i className="fa fa-trash"></i>
+                                                            </button>
+                                                        </div>
+                                                    )
+                                                })
+                                                : null
+                                            }
+                                        </div>
+                                    </Card.Body>
+                                </Card>
+                            </Col>
+                            <Col
+                                md={3}
+                                xl={3}
+                                sm={3}
+                                lg={3}
+                            >
+                                <Card>
+                                    <Card.Header
+                                        style={{ backgroundColor: '#3F98F8'}}
+                                    >
+                                        <Card.Title className='d-flex justify-content-between text-white'>
+                                            Tipos de Bancos
+                                            <button
+                                                type="button"
+                                                className='btn mr-2 w-10'
+                                                onClick={() => setInputOpen({...inputOpen, tipoBancoOpen: !inputOpen.tipoBancoOpen})}>
+                                                <i className="fa fa-pencil text-white"></i>
+                                            </button>
+                                        </Card.Title>
+                                    </Card.Header>
+                                    <Card.Body>
+                                    <Card.Text>
+                                            {
+                                                inputOpen.tipoBancoOpen ?
+                                                <div className='d-flex justify-content-between align-items-center w-100'>
+                                                    <input
+                                                        type="text"
+                                                        className="form-control w-75"
+                                                        onChange={(e) => setInputValues({...inputValues, tipoBanco: e.target.value})}
+                                                    />
+                                                    <button
+                                                        className='btn button-bm w-20'
+                                                        onClick={() => ActualicarValidacion('endidaRecaud', inputValues.tipoBanco)}
+                                                    >
+                                                        <i className="fa fa-check"></i>
+                                                    </button>
+                                                </div>
+                                                : null
+                                            }
+                                        </Card.Text>
+                                        <div
+                                            style={{
+                                                height: '350px', 
+                                                overflow: 'auto',
+                                                scrollbarWidth: 'none',
+                                                display: 'flex', 
+                                                flexDirection: 'column'
+                                            }}
+                                        >
+                                            {
+                                                ocrs && ocrs.endidaRecaud ? ocrs.endidaRecaud.map((item, index) => {
+                                                    return (
+                                                        <div key={index} className='d-flex justify-content-between align-items-center'>
+                                                            <span >{item}</span>
+                                                            <button
+                                                                className='btn'
+                                                                onClick={() => QuitarElementoValicacion('endidaRecaud', item)}
+                                                            >
+                                                                <i className="fa fa-trash"></i>
+                                                            </button>
+                                                        </div>
+                                                    )
+                                                })
+                                                : null
+
+                                            }
+                                        </div>
+                                    </Card.Body>
+
+                                </Card>
+                            </Col>
+                            <Col
+                                md={3}
+                                xl={3}
+                                sm={3}
+                                lg={3}
+                            >
+                                <Card>
+                                    <Card.Header
+                                        style={{ backgroundColor: '#3F98F8'}}
+                                    >
+                                        <Card.Title className='d-flex justify-content-between text-white'>
+                                            Tipos de Comprobantes
+                                            <button
+                                                type="button"
+                                                className='btn mr-2 w-10'
+                                                onClick={() => setInputOpen({...inputOpen, tipoComprobanteOpen: !inputOpen.tipoComprobanteOpen})}>
+                                                <i className="fa fa-pencil text-white"></i>
+                                            </button>
+                                        </Card.Title>
+                                    </Card.Header>
+                                    <Card.Body>
+                                        <Card.Text>
+                                            {
+                                                inputOpen.tipoComprobanteOpen ?
+                                                <div className='d-flex justify-content-between align-items-center w-100'>
+                                                    <input
+                                                        type="text"
+                                                        className="form-control w-75"
+                                                        onChange={(e) => setInputValues({...inputValues, tipoComprobante: e.target.value})}
+                                                    />
+                                                    <button
+                                                        className='btn button-bm w-20'
+                                                        onClick={() => ActualicarValidacion('tipoCompr', inputValues.tipoComprobante)}
+                                                    >
+                                                        <i className="fa fa-check"></i>
+                                                    </button>
+                                                </div>
+                                                : null
+                                            }
+                                        </Card.Text>
+                                        <div
+                                            style={{
+                                                height: '350px', 
+                                                overflow: 'auto',
+                                                scrollbarWidth: 'none',
+                                                display: 'flex', 
+                                                flexDirection: 'column'
+                                            }}
+                                        >
+                                            {
+                                                ocrs && ocrs.tipoCompr ? ocrs.tipoCompr.map((item, index) => {
+                                                    return (
+                                                        <div key={index} className='d-flex justify-content-between align-items-center'>
+                                                            <span >{item}</span>
+                                                            <button
+                                                                className='btn'
+                                                                onClick={() => QuitarElementoValicacion('tipoCompr', item)}
+                                                            >
+                                                                <i className="fa fa-trash"></i>
+                                                            </button>
+                                                        </div>
+                                                    )
+                                                })
+                                                : null
+                                            }
+                                        </div>
+                                    </Card.Body>
+                                </Card>
+                            </Col>
+                    </Row>
+                </div>
+
+
                 <Modal show={show} onHide={handleClose}>
                     <Modal.Header >
                             <Modal.Title>Ocr</Modal.Title>
