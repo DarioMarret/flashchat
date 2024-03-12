@@ -24,7 +24,7 @@ import Contactos from "views/Pages/Contactos";
 import Mensajeria from "views/Pages/Mensajeria";
 import Auths from "views/Pages/auth/Auths";
 
-import { GetTokenDecoded } from "function/storeUsuario";
+import { GetTokenDecoded, setDatosUsuario } from "function/storeUsuario";
 import Cola from "views/Pages/Cola/Cola";
 import Cuenta from "views/Pages/Cuenta/Cuenta";
 import Factura from "views/Pages/Factura/Factura";
@@ -82,7 +82,21 @@ export default function App() {
     if (cuenta_id === GetTokenDecoded().cuenta_id) {
       setMensajeBanner(mensaje);
     }
-  });
+  })
+
+  socket.on("infoUsuario", (msg) => {
+    try {
+      const { type, data, agente_id, cuenta_id, estado } = msg;
+      if (type === "recargarToken" && agente_id === GetTokenDecoded().id && data !== null) {
+        setDatosUsuario(data)
+      }else if (type === "status" && agente_id !== GetTokenDecoded().id && cuenta_id === GetTokenDecoded().cuenta_id) {
+        socket.emit('infoUsuario', { type: "online", agente_id: GetTokenDecoded().id, cuenta_id: GetTokenDecoded().cuenta_id, estado: estado});
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  })
+
 
   if (auth === undefined) return null;
   return (

@@ -28,7 +28,6 @@ function ComprobantesOcr(props) {
     const [url, setUrl] = useState('')
     const [response, setResponse] = useState('')
 
-
     const [ocrs, setOcrs] = useState({})
     const [inputOpen, setInputOpen] = useState({
         cuentaOpen: false,
@@ -155,16 +154,16 @@ function ComprobantesOcr(props) {
           return null;
         }
     }
+
     const ValidarComprobante = async () => {
         let urlHtt = `${host}comprobantes_scaner/${ocr.cuenta_id}`
         const { data, status } = await axios.post(urlHtt, {url})
         if(status === 200){
             setResponse(data)
+        }else{
             setUrl('')
         }
     }
-
-
     
     return (
         <>
