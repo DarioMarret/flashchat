@@ -214,6 +214,7 @@ function Dashboard() {
   const IsketObj = (obj, key) => {
     return obj[key] !== undefined;
   }
+
   const ListarBots = async() => {
     const conversacionBot = await axios.get(`${host}bots_conversacion/${GetTokenDecoded().cuenta_id}`)
     setBots(conversacionBot.data.bot)
@@ -395,7 +396,10 @@ function Dashboard() {
                   <Col xs="7">
                     <div className="numbers">
                       <p className="card-category">Agentes</p>
-                      <Card.Title as="h4">{agentes.length}</Card.Title>
+                      <Card.Title as="h4">{
+                        // los que estan con estado online
+                        agentes.filter(agente => agente.estado === 'online').length
+                      }</Card.Title>
                     </div>
                   </Col>
                 </Row>

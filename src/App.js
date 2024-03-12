@@ -104,7 +104,7 @@ export default function App() {
       <h1
         className="text-center text-black"
         style={{ 
-          fontSize: "20px", 
+          fontSize: "20px",
           fontWeight: "bold",
           color: "black",
           position: "fixed",
