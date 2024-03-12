@@ -1,6 +1,6 @@
 
 import axios from 'axios';
-import { GetTokenDecoded } from "function/storeUsuario";
+import { GetTokenDecoded, SubirMedia } from 'function/storeUsuario';
 import { host } from "function/util/global";
 import { useEffect, useState } from "react";
 import {
@@ -17,6 +17,18 @@ import { CopyToClipboard } from 'react-copy-to-clipboard';
 function ComprobantesOcr(props) {
     const [show, setShow] = useState(false);
     const handleClose = () => setShow(!show);
+
+    const [show2, setShow2] = useState(false);
+    const handleClose2 = () => {
+        setUrl('')
+        setResponse('')
+        setShow2(!show2)
+    }
+
+    const [url, setUrl] = useState('')
+    const [response, setResponse] = useState('')
+
+
     const [ocrs, setOcrs] = useState({})
     const [inputOpen, setInputOpen] = useState({
         cuentaOpen: false,
@@ -30,7 +42,7 @@ function ComprobantesOcr(props) {
         tipoBanco: '',
         tipoComprobante: '',
     })
-
+   
     const [ocr, setOcr] = useState({
         id: 0,
         cuenta_id: GetTokenDecoded().cuenta_id,
@@ -133,6 +145,26 @@ function ComprobantesOcr(props) {
             setOcrs(data)
         }
     }
+
+    const SubirImagen = async (e) => {
+        const url = await SubirMedia(e);
+        if (url !== null) {
+          setUrl(url);
+          return url;
+        } else {
+          return null;
+        }
+    }
+    const ValidarComprobante = async () => {
+        let urlHtt = `${host}comprobantes_scaner/${ocr.cuenta_id}`
+        const { data, status } = await axios.post(urlHtt, {url})
+        if(status === 200){
+            setResponse(data)
+            setUrl('')
+        }
+    }
+
+
     
     return (
         <>
@@ -176,8 +208,79 @@ function ComprobantesOcr(props) {
                         </div>
                         {/* ejemplo de como se realiza la peticion */}
                         <label>Enviar peticion</label>
-                        <div className="form-group d-flex justify-content-start border-0 rounded w-100">
-                            <textarea 
+                        <div className="form-group d-flex justify-content-start border-0 rounded w-50">
+                            <button
+                                className="btn button-bm w-100"
+                                onClick={handleClose2}
+                            >
+                                <b>
+                                    Peticion de prueba
+                                </b>
+                            </button>
+                            <Modal 
+                                show={show2} 
+                                onHide={handleClose2}
+                                size="lg"    
+                            >
+                                <Modal.Header >
+                                        <Modal.Title>Http</Modal.Title>
+                                        <button
+                                            type="button"
+                                            className='btn btn mr-2 w-10'
+                                            onClick={handleClose2}>
+                                            <i className="fa fa-times"></i>
+                                        </button>
+                                </Modal.Header>
+                                <Modal.Body>
+                                    <input 
+                                        className="form-control border-0"
+                                        type="text"
+                                        name="url"
+                                        value={`POST:  ${host}comprobantes_scaner?cuenta_id=${ocr.cuenta_id}`}
+                                    />
+                                    <input
+                                        className="form-control border-0"
+                                        type="text"
+                                        style={{height: '50px'}}
+                                        name="body"
+                                        value={`Body: {'url':'${url}'}`}
+                                    />
+                                    <br/>
+                                    <textarea
+                                        className="form-control border-0"
+                                        type="text"
+                                        style={{height: '150px'}}
+                                        name="key"
+                                        value={`Response: ${JSON.stringify(response, null, 2)}`}
+                                        disabled
+                                    />
+
+
+                                    <Form onSubmit={RegistrarOcr}>
+                                        <Form.Group className="mb-3">
+                                            <Form.Label>Suba un Comprobante de pago</Form.Label>
+                                            <input
+                                                type="file"
+                                                className="form-control"
+                                                name="url"
+                                                id="avatar"
+                                                accept="image/png, image/jpeg"
+                                                onChange={(e) => SubirImagen(e.target.files[0])}
+                                            />
+                                            <br />
+                                        </Form.Group>
+                                        <Button
+                                            className='button-bm mr-2 w-100'
+                                            type="submit"
+                                            disabled={url === ''}
+                                            onClick={ValidarComprobante}
+                                            >
+                                            Enviar
+                                        </Button>
+                                    </Form>
+                                </Modal.Body>
+                            </Modal>
+                            {/* <textarea 
                                 className="form-control border-0"
                                 type="text"
                                 cols={50}
@@ -194,11 +297,10 @@ function ComprobantesOcr(props) {
                                 --data '{
                                     "url": "https://codigomarret.online/upload/img/rodas.jpeg"
                                 }`}>
-                                {/* icono de copiar */}
                                 <button className="btn active ml-2 border-0">
                                     <i className="fas fa-copy text-dark"></i>
                                 </button>
-                            </CopyToClipboard>
+                            </CopyToClipboard> */}
                         </div>
                     </div>
                 }
@@ -518,6 +620,10 @@ function ComprobantesOcr(props) {
                         </Form>
                     </Modal.Body>
                 </Modal>
+                
+
+
+
             </Container>
         </>
     );
