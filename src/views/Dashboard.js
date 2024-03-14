@@ -83,28 +83,7 @@ var mes = [{
   "mes_numero": 12,
   "contar": 0
 }]
-var dias = [{
-  "dia": "Lunes",
-  "contar": 0
-}, {
-  "dia": "Martes",
-  "contar": 0
-},{
-  "dia": "Miercoles",
-  "contar": 0
-},{
-  "dia": "Jueves",
-  "contar": 0
-},{
-  "dia": "Viernes",
-  "contar": 0
-},{
-  "dia": "Sabado",
-  "contar": 0
-},{
-  "dia": "Domingo",
-  "contar": 0
-}]
+
 var horas24 = [{
   "hora": "00:00",
   "numero": 0,
@@ -238,6 +217,7 @@ function Dashboard() {
         })
       })
       let diaActual = moment().format('D');
+      console.log(diaActual);
       horas24.forEach((h, index) => {
         conversacionBot.data.conversacion.forEach((conversacion, index) => {
           if(conversacion.dia === parseInt(diaActual)){
@@ -247,7 +227,6 @@ function Dashboard() {
           }
         })
       })
-      console.log(horas24);
       setBots(conversacionBot.data.bot)
       setConversaciones(conversacionBot.data.conversacionesCantidad);
     }
