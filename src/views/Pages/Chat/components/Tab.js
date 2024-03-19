@@ -85,8 +85,8 @@ function TabChat(props) {
             }
 
             <TabPanel
-                card_mensajes={card_mensajes}
-                misConversaciones={misConversaciones}
+              card_mensajes={card_mensajes}
+              misConversaciones={misConversaciones}
             />
           </Tab.Container>
         </>

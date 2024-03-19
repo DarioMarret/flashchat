@@ -186,7 +186,6 @@ export default function Mensajeria() {
       });
       //listar las conversaciones y las precenta en una card con el nombre del contacto, el mensaje, el estado, la fecha y la hora
       socket.on(`response_conversacion_${cuenta_id}`, (data) => {
-        console.log(data)
         const covActiva = GetManejoConversacion();
         setEquipoUsuario(GetTokenDecoded());
         let new_card = [];
@@ -199,7 +198,6 @@ export default function Mensajeria() {
         }
         if(GetTokenDecoded().botId !== null){
           GetTokenDecoded().botId.map((item) => {
-            console.log(item)
             bots.push(item.name)
           })
         }
@@ -258,7 +256,6 @@ export default function Mensajeria() {
                 agente_id: item.agente_id,
                 nota: item.nota,
               })
-              // contar las conversaciones sin leer, las mis conversaciones y todas
             }
           }
           cardMensage = new_card;
@@ -271,6 +268,8 @@ export default function Mensajeria() {
           }
         }else{
           setLoading(false)
+          setCard_mensajes([])
+          ContadorCon([])
         }
       });
 
@@ -415,12 +414,11 @@ export default function Mensajeria() {
       const { cuenta_id, contacto_id, conversacion_id, estado, nombreunico } = data;
       if(estado === "Eliminado" || estado === "Resuelta"){
         if(GetManejoConversacion() !== null && GetManejoConversacion().conversacion_id === conversacion_id && 
-        GetManejoConversacion().nombreunico === nombreunico && GetManejoConversacion().contacto_id === contacto_id){
+          GetManejoConversacion().nombreunico === nombreunico && GetManejoConversacion().contacto_id === contacto_id){
           DeletManejoConversacion()
           setConversacionActiva([])
         }
       }
-      ContadorCon(listMensajes)
       let card = [];
       listMensajes.map((item) => {
         card.push({
@@ -447,8 +445,9 @@ export default function Mensajeria() {
           agente_id: item.agente_id,
           nota: item.nota,
         })
-      });
+      })
       setCard_mensajes(card)
+      ContadorCon(card)
     } catch (error) {
       alert("Error al cambiar el estado de la conversacion")
     }
@@ -717,10 +716,6 @@ export default function Mensajeria() {
   }, [])
 
 
-
-  // transferir
-  const [dropdownOpenTransferir, setDropdownOpenTransferir] = useState(false);
-  const toggleTransferir = () => setDropdownOpenTransferir((prevState) => !prevState);
 
   const [dropdownOpenTag, setDropdownOpenTag] = useState(false);
   const toggleTag = () => setDropdownOpenTag((prevState) => !prevState);

@@ -41,6 +41,7 @@ function TabPanel(props) {
           setAgentes([])
         }
     }
+    
     const NombreAgente = (id) => {
         let nombre = agentes.filter((item) => item.id === id)
         if(nombre.length > 0){
