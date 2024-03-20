@@ -2,16 +2,16 @@ import axios from 'axios';
 import { GetTokenDecoded } from 'function/storeUsuario';
 import { BmHttp, host } from 'function/util/global';
 import moment from 'moment';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
+import { Modal } from 'react-bootstrap';
 import { Card, Col, Container } from 'reactstrap';
 import Swal from 'sweetalert2';
 
 function Historial(props) {
     const [agentes, setAgentes] = useState([])
     const [equipos, setEquipos] = useState([])
-    const dummy = useRef();
     const [bots, setBots] = useState([])
-    const [contactos, setContactos] = useState(null)
+    const [mensaje_historial, setMensajeHistorial] = useState(null)
     const [cardMensaje, setCardMensaje] = useState([])
     const [conversacionHistorial, setConversacionHistorial] = useState([])
     const [filtro, setFiltro] = useState({
@@ -22,6 +22,9 @@ function Historial(props) {
         equipo_id: "",
         nombreunico: ""
     })
+
+    const [modal, setModal] = useState(false)
+
 
     const ListarAgentes = async () => {
         const url = `${host}agentes/${GetTokenDecoded().cuenta_id}`
@@ -57,13 +60,6 @@ function Historial(props) {
         }
     };
 
-    const ObtenerContactos = async (contacto_id) => {
-        const url = `${host}contacto/${contacto_id}`
-        const { data, status } = await BmHttp.get(url)
-        if (status === 200) {
-            setContactos(data.data[0])
-        }
-    }
 
     const OntenerConversacion = async (items) => {
         const { data, status } = await axios.post(`${host}conversacion_activa`, {
@@ -76,20 +72,6 @@ function Historial(props) {
             nombreunico: items.nombreunico,
         })
         setConversacionHistorial(data)
-    }
-
-    const ListarCardContacto = async (contacto_id) => {
-        const url = `${host}conversacion_card_contacto`
-        const { data, status } = await axios.post(url, {
-            contacto_id: parseInt(contacto_id),
-            cuenta_id: GetTokenDecoded().cuenta_id
-        })
-
-        if (status === 200) {
-            if (data.length > 0) {
-                setCardMensaje(data)
-            }
-        }
     }
 
     const NombreAgente = (id) => {
@@ -136,47 +118,59 @@ function Historial(props) {
                 confirmButtonColor: '#3F98F8'
             })
         }else{
-            // si se selecciona fecha desde y fecha hasta
-            const { data, status } = await BmHttp.post(`${host}conversacion_historial_filter`, {
-                cuenta_id: GetTokenDecoded().cuenta_id,
-                desde: moment(filtro.fecha_desde).format('YYYY-MM-DD'),
-                hasta: moment(filtro.fecha_hasta).format('YYYY-MM-DD'),
-                conversacion_id: filtro.conversacion_id === "" || filtro.conversacion_id === 0 ? null : parseInt(filtro.conversacion_id),
-                agente_id: filtro.agente_id === "" || filtro.agente_id === 0 ? null : parseInt(filtro.agente_id),
-                equipo_id: filtro.equipo_id === "" || filtro.equipo_id === 0 ? null : parseInt(filtro.equipo_id),
-                nombreunico: filtro.nombreunico === "" || filtro.nombreunico === 0 ? null : filtro.nombreunico
-            })
-            if(data && data.status === 200){
-                setConversacionHistorial(data.data)
-                //sacar solo la primera conversacion de la lista de cada conversacion_id que se ata a el contacto
-                let conversaciones = []
-                data.data.map((item, index) => {
-                    if (conversaciones.length === 0) {
-                        conversaciones.push(item)
-                    } else {
-                        let existe = conversaciones.filter((conversacion) => conversacion.conversacion_id === item.conversacion_id && conversacion.contacto_id === item.contacto_id)
-                        if (existe.length === 0) {
+            try {
+                setModal(true)
+                setMensajeHistorial("Buscando historial...")
+                // si se selecciona fecha desde y fecha hasta
+                const { data, status } = await BmHttp.post(`${host}conversacion_historial_filter`, {
+                    cuenta_id: GetTokenDecoded().cuenta_id,
+                    desde: moment(filtro.fecha_desde).format('YYYY-MM-DD'),
+                    hasta: moment(filtro.fecha_hasta).format('YYYY-MM-DD'),
+                    conversacion_id: filtro.conversacion_id === "" || filtro.conversacion_id === 0 ? null : parseInt(filtro.conversacion_id),
+                    agente_id: filtro.agente_id === "" || filtro.agente_id === 0 ? null : parseInt(filtro.agente_id),
+                    equipo_id: filtro.equipo_id === "" || filtro.equipo_id === 0 ? null : parseInt(filtro.equipo_id),
+                    nombreunico: filtro.nombreunico === "" || filtro.nombreunico === 0 ? null : filtro.nombreunico
+                })
+                if(data && data.status === 200){
+                    // setConversacionHistorial(data.data)
+                    //sacar solo la primera conversacion de la lista de cada conversacion_id que se ata a el contacto
+                    let conversaciones = []
+                    data.data.map((item, index) => {
+                        setMensajeHistorial('Filtrando conversaciones...')
+                        if (conversaciones.length === 0) {
                             conversaciones.push(item)
+                        } else {
+                            let existe = conversaciones.filter((conversacion) => conversacion.conversacion_id === item.conversacion_id && conversacion.contacto_id === item.contacto_id)
+                            if (existe.length === 0) {
+                                conversaciones.push(item)
+                            }
                         }
-                    }
-                })
-                // anadir un campo de que calcule el tiempo transcurrido desdel primer mensaje hasta el ultimo de cada
-                // conversacion
-                conversaciones.map((item, index) => {
-                    let fecha = moment(item.updatedAt)
-                    let ultimamensaje = data.data.filter((conversacion) => conversacion.conversacion_id === item.conversacion_id && conversacion.contacto_id === item.contacto_id)
-                    let fecha2 = moment(ultimamensaje[ultimamensaje.length - 1].updatedAt)
-                    console.log(fecha)
-                    let tiempo = fecha.diff(fecha2, 'minutes')
-                    // si es negativo lo volvemos positivo
-                    if (tiempo < 0) {
-                        tiempo = tiempo * -1
-                    }
-                    item.tiempo = tiempo
-                })
-                setConversacionHistorial(conversaciones)
-                console.log(conversaciones)
-                console.log(data.data)
+                    })
+                    // anadir un campo de que calcule el tiempo transcurrido desdel primer mensaje hasta el ultimo de cada
+                    // conversacion
+                    conversaciones.map((item, index) => {
+                        setMensajeHistorial('Calculando tiempo de atencion...')
+                        let fecha = moment(item.updatedAt)
+                        let ultimamensaje = data.data.filter((conversacion) => conversacion.conversacion_id === item.conversacion_id && conversacion.contacto_id === item.contacto_id)
+                        let fecha2 = moment(ultimamensaje[ultimamensaje.length - 1].updatedAt)
+                        console.log(fecha)
+                        let tiempo = fecha.diff(fecha2, 'minutes')
+                        // si es negativo lo volvemos positivo
+                        if (tiempo < 0) {
+                            tiempo = tiempo * -1
+                        }
+                        item.tiempo = tiempo
+                    })
+                    setConversacionHistorial(conversaciones)
+                    setModal(false)
+                    setMensajeHistorial(null)
+                }else{
+                    setConversacionHistorial([])
+                    setModal(false)
+                }
+            } catch (error) {
+                setModal(false)
+                return null
             }
         }
     }
@@ -285,7 +279,6 @@ function Historial(props) {
                 </Card> 
 
 
-
                 {
                     conversacionHistorial.length > 0 ?
                         <Card className="p-3 mb-3 card-stats border-0 shadow">
@@ -361,7 +354,26 @@ function Historial(props) {
                         </Card>
                         : null
                 }
-
+            <Modal
+                className="modal-dialog-centered"
+                show={modal}
+            >
+                <div className="modal-header">
+                    <h5 className="modal-title" id="exampleModalLabel">
+                        Cargando...
+                    </h5>
+                </div>
+                <div className="modal-body">
+                    <div className='w-100 text-center'>
+                        <p>{mensaje_historial}</p>
+                    </div>
+                    <div className="d-flex justify-content-center">
+                        <div className="spinner-border text-primary" role="status">
+                            <span className="sr-only">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </Modal>
         </Container>
     );
 }
