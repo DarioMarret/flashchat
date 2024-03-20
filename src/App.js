@@ -29,6 +29,7 @@ import Cola from "views/Pages/Cola/Cola";
 import Cuenta from "views/Pages/Cuenta/Cuenta";
 import Factura from "views/Pages/Factura/Factura";
 import HistorialContacto from "views/Pages/HistorialContacto/HistorialContacto";
+import Historial from "views/Pages/History/Historial";
 import Integraciones from "views/Pages/Integraciones/Integraciones";
 import Suscripciones from "views/Pages/Suscripcion/Suscripcion";
 import socket from "views/SocketIO";
@@ -166,7 +167,11 @@ export default function App() {
                       element={<HistorialContacto />}
                       exact
                     />
-
+                    <Route
+                      path="/admin/historial"
+                      element={<Historial />}
+                      exact
+                    />
                     <Route path="/*" element={<Navigate to="admin/dashboard" replace />} />
                     <Route
                       path="/admin/mensajeria"

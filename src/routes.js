@@ -10,6 +10,7 @@ import Masivos from "views/Pages/Configuracion/Masivos";
 import MensajesAutomaticos from "views/Pages/Configuracion/MensajesAutomaticos";
 import Contactos from "views/Pages/Contactos";
 import Factura from "views/Pages/Factura/Factura";
+import Historial from "views/Pages/History/Historial";
 import Integraciones from "views/Pages/Integraciones/Integraciones";
 import LoginPage from "views/Pages/LoginPage";
 import Mensajeria from "views/Pages/Mensajeria";
@@ -37,13 +38,13 @@ var routes = [
       icon: "nc-icon nc-chat-round",
       component: Mensajeria
     },
-    {
-      path: "/en-cola",
-      layout: "/admin",
-      name: "En cola",
-      icon: "nc-icon nc-tv-2",
-      component: Integraciones
-    },
+    // {
+    //   path: "/en-cola",
+    //   layout: "/admin",
+    //   name: "En cola",
+    //   icon: "nc-icon nc-tv-2",
+    //   component: Integraciones
+    // },
     {
       path: "/contactos",
       layout: "/admin",
@@ -116,6 +117,13 @@ var routes = [
           component: ComprobantesOcr
         }
       ]
+    },
+    {
+      path: "/historial",
+      layout: "/admin",
+      name: "Historial",
+      icon: "nc-icon nc-single-copy-04",
+      component: Historial
     },
     {
       path: "/recordatorios",
