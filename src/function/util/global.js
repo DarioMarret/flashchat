@@ -21,7 +21,7 @@ const bm = new axio.create({
         'Content-Type': 'application/json',
         'Authorization': 'Bearer ' + localStorage.getItem(usuario_token)
     },
-    timeout: 30000
+    // timeout: 30000
 })
 
 export const BmHttp = bm;
