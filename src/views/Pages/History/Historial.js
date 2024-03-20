@@ -166,10 +166,18 @@ function Historial(props) {
                     setMensajeHistorial(null)
                 }else{
                     setConversacionHistorial([])
-                    setModal(false)
+                    setMensajeHistorial("No se encontraron conversaciones")
+                    setTimeout(() => {
+                        setMensajeHistorial(null)
+                        setModal(false)
+                    }, 2000)
                 }
             } catch (error) {
-                setModal(false)
+                setMensajeHistorial("Lo sentimos, error al buscar historial")
+                setTimeout(() => {
+                    setModal(false)
+                    setMensajeHistorial(null)
+                }, 2000)
                 return null
             }
         }
@@ -358,11 +366,11 @@ function Historial(props) {
                 className="modal-dialog-centered"
                 show={modal}
             >
-                <div className="modal-header">
+                {/* <div className="modal-header">
                     <h5 className="modal-title" id="exampleModalLabel">
                         Cargando...
                     </h5>
-                </div>
+                </div> */}
                 <div className="modal-body">
                     <div className='w-100 text-center'>
                         <p>{mensaje_historial}</p>
