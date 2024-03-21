@@ -6,13 +6,14 @@ import { useEffect, useState } from 'react';
 import { Modal } from 'react-bootstrap';
 import { Card, Col, Container } from 'reactstrap';
 import Swal from 'sweetalert2';
+import ModalHistorial from 'views/Components/Modales/ModalHistorial';
 
 function Historial(props) {
     const [agentes, setAgentes] = useState([])
     const [equipos, setEquipos] = useState([])
     const [bots, setBots] = useState([])
     const [mensaje_historial, setMensajeHistorial] = useState(null)
-    const [cardMensaje, setCardMensaje] = useState([])
+    const [verConversacion, setVerConversacion] = useState([])
     const [conversacionHistorial, setConversacionHistorial] = useState([])
     const [filtro, setFiltro] = useState({
         fecha_desde: "",
@@ -24,6 +25,8 @@ function Historial(props) {
     })
 
     const [modal, setModal] = useState(false)
+    const [showHistorial, setShowHistorial] = useState(false)
+    const onHideHistorial = () => setShowHistorial(false)
 
 
     const ListarAgentes = async () => {
@@ -71,7 +74,8 @@ function Historial(props) {
             agente_id: items.agente_id,
             nombreunico: items.nombreunico,
         })
-        setConversacionHistorial(data)
+        setVerConversacion(data)
+        setShowHistorial(true)
     }
 
     const NombreAgente = (id) => {
@@ -285,8 +289,6 @@ function Historial(props) {
                         >Buscar</button>
                     </Col>
                 </Card> 
-
-
                 {
                     conversacionHistorial.length > 0 ?
                         <Card className="p-3 mb-3 card-stats border-0 shadow">
@@ -317,23 +319,18 @@ function Historial(props) {
                                                 return (
                                                     <tr key={index}>
                                                         <td>{
-                                                            item.avatar === null ?
-                                                                <img
-                                                                    src="https://www.gravatar.com/avatar/
-                                                                ?d=identicon"
-                                                                    alt="avatar"
-                                                                    className="rounded-circle"
-                                                                    width="40"
-                                                                />
-                                                                :
                                                                 <img
                                                                     src={item.avatar}
                                                                     alt="avatar"
                                                                     className="rounded-circle"
                                                                     width="40"
+                                                                    style={{
+                                                                        minWidth: "40px",
+                                                                        minHeight: "40px",
+                                                                    }}
                                                                 />    
                                                         }</td>
-                                                        <td>{moment(item.updatedAt).format('YYYY-MM-DD HH:mm:ss')}</td>
+                                                        <td>{moment(item.createAt).format('YYYY-MM-DD HH:mm:ss')}</td>
                                                         <td>
                                                             <span
                                                                 className={item.tiempo >60 ? "text-danger" : "text-success"}
@@ -352,6 +349,12 @@ function Historial(props) {
                                                         <td>{item.equipo_id}</td>
                                                         <td>{Conexion(item.nombreunico)}</td>
                                                         <td>{item.estado}</td>
+                                                        <td>
+                                                            <button
+                                                                className="button-bm"
+                                                                onClick={() => OntenerConversacion(item)}
+                                                            >Ver</button>
+                                                        </td>
                                                     </tr>
                                                 )
                                             })
@@ -382,6 +385,11 @@ function Historial(props) {
                     </div>
                 </div>
             </Modal>
+            <ModalHistorial
+                showHistorial={showHistorial}
+                onHideHistorial={onHideHistorial}
+                conversacion={verConversacion}
+            />
         </Container>
     );
 }
