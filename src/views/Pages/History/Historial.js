@@ -84,7 +84,7 @@ function Historial(props) {
     }
 
     const Conexion = (id) => {
-        let nombre = bots.filter((item) => item.channel_id === id)
+        let nombre = bots.filter((item) => item.nombreunico === id)
         if (nombre.length > 0) {
             return nombre[0].nombre_bot
         } else {
@@ -350,7 +350,7 @@ function Historial(props) {
                                                         <td>{item.nombre}</td>
                                                         <td>{NombreAgente(item.agente_id)}</td>
                                                         <td>{item.equipo_id}</td>
-                                                        <td>{Conexion(item.channel_id)}</td>
+                                                        <td>{Conexion(item.nombreunico)}</td>
                                                         <td>{item.estado}</td>
                                                     </tr>
                                                 )
