@@ -330,7 +330,7 @@ function Historial(props) {
                                                                     }}
                                                                 />    
                                                         }</td>
-                                                        <td>{moment(item.createAt).format('YYYY-MM-DD HH:mm:ss')}</td>
+                                                        <td>{moment(item.createdAt).format('YYYY-MM-DD HH:mm:ss')}</td>
                                                         <td>
                                                             <span
                                                                 className={item.tiempo >60 ? "text-danger" : "text-success"}
