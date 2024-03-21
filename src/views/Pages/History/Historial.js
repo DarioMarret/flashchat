@@ -154,12 +154,10 @@ function Historial(props) {
                     // conversacion
                     conversaciones.map((item, index) => {
                         setMensajeHistorial('Calculando tiempo de atencion...')
-                        let fecha = moment(item.updatedAt)
+                        let fecha = moment(item.createdAt).format('YYYY-MM-DD HH:mm:ss')
                         let ultimamensaje = data.data.filter((conversacion) => conversacion.conversacion_id === item.conversacion_id && conversacion.contacto_id === item.contacto_id)
-                        let fecha2 = moment(ultimamensaje[ultimamensaje.length - 1].updatedAt)
-                        console.log(fecha)
-                        let tiempo = fecha.diff(fecha2, 'minutes')
-                        // si es negativo lo volvemos positivo
+                        let fecha2 = moment(ultimamensaje[ultimamensaje.length - 1].updatedAt).format('YYYY-MM-DD HH:mm:ss')
+                        let tiempo = moment(fecha2).diff(moment(fecha), 'minutes')
                         if (tiempo < 0) {
                             tiempo = tiempo * -1
                         }
@@ -177,6 +175,7 @@ function Historial(props) {
                     }, 2000)
                 }
             } catch (error) {
+                console.log("error: ",error)
                 setMensajeHistorial("Lo sentimos, error al buscar historial")
                 setTimeout(() => {
                     setModal(false)
@@ -333,7 +332,7 @@ function Historial(props) {
                                                         <td>{moment(item.createdAt).format('YYYY-MM-DD HH:mm:ss')}</td>
                                                         <td>
                                                             <span
-                                                                className={item.tiempo >60 ? "text-danger" : "text-success"}
+                                                                className={item.tiempo > 60 ? "text-danger" : "text-success"}
                                                             >
                                                             {
                                                                 item.tiempo === 0 ?
