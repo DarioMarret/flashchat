@@ -28,7 +28,6 @@ import ComponenteMultimedia from "views/Components/ComponenteMultimedia";
 import ModalMensaje from "views/Components/Modales/ModalMensaje";
 import InfoHistorialContacto from "./Chat/components/InfoHistorial/InfoHistorialContacto";
 import TabChat from "./Chat/components/Tab";
-
 var socket = null;
 try {
   if(dev){
@@ -385,17 +384,24 @@ export default function Mensajeria() {
   useEffect(() => {
     const cuenta_id = GetTokenDecoded().cuenta_id;
     socket.on(`get_conversacion_activa_${cuenta_id}`, (msg) => {//listamos los mensajes de la conversacion activa (la que esta siendo atendida por el agente)
+      console.log("get_conversacion_activa")
       const covActiva = GetManejoConversacion();
       const { type, data, listMensajes } = msg;
       if(covActiva && covActiva !== null && covActiva !== undefined){
         if (type === "response_get_conversacion_activa" && data.cuenta_id === cuenta_id && data.conversacion_id === covActiva.conversacion_id && data.nombreunico === covActiva.nombreunico  && data.contacto_id === covActiva.contacto_id) {
           if(data.agente_id === GetTokenDecoded().id){
-            if(listMensajes.length !== 0 && listMensajes.length  > conversacionActiva.length){
+            if(listMensajes.length !== 0 && JSON.stringify(listMensajes) !== JSON.stringify(conversacionActiva)){
               setConversacionActiva(listMensajes)
               dummy.current.scrollIntoView({ behavior: "smooth", block: "end", inline: "nearest" });
+              // antes que suene el audio se verifica si el ultimo mensaje es del cliente para que suene el audio
+              if(listMensajes[listMensajes.length - 1].tipo === "ingoing"){
+                // reproduccion de audio
+                // let audio = new Audio(livechat);
+                // audio.play();
+              }
             }
           }else if(data.agente_id === 0 && covActiva.sin_asignar === true){
-            if(listMensajes.length !== 0 && listMensajes.length  > conversacionActiva.length){
+            if(listMensajes.length !== 0 && JSON.stringify(listMensajes) !== JSON.stringify(conversacionActiva)){
               setConversacionActiva(listMensajes)
               dummy.current.scrollIntoView({ behavior: "smooth", block: "end", inline: "nearest" });
             }

@@ -41,7 +41,7 @@ export default function App() {
   const [ReloadUser, setReloadUser] = useState(false);
   const [sidebarImage, setSidebarImage] = React.useState(image3);
   const [sidebarBackground, setSidebarBackground] = React.useState("black")
-  const [mensajeBanner, setMensajeBanner] = useState("");
+  const [mensajeBanner, setMensajeBanner] = useState("Por favor actualize si plan de suscripción para seguir disfrutando de nuestros servicios.");
 
   useEffect(() => {
     (() => {
@@ -102,18 +102,21 @@ export default function App() {
   if (auth === undefined) return null;
   return (
     <AuthContext.Provider value={authData}>
-      <h1
-        className="text-center text-black"
-        style={{ 
-          fontSize: "20px",
-          fontWeight: "bold",
-          color: "black",
-          position: "fixed",
-          zIndex: "100000",
-          alignContent: "center",
-          width: "100%",
-        }}
-      >{mensajeBanner}</h1>
+      <div>
+
+      </div>
+        <h1
+          className="text-center"
+          style={{ 
+            fontSize: "20px",
+            fontWeight: "bold",
+            color: "black",
+            position: "fixed",
+            zIndex: "100000",
+            alignContent: "center",
+            width: "100%",
+          }}
+        >{mensajeBanner}</h1>
       <Router>
         {!auth ? (
             <>
