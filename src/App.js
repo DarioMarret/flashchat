@@ -42,7 +42,13 @@ export default function App() {
   const [ReloadUser, setReloadUser] = useState(false);
   const [sidebarImage, setSidebarImage] = React.useState(image3);
   const [sidebarBackground, setSidebarBackground] = React.useState("black")
-  const [mensajeBanner, setMensajeBanner] = useState("Por favor actualize si plan de suscripción para seguir disfrutando de nuestros servicios.");
+  const [mensajeBanner, setMensajeBanner] = useState({
+    mensaje: "",
+    color: "",
+    tipo: "",
+    cuenta_id: "",
+    tiempo: 0
+  });
 
   useEffect(() => {
     (() => {
@@ -82,7 +88,14 @@ export default function App() {
   socket.on('banner', (data) => {
     const { mensaje, cuenta_id } = data;
     if (cuenta_id === GetTokenDecoded().cuenta_id) {
-      setMensajeBanner(mensaje);
+      setMensajeBanner({
+        mensaje: mensaje,
+        color: data.color,
+        btnColor: data.btnColor,
+        tipo: data.tipo,
+        cuenta_id: cuenta_id,
+        tiempo: data.tiempo
+      });
     }
   })
 
@@ -118,15 +131,16 @@ export default function App() {
                 background={sidebarBackground}
               />
               <div className="main-panel">
+                <AlertBanner 
+                  message={mensajeBanner.mensaje} 
+                  type={mensajeBanner.tipo}
+                  btnColor={mensajeBanner.btnColor}
+                  setMensajeBanner={setMensajeBanner}
+                />
                 <AdminNavbar />
                 
-                <AlertBanner 
-                  message={mensajeBanner} 
-                  type="danger" 
-                  btnColor="btn-danger"
-                />
 
-                <div className="content pt-0"
+                <div className="content pt-2"
                 style={{ overflow: 'auto'}}>
                   <Routes
                     basename="/"

@@ -1,5 +1,19 @@
+import { useState } from "react";
+
 function AlertBanner(props) {
-  const { message, type, btnColor } = props;
+  const { message, type, btnColor, setMensajeBanner } = props;
+  const [show, setShow] = useState(false);
+
+  const handleClear = () => {
+    setMensajeBanner({
+      mensaje: "",
+      color: "",
+      tipo: "",
+      cuenta_id: "",
+      tiempo: 0
+    });
+    setShow(false);
+  }
   
   let alertColor;
 
@@ -18,19 +32,23 @@ function AlertBanner(props) {
   }
 
   return(
-  <>
-    <div className="w-100 p-3">
-      <section className={`${alertColor} mx-auto p-2 px-3 rounded d-flex justify-content-between align-items-center`}  
-        style={{ width: "90%" }}>
-        <h5 className="text-center font-bold text-white mt-1" 
-          style={{ 'fontSize': '16px' }}>
-          {message}
-        </h5>
-
-        <button className={`btn ${btnColor}`}>X</button>
-      </section>
-    </div>
-  </>);
+    <>
+    {
+      message ? 
+      <div className="w-100">
+        <section className={`${alertColor} mx-auto p-2 px-3 d-flex justify-content-between align-items-center`}  
+          style={{ width: "100%" }}>
+          <h5 className="text-center font-bold text-white mt-1" 
+            style={{ 'fontSize': '16px' }}>
+            {message}
+          </h5>
+          <button className={`btn ${btnColor}`} onClick={() => handleClear()}>X</button>
+        </section>
+      </div>
+      : null
+    }
+    </>
+  );
 }
 
 export { AlertBanner };
