@@ -25,6 +25,7 @@ import Mensajeria from "views/Pages/Mensajeria";
 import Auths from "views/Pages/auth/Auths";
 
 import { GetTokenDecoded, setDatosUsuario } from "function/storeUsuario";
+import { AlertBanner } from "views/Components/Alert/Alert";
 import Cola from "views/Pages/Cola/Cola";
 import Cuenta from "views/Pages/Cuenta/Cuenta";
 import Factura from "views/Pages/Factura/Factura";
@@ -102,21 +103,6 @@ export default function App() {
   if (auth === undefined) return null;
   return (
     <AuthContext.Provider value={authData}>
-      <div>
-
-      </div>
-        <h1
-          className="text-center"
-          style={{ 
-            fontSize: "20px",
-            fontWeight: "bold",
-            color: "black",
-            position: "fixed",
-            zIndex: "100000",
-            alignContent: "center",
-            width: "100%",
-          }}
-        >{mensajeBanner}</h1>
       <Router>
         {!auth ? (
             <>
@@ -133,7 +119,10 @@ export default function App() {
               />
               <div className="main-panel">
                 <AdminNavbar />
-                <div className="content"
+                
+                <AlertBanner message={mensajeBanner}/>
+
+                <div className="content pt-0"
                 style={{ overflow: 'auto'}}>
                   <Routes
                     basename="/"
