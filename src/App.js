@@ -120,7 +120,11 @@ export default function App() {
               <div className="main-panel">
                 <AdminNavbar />
                 
-                <AlertBanner message={mensajeBanner}/>
+                <AlertBanner 
+                  message={mensajeBanner} 
+                  type="danger" 
+                  btnColor="btn-danger"
+                />
 
                 <div className="content pt-0"
                 style={{ overflow: 'auto'}}>
