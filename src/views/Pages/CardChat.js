@@ -26,6 +26,7 @@ function CardChat(props) {
       contacto_id: data.contacto_id,
       conversacion_id: data.conversacion_id,
       nombreunico: data.nombreunico,
+      agente_id: GetTokenDecoded().id,
     })
     Swal.fire({
       icon: 'success',
@@ -41,6 +42,7 @@ function CardChat(props) {
   const SetTransferirChat = (data) => {
     socket.emit("transferir_chat", {
       cuenta_id: GetTokenDecoded().cuenta_id,
+      agente_id_transferir: GetTokenDecoded().id,
       contacto_id: data.contacto_id,
       conversacion_id: data.conversacion_id,
       agente_id: agente_id,
