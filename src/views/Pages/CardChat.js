@@ -26,7 +26,7 @@ function CardChat(props) {
       contacto_id: data.contacto_id,
       conversacion_id: data.conversacion_id,
       nombreunico: data.nombreunico,
-      agente_id: GetTokenDecoded().id,
+      agente_id_libera: GetTokenDecoded().id,
     })
     Swal.fire({
       icon: 'success',
