@@ -32,6 +32,7 @@ import Factura from "views/Pages/Factura/Factura";
 import HistorialContacto from "views/Pages/HistorialContacto/HistorialContacto";
 import Historial from "views/Pages/History/Historial";
 import Integraciones from "views/Pages/Integraciones/Integraciones";
+import Logs from "views/Pages/Logs/Logs";
 import Suscripciones from "views/Pages/Suscripcion/Suscripcion";
 import socket from "views/SocketIO";
 import "./assets/css/style.css";
@@ -224,6 +225,12 @@ export default function App() {
                     <Route
                       path="/admin/integraciones"
                       element={<Integraciones />}
+                      exact
+                    />
+
+                    <Route 
+                      path="/admin/logs"
+                      element={<Logs/>}
                       exact
                     />
                   </Routes>

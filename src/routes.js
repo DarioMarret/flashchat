@@ -13,6 +13,7 @@ import Factura from "views/Pages/Factura/Factura";
 import Historial from "views/Pages/History/Historial";
 import Integraciones from "views/Pages/Integraciones/Integraciones";
 import LoginPage from "views/Pages/LoginPage";
+import Logs from "views/Pages/Logs/Logs";
 import Mensajeria from "views/Pages/Mensajeria";
 import Suscripciones from "views/Pages/Suscripcion/Suscripcion";
 
@@ -166,6 +167,13 @@ var routes = [
       name: "Integraciones",
       icon: "nc-icon nc-spaceship",
       component: Integraciones
+    },
+    {
+      path: "/logs",
+      layout: "/admin",
+      name: "Logs",
+      icon: "nc-icon nc-paper-2",
+      component: Logs
     }
     //   {
     //   path: "/sweet-alert",
