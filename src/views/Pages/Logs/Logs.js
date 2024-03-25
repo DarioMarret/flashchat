@@ -7,15 +7,45 @@ import { Card, Container } from 'react-bootstrap';
 
 function Logs(props) {
     const [logs, setLogs] = useState([])
-    const ListarLogs = async() => {
-        const url = `${host}logs/?cuenta_id=${GetTokenDecoded().cuenta_id}&skip=0&take=15`
-        const { data, status } = await BmHttp.get(url)
-        if (status === 200) {
-            setLogs(data.data)
+    const [siguiente, setSiguiente] = useState('')
+    const [anterior, setAnterior] = useState('')
+
+    const ListarLogs = async(pass) => {
+        if(pass){
+            const { data, status } = await BmHttp.get(pass)
+            if (status === 200) {
+                if(data){
+                    setLogs(data.data)
+                    setSiguiente(data.siguientes)
+                    setAnterior(data.anterior)
+                }
+            }else{
+                setLogs([])
+            }
+            return
         }else{
-            setLogs([])
+            const url = `${host}logs/?cuenta_id=${GetTokenDecoded().cuenta_id}&skip=0&take=15`
+            const { data, status } = await BmHttp.get(url)
+            if (status === 200) {
+                if(data){
+                    setLogs(data.data)
+                    setSiguiente(data.siguientes)
+                    setAnterior(data.anterior)
+                }
+            }else{
+                setLogs([])
+            }
         }
     }
+
+    const HandleSiguiente = async() => {
+        await ListarLogs(siguiente)
+    }
+
+    const HandleAnterior = async() => {
+        await ListarLogs(anterior)
+    }
+
     useEffect(() => {
         (async()=>{
             await ListarLogs()
@@ -47,8 +77,12 @@ function Logs(props) {
             <div
                 className='d-flex justify-content-between mx-3 mb-3'
             >
-                <button className='button-bm'>Anterior</button>
-                <button className='button-bm'>Siguiente</button>
+                <button className='button-bm'
+                    onClick={HandleAnterior}
+                >Anterior</button>
+                <button className='button-bm'
+                    onClick={HandleSiguiente}
+                >Siguiente</button>
             </div>
         </Card>
             
