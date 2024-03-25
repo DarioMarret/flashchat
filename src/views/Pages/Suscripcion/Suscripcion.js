@@ -49,7 +49,15 @@ export default function Suscripciones() {
   const PlanAsignado = async () => {
     const url = `${host}cuenta_plan/${GetTokenDecoded().cuenta_id}`
     const { data } = await axios.get(url)
-    setListarPlanAsignado(data.data[0]);
+    setListarPlanAsignado(data.data[0])
+    console.log(data.data[0])
+    if(data.data[0].plan_id === 4){
+      setPlanGold({
+        cantidad_agentes: data.data[0].cantidad_agentes,
+        cantidad_bots: data.data[0].cantidad_bots,
+        precio: data.data[0].precio
+      })
+    }
   }
 
   const SeleccionarPlan = (plan) => {
@@ -110,8 +118,8 @@ export default function Suscripciones() {
 
   useEffect(() => {
     (async()=>{
-      await PlanAsignado()
       await ListarCuenta()
+      await PlanAsignado()
     })()
   }, []);
 
@@ -125,6 +133,7 @@ export default function Suscripciones() {
         <div className='w-100 h-100 content-custom'>
           <div className='d-flex flex-column flex-lg-row py-2 gap-3 justify-content-center'>
             {
+              // eslint-disable-next-line array-callback-return
               planes.map((plan, index) => {
                 if(plan.id === 3){
                  return <div className='box-plan box-plan-active d-flex flex-column w-100 gap-2 shadow'>

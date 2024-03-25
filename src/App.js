@@ -139,9 +139,7 @@ export default function App() {
                 />
                 <AdminNavbar />
                 
-
-                <div className="content pt-2"
-                style={{ overflow: 'auto'}}>
+                <div className="content pt-2" style={{ overflow: 'auto'}}>
                   <Routes
                     basename="/"
                     forceRefresh={true}

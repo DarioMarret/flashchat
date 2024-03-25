@@ -53,6 +53,7 @@ export default function Mensajeria() {
   const [ping, setPing] = useState(undefined);
   const [card_mensajes, setCard_mensajes] = useState([]);
   const [conversacionActiva, setConversacionActiva] = useState([]);
+  const [ListarPlanAsignado, setListarPlanAsignado] = useState(null)
   const [loading, setLoading] = useState(false)
   const [estados, setEstados] = useState([]);
   const [misConversaciones, setMisConversaciones] = useState('Sin leer')
@@ -87,6 +88,33 @@ export default function Mensajeria() {
   const [showPicker, setShowPicker] = useState(false);
   const [showMensaje, onHideMensaje] = useState(false);
 
+
+  const PlanAsignado = async () => {
+    const url = `${host}cuenta_plan/${GetTokenDecoded().cuenta_id}`
+    const { data } = await axios.get(url)
+    setListarPlanAsignado(data.data[0])
+    console.log("PlanAsignado: ",data.data[0])
+    // verificar si el plan asignado es el 1 osea el plan gratuito y si la fecha ya expiro
+    // a la fecha es mayor a 15 dias 
+    console.log("fecha fin: ",moment(data.data[0].fecha_fin))
+    if(data.data[0].plan_id === 1 && moment(data.data[0].fecha) <= moment().subtract(15, 'days')){
+      Swal.fire({
+        title: 'Plan gratuito expirado',
+        text: 'El plan gratuito ha expirado, por favor actualice su plan',
+        icon: 'info',
+        confirmButtonText: 'Actualizar plan',
+        confirmButtonColor: colorPrimario,
+        // showCancelButton: true,
+        // cancelButtonColor: '#d33',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          window.location.href = "/admin/suscripciones"
+        }
+      })
+    }
+  }
+
+
   const ListarEtiquetas = async () => {
     let url = host + 'etiqueta/'+GetTokenDecoded().cuenta_id
     const { data, status } = await axios.get(url)
@@ -103,6 +131,7 @@ export default function Mensajeria() {
   const ListarAgentes = async() => {
     const url = `${host}agentes/${GetTokenDecoded().cuenta_id}`
     const { data, status } = await axios.get(url)
+    console.log(data.data)
     if (status === 200) {
         let ag = []
         data.data.map((agente, index) => {
@@ -154,6 +183,7 @@ export default function Mensajeria() {
       await ListarAgentes()
       await ListarMensajesRespuestaRapida()
       await ListarEtiquetas()
+      await PlanAsignado()
     })()
   }, []);
 
@@ -384,7 +414,6 @@ export default function Mensajeria() {
   useEffect(() => {
     const cuenta_id = GetTokenDecoded().cuenta_id;
     socket.on(`get_conversacion_activa_${cuenta_id}`, (msg) => {//listamos los mensajes de la conversacion activa (la que esta siendo atendida por el agente)
-      console.log("get_conversacion_activa")
       const covActiva = GetManejoConversacion();
       const { type, data, listMensajes } = msg;
       if(covActiva && covActiva !== null && covActiva !== undefined){
