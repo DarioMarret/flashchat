@@ -210,7 +210,12 @@ export default function Cuenta() {
                     <div className='mr-2 d-flex flex-column' 
                     style={{ paddingLeft: '15px', lineHeight: '20px' }}>
                       <span className='text-span'>Demostración</span>
-                      <span className='text-danger font-bold'>le quedan {diasrestante} días de demostración</span>
+                      <span className='text-danger font-bold'>
+                        {
+                          //diasrestante en menor a 0, se muestra 0
+                          diasrestante < 0 ? 'La demostración ha expirado' : 'La demostración expira en' +diasrestante+ ' días'
+                        }
+                      </span>
                     </div>
                   </div>
                 </div>
