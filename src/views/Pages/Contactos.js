@@ -70,6 +70,8 @@ export default function Contactos(props) {
   const [totalContactos, setTotalContactos] = useState(0);
   const [pageContactos, setPageContactos] = useState(1);
   const [totalPaginasContactos, setTotalPaginasContactos] = useState(0);
+  const [siguiente, setSiguiente] = useState("");
+  const [anterior, setAnterior] = useState("");
 
   const [contacto, setContacto] = useState({
     id: 0,
@@ -81,16 +83,34 @@ export default function Contactos(props) {
     cuenta_id: GetTokenDecoded().cuenta_id,
   });
 
-  const ListarContactos = async () => {
-    const url = `${host}contactos/${GetTokenDecoded().cuenta_id}`;
-    const { data, status } = await axios.get(url);
-    if (status === 200) {
-      setTotalContactos(data.data.length);
-      setContac(data.data.slice(offsetContactos, limitContactos));
-      MostrarCantidadContactos(data.data);
-      setContactos(data.data);
-      Paginacion(data.data);
+  const ListarContactos = async (pass) => {
+    if(pass){
+      console.log(pass);
+      const { data, status } = await axios.get(pass);
+      if (status === 200 && data) {
+        setTotalContactos(data.total);
+        setContac(data.data);
+        setSiguiente(data.siguientes);
+        setAnterior(data.anterior);
+      }
+      return;
+    }else{
+      const url = `${host}contactos/${GetTokenDecoded().cuenta_id}?skip=${0}&take=${limitContactos}`;
+      const { data, status } = await axios.get(url);
+      if (status === 200 && data) {
+        setTotalContactos(data.total);
+        setContac(data.data);
+        setSiguiente(data.siguientes);
+        setAnterior(data.anterior);
+      }
     }
+  }
+
+  const HandleSiguiente = async () => {
+    await ListarContactos(siguiente);
+  }
+  const HandleAnterior = async () => {
+    await ListarContactos(anterior);
   }
 
   const ListarBot = async () => {
@@ -359,21 +379,20 @@ export default function Contactos(props) {
           <div className="d-flex justify-content-center">
             <nav aria-label="Page navigation example text-center">
               <ul className="pagination">
-                  <button className="page-link" aria-label="Previous" onClick={() => AnteriorPagina()}>
+                  <button className="page-link" aria-label="Previous" onClick={() => HandleAnterior()}>
                     <span aria-hidden="true">&laquo;</span>
                   </button>
 
                   <div className="d-flex justify-content-center">
                       <button className="page-link">
-                        {totalPaginasContactos === 0 ? 0 : pageContactos}
+                        {totalContactos === 0 ? 0 : totalContactos}
                       </button>
                   </div>
 
-                  <button className="page-link" aria-label="Next" onClick={() => SiguientePagina()}>
+                  <button className="page-link" aria-label="Next" onClick={() => HandleSiguiente()}>
                     <span aria-hidden="true">&raquo;</span>
                   </button>
               </ul>
-              <p>Paginas: {totalPaginasContactos}</p>
             </nav>
           </div>
         </Card>

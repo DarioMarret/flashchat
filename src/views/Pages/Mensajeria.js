@@ -61,6 +61,7 @@ export default function Mensajeria() {
   const dummy = useRef(null);
   const [etiquetas, setEtiquetas] = useState([])
   const [showRespuesta, setShowRespuesta] = useState(false)
+  const [disabledInput, setDisabledInput] = useState(false)
   const [countC, setCountC] = useState({
     sinLeer: 0,
     misConversaciones: 0,
@@ -98,6 +99,7 @@ export default function Mensajeria() {
     // a la fecha es mayor a 15 dias 
     console.log("fecha fin: ",moment(data.data[0].fecha_fin))
     if(data.data[0].plan_id === 1 && moment(data.data[0].fecha) <= moment().subtract(15, 'days')){
+      setDisabledInput(true)
       Swal.fire({
         title: 'Plan gratuito expirado',
         text: 'El plan gratuito ha expirado, por favor actualice su plan',
@@ -1031,6 +1033,7 @@ export default function Mensajeria() {
                   cols={"2"}
                   rows={"2"}
                   placeholder="Escribir ..."
+                  disabled={disabledInput}
                   value={inputStr}
                   onChange={(e) => {
                     setInputStr(e.target.value)

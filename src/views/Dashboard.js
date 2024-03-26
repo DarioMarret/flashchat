@@ -233,10 +233,10 @@ function Dashboard() {
   }
 
   const ListarContactos = async() => {
-    const url = `${host}contactos/${GetTokenDecoded().cuenta_id}`;
+    const url = `${host}contactos/${GetTokenDecoded().cuenta_id}?skip=0&take=10`;
     const { data, status } = await axios.get(url);
     if (status === 200) {
-      setContactos(data.data);
+      setContactos(data.total);
     }
   }
   const ListarAgentes = async() => {
@@ -288,7 +288,7 @@ function Dashboard() {
                   <Col xs="7">
                     <div className="numbers">
                       <p className="card-category">Contactos</p>
-                      <Card.Title as="h4">{contactos.length}</Card.Title>
+                      <Card.Title as="h4">{contactos}</Card.Title>
                     </div>
                   </Col>
                 </Row>

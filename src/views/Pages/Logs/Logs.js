@@ -51,6 +51,7 @@ function Logs(props) {
             await ListarLogs()
         })()
     }, [])
+    
     return (
         <Container fluid>
         {/* Crear una tabla con paginador en la cabecera ca acciones realizado id logs */}
