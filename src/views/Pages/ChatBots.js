@@ -331,6 +331,7 @@ function ChatBots(props) {
       if (userFb && perfil) {
         let datos = {
           ...userFb,
+          plantilla: bot.plantilla,
           name: perfil.name,
           email: perfil.email,
           url: perfil.picture.data.url,
