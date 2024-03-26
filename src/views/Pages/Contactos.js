@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import axios from "axios";
 import { GetTokenDecoded, SubirMedia } from "function/storeUsuario";
-import { colorPrimario, host } from "function/util/global";
+import { BmHttp, colorPrimario, host } from "function/util/global";
 import { useEffect, useState } from "react";
 import { Card, Container, Modal } from "react-bootstrap";
 import { Input } from "reactstrap";
@@ -196,42 +196,6 @@ export default function Contactos(props) {
       }
     });
   };
-  // cantidad de contactos que se mostrarán la primera vez que se cargue la pagina
-  const MostrarCantidadContactos = (contac) => {
-    // setContac(contac.slice(offsetContactos, limitContactos));
-    // se tiene que hacer una copia del array para que no se modifique el original
-    setContac(contac.slice(offsetContactos, offsetContactos + limitContactos));
-  };
-  // cantidad de paginas que se mostraran devuelve la cantidad de paginas
-  const Paginacion = (contac) => {
-    let paginas = Math.ceil(contac.length / limitContactos);
-    let paginacion = 0;
-    for (let i = 0; i < paginas; i++) {
-      paginacion = i + 1;
-    }
-    setTotalPaginasContactos(paginas);
-    return paginacion;
-  };
-  // Siguente pagina
-  const SiguientePagina = () => {
-    if (pageContactos < totalPaginasContactos) {
-      // se muestra la siguiente pagina de contactos
-      setPageContactos(pageContactos + 1);
-      setOffsetContactos(offsetContactos + limitContactos);
-      MostrarCantidadContactos(contactos);
-
-    }
-  };
-  // Anterior pagina
-  const AnteriorPagina = () => {
-    if (pageContactos >= 1) {
-      // se muestra la pagina anterior de contactos
-      setPageContactos(pageContactos - 1);
-      setOffsetContactos(offsetContactos - limitContactos);
-      MostrarCantidadContactos(contactos);
-    }
-  };
-
 
   const Enviarmensaje = async () => {
     socket.emit("iniciar_conversacion", mensaje);
@@ -270,22 +234,23 @@ export default function Contactos(props) {
     hiddenElement.click();
   };
 
-  const hanbleBuscar = (e) => {
+  const hanbleBuscar = async(e) => {
     let busqueda = e.target.value;
     if (busqueda !== "") {
-      let filtro = contactos.filter((item) => {
-        if (
-          item.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
-          item.correo.toLowerCase().includes(busqueda.toLowerCase()) ||
-          item.telefono.toLowerCase().includes(busqueda.toLowerCase()) ||
-          item.channel.proveedor.toLowerCase().includes(busqueda.toLowerCase())
-        ) {
-          return item;
-        }
+      // let filtro = contactos.filter((item) => {
+      //   if (item.nombre.toLowerCase().includes(busqueda.toLowerCase()) || item.correo.toLowerCase().includes(busqueda.toLowerCase()) ||
+      //     item.telefono.toLowerCase().includes(busqueda.toLowerCase()) || item.channel.proveedor.toLowerCase().includes(busqueda.toLowerCase())) {
+      //     return item;
+      //   }
+      // });
+      const { data, status } = await BmHttp.post(`${host}contactos/coincidencia`,{
+        cuenta_id: GetTokenDecoded().cuenta_id,
+        coincidencia: busqueda
       });
-      setContac(filtro);
+      console.log(data);
+      setContac(data);
     } else {
-      MostrarCantidadContactos(contactos);
+      await ListarContactos()
     }
   };
 
