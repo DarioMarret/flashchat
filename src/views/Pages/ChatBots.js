@@ -1,4 +1,4 @@
-import FacebookLogin from "@greatsumini/react-facebook-login";
+import FacebookLogin, { FacebookLoginClient } from "@greatsumini/react-facebook-login";
 import d360 from "assets/img/360.jpeg";
 import AI from "assets/img/chatgpt.png";
 import cloud from "assets/img/cloud.png";
@@ -52,6 +52,7 @@ function ChatBots(props) {
     Limpiar();
   };
 
+
   const handleopQr = () => {
     setOpQr(!opQr);
   };
@@ -97,6 +98,7 @@ function ChatBots(props) {
           ListarBots()
           ListarBots()
           Limpiar()
+          FacebookLoginClient.logout()
         });
       } else if (data.status === 400 && data.message === "No puedes crear mas bots") {
         Swal.fire({
@@ -164,8 +166,18 @@ function ChatBots(props) {
       await ListarCanal();
       await ListarBots();
       await ListarPlantillaBot();
+      // await loadFB();
     })();
   }, []);
+
+  const loadFB = async() => {
+    FacebookLoginClient.logout();
+    await FacebookLoginClient.loadSdk('es_LA');
+    FacebookLoginClient.init({
+      appId: "3176667395950990",
+      version: "v19.0",
+    });
+  }
 
   const Limpiar = () => {
     setBot({
@@ -335,6 +347,8 @@ function ChatBots(props) {
           name: perfil.name,
           email: perfil.email,
           url: perfil.picture.data.url,
+          access_token_pagina: perfil.accounts.data[0].access_token,
+          accounts: perfil.accounts,
         };
         setUserFb(null);
         const { data, status } = await axios.post(`${host}webhookFConfig?cuenta_id=${GetTokenDecoded().cuenta_id}`, datos);
@@ -498,14 +512,11 @@ function ChatBots(props) {
                   <>
                     <FacebookLogin
                       appId="3176667395950990"
-                      // obtener el identificador de la pagina
                       fields="email,name,picture,accounts"
-                      // que liste las paginas que tiene el usuario
-                      // obtener el identificador de la pagina
-                      scope="pages_show_list,email,public_profile,pages_messaging,pages_manage_metadata,pages_messaging_subscriptions"
+                      scope="pages_show_list,public_profile,pages_messaging"
                       autoLoad={true}
                       onSuccess={(response) => {
-                        // console.log('Login Success!', response);
+                        console.log('Login Success!', response);
                         setUserFb(response);
                       }}
                       onFail={(error) => {
