@@ -26,6 +26,7 @@ import Auths from "views/Pages/auth/Auths";
 
 import { GetTokenDecoded, setDatosUsuario } from "function/storeUsuario";
 import { AlertBanner } from "views/Components/Alert/Alert";
+import PageContrucion from "views/PageContrucion";
 import Cola from "views/Pages/Cola/Cola";
 import Cuenta from "views/Pages/Cuenta/Cuenta";
 import Factura from "views/Pages/Factura/Factura";
@@ -227,10 +228,14 @@ export default function App() {
                       element={<Integraciones />}
                       exact
                     />
-
                     <Route 
                       path="/admin/logs"
                       element={<Logs/>}
+                      exact
+                    />
+                    <Route
+                      path="/admin/recordatorios"
+                      element={<PageContrucion />}
                       exact
                     />
                   </Routes>

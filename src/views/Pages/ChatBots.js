@@ -353,16 +353,16 @@ function ChatBots(props) {
         setUserFb(null);
         const { data, status } = await axios.post(`${host}webhookFConfig?cuenta_id=${GetTokenDecoded().cuenta_id}`, datos);
         if (status === 200) {
-          console.log("response: ", data);
+          await ListarBots();
           setShow(!show);
           Swal.fire({
             title: "Bot guardado",
             icon: "success",
             showConfirmButton: false,
-            timer: 1500,
-          })
-          ListarBots();
-          ListarBots();
+            timer: 800,
+          });
+          await ListarBots();
+          Limpiar();
           return true;
         } else {
           return false;
@@ -415,8 +415,14 @@ function ChatBots(props) {
 
                   <button className="bot-card-buttons-btn"
                     onClick={() =>{
-                      let url = bot.url.replaceAll("http://177.234.209.101:3022", "https://flashbot.bot")
-                      window.open(`${url}?cuenta_id=${bot.cuenta_id}`,"_blank")
+                      if(bot.url){
+                        let url = bot.url.replaceAll("http://177.234.209.101:3022", "https://flashbot.bot")
+                        window.open(`${url}?cuenta_id=${bot.cuenta_id}`,"_blank")
+                      }else{
+                        ListarBots()
+                        let url = bot.url.replaceAll("http://177.234.209.101:3022", "https://flashbot.bot")
+                        window.open(`${url}?cuenta_id=${bot.cuenta_id}`,"_blank")
+                      }
                     }}
                   >
                     <span class="material-symbols-outlined text-secondary">manufacturing</span>

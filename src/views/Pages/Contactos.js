@@ -1,5 +1,4 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import axios from "axios";
 import { GetTokenDecoded, SubirMedia } from "function/storeUsuario";
 import { BmHttp, colorPrimario, host } from "function/util/global";
 import { useEffect, useState } from "react";
@@ -86,7 +85,7 @@ export default function Contactos(props) {
   const ListarContactos = async (pass) => {
     if(pass){
       console.log(pass);
-      const { data, status } = await axios.get(pass);
+      const { data, status } = await BmHttp.get(pass);
       if (status === 200 && data) {
         setTotalContactos(data.total);
         setContac(data.data);
@@ -96,7 +95,7 @@ export default function Contactos(props) {
       return;
     }else{
       const url = `${host}contactos/${GetTokenDecoded().cuenta_id}?skip=${0}&take=${limitContactos}`;
-      const { data, status } = await axios.get(url);
+      const { data, status } = await BmHttp.get(url);
       if (status === 200 && data) {
         setTotalContactos(data.total);
         setContac(data.data);
@@ -115,7 +114,7 @@ export default function Contactos(props) {
 
   const ListarBot = async () => {
     const url = `${host}bots/${GetTokenDecoded().cuenta_id}`;
-    const { data, status } = await axios.get(url);
+    const { data, status } = await BmHttp.get(url);
     if (status === 200) {
       setBot(data.data);
     }
@@ -124,14 +123,14 @@ export default function Contactos(props) {
   const CrearContacto = async () => {
     if (contacto.id !== 0) {
       let urle = `${host}contactos/${contacto.id}`;
-      const { status } = await axios.put(urle, contacto);
+      const { status } = await BmHttp.put(urle, contacto);
       if (status === 200) {
         ListarContactos();
         handleClose();
       }
     } else {
       let url = `${host}contactos`;
-      const { status } = await axios.post(url, contacto);
+      const { status } = await BmHttp.post(url, contacto);
       if (status === 200) {
         ListarContactos();
         handleClose();
@@ -158,7 +157,7 @@ export default function Contactos(props) {
 
   const ListarCanal = async () => {
     const url = `${host}canales`;
-    const { data, status } = await axios.get(url);
+    const { data, status } = await BmHttp.get(url);
     if (status === 200) {
       setCanales(data.data);
     }
@@ -189,7 +188,7 @@ export default function Contactos(props) {
     }).then(async (result) => {
       if (result.isConfirmed) {
         const url = `${host}contactos/${id}`;
-        const { status } = await axios.delete(url);
+        const { status } = await BmHttp.delete(url);
         if (status === 200) {
           await ListarContactos();
         }
@@ -237,12 +236,6 @@ export default function Contactos(props) {
   const hanbleBuscar = async(e) => {
     let busqueda = e.target.value;
     if (busqueda !== "") {
-      // let filtro = contactos.filter((item) => {
-      //   if (item.nombre.toLowerCase().includes(busqueda.toLowerCase()) || item.correo.toLowerCase().includes(busqueda.toLowerCase()) ||
-      //     item.telefono.toLowerCase().includes(busqueda.toLowerCase()) || item.channel.proveedor.toLowerCase().includes(busqueda.toLowerCase())) {
-      //     return item;
-      //   }
-      // });
       const { data, status } = await BmHttp.post(`${host}contactos/coincidencia`,{
         cuenta_id: GetTokenDecoded().cuenta_id,
         coincidencia: busqueda
