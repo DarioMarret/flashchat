@@ -519,7 +519,7 @@ function ChatBots(props) {
                     <FacebookLogin
                       appId="3176667395950990"
                       fields="email,name,picture,accounts"
-                      scope="pages_show_list,public_profile,pages_messaging,pages_read_engagement,pages_manage_metadata"
+                      scope="pages_show_list,public_profile,pages_messaging,pages_read_engagement,pages_manage_metadata,business_management"
                       autoLoad={true}
                       onSuccess={(response) => {
                         console.log('Login Success!', response);
