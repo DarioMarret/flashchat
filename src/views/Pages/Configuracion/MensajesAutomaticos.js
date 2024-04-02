@@ -40,7 +40,6 @@ function MensajesAutomaticos(props) {
     const ListarMensajes = async () => {
         const url = `${host}mensaje_predeterminado/${GetTokenDecoded().cuenta_id}`
         const { data, status } = await axios.get(url)
-        console.log(data)
         if (status === 200 && data.data !== null) {
             setMensajes(data.data)
         }
@@ -49,7 +48,6 @@ function MensajesAutomaticos(props) {
     const ListarMensajeEstados = async () => {
         const url = `${host}estado_mensaje/${GetTokenDecoded().cuenta_id}`
         const { data } = await axios.get(url)
-        console.log(data.data)
         if (data.status === 200) {
             setMensajeEstado(data.data)
         }
@@ -185,7 +183,7 @@ function MensajesAutomaticos(props) {
                         <tbody>
                             {mensajes.map((item) => (
                                 <tr key={item.id}>
-                                    <td className="m-2 p-2 text-start">{item.mensaje}</td>
+                                    <td className="text-start">{item.mensaje}</td>
                                     <td className="text-center d-flex justify-content-center align-items-center gap-2 m-0 p-0" >
                                         <button className="btn btn m-0" onClick={()=>handleShow(item)}><i className="fas fa-edit"></i></button>
                                         <button className="btn btn m-0" onClick={()=>EliminarMensaje(item.id)}><i className="fas fa-trash-alt text-danger"></i></button>

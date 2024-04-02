@@ -1007,8 +1007,15 @@ export default function Mensajeria() {
                           return (
                             <span
                               key={index + 1}
-                              className="col-12 rounded border text-dark px-3 bg-chat chat-text py-1 cursor-pointer w-50
-                              height-50 d-flex align-items-center justify-content-start"
+                              className="col-12 rounded border text-dark px-3 py-1 cursor-pointer w-50
+                              d-flex align-items-center justify-content-start"
+                              style={{
+                                overflow: "auto",
+                                height: "auto",
+                                fontSize: "13px",
+                                cursor: "pointer",
+                                background: "#f5f5f5",
+                              }}
                               onClick={() => {
                                 setInputStr(item.mensaje);
                                 setShowRespuesta(false);

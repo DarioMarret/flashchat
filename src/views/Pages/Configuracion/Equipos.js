@@ -1,6 +1,5 @@
-import axios from "axios";
 import { GetTokenDecoded } from "function/storeUsuario";
-import { BmHttp, host } from "function/util/global";
+import { BmHttp } from "function/util/global";
 import Multiselect from 'multiselect-react-dropdown';
 import { useEffect, useState } from 'react';
 import {
@@ -54,8 +53,8 @@ function Equipos(props) {
     }
 
     const ListarAgentes = async () => {
-        let url = host + 'agentes/'+GetTokenDecoded().cuenta_id
-        const { data, status } = await axios.get(url)
+        let url = 'agentes/'+GetTokenDecoded().cuenta_id
+        const { data, status } = await BmHttp.get(url)
         if(status === 200){
             let labels = []
             data.data.map((item) => {
@@ -65,8 +64,8 @@ function Equipos(props) {
         }
     }
     const ListarEquipos = async () => {
-        let url = host + 'equipo/'+GetTokenDecoded().cuenta_id
-        const { data, status } = await axios.get(url)
+        let url = 'equipo/'+GetTokenDecoded().cuenta_id
+        const { data, status } = await BmHttp.get(url)
         if(status === 200){
             setEquipos(data.data)
             Limpiar()
@@ -75,8 +74,8 @@ function Equipos(props) {
 
     const CrearEquipo = async (e) => {
         e.preventDefault()
-        let url = host + 'equipo'
-        const { data, status } = await axios.post(url, equipo)
+        let url = 'equipo'
+        const { data, status } = await BmHttp.post(url, equipo)
         if(status === 200){
             Swal.fire({
                 icon: 'success',
@@ -111,7 +110,7 @@ function Equipos(props) {
         }).then(async (result) => {
             if (result.isConfirmed) {
                 let url = 'equipo/'+id
-                const { data, status } = await BmHttp.delete(url)
+                const { status } = await BmHttp.delete(url)
                 if(status === 200){
                     Limpiar()
                     ListarEquipos()
@@ -125,27 +124,32 @@ function Equipos(props) {
         setShow(true)
     }
 
-    const EditarEquipo = async (id) => {
-        let url = host + 'equipo/'+id
-        const { status } = await axios.put(url, equipo)
-        if(status === 200){
-            Swal.fire({
-                icon: 'success',
-                title: 'Equipo editado con éxito',
-                showConfirmButton: false,
-                timer: 1500
-            }).then(() => {
-                ListarEquipos()
-                setShow(true)
-                Limpiar()
-            })
-        }else{
-            Swal.fire({
-                icon: 'error',
-                title: 'Error al editar el equipo',
-                showConfirmButton: false,
-                timer: 1800
-            })
+    const EditarEquipo = async (e, id) => {
+        e.preventDefault()
+        try {
+            let url = 'equipo/'+id
+            const { status } = await BmHttp.put(url, equipo)
+            if(status === 200){
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Equipo editado con éxito',
+                    showConfirmButton: false,
+                    timer: 1500
+                }).then(() => {
+                    ListarEquipos()
+                    setShow(false)
+                    Limpiar()
+                })
+            }else{
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error al editar el equipo',
+                    showConfirmButton: false,
+                    timer: 1800
+                })
+            }
+        } catch (error) {
+            console.log(error)
         }
     }
 
@@ -193,13 +197,26 @@ function Equipos(props) {
                                         <td>{item.equipos}</td>
                                         <td>{item.descripcion}</td>
                                         <td>
-                                            <button className="btn btn ml-2"
+                                            <button className="ml-2"
                                                 onClick={() => handleEquipoEdit(item)}
+                                                style={{
+                                                    cursor: 'pointer',
+                                                    textDecoration: 'none',
+                                                    border: 'none',
+                                                    backgroundColor: 'transparent'
+                                                }}
                                             >
                                                 <i className="fas fa-edit"></i>
                                             </button>
-                                            <button className="btn btn ml-2"
+                                            <button className="ml-2"
                                                 onClick={() => EliminarEquipo(item.id)}
+                                                style={{
+                                                    cursor: 'pointer',
+                                                    textDecoration: 'none',
+                                                    border: 'none',
+                                                    backgroundColor: 'transparent'
+
+                                                }}
                                             >
                                                 <i className="fas fa-trash-alt text-danger"></i>
                                             </button>
@@ -264,7 +281,7 @@ function Equipos(props) {
                             equipo.id !== 0 ?
                             <button 
                                 className='button-bm mr-2 w-100 mt-3'
-                            type="submit" onClick={(e)=>EditarEquipo(equipo.id)}>
+                            type="submit" onClick={(e)=>EditarEquipo(e, equipo.id)}>
                                 Editar
                             </button>:
                             <button
