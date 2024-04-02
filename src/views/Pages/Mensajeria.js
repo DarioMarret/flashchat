@@ -94,10 +94,8 @@ export default function Mensajeria() {
     const url = `${host}cuenta_plan/${GetTokenDecoded().cuenta_id}`
     const { data } = await axios.get(url)
     setListarPlanAsignado(data.data[0])
-    console.log("PlanAsignado: ",data.data[0])
     // verificar si el plan asignado es el 1 osea el plan gratuito y si la fecha ya expiro
     // a la fecha es mayor a 15 dias 
-    console.log("fecha fin: ",moment(data.data[0].fecha_fin))
     if(data.data[0].plan_id === 1 && moment(data.data[0].fecha) <= moment().subtract(15, 'days')){
       setDisabledInput(true)
       Swal.fire({
@@ -133,7 +131,6 @@ export default function Mensajeria() {
   const ListarAgentes = async() => {
     const url = `${host}agentes/${GetTokenDecoded().cuenta_id}`
     const { data, status } = await axios.get(url)
-    console.log(data.data)
     if (status === 200) {
         let ag = []
         data.data.map((agente, index) => {

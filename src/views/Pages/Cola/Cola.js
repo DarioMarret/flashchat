@@ -69,7 +69,6 @@ function Cola(props) {
                 if(agentes.length > 0){
                     setAgentes(agentes);
                 }
-                console.log(agentes);
             }
         })
     // }, [])
