@@ -39,13 +39,13 @@ var routes = [
       icon: "nc-icon nc-chat-round",
       component: Mensajeria
     },
-    // {
-    //   path: "/en-cola",
-    //   layout: "/admin",
-    //   name: "En cola",
-    //   icon: "nc-icon nc-tv-2",
-    //   component: Integraciones
-    // },
+    {
+      path: "/en-cola",
+      layout: "/admin",
+      name: "En cola",
+      icon: "nc-icon nc-tv-2",
+      component: Integraciones
+    },
     {
       path: "/contactos",
       layout: "/admin",

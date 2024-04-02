@@ -21,7 +21,7 @@ import Swal from 'sweetalert2';
 import MensajeriaContext from "context/MensajeriaContext";
 import Picker from "emoji-picker-react";
 import { DeletManejoConversacionStorange, GetManejoConversacion, SetManejoConversacionStorange, SubirMedia, removeDatosUsuario, setDatosUsuario } from "function/storeUsuario";
-import { colorPrimario, dev } from "function/util/global";
+import { BmHttp, colorPrimario, dev } from "function/util/global";
 import useAuth from "hook/useAuth";
 import io from "socket.io-client";
 import ComponenteMultimedia from "views/Components/ComponenteMultimedia";
@@ -160,8 +160,8 @@ export default function Mensajeria() {
 
   const ListarMensajesRespuestaRapida = async () => {
     try {
-      const url = `${host}/mensaje_predeterminado/${GetTokenDecoded().cuenta_id}`
-      const { data, status } = await axios.get(url)
+      const url = `mensaje_predeterminado/${GetTokenDecoded().cuenta_id}`
+      const { data, status } = await BmHttp.get(url)
       if (status === 200 && data.data !== null) {
         setRespuestaRapidas(data.data)
       }

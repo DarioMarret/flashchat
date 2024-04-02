@@ -41,8 +41,6 @@ function CardChat(props) {
   }
 
 
-  console.log(GetTokenDecoded())
-
   const SetTransferirChat = (data) => {
     socket.emit("transferir_chat", {
       cuenta_id: GetTokenDecoded().cuenta_id,

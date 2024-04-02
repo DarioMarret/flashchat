@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { GetTokenDecoded, SubirMedia } from 'function/storeUsuario';
-import { host } from 'function/util/global';
+import { BmHttp, host } from 'function/util/global';
 import Multiselect from 'multiselect-react-dropdown';
 import { useEffect, useState } from 'react';
 import {
@@ -75,8 +75,8 @@ function Agentes(props) {
     }
 
     const ListarAgentes = async() => {
-        const url = `${host}agentes/${GetTokenDecoded().cuenta_id}`
-        const { data, status } = await axios.get(url)
+        const url = `agentes/${GetTokenDecoded().cuenta_id}`
+        const { data, status } = await BmHttp.get(url)
         if (status === 200) {
             let ag = []
             data.data.map((agente, index) => {

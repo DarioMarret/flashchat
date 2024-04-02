@@ -1,6 +1,6 @@
 import axios from "axios";
 import { GetTokenDecoded } from "function/storeUsuario";
-import { host } from "function/util/global";
+import { BmHttp, host } from "function/util/global";
 import Multiselect from 'multiselect-react-dropdown';
 import { useEffect, useState } from 'react';
 import {
@@ -110,8 +110,8 @@ function Equipos(props) {
             confirmButtonText: 'Sí, eliminar'
         }).then(async (result) => {
             if (result.isConfirmed) {
-                let url = host + 'equipo/'+id
-                const { data, status } = await axios.delete(url)
+                let url = 'equipo/'+id
+                const { data, status } = await BmHttp.delete(url)
                 if(status === 200){
                     Limpiar()
                     ListarEquipos()
