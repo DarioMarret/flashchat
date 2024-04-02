@@ -431,7 +431,7 @@ export default function Mensajeria() {
                 // audio.play();
               }
             }
-          }else if(data.agente_id === 0 && covActiva.sin_asignar === true){
+          }else if(covActiva.sin_asignar === true && covActiva.agente_id === data.agente_id){
             if(listMensajes.length !== 0 && JSON.stringify(listMensajes) !== JSON.stringify(conversacionActiva)){
               setConversacionActiva(listMensajes)
               dummy.current.scrollIntoView({ behavior: "smooth", block: "end", inline: "nearest" });
