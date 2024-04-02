@@ -91,7 +91,7 @@ function CardChat(props) {
       equipo_id: items.equipo_id,
       channel_id: items.channel_id,
       contacto_id: items.contacto_id,
-      agente_id: 0,
+      agente_id: items.agente_id,
       nombreunico: items.nombreunico,
       tipo: "sin_asignar",
     })
