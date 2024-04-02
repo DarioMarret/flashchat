@@ -255,7 +255,7 @@ export default function Mensajeria() {
                     contacto_id: item.Contactos.id,
                     equipo_id: item.equipo_id,
                     channel_id: item.channel_id,
-                    agente_id: 0,
+                    agente_id: item.agente_id,
                     conversacion_id: item.conversacion_id,
                     nombreunico: item.nombreunico,
                   })
