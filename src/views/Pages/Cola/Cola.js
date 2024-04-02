@@ -13,6 +13,7 @@ import CardCola from './components/CardCola';
 function Cola(props) {
     const [agentes, setAgentes] = useState([]);
     const [agenteConConversacion, setAgenteConConversacion] = useState([]);
+    const [TotalConevrsacion, setTotalConevrsacion] = useState([]);
     const [cuenta_id, setCuenta_id] = useState(GetTokenDecoded().cuenta_id);
 
     const ListarAgentes = async () => {
@@ -58,7 +59,8 @@ function Cola(props) {
 
     // useEffect(() => {
         socket.on(`response_conversacion_${cuenta_id}`, (data) => {
-            if(data.length !== 0){
+            if(data.length > 0){
+                setTotalConevrsacion(data);
                 agentes.map((agente, index) => {
                     let conversacion = data.filter((conversacion) => conversacion.agente_id === agente.id);
                     agentes[index]['conversacion'] = conversacion;
@@ -67,6 +69,7 @@ function Cola(props) {
                 if(agentes.length > 0){
                     setAgentes(agentes);
                 }
+                console.log(agentes);
             }
         })
     // }, [])
@@ -101,12 +104,13 @@ function Cola(props) {
                                 className='text-center d-flex justify-content-center align-items-center'
                                 style={{ width: '75%', height: '60px', display: 'flex', flexDirection: 'column', justifyContent: 'center', cursor: 'pointer' }}
                             >
-                                <span>43</span>
+                                <span>{TotalConevrsacion && TotalConevrsacion.length}</span>
                                 <span>General</span>
                             </div>
                         </div>
                     </Card>
                 </Col>
+                
                 <Col>
                     <Card className='shadow d-flex justify-content-center align-items-center'>
                         <div className='d-flex justify-content-between align-items-center w-100'>
@@ -116,7 +120,6 @@ function Cola(props) {
                                     borderTopLeftRadius: '5px', borderBottomLeftRadius: '5px'
                                 }}
                             >
-                                {/* icono de conectivida red */}
                                 <i className="fas fa-network-wired"
                                     style={{ fontSize: '30px', color: 'white',
                                         display: 'flex', justifyContent: 'center', alignItems: 'center'
@@ -127,12 +130,17 @@ function Cola(props) {
                                 className='text-center d-flex justify-content-center align-items-center'
                                 style={{ width: '75%', height: '60px', display: 'flex', flexDirection: 'column', justifyContent: 'center', cursor: 'pointer' }}
                             >
-                                <span>43</span>
+                                <span>{
+                                    TotalConevrsacion && TotalConevrsacion.length > 0 ?
+                                        TotalConevrsacion.filter(conversacion => conversacion.equipo_id !== null).length
+                                        : 0
+                                    }</span>
                                 <span>Equipo</span>
                             </div>
                         </div>
                     </Card>
                 </Col>
+
                 <Col>
                     <Card className='shadow d-flex justify-content-center align-items-center'>
                         <div className='d-flex justify-content-between align-items-center w-100'>
@@ -153,8 +161,8 @@ function Cola(props) {
                                 className='text-center d-flex justify-content-center align-items-center'
                                 style={{ width: '75%', height: '60px', display: 'flex', flexDirection: 'column', justifyContent: 'center', cursor: 'pointer' }}
                             >
-                                <span>43</span>
-                                <span>Mias</span>
+                                <span>{agentes.length}</span>
+                                <span>Agentes</span>
                             </div>
                         </div>
                     </Card>
@@ -179,7 +187,11 @@ function Cola(props) {
                                 className='text-center d-flex justify-content-center align-items-center'
                                 style={{ width: '75%', height: '60px', display: 'flex', flexDirection: 'column', justifyContent: 'center', cursor: 'pointer' }}
                             >
-                                <span>43</span>
+                                <span>{
+                                    TotalConevrsacion && TotalConevrsacion.length > 0 ?
+                                        TotalConevrsacion.filter(conversacion => conversacion.agente_id === null || conversacion.agente_id === 0).length
+                                        : 0
+                                    }</span>
                                 <span>ChatBot</span>
                             </div>
                         </div>

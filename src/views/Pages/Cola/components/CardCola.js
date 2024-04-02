@@ -16,32 +16,51 @@ function CardCola(props) {
                     >
                         <div className='d-flex justify-content-start align-items-center mb-1'>
                             <img
-                                src='https://www.gravatar.com/avatar/205e460b479e2e5b48aec07710c08d50'
+                                src={items.avatar === "" ? 'https://www.gravatar.com/avatar/205e460b479e2e5b48aec07710c08d50?s=200' : items.avatar}
                                 alt='Adrian Mosquera'
                                 style={{ width: '30px', height: '30px', borderRadius: '50%' }}
                                 className='mx-2'
                             />
-                            <span>{items.nombre}</span>
+                            <span
+                                style={{
+                                    fontSize: '14px',
+                                    width: '100%',
+                                }}
+                            >{items.nombre}</span>
+                            <div
+                                className='d-flex justify-content-end align-items-center w-100'
+                            >
+                                {/* cantidad de conevrsaciones */}
+                                <span className='mx-2'
+                                    style={{
+                                        fontSize: '12px',
+                                    }}
+                                >
+                                    <i className="fas fa-comment"></i>
+                                    {items.conversacion.length}
+                                </span>
+                            </div>
                         </div>
                         <div className='d-flex'>
-                            <EstadoAgente estado={items.estado} />
-                            {/* <span className='mx-2'>
-                                <i className="fas fa-circle" style={{ color: 'red' }}></i>
-                                Ocupado
-                            </span> */}
+                            {
+                                items.conversacion.length > 0 ?
+                                <EstadoAgente estado={items.conversacion[0].agente.estado} />
+                                : <EstadoAgente estado={items.estado} />
+
+                            }
                         </div>
                         <Row
-                            className='d-flex justify-content-start align-items-center flex-wrap'
-                            style={{ marginTop: '20px' }}
-                            lg={4}
-                            md={3}
-                            sm={3}
-                            xs={1}
+                            // en md se muestra 3 elementos
+                            // en sm se muestra 2 elementos
+                            // en xs se muestra 1 elemento
+                            className='d-flex justify-content-start md-3 sm-2 xs-1 align-items-center flex-wrap'
+                            style={{ marginTop: '10px' }}
+                          
                         >
                             {
                                 items.equipo.length > 0 ?  items.equipo.map((e, index) => {
                                     return (
-                                        <span key={index} className='mx-2'
+                                        <span key={index} className='mx-2 w-25'
                                             style={{
                                                 fontSize: '12px',
                                             }}
