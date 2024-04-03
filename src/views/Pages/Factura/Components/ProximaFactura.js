@@ -35,7 +35,7 @@ function ProximaFactura(props) {
                     <table responsive className="table-personalisado table-hover">
                         <thead>
                             <tr className="text-white text-center font-weight-bold text-uppercase text-monospace align-middle">
-                                <th>Siguiente pago</th>
+                                <th>Fecha de Corte</th>
                                 <th>Descripción</th>
                                 <th>Monto</th>
                                 <th>Estado</th>
