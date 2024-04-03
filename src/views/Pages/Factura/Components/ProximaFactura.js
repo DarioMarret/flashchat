@@ -39,7 +39,7 @@ function ProximaFactura(props) {
                                 <th>Descripción</th>
                                 <th>Monto</th>
                                 <th>Estado</th>
-                                <th>Link Pagon</th>
+                                <th>Link Pago</th>
                             </tr>
                         </thead>
                         <tbody>
