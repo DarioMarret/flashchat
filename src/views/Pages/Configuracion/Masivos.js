@@ -49,7 +49,7 @@ function Masivos(props) {
     }
     
     const handleSelect = (item) => {
-        if(item.target.value !== ''){
+        if(item){
             let inf = JSON.parse(item.target.value)
             setEnvio({
                 ...envio,
@@ -287,7 +287,7 @@ function Masivos(props) {
                         <div className="form-group">
                             <label htmlFor="nombreunico">Bot Envio</label>
                             <select className="form-control" id="nombreunico" name='nombreunico'
-                                value={envio.nombreunico}
+                                // value={envio.nombre_bot}
                                 onChange={handleSelect}
                             >
                                 <option value="">Seleccione un bot</option>
