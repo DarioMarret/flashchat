@@ -31,7 +31,8 @@ function Historital(props) {
                                 <td>29/02/2024</td>
                                 <td>Pagado</td>
                                 <td>
-                                    <i className="fas fa-eye cursor-pointer"></i>
+                                    {/* icono para descragar factura */}
+                                    <i className="fas fa-file-download"></i>
                                 </td>
                             </tr>
                         </tbody>

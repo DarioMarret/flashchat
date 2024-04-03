@@ -6,15 +6,15 @@ export default function Factura() {
   return (
     <Container fluid>
       <Tabs 
-        defaultActiveKey="Historial"
+        defaultActiveKey="Facturas"
         id="uncontrolled-tab-example"
         className='justify-content-center'
         >
-        <Tab eventKey="Historial" title="Historial">
-          <Historital/>
-        </Tab>
         <Tab eventKey="Facturas" title="Facturas">
           <ProximaFactura/>
+        </Tab>
+        <Tab eventKey="Historial" title="Historial">
+          <Historital/>
         </Tab>
       </Tabs>
     </Container>

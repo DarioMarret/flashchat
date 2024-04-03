@@ -1,9 +1,33 @@
+import { GetTokenDecoded } from "function/storeUsuario";
+import { BmHttp } from "function/util/global";
+import moment from "moment";
+import { useEffect, useState } from "react";
 import {
     Card,
     Container
 } from "react-bootstrap";
 
 function ProximaFactura(props) {
+
+    const [proximoPago, setProximoPago] = useState(null);
+
+    const ListarProximoPago = async () => {
+        try {
+            const {data, status} = await BmHttp.get(`proximo_pago_plan/${GetTokenDecoded().cuenta_id}`)
+            if(status === 200){
+                console.log(data);
+                setProximoPago(data.data);
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    useEffect(() => {
+        (async () => {
+            await ListarProximoPago();
+        })();
+    }, []);
     return (
         <>
             <Container fluid>
@@ -13,19 +37,32 @@ function ProximaFactura(props) {
                             <tr className="text-white text-center font-weight-bold text-uppercase text-monospace align-middle">
                                 <th>Siguiente pago</th>
                                 <th>Descripción</th>
+                                <th>Monto</th>
                                 <th>Estado</th>
-                                <th>Acciones</th>
+                                <th>Link Pagon</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr className="text-center">
-                                <td>29/03/2024</td>
-                                <td>Plan Básico +</td>
-                                <td>Procesando</td>
-                                <td>
-                                    <i className="fas fa-eye cursor-pointer"></i>
-                                </td>
-                            </tr>
+                            {
+                                proximoPago && [proximoPago].map((pago, index) => (
+                                    <tr key={index} className="text-center">
+                                        <td>{moment(pago.fecha_plazo).add(pago.plazo, 'day').format("YYYY/MM/DD")}</td>
+                                        <td>{pago.planes.plan}</td>
+                                        <td>{`$${(pago.monto).toFixed(2)}`}</td>
+                                        <td>{pago.estado}</td>
+                                        <td>
+                                            <button
+                                                className="btn"
+                                                onClick={() => {
+                                                    window.open(pago.link_pago);
+                                                }}
+                                            >
+                                                <i className="fas fa-money-check-alt"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))
+                            }
                         </tbody>
                     </table>
                 </Card>
