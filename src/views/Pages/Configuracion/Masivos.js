@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { GetTokenDecoded, SubirMedia } from 'function/storeUsuario';
 import { host } from 'function/util/global';
+import moment from 'moment';
 import { useEffect, useState } from 'react';
 import {
     Card,
@@ -32,6 +33,8 @@ function Masivos(props) {
         fecha_envio: null,
         mensaje: null,
         imagen:null,
+        video:null,
+        type: "imagen",
         plantilla: null,
         parametros: [],
         estado: null,
@@ -46,6 +49,17 @@ function Masivos(props) {
             ...envio,
             [e.target.name]: e.target.value,
         });
+        if(envio.type === 'video'){
+            setEnvio({
+                ...envio,
+                video: e.target.value
+            })
+        }else if(envio.type === 'imagen'){
+            setEnvio({
+                ...envio,
+                imagen: e.target.value
+            })
+        }
     }
     
     const handleSelect = (item) => {
@@ -85,10 +99,17 @@ function Masivos(props) {
         setProgresoFile(10)
         const url = await SubirMedia(file)
         if(url !== null){
-            setEnvio({
-                ...envio,
-                imagen: url
-            })
+            if(envio.type === 'video'){
+                setEnvio({
+                    ...envio,
+                    video: url
+                })
+            }else{
+                setEnvio({
+                    ...envio,
+                    imagen: url
+                })
+            }
             let i = 0
             for (i = progresoFile; i <= 100; i++) {
                 setProgresoFile(i)
@@ -134,9 +155,15 @@ function Masivos(props) {
         setShow(true)
     }
 
+    const handleType = (e) => {
+        setEnvio({
+            ...envio,
+            type: e.target.value
+        })
+    }
+
     const GuardarEnvio = async(e) => {
         e.preventDefault()
-        console.log(envio)
         if(envio.id !== 0){
             const url = `${host}masivo/${envio.id}`;
             const { status } = await axios.put(url, envio);
@@ -146,13 +173,14 @@ function Masivos(props) {
                 LimpiarEnvio()
                 Swal.fire({
                     icon: 'success',
-                    title: 'Envio actualizado',
+                    title: 'Masivo actualizado',
                     showConfirmButton: false,
                     timer: 1500
                 })
             }
         }else{
             const url = `${host}masivo`;
+            console.log(envio)
             const { status } = await axios.post(url, envio);
             if (status === 200) {
                 ListarMasivos();
@@ -160,7 +188,7 @@ function Masivos(props) {
                 LimpiarEnvio()
                 Swal.fire({
                     icon: 'success',
-                    title: 'Envio creado',
+                    title: 'Masivo creado',
                     showConfirmButton: false,
                     timer: 1500
                 })
@@ -204,6 +232,28 @@ function Masivos(props) {
         })()
     }, [])
 
+    const ComponenteMultimedia = (item) => {
+        if(item.imagen){
+            return(
+                <>
+                    <span>Imgen: </span>
+                    <img key={item.id} src={item.imagen} alt='...' width={150} />
+                </>
+            )
+        }else if(item.video){
+            return(
+                <>
+                    <span>Video: </span>
+                    <video key={item.id} width={250} controls>
+                        <source src={item.video} type="video/mp4" />
+                    </video>
+                </>
+            )
+        }else{
+            return <></>
+        }
+    }
+
     return (
         <>
             <Container fluid>
@@ -216,7 +266,7 @@ function Masivos(props) {
                 {
                     masivos.map((item, index) => (
                         <Col key={index}
-                            className="w-fit d-flex flex-column px-3 py-2 bg-white border rounded shadow-sm mb-3"
+                            className="w-fit d-flex flex-column px-3 py-2 bg-white border rounded shadow mb-3 m-2"
                             md="4"
                             sm="12"
                             lg="4"
@@ -224,18 +274,17 @@ function Masivos(props) {
                             <Card.Body>
                                 <Row>
                                     <div className="w-fit d-flex flex-column px-3 py-2">
-                                        <span>Bot: {item.nombre_bot}</span>
+                                        <span>Conexion: {item.nombre_bot}</span>
                                         <span>Campana: {item.titulo}</span>
-                                        <span>Fecha de envio: {item.fecha_envio}</span>
+                                        <span>Fecha de envio: {moment(item.fecha_envio).format("YYYY/MM/DD HH:mm")}</span>
                                         <span>Estado: {item.estado}</span>
+                                        <span>Total a enviar: {item.total}</span>
                                         <span>Progreso: {item.progreso}</span>
                                         <span>Intervalo de envio: {item.intervalo_entre}</span>
                                         <span>Retardo de envio entre mensajes: {item.retardo_entre_msjs}</span>
-                                        <span>Imgen: </span>
-                                        <img key={index} src={item.imagen} alt='...' width={150} />
+                                        {ComponenteMultimedia(item)}
                                         <span>Mensaje: </span>
-                                        <
-                                        >{item.mensaje.substring(0, 50)}...</>
+                                        <>{item.mensaje.substring(0, 50)}...</>
                                     </div>
                                     <div className="w-fit d-flex flex-column px-3 py-2 ">
                                         <button className="button-bm btn "
@@ -246,7 +295,7 @@ function Masivos(props) {
                                         <button className="button-bm btn "
                                             onClick={()=>EliminarMasivo(item.id)}
                                         >
-                                            <i className="fa fa-trash text-danger"></i>
+                                            <i className="fa fa-trash"></i>
                                         </button>
                                     </div>
                                 </Row>
@@ -286,10 +335,7 @@ function Masivos(props) {
                         </div>
                         <div className="form-group">
                             <label htmlFor="nombreunico">Bot Envio</label>
-                            <select className="form-control" id="nombreunico" name='nombreunico'
-                                // value={envio.nombre_bot}
-                                onChange={handleSelect}
-                            >
+                            <select className="form-control" id="nombreunico" name='nombreunico' onChange={handleSelect}>
                                 <option value="">Seleccione un bot</option>
                                 {
                                     bots.map((item, index) => (
@@ -327,6 +373,7 @@ function Masivos(props) {
                                 onChange={handleEnvio}
                             />
                         </div>
+
                         <div className="form-group">
                             <label htmlFor="mensaje">Mensaje</label>
                             <textarea className="form-control" id="mensaje" rows="3"
@@ -335,32 +382,60 @@ function Masivos(props) {
                                 onChange={handleEnvio}
                             />
                         </div>
-                        <div className="form-group">
-                            <label htmlFor="attachment">Imagen</label>
-                            <input 
-                                className="form-control" id="imagen" placeholder="imagen"
-                                type="file"
-                                accept="image/*"
-                                name="imagen"
-                                onChange={(e) => CargarAvatar(e.target.files[0])}
-                            />
-                            {/* para de progrese para la subida de la imagen  */}
-                            {
-                                progresoFile !== 0 ?
-                                <p className='text-center mt-1'>{progresoFile}%</p> : null
-                            }
-                            {
-                                progresoFile !== 0 ?
-                                <div className="progress">
-                                    <div className="progress-bar progress-bar-striped progress-bar-animated" 
-                                    role="progressbar" 
-                                    aria-valuenow={progresoFile} 
-                                    aria-valuemin="0" 
-                                    aria-valuemax="100" 
-                                    style={{ width: `${progresoFile}%` }}></div>
-                                </div> : null
-                            }
+                            {/* checkout para saver si envia imagen o video */}
+                            <div className="form-group">
+                            <label htmlFor="type">Tipo de multimedia</label>
+                            <div className="d-flex">
+                                <div className="">
+                                    <label htmlFor="imagen">Imagen</label>
+                                    <input type="checkbox" id="imagen"
+                                        name='imagen'
+                                        checked={envio.type === 'imagen' ? true : false}
+                                        value="imagen"
+                                        onChange={handleType}
+                                    />
+                                </div>
+                                <div className="px-3">
+                                    <label htmlFor="video">Video</label>
+                                    <input type="checkbox" id="video"
+                                        name='video'
+                                        checked={envio.type === 'video' ? true : false}
+                                        value="video"
+                                        onChange={handleType}
+                                    />
+                                </div>
+                            </div>
                         </div>
+                        {
+                            envio.type ?
+                            <div className="form-group">
+                                <label htmlFor="attachment">{
+                                    envio.type === 'imagen' ? 'Imagen' : 'Video'
+                                }</label>
+                                <input 
+                                    className="form-control" id={envio.type === 'imagen' ? 'imagen' : 'video'} placeholder="imagen"
+                                    type="file"
+                                    accept={envio.type === 'imagen' ? 'image/*' : 'video/*'}
+                                    name={envio.type === 'imagen' ? 'imagen' : 'video'}
+                                    onChange={(e) => CargarAvatar(e.target.files[0])}
+                                />
+                                {
+                                    progresoFile !== 0 ?
+                                    <p className='text-center mt-1'>{progresoFile}%</p> : null
+                                }
+                                {
+                                    progresoFile !== 0 ?
+                                    <div className="progress">
+                                        <div className="progress-bar progress-bar-striped progress-bar-animated" 
+                                        role="progressbar" 
+                                        aria-valuenow={progresoFile} 
+                                        aria-valuemin="0" 
+                                        aria-valuemax="100" 
+                                        style={{ width: `${progresoFile}%` }}></div>
+                                    </div> : null
+                                }
+                            </div> : null
+                        }
 
                         {
                             envio.channel_id !== 0 && envio.channel_id !== 2 ?
