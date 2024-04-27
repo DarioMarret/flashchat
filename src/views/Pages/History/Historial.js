@@ -298,7 +298,7 @@ function Historial(props) {
                                 <p>Cantidad: {conversacionHistorial.length}</p>
                             </div>
                             <div className="table-responsive">
-                                <table className="table table-striped">
+                                <table className="table">
                                     <thead>
                                         <tr>
                                             <th>Avatar</th>
@@ -317,7 +317,14 @@ function Historial(props) {
                                             conversacionHistorial.map((item, index) => {
                                                 return (
                                                     <tr key={index}>
-                                                        <td>{
+                                                        <td
+                                                            style={{
+                                                                display: "flex",
+                                                                flexDirection: "column",
+                                                                justifyContent: "center",
+                                                                alignItems: "center",
+                                                            }}
+                                                        >
                                                                 <img
                                                                     src={item.avatar}
                                                                     alt="avatar"
@@ -327,8 +334,9 @@ function Historial(props) {
                                                                         minWidth: "40px",
                                                                         minHeight: "40px",
                                                                     }}
-                                                                />    
-                                                        }</td>
+                                                                />
+
+                                                        </td>
                                                         <td>{moment(item.createdAt).format('YYYY-MM-DD HH:mm:ss')}</td>
                                                         <td>
                                                             <span
@@ -343,7 +351,17 @@ function Historial(props) {
                                                             </span>
                                                         </td>
                                                         <td>{item.conversacion_id}</td>
-                                                        <td>{item.nombre}</td>
+                                                        <td>
+                                                            <span>{item.nombre}</span>
+                                                            <br />
+                                                            <span
+                                                                style={{
+                                                                    cursor: "pointer",
+                                                                    color: "#3F98F8",
+                                                                    fontSize: "12px",
+                                                                }}
+                                                            >+{item.telefono}</span>
+                                                        </td>
                                                         <td>{NombreAgente(item.agente_id)}</td>
                                                         <td>{item.equipo_id}</td>
                                                         <td>{Conexion(item.nombreunico)}</td>

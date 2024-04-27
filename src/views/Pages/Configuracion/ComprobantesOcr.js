@@ -107,6 +107,9 @@ function ComprobantesOcr(props) {
         let info = {
             ...ocrs,
         }
+        console.log("Cuentas: ",info)
+        console.log("TYPO: ",typo)
+        console.log(valor)
         if(typo === 'cuentas'){
             info.cuentas.push(valor)
             info.cuentas.sort()
