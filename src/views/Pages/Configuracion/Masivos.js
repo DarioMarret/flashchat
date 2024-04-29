@@ -2,6 +2,7 @@ import axios from 'axios';
 import { GetTokenDecoded, SubirMedia } from 'function/storeUsuario';
 import { host } from 'function/util/global';
 import moment from 'moment';
+import Multiselect from 'multiselect-react-dropdown';
 import { useEffect, useState } from 'react';
 import {
     Card,
@@ -22,6 +23,7 @@ function Masivos(props) {
     const [bots, setBots] = useState([]);
     const [masivos, setMasivos] = useState([]);
     const [progresoFile, setProgresoFile] = useState(0)
+    const [listBots, setListBots] = useState([]);
 
     const [envio, setEnvio] = useState({
         id: 0,
@@ -42,6 +44,7 @@ function Masivos(props) {
         intervalo_entre: 10,
         retardo_entre_msjs: 1000,
         updatedAt: null,
+        bots: []
     });
 
     const handleEnvio = (e) => {
@@ -130,8 +133,32 @@ function Masivos(props) {
         const url = `${host}bots/${GetTokenDecoded().cuenta_id}`;
         const { data, status } = await axios.get(url);
         if (status === 200) {
-            setBots(data.data);
+            let bots = []
+            data.data.map((item) => {
+                bots.push({
+                    value: item.id,
+                    label: item.nombre_bot,
+                    channel_id: item.channel_id,
+                    nombreunico: item.nombreunico,
+                })
+            })
+            setBots(bots)
         }
+    }
+    
+    const handlebotSelect = (e) => {
+        setListBots(e)
+        setEnvio({
+            ...envio,
+            bots: e
+        })
+    }
+    const handlebotRemove = (e) => {
+        setListBots(e)
+        setEnvio({
+            ...envio,
+            bots: e
+        })
     }
 
     const handleEditar = (item) => {
@@ -164,6 +191,7 @@ function Masivos(props) {
 
     const GuardarEnvio = async(e) => {
         e.preventDefault()
+        
         if(envio.id !== 0){
             const url = `${host}masivo/${envio.id}`;
             const { status } = await axios.put(url, envio);
@@ -335,7 +363,7 @@ function Masivos(props) {
                         </div>
                         <div className="form-group">
                             <label htmlFor="nombreunico">Bot Envio</label>
-                            <select className="form-control" id="nombreunico" name='nombreunico' onChange={handleSelect}>
+                            {/* <select className="form-control" id="nombreunico" name='nombreunico' onChange={handleSelect}>
                                 <option value="">Seleccione un bot</option>
                                 {
                                     bots.map((item, index) => (
@@ -344,6 +372,17 @@ function Masivos(props) {
                                     ))
                                 }
                             </select>
+                             */}
+                            <Multiselect
+                                options={bots}
+                                displayValue="label"
+                                avoidHighlightFirstOption="true"
+                                onSelect={handlebotSelect}
+                                onRemove={handlebotRemove}
+                                selectedValues={envio.bots}
+                            />
+
+
                         </div>
 
                         <div className="form-group">
