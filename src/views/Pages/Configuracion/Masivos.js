@@ -2,7 +2,6 @@ import axios from 'axios';
 import { GetTokenDecoded, SubirMedia } from 'function/storeUsuario';
 import { host } from 'function/util/global';
 import moment from 'moment';
-import Multiselect from 'multiselect-react-dropdown';
 import { useEffect, useState } from 'react';
 import {
     Card,
@@ -133,16 +132,16 @@ function Masivos(props) {
         const url = `${host}bots/${GetTokenDecoded().cuenta_id}`;
         const { data, status } = await axios.get(url);
         if (status === 200) {
-            let bots = []
-            data.data.map((item) => {
-                bots.push({
-                    value: item.id,
-                    label: item.nombre_bot,
-                    channel_id: item.channel_id,
-                    nombreunico: item.nombreunico,
-                })
-            })
-            setBots(bots)
+            // let bots = []
+            // data.data.map((item) => {
+            //     bots.push({
+            //         value: item.id,
+            //         label: item.nombre_bot,
+            //         channel_id: item.channel_id,
+            //         nombreunico: item.nombreunico,
+            //     })
+            // })
+            setBots(data.data)
         }
     }
     
@@ -363,24 +362,24 @@ function Masivos(props) {
                         </div>
                         <div className="form-group">
                             <label htmlFor="nombreunico">Bot Envio</label>
-                            {/* <select className="form-control" id="nombreunico" name='nombreunico' onChange={handleSelect}>
+                            <select className="form-control" id="nombreunico" name='nombreunico' onChange={handleSelect}>
                                 <option value="">Seleccione un bot</option>
                                 {
                                     bots.map((item, index) => (
-                                        <option key={index} value={JSON.stringify(item)}
-                                        >{item.nombre_bot}</option>
+                                        <option key={index} value={JSON.stringify(item)}>{item.nombre_bot}</option>
                                     ))
                                 }
                             </select>
-                             */}
-                            <Multiselect
+                            
+                             
+                            {/* <Multiselect
                                 options={bots}
                                 displayValue="label"
                                 avoidHighlightFirstOption="true"
                                 onSelect={handlebotSelect}
                                 onRemove={handlebotRemove}
                                 selectedValues={envio.bots}
-                            />
+                            /> */}
 
 
                         </div>

@@ -6,9 +6,10 @@ export const card_mensajes = "card_mensajes:";
 export const estaso_nav = "estado:";
 export const tabconversacion = "tabconversacion:";
 export const conversacion_activa = "conversacion_activa";
-export const dev = false;
+export const dev = true;
 export const host = dev ? "http://localhost:5002/" : "https://api.flashchat.chat/backflash/"
 export const proxy = "backflash"
+export const plantillas_360 = "https://waba.360dialog.io/v1/configs/templates?offset=0&limit=1000&sort=business_templates.name&filters={}"
 // export const proxy = ""
 // export const host = "http://localhost:5002";
 export const host_facturacion = "https://ordenfacil.org/api_facturacion";
