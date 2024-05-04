@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { GetTokenDecoded, SubirMedia } from 'function/storeUsuario';
-import { host, host_360, plantillas_360 } from 'function/util/global';
+import { plantilla } from 'function/util/360';
+import { host, host_360 } from 'function/util/global';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
 import {
@@ -298,16 +299,16 @@ function Masivos(props) {
     }
 
     const ListarPlatilla360 = async() => {
-        const { data, status } = await axios.get(plantillas_360, {
-            headers: {
-                'Content-Type': 'application/json',
-                'D360-API-KEY': envio.api_key
-            }
-        });
-        if (status === 200) {
-            setListPlantillas(data.waba_templates)
-        }
-        // setListPlantillas(plantilla.waba_templates.filter((item) => item.language === 'es'))
+        // const { data, status } = await axios.get(plantillas_360, {
+        //     headers: {
+        //         'Content-Type': 'application/json',
+        //         'D360-API-KEY': envio.api_key
+        //     }
+        // });
+        // if (status === 200) {
+        //     setListPlantillas(data.waba_templates.filter((item) => item.language === 'es')
+        // }
+        setListPlantillas(plantilla.waba_templates.filter((item) => item.language === 'es'))
     }
 
     const handleCustomPlantilla =() => {
