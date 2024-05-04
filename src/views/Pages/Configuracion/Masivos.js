@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { GetTokenDecoded, SubirMedia } from 'function/storeUsuario';
-import { host } from 'function/util/global';
+import { host, host_360, plantillas_360 } from 'function/util/global';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
 import {
@@ -19,10 +19,30 @@ function Masivos(props) {
         LimpiarEnvio()
         setShow(!show)
     }
+    const regex = /{{\d+}}/g;
     const [bots, setBots] = useState([]);
     const [masivos, setMasivos] = useState([]);
     const [progresoFile, setProgresoFile] = useState(0)
-    const [listBots, setListBots] = useState([]);
+    const [listPlantillas, setListPlantillas] = useState([])
+    const [catidadVariables, setCatidadVariables] = useState({
+        header: [],
+        body: [],
+        footer: []
+    })
+    const [components, setComponents] = useState([])
+    const [formaPlantilla, setFormaPlantilla] = useState({
+        to: null,
+        type: null,
+        template:{
+            namespace: null,
+            language:{
+                code: null,
+                policy: null
+            },
+            name: null,
+            components: []
+        }
+    })
 
     const [envio, setEnvio] = useState({
         id: 0,
@@ -33,34 +53,168 @@ function Masivos(props) {
         nombreunico: null,
         fecha_envio: null,
         mensaje: null,
+        mensaje_content: null,
         imagen:null,
         video:null,
         type: "imagen",
-        plantilla: null,
+        plantilla_id: null,
+        numero: null,
         parametros: [],
+        plantilla: null,
         estado: null,
         progreso: 0,
         intervalo_entre: 10,
         retardo_entre_msjs: 1000,
         updatedAt: null,
+        access_token: null,
+        api_key: null,
         bots: []
     });
 
+    const handleVariables = (e) => {
+        let text = envio.mensaje_content
+        if(e.target.name.includes('header_')){
+            let h = e.target.name.split('_')
+            // reemplazar el valor en la posicion
+            text = String(text).replace(h[1], e.target.value)
+            setEnvio({
+                ...envio,
+                mensaje: text
+            })
+            // guaradr la variable en la posicion en components
+            let info = {
+                id: h[1],
+                type: 'header',
+                text: e.target.value
+            }
+            // no se tiene que el id si es el mismo solo actualizamos el texto
+            let existe = components.filter((item) => item.id === h[1] && item.type === 'header')
+            if(existe.length === 0){
+                setComponents([...components, info])
+            }else{
+                components.map((item, index) => {
+                    if(item.id === h[1] && item.type === 'header'){
+                        item.text = e.target.value
+                    }
+                })
+            }
+        }else if(e.target.name.includes('body_')){
+            let b = e.target.name.split('_')
+            // reemplazar el valor en la posicion
+            text = String(text).replace(b[1], e.target.value)
+            setEnvio({
+                ...envio,
+                mensaje: text
+            })
+            // guaradr la variable en la posicion en components
+            let info = {
+                id: b[1],
+                type: 'body',
+                text: e.target.value
+            }
+            // no se tiene que el id si es el mismo solo actualizamos el texto
+            let existe = components.filter((item) => item.id === b[1] && item.type === 'body')
+            if(existe.length === 0){
+                setComponents([...components, info])
+            }else{
+                components.map((item, index) => {
+                    if(item.id === b[1] && item.type === 'body'){
+                        item.text = e.target.value
+                    }
+                })
+            }
+        }else if(e.target.name.includes('footer_')){
+            let f = e.target.name.split('_')
+            // reemplazar el valor en la posicion
+            text = String(text).replace(f[1], e.target.value)
+            setEnvio({
+                ...envio,
+                mensaje: text
+            })
+            // guaradr la variable en la posicion en components
+            let info = {
+                id: f[1],
+                type: 'footer',
+                text: e.target.value
+            }
+            // no se tiene que el id si es el mismo solo actualizamos el texto
+            let existe = components.filter((item) => item.id === f[1] && item.type === 'footer')
+            if(existe.length === 0){
+                setComponents([...components, info])
+            }else{
+                components.map((item, index) => {
+                    if(item.id === f[1] && item.type === 'footer'){
+                        item.text = e.target.value
+                    }
+                })
+            }
+        }
+    }
+
     const handleEnvio = (e) => {
-        setEnvio({
-            ...envio,
-            [e.target.name]: e.target.value,
-        });
-        if(envio.type === 'video'){
+        try {
             setEnvio({
                 ...envio,
-                video: e.target.value
+                [e.target.name]: e.target.value,
             })
-        }else if(envio.type === 'imagen'){
-            setEnvio({
-                ...envio,
-                imagen: e.target.value
-            })
+            if(envio.type === 'video'){
+                setEnvio({
+                    ...envio,
+                    video: e.target.value
+                })
+            }else if(envio.type === 'imagen'){
+                setEnvio({
+                    ...envio,
+                    imagen: e.target.value
+                })
+            }else if(e.target.name === 'plantilla_id'){
+                listPlantillas.map((item) => {
+                    if(item.id === e.target.value){
+                        setEnvio({
+                            ...envio,
+                            mensaje: item.components.map((item) => {
+                                return item.text ? item.text : ''
+                            }),
+                            mensaje_content: item.components.map((item) => {
+                                return item.text ? item.text : ''
+                            }),
+                            plantilla_id: item.id
+                        })
+                        item.components.map((item) => {
+                            if(String(item.type).toLowerCase() === 'header' && item.text){
+                                let h = item.text.match(regex);
+                                console.log("H: ",h)
+                                if(h !== null){
+                                    setCatidadVariables({
+                                        ...catidadVariables,
+                                        header: h
+                                    })
+                                }
+                            }else if(String(item.type).toLowerCase() === 'body' && item.text){
+                                let b = item.text.match(regex);
+                                console.log("B: ",b)
+                                if(b !== null){
+                                    setCatidadVariables({
+                                        ...catidadVariables,
+                                        body: b
+                                    })
+                                }
+                            }else if(String(item.type).toLowerCase() === 'footer' && item.text){
+                                let f = item.text.match(regex);
+                                console.log("F: ",f)
+                                if(f !== null){
+                                    setCatidadVariables({
+                                        ...catidadVariables,
+                                        footer: f
+                                    })
+                                }
+                            }
+                        })
+                    }
+                })
+            }
+        } catch (error) {
+            console.log(error)
         }
     }
     
@@ -72,7 +226,14 @@ function Masivos(props) {
                 nombre_bot: inf.nombre_bot,
                 channel_id: inf.channel_id,
                 nombreunico: inf.nombreunico,
+                api_key: inf.api_key,
+                access_token: inf.access_token
             });
+            if(inf.channel_id === 4){
+                ListarPlatilla360()
+            }else if(inf.channel_id === 3){
+                console.log('whatsappCloud')
+            }
         }
     }
 
@@ -132,32 +293,56 @@ function Masivos(props) {
         const url = `${host}bots/${GetTokenDecoded().cuenta_id}`;
         const { data, status } = await axios.get(url);
         if (status === 200) {
-            // let bots = []
-            // data.data.map((item) => {
-            //     bots.push({
-            //         value: item.id,
-            //         label: item.nombre_bot,
-            //         channel_id: item.channel_id,
-            //         nombreunico: item.nombreunico,
-            //     })
-            // })
             setBots(data.data)
         }
     }
-    
-    const handlebotSelect = (e) => {
-        setListBots(e)
-        setEnvio({
-            ...envio,
-            bots: e
-        })
+
+    const ListarPlatilla360 = async() => {
+        const { data, status } = await axios.get(plantillas_360, {
+            headers: {
+                'Content-Type': 'application/json',
+                'D360-API-KEY': envio.api_key
+            }
+        });
+        if (status === 200) {
+            setListPlantillas(data.waba_templates)
+        }
+        // setListPlantillas(plantilla.waba_templates.filter((item) => item.language === 'es'))
     }
-    const handlebotRemove = (e) => {
-        setListBots(e)
-        setEnvio({
-            ...envio,
-            bots: e
+
+    const handleCustomPlantilla =() => {
+        let componets = []
+        components.map((item) => {
+            componets.push({
+                type: "text",
+                text: item.text
+            })
         })
+        console.log("Componentes: ",componets)
+        listPlantillas.map((item) => {
+            if(item.id === envio.plantilla_id){
+                let inf = {
+                    to: null,
+                    type: "template",
+                    template: {
+                        namespace: item.namespace,
+                        language: {
+                            code: item.language,
+                            policy: "deterministic"
+                        },
+                        name: item.name,
+                        components: componets
+                    }
+                }
+                console.log("Plantilla: ",inf)
+                setFormaPlantilla(inf)
+                setEnvio({
+                    ...envio,
+                    plantilla: inf
+                })
+            }
+        })
+
     }
 
     const handleEditar = (item) => {
@@ -188,9 +373,96 @@ function Masivos(props) {
         })
     }
 
+    const EnvioPrueba = async(e) => {
+        e.preventDefault()
+        handleCustomPlantilla()
+        if(envio.channel_id === 4){
+            let componets = []
+            components.map((item) => {
+                componets.push({
+                    type: "text",
+                    text: item.text
+                })
+            })
+            listPlantillas.map(async (item) => {
+                if(item.id === envio.plantilla_id){
+                    let plan = {
+                        to: envio.numero,
+                        type: "template",
+                        template: {
+                            namespace: item.namespace,
+                            language: {
+                                code: item.language,
+                                policy: "deterministic"
+                            },
+                            name: item.name,
+                            components: componets
+                        }
+                    }
+                    const { status } = await axios.post(host_360, plan, {
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'D360-API-KEY': envio.api_key
+                        }
+                    })
+                    if (status === 201) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Mensaje enviado',
+                            showConfirmButton: false,
+                            timer: 1500
+                        })
+                    }else{
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error al enviar mensaje',
+                            showConfirmButton: false,
+                            timer: 1500
+                        })
+                    }
+                }
+            })
+        }
+    }
+
     const GuardarEnvio = async(e) => {
         e.preventDefault()
-        
+        let plan = null;
+        handleCustomPlantilla()
+        if(envio.channel_id === 4){
+            let componets = []
+            components.map((item) => {
+                componets.push({
+                    type: "text",
+                    text: item.text
+                })
+            })
+            listPlantillas.map((item) => {
+                if(item.id === envio.plantilla_id){
+                    plan = {
+                        to: null,
+                        type: "template",
+                        template: {
+                            namespace: item.namespace,
+                            language: {
+                                code: item.language,
+                                policy: "deterministic"
+                            },
+                            name: item.name,
+                            components: componets
+                        }
+                    }
+                }
+            })
+            let info = {
+                ...envio,
+                plantilla: plan
+            }
+            console.log("Info: ",info)
+            return null
+        }
+
+
         if(envio.id !== 0){
             const url = `${host}masivo/${envio.id}`;
             const { status } = await axios.put(url, envio);
@@ -207,7 +479,6 @@ function Masivos(props) {
             }
         }else{
             const url = `${host}masivo`;
-            console.log(envio)
             const { status } = await axios.post(url, envio);
             if (status === 200) {
                 ListarMasivos();
@@ -264,7 +535,7 @@ function Masivos(props) {
             return(
                 <>
                     <span>Imgen: </span>
-                    <img key={item.id} src={item.imagen} alt='...' width={150} />
+                    <img key={item.id} src={item.imagen} alt='...' width={250} />
                 </>
             )
         }else if(item.video){
@@ -297,21 +568,27 @@ function Masivos(props) {
                             md="4"
                             sm="12"
                             lg="4"
+                            // style={{ width: '40%' }}
                         >
                             <Card.Body>
                                 <Row>
                                     <div className="w-fit d-flex flex-column px-3 py-2">
-                                        <span>Conexion: {item.nombre_bot}</span>
-                                        <span>Campana: {item.titulo}</span>
-                                        <span>Fecha de envio: {moment(item.fecha_envio).format("YYYY/MM/DD HH:mm")}</span>
-                                        <span>Estado: {item.estado}</span>
-                                        <span>Total a enviar: {item.total}</span>
-                                        <span>Progreso: {item.progreso}</span>
-                                        <span>Intervalo de envio: {item.intervalo_entre}</span>
-                                        <span>Retardo de envio entre mensajes: {item.retardo_entre_msjs}</span>
+                                        <b>Conexion: {item.nombre_bot}</b>
+                                        <b>Campana:</b>
+                                        <span
+                                        style={{ fontSize: '1.1rem', color: '#3F98F8', fontWeight: 'bold'}}
+                                        >{item.titulo}</span>
+                                        <b>Fecha de envio: {moment(item.fecha_envio).format("YYYY/MM/DD HH:mm")}</b>
+                                        <b>Estado: <span style={{ color: item.estado === 'enviado' ? 'green' : 'red' }}> {item.estado}</span></b>
+                                        <b>Total a enviar: {item.total}</b>
+                                        <b>Progreso: {item.progreso}</b>
+                                        <b>Intervalo de envio: {item.intervalo_entre}</b>
+                                        <b>Retardo de envio entre mensajes: {item.retardo_entre_msjs}</b>
                                         {ComponenteMultimedia(item)}
                                         <span>Mensaje: </span>
-                                        <>{item.mensaje.substring(0, 50)}...</>
+                                        <b
+                                            style={{ fontSize: '1.1rem', color: '#3F98F8', fontWeight: 'bold', cursor: 'pointer', width: 'auto'}}
+                                        >{item.mensaje.substring(0, 50)}...</b>
                                     </div>
                                     <div className="w-fit d-flex flex-column px-3 py-2 ">
                                         <button className="button-bm btn "
@@ -319,9 +596,7 @@ function Masivos(props) {
                                         >
                                             <i className="fa fa-edit"></i>
                                         </button>
-                                        <button className="button-bm btn "
-                                            onClick={()=>EliminarMasivo(item.id)}
-                                        >
+                                        <button className="button-bm btn" onClick={()=>EliminarMasivo(item.id)}>
                                             <i className="fa fa-trash"></i>
                                         </button>
                                     </div>
@@ -336,6 +611,7 @@ function Masivos(props) {
                 onHide={handleClose}
                 backdrop="static"
                 keyboard={false}
+                size='lg'
             >
                 <Modal.Header>
                     {
@@ -371,55 +647,118 @@ function Masivos(props) {
                                 }
                             </select>
                             
-                             
-                            {/* <Multiselect
-                                options={bots}
-                                displayValue="label"
-                                avoidHighlightFirstOption="true"
-                                onSelect={handlebotSelect}
-                                onRemove={handlebotRemove}
-                                selectedValues={envio.bots}
-                            /> */}
-
-
                         </div>
+                        
+                            <div className='d-flex justify-conten-center'>
+                                <div className="form-group m-1 col-4 col-md-4 col-lg-4">
+                                    <label htmlFor="nombreunico">Intervalo de envio</label>
+                                    <input type="number" className="form-control" id="intervalo_entre" placeholder="intervalo_entre" name='intervalo_entre'
+                                        value={envio.intervalo_entre}
+                                        onChange={handleEnvio}
+                                    />
+                                </div>
 
-                        <div className="form-group">
-                            <label htmlFor="nombreunico">Intervalo de envio</label>
-                            <input type="number" className="form-control" id="intervalo_entre" placeholder="intervalo_entre" name='intervalo_entre'
-                                value={envio.intervalo_entre}
-                                onChange={handleEnvio}
-                            />
-                        </div>
+                                {/* restartdo entre mensajes */}
 
-                        {/* restartdo entre mensajes */}
-                        {/* hacer un  */}
+                                <div className="form-group m-1 col-4 col-md-4 col-lg-4">
+                                    <label htmlFor="nombreunico">Retardo</label>
+                                    <input type="number" className="form-control" id="retardo_entre_msjs" placeholder="retardo_entre_msjs" name='retardo_entre_msjs'
+                                        value={envio.retardo_entre_msjs}
+                                        onChange={handleEnvio}
+                                    />
+                                </div>
 
-                        <div className="form-group">
-                            <label htmlFor="nombreunico">Retardo de envio entre mensajes</label>
-                            <input type="number" className="form-control" id="retardo_entre_msjs" placeholder="retardo_entre_msjs" name='retardo_entre_msjs'
-                                value={envio.retardo_entre_msjs}
-                                onChange={handleEnvio}
-                            />
-                        </div>
-
-                        <div className="form-group">
-                            <label htmlFor="fecha_envio">Fecha de envio</label>
-                            <input type="datetime-local" className="form-control" id="fecha_envio" placeholder="Fecha de envio"
-                                name='fecha_envio'
-                                value={envio.fecha_envio}
-                                onChange={handleEnvio}
-                            />
-                        </div>
+                                <div className="form-group m-1 col-3 col-md-4 col-lg-4">
+                                    <label htmlFor="fecha_envio">Fecha de envio</label>
+                                    <input type="datetime-local" className="form-control" id="fecha_envio" placeholder="Fecha de envio"
+                                        name='fecha_envio'
+                                        value={envio.fecha_envio}
+                                        onChange={handleEnvio}
+                                        />
+                                </div>
+                            </div>
 
                         <div className="form-group">
                             <label htmlFor="mensaje">Mensaje</label>
-                            <textarea className="form-control" id="mensaje" rows="3"
+                            <textarea className="form-control" id="mensaje" rows={50} cols={50}
+                                style={{ height: '100px' }}
                                 name='mensaje'
                                 value={envio.mensaje}
                                 onChange={handleEnvio}
                             />
                         </div>
+                        {
+                            envio.channel_id !== 0 && envio.channel_id !== 2 ?
+                            <div className="form-group">
+                                <label htmlFor="todos_contactos" className="">Seleccione Plantilla</label>
+                                <select className="form-control" id="plantilla" name='plantilla_id'
+                                    value={envio.plantilla_id}
+                                    onChange={handleEnvio}
+                                >
+                                    <option value="">Seleccione una plantilla</option>
+                                    {  
+                                        listPlantillas.map((item, index) => (
+                                            <option key={index} value={item.id}>{item.name}</option>
+                                        ))
+                                    }
+                                </select>
+                            </div> : null
+                        }
+                        {
+                            envio.channel_id !== 0 && envio.channel_id !== 2 ?
+                            <>
+                            <div className="form-group">
+                                {
+                                    catidadVariables.header.length !== 0 ?
+                                    <>
+                                        <label htmlFor="parametros">Parametros Header</label>
+                                        {
+                                            catidadVariables.header.map((item, i) => (
+                                                <input key={i} type="text" className="form-control" id="parametros" placeholder={`${item}`}
+                                                    name={`header_${item}`}
+                                                    onChange={handleVariables}
+                                                />
+                                            ))
+                                        }
+                                    </>: null
+                                }
+                            </div>
+                            <div className="form-group">
+                                {
+                                    catidadVariables.body.length !== 0 ?
+                                    <>
+                                        <label htmlFor="parametros">Parametros Body</label>
+                                        {
+                                            catidadVariables.body.map((item, i) => (
+                                                <input key={i} type="text" className="form-control m-1" id="parametros" placeholder={`${item}`}
+                                                    name={`body_${item}`}
+                                                    onChange={handleVariables}
+                                                />
+                                            ))
+                                        }
+                                    </>: null
+                                }
+                            </div>
+                            <div className="form-group">
+                                {
+                                    catidadVariables.footer.length !== 0 ?
+                                    <>
+                                        <label htmlFor="parametros">Parametros Footer</label>
+                                        {
+                                            catidadVariables.footer.map((item, i) => (
+                                                <input key={i} type="text" className="form-control" id="parametros" placeholder={`${item}`}
+                                                    name={`footer_${item}`}
+                                                    onChange={handleVariables}
+                                                />
+                                            ))
+                                        }
+                                    </>: null
+
+                                }
+                            </div>
+                            </>
+                            : null
+                        }
                             {/* checkout para saver si envia imagen o video */}
                             <div className="form-group">
                             <label htmlFor="type">Tipo de multimedia</label>
@@ -476,41 +815,38 @@ function Masivos(props) {
                         }
 
                         {
-                            envio.channel_id !== 0 && envio.channel_id !== 2 ?
                             <div className="form-group">
-                                <label htmlFor="todos_contactos" className="">Seleccione Plantilla</label>
-                                <select className="form-control" id="plantilla" name='plantilla'
-                                    value={envio.plantilla}
-                                    onChange={handleEnvio}
-                                >
-                                    <option value="">Seleccione una plantilla</option>
-                                    <option value="1">Plantilla 1</option>
-                                    <option value="2">Plantilla 2</option>
-                                    <option value="3">Plantilla 3</option>
-                                </select>
-                            </div> : null
-                        }
-                        {
-                            envio.channel_id !== 0 && envio.channel_id !== 2 ?
-                            <div className="form-group">
-                                <label htmlFor="parametros">Parametros</label>
-                                <textarea className="form-control" id="parametros" rows="3"
-                                    name='parametros'
-                                    value={envio.parametros}
+                                <label htmlFor="parametros">Numero de prueba</label>
+                                <input className="form-control" id="numero" 
+                                    name='numero'
+                                    value={envio.numero}
                                     onChange={handleEnvio}
                                 />
-                            </div> : null
+                            </div> 
                         }
-                        <button type="submit" className="button-bm btn-dark w-100 mt-4"
-                            onClick={(e) => GuardarEnvio(e)}
-                        >
+
+                        <div className="d-flex justify-content-center">
+
+                            <button type="submit" className="button-bm btn-dark w-100 mt-4"
+                                onClick={(e) => GuardarEnvio(e)}
+                            >
+                                {
+                                    envio.id !== 0 ? 'Actualizar masivo' : 'Registrar masivo'
+                                }
+                            </button>
                             {
-                                envio.id !== 0 ? 'Actualizar envio' : 'Crear envio'
+                                envio.channel_id === 4 ?
+                                <button className="button-bm btn-dark w-100 mt-4"
+                                    onClick={(e)=>EnvioPrueba(e)}
+                                >
+                                    Envio de prueba
+                                </button> : null
                             }
-                        </button>
+                        </div>
                     </form>
                 </Modal.Body>
             </Modal>
+
             </Container>
         </>
     );
