@@ -1,7 +1,6 @@
 import axios from 'axios';
 import { GetTokenDecoded, SubirMedia } from 'function/storeUsuario';
-import { plantilla } from 'function/util/360';
-import { host, host_360 } from 'function/util/global';
+import { BmHttp, host } from 'function/util/global';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
 import {
@@ -16,10 +15,36 @@ import Swal from 'sweetalert2';
 
 function Masivos(props) {
     const [show, setShow] = useState(false);
+    const [show2, setShow2] = useState(false);
     const handleClose = () => {
         LimpiarEnvio()
         setShow(!show)
     }
+
+    const [excel, setExcel] = useState({
+        cuenta_id: GetTokenDecoded().cuenta_id,
+        conexion: null,
+        file: null,
+        masivosId:0
+    })
+    const handleClose2 = (item) => {
+        if(item){
+            setExcel({
+                ...excel,
+                conexion: item.nombreunico,
+                masivosId: item.id
+            })
+        }else{
+            setExcel({
+                ...excel,
+                conexion: null,
+                masivosId: 0,
+                file: null
+            })
+        }
+        setShow2(!show2)
+    }
+
     const regex = /{{\d+}}/g;
     const [bots, setBots] = useState([]);
     const [masivos, setMasivos] = useState([]);
@@ -31,20 +56,6 @@ function Masivos(props) {
         footer: []
     })
     const [components, setComponents] = useState([])
-    const [formaPlantilla, setFormaPlantilla] = useState({
-        to: null,
-        type: null,
-        template:{
-            namespace: null,
-            language:{
-                code: null,
-                policy: null
-            },
-            name: null,
-            components: []
-        }
-    })
-
     const [envio, setEnvio] = useState({
         id: 0,
         cuenta_id: GetTokenDecoded().cuenta_id,
@@ -66,6 +77,7 @@ function Masivos(props) {
         progreso: 0,
         intervalo_entre: 10,
         retardo_entre_msjs: 1000,
+        contact_plantilla: true,
         updatedAt: null,
         access_token: null,
         api_key: null,
@@ -213,6 +225,11 @@ function Masivos(props) {
                         })
                     }
                 })
+            }else if(e.target.name === 'contact_plantilla'){
+                setEnvio({
+                    ...envio,
+                    contact_plantilla: e.target.checked
+                })
             }
         } catch (error) {
             console.log(error)
@@ -231,7 +248,7 @@ function Masivos(props) {
                 access_token: inf.access_token
             });
             if(inf.channel_id === 4){
-                ListarPlatilla360()
+                ListarPlatilla360(inf.api_key)
             }else if(inf.channel_id === 3){
                 console.log('whatsappCloud')
             }
@@ -256,6 +273,12 @@ function Masivos(props) {
             intervalo_entre: 10,
             retardo_entre_msjs: 1000,
             updatedAt: null,
+            access_token: null,
+            api_key: null,
+            video:null,
+            plantilla_id: null,
+            numero: null,
+            contact_plantilla: false,
         })
     }
 
@@ -298,52 +321,74 @@ function Masivos(props) {
         }
     }
 
-    const ListarPlatilla360 = async() => {
-        // const { data, status } = await axios.get(plantillas_360, {
-        //     headers: {
-        //         'Content-Type': 'application/json',
-        //         'D360-API-KEY': envio.api_key
-        //     }
-        // });
-        // if (status === 200) {
-        //     setListPlantillas(data.waba_templates.filter((item) => item.language === 'es')
-        // }
-        setListPlantillas(plantilla.waba_templates.filter((item) => item.language === 'es'))
+    const ListarPlatilla360 = async(api_key) => {
+        const { data, status } = await BmHttp.post('plantilla_360',{
+            api_key
+        });
+        if (status === 200) {
+            setListPlantillas(data.data)
+        }
     }
 
     const handleCustomPlantilla =() => {
-        let componets = []
-        components.map((item) => {
-            componets.push({
-                type: "text",
-                text: item.text
+        let component = []
+        const body = components.filter((item) => item.type === 'body')
+        const header = components.filter((item) => item.type === 'header')
+        const footer = components.filter((item) => item.type === 'footer')
+        if(body.length > 0){
+            component.push({
+                type: "body",
+                parameters: body.map((item) => {
+                    return {
+                        type: "text",
+                        text: item.text
+                    }
+                })
             })
-        })
-        console.log("Componentes: ",componets)
-        listPlantillas.map((item) => {
+        }else if(header.length > 0){
+            component.push({
+                type: "header",
+                parameters: header.map((item) => {
+                    return {
+                        type: "text",
+                        text: item.text
+                    }
+                })
+            })
+        }else if(footer.length > 0){
+            component.push({
+                type: "footer",
+                parameters: footer.map((item) => {
+                    return {
+                        type: "text",
+                        text: item.text
+                    }
+                })
+            })
+        }
+
+        let info = null
+        listPlantillas.map(async (item) => {
             if(item.id === envio.plantilla_id){
-                let inf = {
-                    to: null,
-                    type: "template",
-                    template: {
-                        namespace: item.namespace,
-                        language: {
-                            code: item.language,
-                            policy: "deterministic"
-                        },
-                        name: item.name,
-                        components: componets
+                info = {
+                    api_key: envio.api_key,
+                    plantilla: {
+                        to: envio.numero,
+                        type: "template",
+                        template: {
+                            namespace: item.namespace,
+                            language: {
+                                code: item.language,
+                                policy: "deterministic"
+                            },
+                            name: item.name,
+                            components: component
+                        }
                     }
                 }
-                console.log("Plantilla: ",inf)
-                setFormaPlantilla(inf)
-                setEnvio({
-                    ...envio,
-                    plantilla: inf
-                })
             }
         })
-
+        return info
     }
 
     const handleEditar = (item) => {
@@ -376,40 +421,77 @@ function Masivos(props) {
 
     const EnvioPrueba = async(e) => {
         e.preventDefault()
-        handleCustomPlantilla()
-        if(envio.channel_id === 4){
-            let componets = []
-            components.map((item) => {
-                componets.push({
-                    type: "text",
-                    text: item.text
-                })
+        console.log("Envio: ",envio)
+        if(envio.numero === null || envio.numero === ''){
+            Swal.fire({
+                icon: 'error',
+                title: 'El numero es obligatorio',
+                showConfirmButton: false,
+                timer: 1500
             })
+            return null
+        }
+        if(envio.channel_id === 4 && envio.numero !== null && envio.plantilla_id !== null && envio.api_key !== null){
+            console.log("components: ",components)
+            let component = []
+            const body = components.filter((item) => item.type === 'body')
+            const header = components.filter((item) => item.type === 'header')
+            const footer = components.filter((item) => item.type === 'footer')
+            if(body.length > 0){
+                component.push({
+                    type: "body",
+                    parameters: body.map((item) => {
+                        return {
+                            type: "text",
+                            text: item.text
+                        }
+                    })
+                })
+            }else if(header.length > 0){
+                component.push({
+                    type: "header",
+                    parameters: header.map((item) => {
+                        return {
+                            type: "text",
+                            text: item.text
+                        }
+                    })
+                })
+            }else if(footer.length > 0){
+                component.push({
+                    type: "footer",
+                    parameters: footer.map((item) => {
+                        return {
+                            type: "text",
+                            text: item.text
+                        }
+                    })
+                })
+            }
+
             listPlantillas.map(async (item) => {
                 if(item.id === envio.plantilla_id){
                     let plan = {
-                        to: envio.numero,
-                        type: "template",
-                        template: {
-                            namespace: item.namespace,
-                            language: {
-                                code: item.language,
-                                policy: "deterministic"
-                            },
-                            name: item.name,
-                            components: componets
+                        api_key: envio.api_key,
+                        plantilla: {
+                            to: envio.numero,
+                            type: "template",
+                            template: {
+                                namespace: item.namespace,
+                                language: {
+                                    code: item.language,
+                                    policy: "deterministic"
+                                },
+                                name: item.name,
+                                components: component
+                            }
                         }
                     }
-                    const { status } = await axios.post(host_360, plan, {
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'D360-API-KEY': envio.api_key
-                        }
-                    })
-                    if (status === 201) {
+                    const { status } = await BmHttp.post('plantilla_envio_360', plan);
+                    if (status === 200) {
                         Swal.fire({
                             icon: 'success',
-                            title: 'Mensaje enviado',
+                            title: 'Plantilla enviada',
                             showConfirmButton: false,
                             timer: 1500
                         })
@@ -428,41 +510,36 @@ function Masivos(props) {
 
     const GuardarEnvio = async(e) => {
         e.preventDefault()
-        let plan = null;
-        handleCustomPlantilla()
+        let info = null
         if(envio.channel_id === 4){
-            let componets = []
-            components.map((item) => {
-                componets.push({
-                    type: "text",
-                    text: item.text
-                })
-            })
-            listPlantillas.map((item) => {
-                if(item.id === envio.plantilla_id){
-                    plan = {
-                        to: null,
-                        type: "template",
-                        template: {
-                            namespace: item.namespace,
-                            language: {
-                                code: item.language,
-                                policy: "deterministic"
-                            },
-                            name: item.name,
-                            components: componets
-                        }
-                    }
-                }
-            })
-            let info = {
-                ...envio,
-                plantilla: plan
-            }
-            console.log("Info: ",info)
-            return null
+            info = handleCustomPlantilla() 
         }
 
+        if(envio.titulo === null || envio.titulo === ''){
+            Swal.fire({
+                icon: 'error',
+                title: 'El titulo es obligatorio',
+                showConfirmButton: false,
+                timer: 1500
+            })
+            return null
+        }else if(envio.fecha_envio === null || envio.fecha_envio === ''){
+            Swal.fire({
+                icon: 'error',
+                title: 'La fecha de envio es obligatoria',
+                showConfirmButton: false,
+                timer: 1500
+            })
+            return null
+        }else if(envio.mensaje === null || envio.mensaje === ''){
+            Swal.fire({
+                icon: 'error',
+                title: 'El mensaje es obligatorio',
+                showConfirmButton: false,
+                timer: 1500
+            })
+            return null
+        }
 
         if(envio.id !== 0){
             const url = `${host}masivo/${envio.id}`;
@@ -480,7 +557,7 @@ function Masivos(props) {
             }
         }else{
             const url = `${host}masivo`;
-            const { status } = await axios.post(url, envio);
+            const { status } = await axios.post(url, {...envio, plantilla: info});
             if (status === 200) {
                 ListarMasivos();
                 setShow(false)
@@ -520,6 +597,37 @@ function Masivos(props) {
                 if (status === 200) {
                     ListarMasivos();
                 }
+            }
+        })
+    }
+
+    const SubirExcel = async(e) => {
+        e.preventDefault()
+        const url = `masivo/subir`;
+        const formData = new FormData();
+        formData.append('file', excel.file);
+        formData.append('cuenta_id', excel.cuenta_id);
+        formData.append('conexion', excel.conexion);
+        formData.append('masivosId', excel.masivosId);
+        fetch(`${host}${url}`, {
+            method: 'POST',
+            body: formData
+        }).then((response) => {
+            if(response.status === 200){
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Excel subido',
+                    showConfirmButton: false,
+                    timer: 1500
+                })
+                handleClose2()
+            }else{
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error al subir el excel',
+                    showConfirmButton: false,
+                    timer: 1500
+                })
             }
         })
     }
@@ -564,6 +672,7 @@ function Masivos(props) {
             <div className='d-flex justify-content-start flex-wrap'>
                 {
                     masivos.map((item, index) => (
+                        console.log("Item: ",item),
                         <Col key={index}
                             className="w-fit d-flex flex-column px-3 py-2 bg-white border rounded shadow mb-3 m-2"
                             md="4"
@@ -600,6 +709,17 @@ function Masivos(props) {
                                         <button className="button-bm btn" onClick={()=>EliminarMasivo(item.id)}>
                                             <i className="fa fa-trash"></i>
                                         </button>
+                                        {
+                                            item.contact_plantilla ?
+                                            <button className="button-bm btn"
+                                                onClick={()=>handleClose2(item)}
+                                            >
+                                               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-file-earmark-arrow-up" viewBox="0 0 16 16">
+                                                <path d="M8.5 11.5a.5.5 0 0 1-1 0V7.707L6.354 8.854a.5.5 0 1 1-.708-.708l2-2a.5.5 0 0 1 .708 0l2 2a.5.5 0 0 1-.708.708L8.5 7.707z"/>
+                                                <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2M9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5z"/>
+                                               </svg>
+                                            </button> : null
+                                        }
                                     </div>
                                 </Row>
                             </Card.Body>
@@ -688,6 +808,18 @@ function Masivos(props) {
                                 onChange={handleEnvio}
                             />
                         </div>
+                        {
+                            envio.channel_id === 4 ?
+                            <div className="form-group">
+                                <label htmlFor="contact_plantilla" className="">Contactos externos</label>
+                                <input type="checkbox" id="contact_plantilla" className='m-1'
+                                    name='contact_plantilla'
+                                    checked={envio.contact_plantilla ? true : false}
+                                    value={envio.contact_plantilla}
+                                    onClick={(e)=>handleEnvio(e)}
+                                />
+                            </div> : null
+                        }
                         {
                             envio.channel_id !== 0 && envio.channel_id !== 2 ?
                             <div className="form-group">
@@ -848,6 +980,43 @@ function Masivos(props) {
                 </Modal.Body>
             </Modal>
 
+            <Modal
+                show={show2}
+                onHide={handleClose2}
+                backdrop="static"
+                keyboard={false}
+                size='lg'
+            >
+                <Modal.Header>
+                    <Modal.Title>Envio de plantilla</Modal.Title>
+                    <button
+                        type="button"
+                        className='btn-dark mr-2 w-10'
+                        onClick={handleClose2}
+                    >
+                        <i className="fa fa-times"></i>
+                    </button>
+                </Modal.Header>
+                <Modal.Body>
+                    <form>
+                        <div className="form-group">
+                            <label htmlFor="numero">Excel</label>
+                            <input type="file" className="form-control" id="excel" placeholder="excel" name='excel'
+                                accept='.xlsx, .xls, .csv'
+                                onChange={(e) => setExcel({...excel, file: e.target.files[0]})
+                            }
+                            />
+                        </div>
+                        <div className="d-flex justify-content-center">
+                            <button type="submit" className="button-bm btn-dark w-100 mt-4"
+                                onClick={(e) => SubirExcel(e)}
+                            >
+                                Enviar plantilla
+                            </button>
+                        </div>
+                    </form>
+                </Modal.Body>
+            </Modal>
             </Container>
         </>
     );
