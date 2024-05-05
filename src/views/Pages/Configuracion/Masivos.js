@@ -603,12 +603,9 @@ function Masivos(props) {
 
     const SubirExcel = async(e) => {
         e.preventDefault()
-        const url = `masivo/subir`;
+        const url = `masivo/subir?cuenta_id=${excel.cuenta_id}&conexion=${excel.conexion}&masivosId=${excel.masivosId}`;
         const formData = new FormData();
         formData.append('file', excel.file);
-        formData.append('cuenta_id', excel.cuenta_id);
-        formData.append('conexion', excel.conexion);
-        formData.append('masivosId', excel.masivosId);
         fetch(`${host}${url}`, {
             method: 'POST',
             body: formData
@@ -632,12 +629,40 @@ function Masivos(props) {
         })
     }
 
+// descragr excel ejemplo
+const DescargarExcel = () => {
+    let dataEjemplo = [{
+        "nombre": "Juan",
+        "telefono": "59334567890",
+    }];
+
+    const headers = Object.keys(dataEjemplo[0]);
+    const csv = [
+        headers.join(','),
+        ...dataEjemplo.map(row => headers.map(fieldName => JSON.stringify(row[fieldName])).join(','))
+    ];
+    const csvArray = csv.join('\r\n');
+    const blob = new Blob([csvArray], { type: 'text/xlsx' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.setAttribute('hidden', '');
+    a.setAttribute('href', url);
+    a.setAttribute('download', 'ejemplo.xlsx');
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a); // Limpiar después de la descarga
+}
+
+
+
+
     useEffect(() => {
         (async() => {
             await ListarBots();
             await ListarMasivos();
         })()
     }, [])
+
 
     const ComponenteMultimedia = (item) => {
         if(item.imagen){
@@ -1000,7 +1025,10 @@ function Masivos(props) {
                 <Modal.Body>
                     <form>
                         <div className="form-group">
-                            <label htmlFor="numero">Excel</label>
+                            <div className='d-flex justify-content-between'>
+                                <label htmlFor="numero">Excel</label>
+                                <a role='button' onClick={DescargarExcel} >Descarge el excel ejemplo</a>
+                            </div>
                             <input type="file" className="form-control" id="excel" placeholder="excel" name='excel'
                                 accept='.xlsx, .xls, .csv'
                                 onChange={(e) => setExcel({...excel, file: e.target.files[0]})
