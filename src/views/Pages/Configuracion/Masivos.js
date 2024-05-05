@@ -629,32 +629,29 @@ function Masivos(props) {
         })
     }
 
-// descragr excel ejemplo
-const DescargarExcel = () => {
-    let dataEjemplo = [{
-        "nombre": "Juan",
-        "telefono": "59334567890",
-    }];
+    // descragr excel ejemplo
+    const DescargarExcel = () => {
+        let dataEjemplo = [{
+            "nombre": "Juan",
+            "telefono": "59334567890",
+        }];
 
-    const headers = Object.keys(dataEjemplo[0]);
-    const csv = [
-        headers.join(','),
-        ...dataEjemplo.map(row => headers.map(fieldName => JSON.stringify(row[fieldName])).join(','))
-    ];
-    const csvArray = csv.join('\r\n');
-    const blob = new Blob([csvArray], { type: 'text/xlsx' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.setAttribute('hidden', '');
-    a.setAttribute('href', url);
-    a.setAttribute('download', 'ejemplo.xlsx');
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a); // Limpiar después de la descarga
-}
-
-
-
+        const headers = Object.keys(dataEjemplo[0]);
+        const csv = [
+            headers.join(','),
+            ...dataEjemplo.map(row => headers.map(fieldName => JSON.stringify(row[fieldName])).join(','))
+        ];
+        const csvArray = csv.join('\r\n');
+        const blob = new Blob([csvArray], { type: 'text/xlsx' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.setAttribute('hidden', '');
+        a.setAttribute('href', url);
+        a.setAttribute('download', 'ejemplo.xlsx');
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a); // Limpiar después de la descarga
+    }
 
     useEffect(() => {
         (async() => {
