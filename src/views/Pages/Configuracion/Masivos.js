@@ -512,7 +512,7 @@ function Masivos(props) {
                 mensaje: {
                     type: "masivo",
                     text: envio.mensaje,
-                    imagen:envio.imagen,
+                    image:envio.imagen,
                     video:envio.video, 
                 }
             })
