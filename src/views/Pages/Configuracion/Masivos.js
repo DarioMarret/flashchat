@@ -513,6 +513,8 @@ function Masivos(props) {
         let info = null
         if(envio.channel_id === 4){
             info = handleCustomPlantilla() 
+        }else{
+            info = {}
         }
 
         if(envio.titulo === null || envio.titulo === ''){
