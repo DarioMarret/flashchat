@@ -505,6 +505,32 @@ function Masivos(props) {
                     }
                 }
             })
+        }else if(envio.channel_id == 2){
+            const {status} = await BmHttp.post("qr_mensaje_external",{
+                sessionName: envio.nombreunico,
+                numero: [envio.numero],
+                mensaje: {
+                    type: "masivo",
+                    text: envio.mensaje,
+                    imagen:envio.imagen,
+                    video:envio.video, 
+                }
+            })
+            if (status === 200) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Plantilla enviada',
+                    showConfirmButton: false,
+                    timer: 1500
+                })
+            }else{
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error al enviar mensaje',
+                    showConfirmButton: false,
+                    timer: 1500
+                })
+            }
         }
     }
 
