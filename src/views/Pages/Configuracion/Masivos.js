@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { GetTokenDecoded, SubirMedia } from 'function/storeUsuario';
+import { GetTokenDecoded, IsKeyObject, SubirMedia } from 'function/storeUsuario';
 import { BmHttp, host } from 'function/util/global';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
@@ -52,6 +52,7 @@ function Masivos(props) {
     const [listPlantillas, setListPlantillas] = useState([])
     const [catidadVariables, setCatidadVariables] = useState({
         header: [],
+        headerVideo: {},
         body: [],
         footer: []
     })
@@ -203,6 +204,19 @@ function Masivos(props) {
                                         header: h
                                     })
                                 }
+                            }else if(IsKeyObject(item, 'format') && String(item.format).toLowerCase() === "video"){
+
+                                let h = {
+                                    video: {
+                                        link: item.example.header_handle[0]
+                                    },
+                                    type: "video"
+                                }
+                                setCatidadVariables({
+                                    ...catidadVariables,
+                                    headerVideo:h
+                                })
+
                             }else if(String(item.type).toLowerCase() === 'body' && item.text){
                                 let b = item.text.match(regex);
                                 console.log("B: ",b)
@@ -421,7 +435,6 @@ function Masivos(props) {
 
     const EnvioPrueba = async(e) => {
         e.preventDefault()
-        console.log("Envio: ",envio)
         if(envio.numero === null || envio.numero === ''){
             Swal.fire({
                 icon: 'error',
@@ -432,7 +445,6 @@ function Masivos(props) {
             return null
         }
         if(envio.channel_id === 4 && envio.numero !== null && envio.plantilla_id !== null && envio.api_key !== null){
-            console.log("components: ",components)
             let component = []
             const body = components.filter((item) => item.type === 'body')
             const header = components.filter((item) => item.type === 'header')
@@ -456,6 +468,11 @@ function Masivos(props) {
                             text: item.text
                         }
                     })
+                })
+            }else if(catidadVariables.headerVideo){
+                component.push({
+                    type: "header",
+                    parameters: [catidadVariables.headerVideo]
                 })
             }else if(footer.length > 0){
                 component.push({

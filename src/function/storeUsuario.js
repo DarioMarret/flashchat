@@ -3,6 +3,10 @@ import { DecodeJwt, DescryptCualquierDato } from "./util/ecrypt";
 import { conversacion_activa, host, usuario_token } from "./util/global";
 
 
+export const IsKeyObject =(obj, str)=>{
+    return str in obj;
+}
+
 export const GetToken = () => {
     let token = localStorage.getItem(usuario_token);
     if(token === null){
