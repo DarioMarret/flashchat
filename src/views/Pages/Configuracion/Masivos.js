@@ -1018,12 +1018,11 @@ function Masivos(props) {
                                 }
                             </button>
                             {
-                                envio.channel_id === 4 ?
                                 <button className="button-bm btn-dark w-100 mt-4"
                                     onClick={(e)=>EnvioPrueba(e)}
                                 >
                                     Envio de prueba
-                                </button> : null
+                                </button>
                             }
                         </div>
                     </form>
