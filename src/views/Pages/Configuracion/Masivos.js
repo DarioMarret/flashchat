@@ -182,16 +182,16 @@ function Masivos(props) {
                     imagen: e.target.value
                 })
             }else if(e.target.name === 'plantilla_id'){
+                let text = ""
                 listPlantillas.map((item) => {
                     if(item.id === e.target.value){
+                        item.components.map((item)=>{
+                            text += item.text ? item.text : '' 
+                        })
                         setEnvio({
                             ...envio,
-                            mensaje: item.components.map((item) => {
-                                return item.text ? item.text : ''
-                            }),
-                            mensaje_content: item.components.map((item) => {
-                                return item.text ? item.text : ''
-                            }),
+                            mensaje: text,
+                            mensaje_content: text,
                             plantilla_id: item.id
                         })
                         item.components.map((item) => {
@@ -587,32 +587,40 @@ function Masivos(props) {
         }
 
         if(envio.id !== 0){
-            const url = `${host}masivo/${envio.id}`;
-            const { status } = await axios.put(url, envio);
-            if (status === 200) {
-                ListarMasivos();
-                setShow(false)
-                LimpiarEnvio()
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Masivo actualizado',
-                    showConfirmButton: false,
-                    timer: 1500
-                })
+            try {
+                const url = `${host}masivo/${envio.id}`;
+                const { status } = await axios.put(url, envio);
+                if (status === 200) {
+                    ListarMasivos();
+                    setShow(false)
+                    LimpiarEnvio()
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Masivo actualizado',
+                        showConfirmButton: false,
+                        timer: 1500
+                    })
+                }
+            } catch (error) {
+                console.log(error)                
             }
         }else{
-            const url = `${host}masivo`;
-            const { status } = await axios.post(url, {...envio, plantilla: info});
-            if (status === 200) {
-                ListarMasivos();
-                setShow(false)
-                LimpiarEnvio()
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Masivo creado',
-                    showConfirmButton: false,
-                    timer: 1500
-                })
+            try {
+                const url = `${host}masivo`;
+                const { status } = await axios.post(url, {...envio, plantilla: info});
+                if (status === 200) {
+                    ListarMasivos();
+                    setShow(false)
+                    LimpiarEnvio()
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Masivo creado',
+                        showConfirmButton: false,
+                        timer: 1500
+                    })
+                }
+            } catch (error) {
+                console.log(error)                
             }
         }
     }
