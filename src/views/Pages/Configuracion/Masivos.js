@@ -369,6 +369,11 @@ function Masivos(props) {
                     }
                 })
             })
+        }else if(catidadVariables.headerVideo){
+            component.push({
+                type: "header",
+                parameters: [catidadVariables.headerVideo]
+            })
         }else if(footer.length > 0){
             component.push({
                 type: "footer",
