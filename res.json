@@ -1,26 +1,6 @@
 {
-    "api_key": "iMwzZfSeIFM9JJE16RbncjyzAK",
-    "plantilla": {
-        "to": "593993713942",
-        "type": "template",
-        "template": {
-            "namespace": "5ae2e1de_5fe2_4456_a296_0bbaeac11eb3",
-            "language": {
-                "code": "es",
-                "policy": "deterministic"
-            },
-            "name": "romanticstyle",
-            "components": [
-                {
-                    "type": "header",
-                    "parameters": {
-                        "video": {
-                            "link": "https://scontent.whatsapp.net/v/t61.29466-34/417777637_1114917303081738_6030545996578947875_n.mp4?ccb=1-7&_nc_sid=8b1bef&_nc_ohc=EP-acWx4dwYQ7kNvgE_pMQi&_nc_ht=scontent.whatsapp.net&edm=AH51TzQEAAAA&oh=01_Q5AaIEl5I15gh6MJhUopZaj5joxSU_EYFwAKja8gtEjwL0PR&oe=66609723"
-                        },
-                        "type": "video"
-                    }
-                }
-            ]
-        }
-    }
-}
+    "desde": "2024-5-1",
+    "hasta": "2024-5-6",
+    "agrupacion": "1",
+    "typo": "1"
+  }

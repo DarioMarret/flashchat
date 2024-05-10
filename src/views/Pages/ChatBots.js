@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import FacebookLogin, { FacebookLoginClient } from "@greatsumini/react-facebook-login";
 import d360 from "assets/img/360.jpeg";
 import AI from "assets/img/chatgpt.png";
@@ -8,7 +9,7 @@ import instagram from "assets/img/instagram.jpeg";
 import telegram from "assets/img/telegram.jpeg";
 import axios from "axios";
 import { GetTokenDecoded } from "function/storeUsuario";
-import { colorPrimario, host } from "function/util/global";
+import { BmHttp, colorPrimario, host } from "function/util/global";
 import { useEffect, useState } from "react";
 import { Container, Modal } from "react-bootstrap";
 import { CopyToClipboard } from "react-copy-to-clipboard";
@@ -227,8 +228,33 @@ function ChatBots(props) {
       estado: estado,
       nombreunico: nombreunico,
     });
+    if(estado !== 'online'){
+      listarQrNombreunico(nombreunico)
+    }
     handleopQr();
   };
+
+  const listarQrNombreunico = async (nombreunico)=>{
+    try {
+      console.log("listarQrNombreunico: "+nombreunico)
+      const { data } = await BmHttp.get('qr/link?nombreunico='+nombreunico)
+      if(data.status === 200){
+        console.log(data.data)
+        setLinkQr(data.data.qr)
+      }
+    } catch (error) {
+      console.log(error)      
+    }
+  }
+
+  const RecargarLink = async(nombreunico)=>{
+    try {
+      const { data } = await BmHttp.get(`reconectar/${nombreunico}`)
+      setLinkQr(data.data.qr) 
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   const reconnexionQr = (nombreunico) => {
     Swal.fire({
@@ -239,8 +265,9 @@ function ChatBots(props) {
       confirmButtonText: "Si",
       cancelButtonText: "No",
     }).then(async (result) => {
-      const url = `${host}reconectar/${nombreunico}`;
-      fetch(url);
+      if(result.isConfirmed){
+        await BmHttp.get(`reconectar_qr?sessionName=${nombreunico}`)
+      }
     });
   };
 
@@ -262,7 +289,7 @@ function ChatBots(props) {
 
   const EstadoSession = () => {
     if (estadoQr.estado && estadoQr.nombreunico) {
-      fetch(`${host}/estado_session?sessionName=${estadoQr.nombreunico}`)
+      fetch(`${host}estado_session?sessionName=${estadoQr.nombreunico}`)
         .then((res) => res.json())
         .then((data) => {
           if (data.status === 200) {
@@ -304,19 +331,37 @@ function ChatBots(props) {
   }
 
   useEffect(() => {
-    EstadoSession();
-    RecargarQr();
-    var interval = null;
+    let intervalId;
     if (opQr) {
-      interval = setInterval(() => {
-        EstadoSession();
-        RecargarQr();
-        console.log("This will run every 3 seconds!");
-      }, 3000);
-    } else {
-      clearInterval(interval);
+        console.log(opQr);
+        if (estadoQr.estado !== 'online') {
+            console.log("estadoQr: ", estadoQr);
+            intervalId = 
+            setInterval(async () => {
+                // await RecargarLink(estadoQr.nombreunico)
+                // console.log("This will run every 3 seconds!");
+                actualizarImagen()
+            }, 900);
+            return () => {
+                clearInterval(intervalId);
+            };
+        }
     }
-  }, [opQr]);
+    // Cleanup interval when opQr or estadoQr changes
+    return () => {
+        clearInterval(intervalId);
+    };
+}, [opQr, estadoQr]);
+function actualizarImagen() {
+  const img = document.getElementById('qrImage');
+  // Construir la URL de la imagen
+  const timestamp = new Date().getTime(); // Obtiene una marca de tiempo única
+  const imageUrl = `${host}qr/${estadoQr.nombreunico}.png?timestamp=${timestamp}`;
+  console.log(imageUrl)
+
+  // Actualizar el atributo src de la imagen
+  img.src = imageUrl;
+}
 
   const ActivaModalEditar = (item) => {
     setBot({
@@ -786,16 +831,8 @@ function ChatBots(props) {
                 }}
               >
                 {/* que se recarge la imagen  */}
-                {linkQr ? (
-                  <img src={linkQr} alt="qr" width="100%" height="100%" />
-                ) : (
-                  <img
-                    src={`${host}qr/${estadoQr.nombreunico}.png`}
-                    alt="qr"
-                    width="100%"
-                    height="100%"
-                  />
-                )}
+                  <img id="qrImage" alt="qr" width="100%" height="100%" />
+
               </div>
             </div>
             <div className="text-center m-2">

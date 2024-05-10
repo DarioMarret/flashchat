@@ -23,6 +23,7 @@ const bm = new axios.create({
         'Content-Type': 'application/json',
         'Authorization': 'Bearer ' + localStorage.getItem(usuario_token)
     },
+    timeout: 555550000
 });
 
 export const BmHttp = bm;
