@@ -341,6 +341,7 @@ function ChatBots(props) {
                 // await RecargarLink(estadoQr.nombreunico)
                 // console.log("This will run every 3 seconds!");
                 actualizarImagen()
+                EstadoSession()
             }, 900);
             return () => {
                 clearInterval(intervalId);
