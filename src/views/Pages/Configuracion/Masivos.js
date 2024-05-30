@@ -53,6 +53,7 @@ function Masivos(props) {
     const [catidadVariables, setCatidadVariables] = useState({
         header: [],
         headerVideo: {},
+        headerImagen: {},
         body: [],
         footer: []
     })
@@ -85,6 +86,7 @@ function Masivos(props) {
         bots: []
     });
 
+    // esto se acciona cuando se escribe en los inputs de las variables
     const handleVariables = (e) => {
         let text = envio.mensaje_content
         if(e.target.name.includes('header_')){
@@ -216,10 +218,20 @@ function Masivos(props) {
                                     ...catidadVariables,
                                     headerVideo:h
                                 })
+                            }else if(IsKeyObject(item, 'format') && String(item.format).toLowerCase() === "image"){
+                                let h = {
+                                    image: {
+                                        link: item.example.header_handle[0]
+                                    },
+                                    type: "image"
+                                }
+                                setCatidadVariables({
+                                    ...catidadVariables,
+                                    headerImagen:h
+                                })
 
                             }else if(String(item.type).toLowerCase() === 'body' && item.text){
                                 let b = item.text.match(regex);
-                                console.log("B: ",b)
                                 if(b !== null){
                                     setCatidadVariables({
                                         ...catidadVariables,
@@ -228,7 +240,6 @@ function Masivos(props) {
                                 }
                             }else if(String(item.type).toLowerCase() === 'footer' && item.text){
                                 let f = item.text.match(regex);
-                                console.log("F: ",f)
                                 if(f !== null){
                                     setCatidadVariables({
                                         ...catidadVariables,
@@ -454,7 +465,10 @@ function Masivos(props) {
             const body = components.filter((item) => item.type === 'body')
             const header = components.filter((item) => item.type === 'header')
             const footer = components.filter((item) => item.type === 'footer')
-            if(body.length > 0){
+            console.log("Body: ",body)
+            console.log("Header: ",header)
+            console.log("Footer: ",footer)
+            if(Array.isArray(body).length > 0){
                 component.push({
                     type: "body",
                     parameters: body.map((item) => {
@@ -464,22 +478,28 @@ function Masivos(props) {
                         }
                     })
                 })
-            }else if(header.length > 0){
+            }else if(Array.isArray(header) && header.length > 0){
                 component.push({
                     type: "header",
                     parameters: header.map((item) => {
+                        console.log("Item: ",item)
                         return {
                             type: "text",
                             text: item.text
                         }
                     })
                 })
-            }else if(catidadVariables.headerVideo){
+            }else if(typeof catidadVariables.headerVideo === 'object' && Object.keys(catidadVariables.headerVideo).length > 0){
                 component.push({
                     type: "header",
                     parameters: [catidadVariables.headerVideo]
                 })
-            }else if(footer.length > 0){
+            }else if(typeof catidadVariables.headerImagen === 'object' && Object.keys(catidadVariables.headerImagen).length > 0){
+                component.push({
+                    type: "header",
+                    parameters: [catidadVariables.headerImagen]
+                })
+            }else if(Array.isArray(footer) && footer.length > 0){
                 component.push({
                     type: "footer",
                     parameters: footer.map((item) => {
@@ -490,6 +510,8 @@ function Masivos(props) {
                     })
                 })
             }
+            console.log("catidadVariables: ",catidadVariables)
+            console.log("Component: ",component)
 
             listPlantillas.map(async (item) => {
                 if(item.id === envio.plantilla_id){
@@ -633,7 +655,6 @@ function Masivos(props) {
     const ListarMasivos = async() => {
         const url = `${host}masivo/${GetTokenDecoded().cuenta_id}`;
         const { data, status } = await axios.get(url);
-        console.log(data.data)
         if (status === 200) {
             setMasivos(data.data);
         }
@@ -752,7 +773,6 @@ function Masivos(props) {
             <div className='d-flex justify-content-start flex-wrap'>
                 {
                     masivos.map((item, index) => (
-                        console.log("Item: ",item),
                         <Col key={index}
                             className="w-fit d-flex flex-column px-3 py-2 bg-white border rounded shadow mb-3 m-2"
                             md="4"
