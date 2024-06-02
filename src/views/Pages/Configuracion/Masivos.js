@@ -360,7 +360,10 @@ function Masivos(props) {
         const body = components.filter((item) => item.type === 'body')
         const header = components.filter((item) => item.type === 'header')
         const footer = components.filter((item) => item.type === 'footer')
-        if(body.length > 0){
+        console.log("Body: ",body)
+        console.log("Header: ",header)
+        console.log("Footer: ",footer)
+        if(Array.isArray(body).length > 0){
             component.push({
                 type: "body",
                 parameters: body.map((item) => {
@@ -370,22 +373,28 @@ function Masivos(props) {
                     }
                 })
             })
-        }else if(header.length > 0){
+        }else if(Array.isArray(header) && header.length > 0){
             component.push({
                 type: "header",
                 parameters: header.map((item) => {
+                    console.log("Item: ",item)
                     return {
                         type: "text",
                         text: item.text
                     }
                 })
             })
-        }else if(catidadVariables.headerVideo){
+        }else if(typeof catidadVariables.headerVideo === 'object' && Object.keys(catidadVariables.headerVideo).length > 0){
             component.push({
                 type: "header",
                 parameters: [catidadVariables.headerVideo]
             })
-        }else if(footer.length > 0){
+        }else if(typeof catidadVariables.headerImagen === 'object' && Object.keys(catidadVariables.headerImagen).length > 0){
+            component.push({
+                type: "header",
+                parameters: [catidadVariables.headerImagen]
+            })
+        }else if(Array.isArray(footer) && footer.length > 0){
             component.push({
                 type: "footer",
                 parameters: footer.map((item) => {
@@ -396,6 +405,9 @@ function Masivos(props) {
                 })
             })
         }
+        console.log("catidadVariables: ",catidadVariables)
+        console.log("Component: ",component)
+
 
         let info = null
         listPlantillas.map(async (item) => {
