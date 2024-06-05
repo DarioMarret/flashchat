@@ -286,7 +286,7 @@ const ModelSdk = ({ show, handleClose, sdk, setSdk, setRuta, ruta, id, handleCam
             <Modal.Title>Nuevo scrio webchat</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-            <p>Copia el siguiente script i pegalo en el html de tu pagina en la seccion de script del body</p>
+            <p>Copia el siguiente script y pegalo en el html de tu pagina en la seccion de script del body</p>
             <div
                 style={{
                     backgroundColor: '#f8f9fa',
