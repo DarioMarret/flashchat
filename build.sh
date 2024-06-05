@@ -1,5 +1,5 @@
 git add .
-git commit -m "Reacion de sdk y modales para su configuracion"
+git commit -m "Coreccion de errores en el modal de Script"
 git push
 export SHORT_COMMIT=$(git log -1 --pretty="%H" | cut -b -8)
 export DOCKER_IMAGE_VERSION="dev_${SHORT_COMMIT}"

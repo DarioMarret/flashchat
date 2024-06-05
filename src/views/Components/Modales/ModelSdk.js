@@ -282,9 +282,9 @@ const ModelSdk = ({ show, handleClose, sdk, setSdk, setRuta, ruta, id, handleCam
         aria-labelledby="contained-modal-title-vcenter"
         centered
       >
-        <Modal.Header>
+        {/* <Modal.Header>
             <Modal.Title>Nuevo scrio webchat</Modal.Title>
-        </Modal.Header>
+        </Modal.Header> */}
         <Modal.Body>
             <p>Copia el siguiente script y pegalo en el html de tu pagina en la seccion de script del body</p>
             <div
