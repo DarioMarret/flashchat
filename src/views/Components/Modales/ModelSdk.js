@@ -302,6 +302,11 @@ const ModelSdk = ({ show, handleClose, sdk, setSdk, setRuta, ruta, id, handleCam
                         (function() {
                         window.SDKlm = {
                             config: {
+                                publicId: "${sdk.publicId}",
+                                cuenta_id: "${sdk.cuenta_id}",
+                                nombreunico: "${sdk.nombreunico}",
+                                channel_id: "${sdk.channel_id}",
+                                session_id: "${sdk.session_id}",
                                 backgroundColor: "${sdk.backgroundColor}",
                                 fontColor: "${sdk.fontColor}",
                                 fontFamily: "${sdk.fontFamily}",

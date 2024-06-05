@@ -95,7 +95,6 @@ function ChatBots(props) {
 
 
   const handleCambiosdk = async (e) => {
-    console.log(sdk)
     if(e.target.name === 'formulario' || e.target.name === 'builderBubble'){
       let str = JSON.stringify({ ...sdk, [e.target.name]: e.target.checked });
       setSdk({ ...sdk, [e.target.name]: e.target.checked });
