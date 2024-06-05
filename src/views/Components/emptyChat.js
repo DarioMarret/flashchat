@@ -3,7 +3,7 @@ export default function EmptyChat() {
     <>
       <div className="w-100 h-100 border d-flex justify-content-center align-items-center">
         <div className="text-center">
-          <span class="material-symbols-outlined" style={{ fontSize: "5rem" }}>
+          <span className="material-symbols-outlined" style={{ fontSize: "5rem" }}>
             laptop_windows
           </span>
 

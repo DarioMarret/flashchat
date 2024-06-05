@@ -33,7 +33,7 @@ function ComponenteMultimedia(props) {
             // si es xlsx mostrar el icono de excel y cuando se haga click descargar el archivo
             return (
                 <div className="d-flex gap-2">
-                    <span class="material-symbols-outlined">insert_drive_file</span>
+                    <span className="material-symbols-outlined">insert_drive_file</span>
                     <a href={item.url} download>
                         {item.url.split('/').pop()}
                     </a>
@@ -43,7 +43,7 @@ function ComponenteMultimedia(props) {
         } else if (item.url.split('.').pop() === 'json' || item.url.split('.').pop() === 'exe' || item.url.split('.').pop() === 'docx' || item.url.split('.').pop() === 'doc' || item.url.split('.').pop() === 'pptx' || item.url.split('.').pop() === 'ppt' || item.url.split('.').pop() === 'txt' || item.url.split('.').pop() === 'zip' || item.url.split('.').pop() === 'rar') {
             return (
                 <div className="d-flex gap-2">
-                    <span class="material-symbols-outlined">insert_drive_file</span>
+                    <span className="material-symbols-outlined">insert_drive_file</span>
                     <a href={item.url} download>
                         {item.url.split('/').pop()}
                     </a>

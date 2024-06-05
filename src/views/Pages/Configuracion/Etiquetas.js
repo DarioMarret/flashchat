@@ -1,6 +1,5 @@
-import axios from 'axios';
 import { GetTokenDecoded } from 'function/storeUsuario';
-import { host } from 'function/util/global';
+import { BmHttp } from 'function/util/global';
 import { useEffect, useState } from 'react';
 import {
     Card,
@@ -36,8 +35,8 @@ function Etiquetas(props) {
         })
     };
     const ListarEtiquetas = async () => {
-        let url = host + 'etiqueta/'+GetTokenDecoded().cuenta_id
-        const { data, status } = await axios.get(url)
+        let url = 'etiqueta/'+GetTokenDecoded().cuenta_id
+        const { data, status } = await BmHttp.get(url)
         if(status === 200){
             setEtiquetas(data.data)
         }
@@ -54,8 +53,8 @@ function Etiquetas(props) {
 
     const ActualizarEtiqueta = async (e) => {
         e.preventDefault()
-        let url = host + 'etiqueta/'+etiqueta.id
-        const { data, status } = await axios.put(url, etiqueta)
+        let url = 'etiqueta/'+etiqueta.id
+        const { data, status } = await BmHttp.put(url, etiqueta)
         if(status === 200){
             Swal.fire({
                 icon: 'success',
@@ -88,8 +87,8 @@ function Etiquetas(props) {
             confirmButtonText: 'Sí, eliminar'
         }).then(async (result) => {
             if (result.isConfirmed) {
-                let url = host + 'etiqueta/'+id
-                const { status } = await axios.delete(url)
+                let url = 'etiqueta/'+id
+                const { status } = await BmHttp.delete(url)
                 if(status === 200){
                     ListarEtiquetas()
                 }
@@ -99,8 +98,8 @@ function Etiquetas(props) {
 
     const CrearEquipo = async (e) => {
         e.preventDefault()
-        let url = host + 'etiqueta'
-        const { status } = await axios.post(url, etiqueta)
+        let url = 'etiqueta'
+        const { status } = await BmHttp.post(url, etiqueta)
         if(status === 200){
             Swal.fire({
                 icon: 'success',

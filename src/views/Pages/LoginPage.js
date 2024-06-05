@@ -4,9 +4,9 @@ import React from "react";
 
 // react-bootstrap components
 import {
-  Button,
-  Card,
-  Form
+    Button,
+    Card,
+    Form
 } from "react-bootstrap";
 import Swal from "sweetalert2";
 
@@ -129,8 +129,8 @@ const LoginPage =(props)=> {
         style={{ height: '100vh' }}
       >
         <div className="container content d-flex justify-content-center align-items-center p-0">
-          <div class="row w-100">
-            <div class="col-12 col-md-6 col-lg-8 d-none d-md-flex d-flex flex-column align-items-center justify-content-center">
+          <div className="row w-100">
+            <div className="col-12 col-md-6 col-lg-8 d-none d-md-flex d-flex flex-column align-items-center justify-content-center">
               <div className="text-center">
                 <h3 className="text-uppercase mx-auto text-white font-600 text-center typing">Obtén tu cuenta demo por 10 días !</h3>
 
@@ -143,7 +143,7 @@ const LoginPage =(props)=> {
               demoStatus ? 
               <>
                {/* formulario para agendar un demos */}
-              <div class="col-12 col-md-6 col-lg-4">
+              <div className="col-12 col-md-6 col-lg-4">
                 <Form action="" className="form" method="">
                   <Card className={"card-login background-backdrop" + cardClasses}>
                     <Card.Header>
@@ -155,7 +155,7 @@ const LoginPage =(props)=> {
                       {/* fecha y hora en la que te podemos contactar */}
                       <Form.Group>
                           <label className="font-600 d-flex align-items-center">
-                          <span class="material-symbols-outlined" style={{marginRight: '5px'}}>event</span>
+                          <span className="material-symbols-outlined" style={{marginRight: '5px'}}>event</span>
                             Fecha y hora</label>
                           <Form.Control
                             placeholder="Fecha y hora"
@@ -168,7 +168,7 @@ const LoginPage =(props)=> {
                         </Form.Group>
                         <Form.Group className="">
                           <label className="font-600 d-flex align-items-center">
-                          <span class="material-symbols-outlined" style={{marginRight: '5px'}}>person</span>
+                          <span className="material-symbols-outlined" style={{marginRight: '5px'}}>person</span>
                             Nombre</label>
                           <Form.Control
                             placeholder="Nombre por el cual te podemos llamar"
@@ -179,7 +179,7 @@ const LoginPage =(props)=> {
                         </Form.Group>
                         <Form.Group className="">
                           <label className="font-600 d-flex align-items-center">
-                          <span class="material-symbols-outlined" style={{marginRight: '5px'}}>mail</span>
+                          <span className="material-symbols-outlined" style={{marginRight: '5px'}}>mail</span>
                             Correo electrónico</label>
                           <Form.Control
                             placeholder="Correo electrónico"
@@ -191,7 +191,7 @@ const LoginPage =(props)=> {
                         {/* contacto */}
                         <Form.Group>
                           <label className="font-600 d-flex align-items-center">
-                          <span class="material-symbols-outlined" style={{marginRight: '5px'}}>phone</span>
+                          <span className="material-symbols-outlined" style={{marginRight: '5px'}}>phone</span>
                             Teléfono</label>
                           <Form.Control
                             placeholder="Teléfono"
@@ -203,7 +203,7 @@ const LoginPage =(props)=> {
                         {/* mensaje */}
                         <Form.Group>
                           <label className="font-600 d-flex align-items-center">
-                          <span class="material-symbols-outlined" style={{marginRight: '5px'}}>message</span>
+                          <span className="material-symbols-outlined" style={{marginRight: '5px'}}>message</span>
                             Mensaje</label>
                           <Form.Control
                             placeholder="Detallanos tu necesidad o duda"
@@ -231,7 +231,7 @@ const LoginPage =(props)=> {
                 </Form>
               </div>
               </> : 
-              <div class="col-12 col-md-6 col-lg-4">
+              <div className="col-12 col-md-6 col-lg-4">
                 <Form action="" className="form" method="">
                   <Card className={"card-login background-backdrop" + cardClasses}>
                     <Card.Header>
@@ -242,7 +242,7 @@ const LoginPage =(props)=> {
                       <Card.Body>
                         <Form.Group className="mb-4">
                           <label className="font-600 d-flex align-items-center">
-                          <span class="material-symbols-outlined" style={{marginRight: '5px'}}>mail</span>
+                          <span className="material-symbols-outlined" style={{marginRight: '5px'}}>mail</span>
                             Correo electrónico</label>
                           <Form.Control
                             placeholder="correo@email.com"
@@ -255,7 +255,7 @@ const LoginPage =(props)=> {
   
                         <Form.Group>
                           <label className="font-600 d-flex align-items-center">
-                          <span class="material-symbols-outlined" style={{marginRight: '5px'}}>
+                          <span className="material-symbols-outlined" style={{marginRight: '5px'}}>
                             lock
                             </span>
                             Contraseña</label>

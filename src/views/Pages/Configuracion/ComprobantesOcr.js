@@ -1,7 +1,6 @@
 
-import axios from 'axios';
 import { GetTokenDecoded, SubirMedia } from 'function/storeUsuario';
-import { host } from "function/util/global";
+import { BmHttp, host } from 'function/util/global';
 import { useEffect, useState } from "react";
 import {
     Button,
@@ -54,8 +53,8 @@ function ComprobantesOcr(props) {
     });
 
     const ListarOcrs = async () => {
-        let url = host + 'comprobantes/'+GetTokenDecoded().cuenta_id
-        const { data, status } = await axios.get(url)
+        let url = 'comprobantes/'+GetTokenDecoded().cuenta_id
+        const { data, status } = await BmHttp.get(url)
         if(status === 200 && data !== null){
             setOcrs(data)
         }
@@ -71,7 +70,6 @@ function ComprobantesOcr(props) {
     const RegistrarOcr = async (e) => {
         e.preventDefault()
         try {
-            let url = host + 'comprobantes'
             let i = ocr.key
             if (i.startsWith('"') && i.endsWith('"')) {
                 i = i.slice(1, -1);
@@ -84,8 +82,7 @@ function ComprobantesOcr(props) {
                     key: JSON.parse(i),
                     cuenta_id: GetTokenDecoded().cuenta_id
                 }
-                console.log(keys)
-                const { data, status } = await axios.post(url, keys)
+                const { status } = await BmHttp.post('comprobantes', keys)
                 if(status === 200){
                     ListarOcrs()
                     setShow(false)
@@ -123,7 +120,7 @@ function ComprobantesOcr(props) {
             info.tipoCompr.push(valor)
             info.tipoCompr.sort()
         }
-        const { data, status } = await axios.put(host + 'comprobantes_validacion', info)
+        const { data, status } = await BmHttp.put('comprobantes_validacion', info)
         if(status === 200){
             setOcrs(data)
         }
@@ -142,7 +139,7 @@ function ComprobantesOcr(props) {
         }else if(typo === 'tipoCompr'){
             info.tipoCompr = info.tipoCompr.filter(item => item !== valor)
         }
-        const { data, status } = await axios.put(host + 'comprobantes_validacion', info)
+        const { data, status } = await BmHttp.put('comprobantes_validacion', info)
         if(status === 200){
             setOcrs(data)
         }
@@ -159,8 +156,8 @@ function ComprobantesOcr(props) {
     }
 
     const ValidarComprobante = async () => {
-        let urlHtt = `${host}comprobantes_scaner/${ocr.cuenta_id}`
-        const { data, status } = await axios.post(urlHtt, {url})
+        let urlHtt = `comprobantes_scaner/${ocr.cuenta_id}`
+        const { data, status } = await BmHttp.post(urlHtt, {url})
         if(status === 200){
             setResponse(data)
         }else{
@@ -197,7 +194,7 @@ function ComprobantesOcr(props) {
                                 className="form-control border-0 "
                                 type="text"
                                 name="key"
-                                value={`${host}comprobantes_scaner?cuenta_id=${ocr.cuenta_id}`}
+                                value={`${host}comprobantes_scaner/${ocr.cuenta_id}`}
                                 disabled
                                 />
                             <CopyToClipboard text={`${host}comprobantes_scaner/${ocr.cuenta_id}`}>
@@ -238,7 +235,7 @@ function ComprobantesOcr(props) {
                                         className="form-control border-0"
                                         type="text"
                                         name="url"
-                                        value={`POST:  ${host}comprobantes_scaner?cuenta_id=${ocr.cuenta_id}`}
+                                        value={`POST:  ${host}comprobantes_scaner/${ocr.cuenta_id}`}
                                     />
                                     <input
                                         className="form-control border-0"
@@ -258,7 +255,7 @@ function ComprobantesOcr(props) {
                                     />
 
 
-                                    <Form onSubmit={RegistrarOcr}>
+                                    <Form>
                                         <Form.Group className="mb-3">
                                             <Form.Label>Suba un Comprobante de pago</Form.Label>
                                             <input

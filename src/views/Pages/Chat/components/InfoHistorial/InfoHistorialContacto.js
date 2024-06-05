@@ -155,7 +155,7 @@ function InfoHistorialContacto(props) {
                 // si es xlsx mostrar el icono de excel y cuando se haga click descargar el archivo
                 return (
                     <div className="d-flex gap-2">
-                        <span class="material-symbols-outlined">insert_drive_file</span>
+                        <span className="material-symbols-outlined">insert_drive_file</span>
                         <a href={item.url} download>
                             {item.url.split('/').pop()}
                         </a>
@@ -165,7 +165,7 @@ function InfoHistorialContacto(props) {
             } else if (item.url.split('.').pop() === 'json' || item.url.split('.').pop() === 'exe' || item.url.split('.').pop() === 'docx' || item.url.split('.').pop() === 'doc' || item.url.split('.').pop() === 'pptx' || item.url.split('.').pop() === 'ppt' || item.url.split('.').pop() === 'txt' || item.url.split('.').pop() === 'zip' || item.url.split('.').pop() === 'rar') {
                 return (
                     <div className="d-flex gap-2">
-                        <span class="material-symbols-outlined">insert_drive_file</span>
+                        <span className="material-symbols-outlined">insert_drive_file</span>
                         <a href={item.url} download>
                             {item.url.split('/').pop()}
                         </a>
@@ -225,7 +225,7 @@ function InfoHistorialContacto(props) {
         <div className="chat-list bg-chat rounded-end" style={{ overflow: 'auto' }}>
             <div className="d-flex py-2 px-2 flex-wrap align-items-center justify-content-between">
                 {/* <div className="box-info-body-close rounded-circle d-flex justify-content-center align-items-center position-absolute">
-                    <span class="material-symbols-outlined text-danger cursor-pointer" onClick={() => setInfoContacto('close-box-info')}>close</span>
+                    <span className="material-symbols-outlined text-danger cursor-pointer" onClick={() => setInfoContacto('close-box-info')}>close</span>
                 </div> */}
 
                 <div className="w-100 d-flex gap-2 pb-3">
@@ -306,7 +306,7 @@ function InfoHistorialContacto(props) {
                 <div className="w-100 py-2 d-flex flex-column gap-3">
                     <div className="bg-blue p-2 rounded justify-content-between d-flex">
                         <span className="text-white font-bold">Notas</span>
-                        <span class="material-symbols-outlined text-white cursor-pointer" onClick={(e)=>HandleActivarNota()}>
+                        <span className="material-symbols-outlined text-white cursor-pointer" onClick={(e)=>HandleActivarNota()}>
                             more
                         </span>
                     </div>
@@ -368,7 +368,7 @@ function InfoHistorialContacto(props) {
                                         </section>
                                         <span className="text-span box-info-text font-bold">Agente: {NombreAgente(item.agente_id)}</span>
                                         <p className="box-info-text m-0 text-span">
-                                            <span class="material-symbols-outlined box-info-text">arrow_top_left</span>
+                                            <span className="material-symbols-outlined box-info-text">arrow_top_left</span>
                                             {
                                                 CompomenteMultimedis(item.mensajes)
                                             }

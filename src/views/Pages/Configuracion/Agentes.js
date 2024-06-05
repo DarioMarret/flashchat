@@ -1,6 +1,5 @@
-import axios from 'axios';
 import { GetTokenDecoded, SubirMedia } from 'function/storeUsuario';
-import { BmHttp, host } from 'function/util/global';
+import { BmHttp } from 'function/util/global';
 import Multiselect from 'multiselect-react-dropdown';
 import { useEffect, useState } from 'react';
 import {
@@ -140,8 +139,8 @@ function Agentes(props) {
     }
 
     const ListarBots = async() => {
-        const url = `${host}bots/${GetTokenDecoded().cuenta_id}`
-        const { data, status } = await axios.get(url)
+        const url = `bots/${GetTokenDecoded().cuenta_id}`
+        const { data, status } = await BmHttp.get(url)
         if (status === 200) {
             let labels = []
             data.data.map(bot => {
@@ -155,16 +154,16 @@ function Agentes(props) {
     }
 
     const ListarEquipos = async() => {
-        const url = `${host}equipo/${GetTokenDecoded().cuenta_id}`
-        const { data, status } = await axios.get(url)
+        const url = `equipo/${GetTokenDecoded().cuenta_id}`
+        const { data, status } = await BmHttp.get(url)
         if (status === 200) {
             setEquipos(data.data)
         }
     }
 
     const CrearAgente = async() => {
-        const url = `${host}agentes`
-        const { data, status } = await axios.post(url, agente)
+        const url = `agentes`
+        const { data, status } = await BmHttp.post(url, agente)
         if (status === 200) {
             Swal.fire({
                 icon: 'success',
@@ -213,7 +212,7 @@ function Agentes(props) {
 
 
     const EliminarAgente = async(id, nombre) => {
-        const url = `${host}agentes/${id}`
+        const url = `agentes/${id}`
         Swal.fire({
             title: 'Estas seguro?',
             html: `Eliminaras el agente <b>${nombre}</b>`,
@@ -222,7 +221,7 @@ function Agentes(props) {
             confirmButtonColor: '#3085d6',
         }).then((result) => {
             if (result.isConfirmed) {
-                axios.delete(url)
+                BmHttp.delete(url)
                 .then(response => {
                     ListarAgentes()
                 })
@@ -231,8 +230,8 @@ function Agentes(props) {
     }
 
     const ActualizarAgente = async() => {
-        const url = `${host}agentes/${agente.id}`
-        const { data, status } = await axios.put(url, agente)
+        const url = `agentes/${agente.id}`
+        const { data, status } = await BmHttp.put(url, agente)
         if (status === 200) {
             ListarAgentes()
             handleClose()

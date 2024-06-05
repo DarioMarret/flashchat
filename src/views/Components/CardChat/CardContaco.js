@@ -3,7 +3,7 @@ import { GetTokenDecoded, SetManejoConversacionStorange } from 'function/storeUs
 import { colorPrimario, host } from 'function/util/global';
 import { useState } from 'react';
 import {
-    Modal
+  Modal
 } from 'react-bootstrap';
 import Swal from 'sweetalert2';
 import socket from 'views/SocketIO';
@@ -64,7 +64,6 @@ function CardContacto(props) {
   
   const VerConversacionesSinAsignar = (items) => {
     SetManejoConversacionStorange(items)
-  
   }
 
   useState(() => {

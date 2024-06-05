@@ -1,3 +1,5 @@
+/* eslint-disable jsx-a11y/alt-text */
+/* eslint-disable jsx-a11y/iframe-has-title */
 /* eslint-disable react-hooks/exhaustive-deps */
 import FacebookLogin, { FacebookLoginClient } from "@greatsumini/react-facebook-login";
 import d360 from "assets/img/360.jpeg";
@@ -8,12 +10,14 @@ import gupshup from "assets/img/gupshup.jpeg";
 import instagram from "assets/img/instagram.jpeg";
 import telegram from "assets/img/telegram.jpeg";
 import axios from "axios";
-import { GetTokenDecoded } from "function/storeUsuario";
-import { BmHttp, colorPrimario, host } from "function/util/global";
+import { GetTokenDecoded, SubirMedia } from "function/storeUsuario";
+import { BmHttp, colorPrimario, host, host_widget } from "function/util/global";
 import { useEffect, useState } from "react";
 import { Container, Modal } from "react-bootstrap";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import Swal from "sweetalert2";
+import ModelSdk from "views/Components/Modales/ModelSdk";
+
 
 function ChatBots(props) {
   const [show, setShow] = useState(false);
@@ -43,15 +47,84 @@ function ChatBots(props) {
     source: "",
     url: "",
   });
+  const [sdk, setSdk] = useState(null);
+  const [ruta, setRuta] = useState("");
   const [bots, setBots] = useState([]);
   const [botPlantilla, setBotPlantilla] = useState([]);
   const [userFb, setUserFb] = useState(null);
   const [perfil, setPerfil] = useState(null);
+  const [openWebChat, setOpenWebChat] = useState(false);
+  const [id, setId] = useState(0);
+  const [nombreunico, setNombreunico] = useState("");
+  const [openConfirmaWebChat, setOpenConfirmaWebChat] = useState(false);
 
   const handleClose = () => {
     setShow(!show);
     Limpiar();
   };
+
+  const handleCloseWebChat = async(nombreunico) => {
+      const result = await ListarBotUnico(nombreunico+"_webchat");
+      setNombreunico(nombreunico+"_webchat")
+      if(result){
+        setOpenWebChat(!openWebChat);
+      }else{
+        if(openWebChat){
+          setOpenWebChat(false);
+          setOpenConfirmaWebChat(false)
+        }
+      }
+  }
+
+  const AcualizarSdk = async () => {
+    try {
+      const payload = { sdk: { ...sdk } };
+      const { data, status } = await BmHttp.post(`update_sdk_bot?nombreunico=${nombreunico}`, payload)
+      if(status === 200 && data.status === 200){
+        Swal.fire({
+          title: "Actualizado correctamente puede generar el script nuevamente",
+          icon: "success",
+          showConfirmButton: false,
+          timer: 2000,
+        });
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+
+  const handleCambiosdk = async (e) => {
+    console.log(sdk)
+    if(e.target.name === 'formulario' || e.target.name === 'builderBubble'){
+      let str = JSON.stringify({ ...sdk, [e.target.name]: e.target.checked });
+      setSdk({ ...sdk, [e.target.name]: e.target.checked });
+      let base64 = window.btoa(str);
+      setRuta(host_widget+base64)
+    }else if(e.target.name === 'avatar_agente' || e.target.name === 'iconBurl' || e.target.name === 'icon'){
+      const url = await SubirMedia(e.target.files[0]);
+      let str = JSON.stringify({ ...sdk, [e.target.name]: url });
+      setSdk({ ...sdk, [e.target.name]: url });
+      let base64 = window.btoa(str);
+      setRuta(host_widget+base64)
+    }else{
+      let str = JSON.stringify({ ...sdk, [e.target.name]: e.target.value });
+      setSdk({ ...sdk, [e.target.name]: e.target.value });
+      let base64 = window.btoa(str);
+      setRuta(host_widget+base64)
+    }
+  }
+
+  const handleOpenWebChat = async (id, nombreunico) => {
+    setId(id)
+    setNombreunico(nombreunico+"_webchat")
+    const result = await ListarBotUnico(nombreunico+"_webchat");
+    if(result){
+      setOpenWebChat(true);
+    }else{
+      setOpenConfirmaWebChat(!openConfirmaWebChat);
+    }
+  }
 
 
   const handleopQr = () => {
@@ -75,12 +148,47 @@ function ChatBots(props) {
   };
 
   const ListarBots = async () => {
-    const url = `${host}bots/${GetTokenDecoded().cuenta_id}`;
-    const { data, status } = await axios.get(url);
+    const url = `bots/${GetTokenDecoded().cuenta_id}`;
+    const { data, status } = await BmHttp.get(url);
     if (status === 200) {
       setBots(data.data);
     }
   };
+
+  const ListarBotUnico = async (nombreunico) => {
+    const url = `bot/${nombreunico}`;
+    const { data, status } = await BmHttp.get(url);
+    if (status === 200 && data.status === 200) {
+      setSdk(data.data.sdk);
+      setId(data.data.id)
+      return true
+    }else{
+      setSdk(null)
+      return false
+    }
+  }
+
+  const DublicarBot = async () => {
+    try {
+      const { data, status } = await BmHttp.post('bot_webchat', {id});
+      if (status === 200) {
+        setSdk(data.data);
+        setId(data.id)
+        setOpenConfirmaWebChat(!openConfirmaWebChat);
+        Swal.fire({
+          title: "Se creo el webchat correctamente",
+          icon: "success",
+          showConfirmButton: false,
+          timer: 500,
+        });
+        setTimeout(() => {
+          setOpenWebChat(!openWebChat);
+        },800)
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   const GuardarBot = async () => {
     if (perfil && userFb) {
@@ -128,8 +236,8 @@ function ChatBots(props) {
   }
 
   const Actualizar = async () => {
-    const url = `${host}bots/${bot.id}`;
-    const { status } = await axios.put(url, bot);
+    const url = `bots/${bot.id}`;
+    const { status } = await BmHttp.put(url, bot);
     if (status === 200) {
       setShow(!show);
       Swal.fire({
@@ -153,8 +261,8 @@ function ChatBots(props) {
       cancelButtonText: "No",
     }).then(async (result) => {
       if (result.isConfirmed) {
-        const url = `${host}bots/${id}`;
-        const { status } = await axios.delete(url);
+        const url = `bots/${id}`;
+        const { status } = await BmHttp.delete(url);
         if (status === 200) {
           ListarBots();
         }
@@ -247,15 +355,6 @@ function ChatBots(props) {
     }
   }
 
-  const RecargarLink = async(nombreunico)=>{
-    try {
-      const { data } = await BmHttp.get(`reconectar/${nombreunico}`)
-      setLinkQr(data.data.qr) 
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
   const reconnexionQr = (nombreunico) => {
     Swal.fire({
       title: "¿Estas seguro de reconectar el bot?",
@@ -302,13 +401,6 @@ function ChatBots(props) {
     }
   }
 
-  const RecargarQr = () => {
-    if (estadoQr.estado && estadoQr.nombreunico) {
-      let linkQr = `${host}qr/${estadoQr.nombreunico}.png`;
-      setLinkQr(linkQr);
-    }
-  }
-
   const DesconectarQr = (nombreunico) => {
     Swal.fire({
       title: "¿Estas seguro de desconectar el bot?",
@@ -322,7 +414,6 @@ function ChatBots(props) {
         if (result.isConfirmed) {
           const url = `${host}qr_close/${nombreunico}`;
           const { data } = await axios.post(url);
-          console.log(data);
         }
       })
       .catch((error) => {
@@ -333,7 +424,6 @@ function ChatBots(props) {
   useEffect(() => {
     let intervalId;
     if (opQr) {
-        console.log(opQr);
         if (estadoQr.estado !== 'online') {
             console.log("estadoQr: ", estadoQr);
             intervalId = 
@@ -353,16 +443,15 @@ function ChatBots(props) {
         clearInterval(intervalId);
     };
 }, [opQr, estadoQr]);
-function actualizarImagen() {
-  const img = document.getElementById('qrImage');
-  // Construir la URL de la imagen
-  const timestamp = new Date().getTime(); // Obtiene una marca de tiempo única
-  const imageUrl = `${host}qr/${estadoQr.nombreunico}.png?timestamp=${timestamp}`;
-  console.log(imageUrl)
 
-  // Actualizar el atributo src de la imagen
-  img.src = imageUrl;
-}
+  function actualizarImagen() {
+    const img = document.getElementById('qrImage');
+    // Construir la URL de la imagen
+    const timestamp = new Date().getTime(); // Obtiene una marca de tiempo única
+    const imageUrl = `${host}qr/${estadoQr.nombreunico}.png?timestamp=${timestamp}`;
+    // Actualizar el atributo src de la imagen
+    img.src = imageUrl;
+  }
 
   const ActivaModalEditar = (item) => {
     setBot({
@@ -430,53 +519,64 @@ function actualizarImagen() {
         </div>
 
         <div className="row my-4">
-          {bots.map((bot, index) => (
-            <div className="col-12 col-md-6 col-lg-4 mb-5">
-              <div className="bot-card shadow">
-                <div className="bot-card-img p-1 rounded-circle shadow">
-                  <img src={InconBot(bot.channel_id, bot.url_perfil)} width={60} className="rounded-circle"/>
-                </div>
+          {bots.map((bot, index) => {
+            if(bot.channel_id !== 12 && bot.channel_id !== 10){
+              return <div className="col-12 col-md-6 col-lg-4 mb-5" key={index+1}>
+                <div className="bot-card shadow">
+                  <div className="bot-card-img p-1 rounded-circle shadow">
+                    <img src={InconBot(bot.channel_id, bot.url_perfil)} width={60} className="rounded-circle"/>
+                  </div>
 
-                <div className="w-100 bot-card-detail mt-2">
-                  <h4 className="text-blue font-bold" 
-                    style={{ lineHeight: '15px' }}>{String(bot.nombre_bot).length > 15 ? String(bot.nombre_bot).substring(0, 10) + "..." : bot.nombre_bot}</h4>
-                  <h5 className="text-secondary" style={{ fontSize: '16px' }}>{bot.numero_telefono.substring(0, 11)}</h5>
-                  <h5 className="text-secondary" style={{ fontSize: '16px' }}>Estado: {bot.estado}</h5>
-                  <h5 className="text-secondary" style={{ fontSize: '16px' }}>Session: {bot.nombreunico}</h5>
+                  <div className="w-100 bot-card-detail mt-2">
+                    <h4 className="text-blue font-bold" 
+                      style={{ lineHeight: '15px' }}>{String(bot.nombre_bot).length > 15 ? String(bot.nombre_bot).substring(0, 10) + "..." : bot.nombre_bot}</h4>
+                    <h5 className="text-secondary" style={{ fontSize: '16px' }}>{bot.numero_telefono.substring(0, 11)}</h5>
+                    <h5 className="text-secondary" style={{ fontSize: '16px' }}>Estado: {bot.estado}</h5>
+                    <h5 className="text-secondary" style={{ fontSize: '16px' }}>Session: {bot.nombreunico}</h5>
 
-                </div>
-
-                <div className="w-100 d-flex flex-row gap-3 justify-content-center flex-wrap 
-                bot-card-buttons">
-                  {ScannerQR(bot.channel_id, bot.nombreunico, bot.estado)}
+                  </div>
 
 
-                  <button className="bot-card-buttons-btn" onClick={() => ActivaModalEditar(bot)}>
-                    <span class="material-symbols-outlined text-secondary">edit_square</span>
-                  </button>
+                  <div className="w-100 d-flex flex-row gap-3 justify-content-center flex-wrap bot-card-buttons">
+                    {ScannerQR(bot.channel_id, bot.nombreunico, bot.estado)}
 
-                  <button className="bot-card-buttons-btn" onClick={() => EliminarBots(bot.id)}>
-                    <span class="material-symbols-outlined text-secondary">delete</span>
-                  </button>
+                    {/* butto icono de webchat */}
+                    <button className="bot-card-buttons-btn"
+                      onClick={() => handleOpenWebChat(bot.id, bot.nombreunico)}
+                    >
+                      {/* icono de webchat */}
+                      <span className="material-symbols-outlined text-secondary">chat</span>
+                    </button>
 
-                  <button className="bot-card-buttons-btn"
-                    onClick={() =>{
-                      if(bot.url){
-                        let url = bot.url.replaceAll("http://177.234.209.101:3022", "https://flashbot.bot")
-                        window.open(`${url}?cuenta_id=${bot.cuenta_id}`,"_blank")
-                      }else{
-                        ListarBots()
-                        let url = bot.url.replaceAll("http://177.234.209.101:3022", "https://flashbot.bot")
-                        window.open(`${url}?cuenta_id=${bot.cuenta_id}`,"_blank")
-                      }
-                    }}
-                  >
-                    <span class="material-symbols-outlined text-secondary">manufacturing</span>
-                  </button>
+                    <button className="bot-card-buttons-btn" onClick={() => ActivaModalEditar(bot)}>
+                      <span className="material-symbols-outlined text-secondary">edit_square</span>
+                    </button>
+
+                    <button className="bot-card-buttons-btn" onClick={() => EliminarBots(bot.id)}>
+                      <span className="material-symbols-outlined text-secondary">delete</span>
+                    </button>
+
+                    <button className="bot-card-buttons-btn"
+                      onClick={() =>{
+                        if(bot.url){
+                          let url = bot.url.replaceAll("http://177.234.209.101:3022", "https://flashbot.bot")
+                          window.open(`${url}?cuenta_id=${bot.cuenta_id}`,"_blank")
+                        }else{
+                          ListarBots()
+                          let url = bot.url.replaceAll("http://177.234.209.101:3022", "https://flashbot.bot")
+                          window.open(`${url}?cuenta_id=${bot.cuenta_id}`,"_blank")
+                        }
+                      }}
+                    >
+                      <span className="material-symbols-outlined text-secondary">manufacturing</span>
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            }else{
+              return null
+            }
+          })}
         </div>
 
         <Modal
@@ -856,6 +956,57 @@ function actualizarImagen() {
                   }}
                 >
                   Desconectar
+                </button>
+              </div>
+            </div>
+          </Modal.Body>
+        </Modal>
+
+        <ModelSdk
+          show={openWebChat}
+          handleClose={handleCloseWebChat}
+          setSdk={setSdk}
+          sdk={sdk}
+          setRuta={setRuta}
+          ruta={ruta}
+          id={id}
+          handleCambiosdk={handleCambiosdk}
+          AcualizarSdk={AcualizarSdk}
+        />
+
+
+        <Modal
+          size="md"
+          show={openConfirmaWebChat}
+          onHide={()=>setOpenConfirmaWebChat(!openConfirmaWebChat)}
+          aria-labelledby="example-modal-sizes-title-lg"
+        >
+          {/* modal para confirmar que quiere activar el Webchat para este bot */}
+          <Modal.Header>
+            <Modal.Title>Activa WebChat</Modal.Title>
+            <button
+              type="button"
+              className="btn-dark mr-2 w-10"
+              onClick={()=>setOpenConfirmaWebChat(!openConfirmaWebChat)}
+            >
+              <i className="fa fa-times"></i>
+            </button>
+          </Modal.Header>
+          <Modal.Body>
+            <div className="form-group d-flex justify-content-center align-items-center">
+              <p>
+                ¿Desea activar el WebChat para este bot?
+              </p>
+            </div>
+            <div className="text-center m-2">
+              <div className="d-flex justify-content-center align-items-center">
+                <button
+                  className="button-bm w-100 mt-3"
+                  onClick={async() => {
+                    await DublicarBot()
+                  }}
+                >
+                  Activar
                 </button>
               </div>
             </div>

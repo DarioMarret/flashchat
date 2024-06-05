@@ -3,8 +3,8 @@ import { BmHttp } from 'function/util/global';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
 import {
-  Card,
-  Container
+    Card,
+    Container
 } from 'react-bootstrap';
 // import Swal from 'sweetalert2';
 
@@ -49,7 +49,7 @@ export default function Cuenta() {
 
               <div className='d-flex flex-row gap-2 align-items-center mt-2'>
                 <div className='h-100'>
-                  <span class="material-symbols-outlined text-span">storefront</span>
+                  <span className="material-symbols-outlined text-span">storefront</span>
                 </div>
 
                 <div className='gap-0 h-100 border-start'>
@@ -63,7 +63,7 @@ export default function Cuenta() {
 
               <div className='d-flex flex-row gap-2 align-items-center mt-3'>
                 <div className='h-100'>
-                  <span class="material-symbols-outlined text-span">vpn_key</span>
+                  <span className="material-symbols-outlined text-span">vpn_key</span>
                 </div>
 
                 <div className='gap-0 h-100 border-start'>
@@ -77,7 +77,7 @@ export default function Cuenta() {
 
               <div className='d-flex flex-row gap-2 align-items-center mt-3'>
                 <div className='h-100'>
-                  <span class="material-symbols-outlined text-span">info</span>
+                  <span className="material-symbols-outlined text-span">info</span>
                 </div>
 
                 <div className='gap-0 h-100 border-start'>
@@ -91,7 +91,7 @@ export default function Cuenta() {
 
               <div className='d-flex flex-row gap-2 align-items-center mt-3'>
                 <div className='h-100'>
-                  <span class="material-symbols-outlined text-span">calendar_month</span>
+                  <span className="material-symbols-outlined text-span">calendar_month</span>
                 </div>
 
                 <div className='gap-0 h-100 border-start'>
@@ -113,7 +113,7 @@ export default function Cuenta() {
 
               <div className='d-flex flex-row gap-2 align-items-center mt-3'>
                 <div className='h-100'>
-                  <span class="material-symbols-outlined text-span">manage_accounts</span>
+                  <span className="material-symbols-outlined text-span">manage_accounts</span>
                 </div>
 
                 <div className='gap-0 h-100 border-start'>
@@ -127,7 +127,7 @@ export default function Cuenta() {
 
               <div className='d-flex flex-row gap-2 align-items-center mt-2'>
                 <div className='h-100'>
-                  <span class="material-symbols-outlined text-span">alternate_email</span>
+                  <span className="material-symbols-outlined text-span">alternate_email</span>
                 </div>
 
                 <div className='gap-0 h-100 border-start'>
@@ -141,7 +141,7 @@ export default function Cuenta() {
 
               <div className='d-flex flex-row gap-2 align-items-center mt-3'>
                 <div className='h-100'>
-                  <span class="material-symbols-outlined text-span">smartphone</span>
+                  <span className="material-symbols-outlined text-span">smartphone</span>
                 </div>
 
                 <div className='gap-0 h-100 border-start'>
@@ -155,7 +155,7 @@ export default function Cuenta() {
 
               <div className='d-flex flex-row gap-2 align-items-center mt-3'>
                 <div className='h-100'>
-                  <span class="material-symbols-outlined text-span">smart_toy</span>
+                  <span className="material-symbols-outlined text-span">smart_toy</span>
                 </div>
 
                 <div className='gap-0 h-100 border-start'>
@@ -176,7 +176,7 @@ export default function Cuenta() {
 
               <div className='d-flex flex-row gap-2 align-items-center mt-3'>
                 <div className='h-100'>
-                  <span class="material-symbols-outlined text-span">favorite</span>
+                  <span className="material-symbols-outlined text-span">favorite</span>
                 </div>
 
                 <div className='w-100 d-flex flex-row gap-2 align-items-center justify-content-between'>
@@ -204,7 +204,7 @@ export default function Cuenta() {
                 planes && planes.plan === 'Free' ?
                 <div className='d-flex flex-row gap-2 align-items-center mt-3'>
                   <div className='h-100'>
-                    <span class="material-symbols-outlined text-span">timer</span>
+                    <span className="material-symbols-outlined text-span">timer</span>
                   </div>
                   <div className='gap-0 h-100 border-start'>
                     <div className='mr-2 d-flex flex-column' 
@@ -224,7 +224,7 @@ export default function Cuenta() {
               
               <div className='d-flex flex-row gap-2 align-items-center mt-2'>
                 <div className='h-100'>
-                  <span class="material-symbols-outlined text-span">attach_money</span>
+                  <span className="material-symbols-outlined text-span">attach_money</span>
                 </div>
 
                 <div className='gap-0 h-100 border-start'>
@@ -237,7 +237,7 @@ export default function Cuenta() {
 
               <div className='d-flex flex-row gap-2 align-items-center mt-3'>
                 <div className='h-100'>
-                  <span class="material-symbols-outlined text-span">smart_toy</span>
+                  <span className="material-symbols-outlined text-span">smart_toy</span>
                 </div>
 
                 <div className='gap-0 h-100 border-start'>
@@ -251,7 +251,7 @@ export default function Cuenta() {
 
               <div className='d-flex flex-row gap-2 align-items-center mt-3'>
                 <div className='h-100'>
-                  <span class="material-symbols-outlined text-span">support_agent</span>
+                  <span className="material-symbols-outlined text-span">support_agent</span>
                 </div>
 
                 <div className='gap-0 h-100 border-start'>

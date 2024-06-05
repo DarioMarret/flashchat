@@ -1,15 +1,6 @@
 import React from "react";
 
 // react-bootstrap components
-import {
-  Badge,
-  Button,
-  Form,
-  InputGroup,
-  Navbar,
-  Nav,
-  Container,
-} from "react-bootstrap";
 
 function FullScreenMap() {
   const mapRef = React.useRef(null);
@@ -36,7 +27,7 @@ function FullScreenMap() {
     });
 
     const contentString =
-      '<div class="info-window-content"><h2>Light Bootstrap Dashboard PRO React</h2>' +
+      '<div className="info-window-content"><h2>Light Bootstrap Dashboard PRO React</h2>' +
       "<p>A premium Admin for React-Bootstrap, Bootstrap, React, and React Hooks.</p></div>";
 
     const infowindow = new google.maps.InfoWindow({

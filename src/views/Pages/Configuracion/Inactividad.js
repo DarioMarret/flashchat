@@ -1,6 +1,5 @@
-import axios from 'axios';
 import { GetTokenDecoded } from "function/storeUsuario";
-import { host } from "function/util/global";
+import { BmHttp } from 'function/util/global';
 import { useEffect, useState } from "react";
 import {
     Card,
@@ -39,8 +38,8 @@ function Inactividad(props) {
     }
 
     const ListarInactividad = async() => {
-        let url = host + 'inactividad/'+GetTokenDecoded().cuenta_id
-        const { data, status } = await axios.get(url)
+        let url = 'inactividad/'+GetTokenDecoded().cuenta_id
+        const { data, status } = await BmHttp.get(url)
         if(status === 200){
             // ordenar por tiempo menor a mayor
             const inactividad = data.sort((a, b) => a.tiempo - b.tiempo)
@@ -50,7 +49,7 @@ function Inactividad(props) {
 
     const ActualizarInactividad = async (e) => {
         e.preventDefault()
-        let url = host + 'inactividad'
+        let url = 'inactividad'
         let info = {
             id: parseInt(inactividad.id),
             description: inactividad.description,
@@ -58,7 +57,7 @@ function Inactividad(props) {
             mensaje: inactividad.mensaje,
             cuenta_id: parseInt(inactividad.cuenta_id)
         }
-        const { status } = await axios.put(url, info)
+        const { status } = await BmHttp.put(url, info)
         if(status === 200){
             ListarInactividad()
             setShow(false)

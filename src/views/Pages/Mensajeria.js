@@ -214,6 +214,7 @@ export default function Mensajeria() {
       });
       //listar las conversaciones y las precenta en una card con el nombre del contacto, el mensaje, el estado, la fecha y la hora
       socket.on(`response_conversacion_${cuenta_id}`, (data) => {
+        console.log("response_conversacion_: ", data)
         const covActiva = GetManejoConversacion();
         setEquipoUsuario(GetTokenDecoded());
         let new_card = [];
@@ -283,6 +284,7 @@ export default function Mensajeria() {
                 etiqueta: item.etiquetas,
                 agente_id: item.agente_id,
                 nota: item.nota,
+                sessionIdWebChat: item.sessionIdWebChat,
               })
             }
           }
@@ -478,6 +480,7 @@ export default function Mensajeria() {
           etiqueta: item.etiquetas,
           agente_id: item.agente_id,
           nota: item.nota,
+          sessionIdWebChat: item.sessionIdWebChat,
         })
       })
       setCard_mensajes(card)
@@ -680,6 +683,7 @@ export default function Mensajeria() {
         url: typeInput === "text" ? null : inputStr,
         type: typeInput,
         parems: null,
+        sessionId: covActiva.sessionIdWebChat
       };
       socket.emit("enviando_mensajes", {
         infoClient: infoClient,
@@ -910,7 +914,7 @@ export default function Mensajeria() {
                       tag="span"
                       className="cursor-pointer"
                     >
-                      <span class="material-symbols-outlined text-dark">
+                      <span className="material-symbols-outlined text-dark">
                         more
                       </span>
                     </DropdownToggle>
@@ -1067,19 +1071,19 @@ export default function Mensajeria() {
                   className="btn-chat"
                   onClick={() => setShowPicker((val) => !val)}
                 >
-                  <span class="material-symbols-outlined">mood</span>
+                  <span className="material-symbols-outlined">mood</span>
                 </button>
 
                 <button className="btn-chat"
                   // onClick={()=>setOpenGrande(!openGrande)}
                 >
-                  {/* <span class="material-symbols-outlined">mic</span> */}
+                  {/* <span className="material-symbols-outlined">mic</span> */}
                   <AudioRecorder
                     onRecordingComplete={addAudioElement}
                     audioTrackConstraints={{
                       noiseSuppression: true,
                       echoCancellation: true,
-                    }} 
+                    }}
                     // downloadOnSavePress={true}
                     downloadFileExtension="mp3"
                     classes={{
@@ -1104,7 +1108,7 @@ export default function Mensajeria() {
                       CargarAvatar(e.target.files[0])
                     }}
                   />
-                  <span class="material-symbols-outlined">image</span>
+                  <span className="material-symbols-outlined">image</span>
                 </button>
 
                 <button className="btn-chat"
@@ -1121,7 +1125,7 @@ export default function Mensajeria() {
                       CargarAvatar(e.target.files[0])
                     }}
                   />
-                  <span class="material-symbols-outlined">attach_file</span>
+                  <span className="material-symbols-outlined">attach_file</span>
                 </button>
 
                 <button className="btn-chat d-flex align-items-center justify-content-center rounded-circle" 
@@ -1131,7 +1135,7 @@ export default function Mensajeria() {
                     color: "#fff",
                   }}
                 >
-                  <span class="material-symbols-outlined">send</span>
+                  <span className="material-symbols-outlined">send</span>
                 </button>
               </div>
             </div>

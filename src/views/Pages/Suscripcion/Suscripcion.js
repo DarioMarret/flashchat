@@ -3,7 +3,7 @@ import { GetTokenDecoded } from 'function/storeUsuario';
 import { host } from 'function/util/global';
 import { useEffect, useState } from 'react';
 import {
-  Container,
+    Container,
 } from 'react-bootstrap';
 import Swal from 'sweetalert2';
 // import Swal from 'sweetalert2';
@@ -160,8 +160,8 @@ export default function Suscripciones() {
                     <ul>
                       {
                         plan.descripcion.map((detall, index) => {
-                            return <li class="d-flex align-items-center gap-1">
-                              <span class="material-symbols-outlined text-success" 
+                            return <li className="d-flex align-items-center gap-1">
+                              <span className="material-symbols-outlined text-success" 
                               style={{fontSize: '20px'}}>done</span>{detall}
                             </li>
                         })
@@ -194,8 +194,8 @@ export default function Suscripciones() {
                       <ul>
                       {
                         plan.descripcion.map((detall, index) => {
-                            return <li class="d-flex align-items-center gap-1">
-                              <span class="material-symbols-outlined text-success" 
+                            return <li className="d-flex align-items-center gap-1">
+                              <span className="material-symbols-outlined text-success" 
                               style={{fontSize: '20px'}}>done</span>{detall}
                             </li>
                         })
@@ -258,8 +258,8 @@ export default function Suscripciones() {
                       <ul>
                       {
                         plan.descripcion.map((detall, index) => {
-                            return <li class="d-flex align-items-center gap-1">
-                              <span class="material-symbols-outlined text-success" 
+                            return <li className="d-flex align-items-center gap-1">
+                              <span className="material-symbols-outlined text-success" 
                               style={{fontSize: '20px'}}>done</span>{detall}
                             </li>
                         })

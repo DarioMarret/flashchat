@@ -11,6 +11,8 @@ export const host = dev ? "http://localhost:5002/" : "https://api.flashchat.chat
 export const proxy = "backflash"
 export const plantillas_360 = "https://waba.360dialog.io/v1/configs/templates?offset=0&limit=1000&sort=business_templates.name&filters={}"
 export const host_360 = "https://waba.360dialog.io/v1/messages"
+export const host_widget = dev ? "http://localhost:3001/?custom=" : "https://widget.flashchat.chat/?custom="
+export const host_sdk = dev ? "http://localhost:8080/main.js" : "https://sdk.flashchat.chat/main.js"
 // export const proxy = ""
 // export const host = "http://localhost:5002";
 export const host_facturacion = "https://ordenfacil.org/api_facturacion";

@@ -4,9 +4,9 @@ import axios from "axios";
 import { host } from "function/util/global";
 import { useState } from "react";
 import {
-  Button,
-  Card,
-  Form
+    Button,
+    Card,
+    Form
 } from "react-bootstrap";
 
 function RegisterPage(props) {
@@ -50,8 +50,8 @@ function RegisterPage(props) {
         style={{ height: '100vh' }}
       >
         <div className="container content d-flex justify-content-center align-items-center p-0">
-          <div class="row w-100 justify-content-center">
-            <div class="col-12 col-md-6 col-lg-5">
+          <div className="row w-100 justify-content-center">
+            <div className="col-12 col-md-6 col-lg-5">
               <Form action="" className="form" method="">
                 <Card className={"card-login background-backdrop"}>
                   <Card.Header>
@@ -61,7 +61,7 @@ function RegisterPage(props) {
                     <Card.Body>
                       <Form.Group className="mb-3">
                         <label className="font-600 d-flex align-items-center">
-                        <span class="material-symbols-outlined" style={{marginRight: '5px'}}>domain</span>
+                        <span className="material-symbols-outlined" style={{marginRight: '5px'}}>domain</span>
                           Nombre de empresa</label>
                         <Form.Control
                           placeholder="Mi empresa"
@@ -73,7 +73,7 @@ function RegisterPage(props) {
 
                       <Form.Group className="mb-3">
                         <label className="font-600 d-flex align-items-center">
-                        <span class="material-symbols-outlined" style={{marginRight: '5px'}}>phone_iphone</span>
+                        <span className="material-symbols-outlined" style={{marginRight: '5px'}}>phone_iphone</span>
                           Contacto</label>
                         <Form.Control
                           placeholder="0999999999"
@@ -85,7 +85,7 @@ function RegisterPage(props) {
 
                       <Form.Group className="mb-3">
                         <label className="font-600 d-flex align-items-center">
-                        <span class="material-symbols-outlined" style={{marginRight: '5px'}}>mail</span>
+                        <span className="material-symbols-outlined" style={{marginRight: '5px'}}>mail</span>
                           Correo electrónico</label>
                         <Form.Control
                           placeholder="correo@email.com"
@@ -97,7 +97,7 @@ function RegisterPage(props) {
 
                       <Form.Group>
                         <label className="font-600 d-flex align-items-center">
-                        <span class="material-symbols-outlined" style={{marginRight: '5px'}}>
+                        <span className="material-symbols-outlined" style={{marginRight: '5px'}}>
                           lock
                           </span>
                           Contraseña</label>

@@ -1,4 +1,3 @@
-import axios from "axios";
 import {
   GetTokenDecoded,
   IsKeyObject,
@@ -7,16 +6,21 @@ import {
 import { BmHttp, host } from "function/util/global";
 import moment from "moment";
 import { useEffect, useState } from "react";
-import { Card, Col, Container, Modal, Row } from "react-bootstrap";
+import { Card, Container, Modal, Row, Spinner } from "react-bootstrap";
 import Swal from "sweetalert2";
 
 function Masivos(props) {
   const [show, setShow] = useState(false);
   const [show2, setShow2] = useState(false);
+  const [show3, setShow3] = useState(false);
   const handleClose = () => {
     LimpiarEnvio();
     setShow(!show);
   };
+
+  const handleClose3 = () => {
+    setShow3(!show3);
+  }
 
   const [excel, setExcel] = useState({
     cuenta_id: GetTokenDecoded().cuenta_id,
@@ -352,8 +356,8 @@ function Masivos(props) {
   };
 
   const ListarBots = async () => {
-    const url = `${host}bots/${GetTokenDecoded().cuenta_id}`;
-    const { data, status } = await axios.get(url);
+    const url = `bots/${GetTokenDecoded().cuenta_id}`;
+    const { data, status } = await BmHttp.get(url);
     if (status === 200) {
       setBots(data.data);
     }
@@ -373,9 +377,6 @@ function Masivos(props) {
     const body = components.filter((item) => item.type === "body");
     const header = components.filter((item) => item.type === "header");
     const footer = components.filter((item) => item.type === "footer");
-    console.log("Body: ", body);
-    console.log("Header: ", header);
-    console.log("Footer: ", footer);
     if (Array.isArray(body).length > 0) {
       component.push({
         type: "body",
@@ -397,21 +398,25 @@ function Masivos(props) {
           };
         }),
       });
-    } else if (
-      typeof catidadVariables.headerVideo === "object" &&
-      Object.keys(catidadVariables.headerVideo).length > 0
-    ) {
+    } else if ( typeof catidadVariables.headerVideo === "object" && Object.keys(catidadVariables.headerVideo).length > 0) {
       component.push({
         type: "header",
         parameters: [catidadVariables.headerVideo],
       });
-    } else if (
-      typeof catidadVariables.headerImagen === "object" &&
-      Object.keys(catidadVariables.headerImagen).length > 0
-    ) {
+      // tambien lo seteamos en video para que se muestre en el modal
+      setEnvio({
+        ...envio,
+        video: catidadVariables.headerVideo.video.link,
+      });
+    } else if (typeof catidadVariables.headerImagen === "object" && Object.keys(catidadVariables.headerImagen).length > 0 ) {
       component.push({
         type: "header",
         parameters: [catidadVariables.headerImagen],
+      });
+      // tambien lo seteamos en imagen para que se muestre en el modal
+      setEnvio({
+        ...envio,
+        imagen: catidadVariables.headerImagen.image.link,
       });
     } else if (Array.isArray(footer) && footer.length > 0) {
       component.push({
@@ -424,9 +429,6 @@ function Masivos(props) {
         }),
       });
     }
-    console.log("catidadVariables: ", catidadVariables);
-    console.log("Component: ", component);
-
     let info = null;
     listPlantillas.map(async (item) => {
       if (item.id === envio.plantilla_id) {
@@ -500,9 +502,6 @@ function Masivos(props) {
       const body = components.filter((item) => item.type === "body");
       const header = components.filter((item) => item.type === "header");
       const footer = components.filter((item) => item.type === "footer");
-      console.log("Body: ", body);
-      console.log("Header: ", header);
-      console.log("Footer: ", footer);
       if (Array.isArray(body).length > 0) {
         component.push({
           type: "body",
@@ -524,21 +523,25 @@ function Masivos(props) {
             };
           }),
         });
-      } else if (
-        typeof catidadVariables.headerVideo === "object" &&
-        Object.keys(catidadVariables.headerVideo).length > 0
-      ) {
+      } else if ( typeof catidadVariables.headerVideo === "object" && Object.keys(catidadVariables.headerVideo).length > 0 ) {
         component.push({
           type: "header",
           parameters: [catidadVariables.headerVideo],
         });
-      } else if (
-        typeof catidadVariables.headerImagen === "object" &&
-        Object.keys(catidadVariables.headerImagen).length > 0
-      ) {
+        // tambien lo seteamos en video para que se muestre en el modal
+        setEnvio({
+          ...envio,
+          video: catidadVariables.headerVideo.video.link,
+        });
+      } else if ( typeof catidadVariables.headerImagen === "object" && Object.keys(catidadVariables.headerImagen).length > 0) {
         component.push({
           type: "header",
           parameters: [catidadVariables.headerImagen],
+        });
+        // tambien lo seteamos en imagen para que se muestre en el modal
+        setEnvio({
+          ...envio,
+          imagen: catidadVariables.headerImagen.image.link,
         });
       } else if (Array.isArray(footer) && footer.length > 0) {
         component.push({
@@ -551,8 +554,6 @@ function Masivos(props) {
           }),
         });
       }
-      console.log("catidadVariables: ", catidadVariables);
-      console.log("Component: ", component);
 
       listPlantillas.map(async (item) => {
         if (item.id === envio.plantilla_id) {
@@ -656,8 +657,8 @@ function Masivos(props) {
 
     if (envio.id !== 0) {
       try {
-        const url = `${host}masivo/${envio.id}`;
-        const { status } = await axios.put(url, envio);
+        const url = `masivo/${envio.id}`;
+        const { status } = await BmHttp.put(url, envio);
         if (status === 200) {
           ListarMasivos();
           setShow(false);
@@ -674,8 +675,8 @@ function Masivos(props) {
       }
     } else {
       try {
-        const url = `${host}masivo`;
-        const { status } = await axios.post(url, { ...envio, plantilla: info });
+        const url = `masivo`;
+        const { status } = await BmHttp.post(url, { ...envio, plantilla: info });
         if (status === 200) {
           ListarMasivos();
           setShow(false);
@@ -694,8 +695,8 @@ function Masivos(props) {
   };
 
   const ListarMasivos = async () => {
-    const url = `${host}masivo/${GetTokenDecoded().cuenta_id}`;
-    const { data, status } = await axios.get(url);
+    const url = `masivo/${GetTokenDecoded().cuenta_id}`;
+    const { data, status } = await BmHttp.get(url);
     if (status === 200) {
       setMasivos(data.data);
     }
@@ -712,8 +713,8 @@ function Masivos(props) {
       confirmButtonText: "Si, eliminar!",
     }).then(async (result) => {
       if (result.isConfirmed) {
-        const url = `${host}masivo/${id}`;
-        const { data, status } = await axios.delete(url);
+        const url = `masivo/${id}`;
+        const { data, status } = await BmHttp.delete(url);
         if (status === 200) {
           ListarMasivos();
         }
@@ -723,6 +724,7 @@ function Masivos(props) {
 
   const SubirExcel = async (e) => {
     e.preventDefault();
+    handleClose3();
     const url = `masivo/subir?cuenta_id=${excel.cuenta_id}&conexion=${excel.conexion}&masivosId=${excel.masivosId}`;
     const formData = new FormData();
     formData.append("file", excel.file);
@@ -731,6 +733,7 @@ function Masivos(props) {
       body: formData,
     }).then((response) => {
       if (response.status === 200) {
+        handleClose3();
         Swal.fire({
           icon: "success",
           title: "Excel subido",
@@ -777,6 +780,44 @@ function Masivos(props) {
     document.body.removeChild(a); // Limpiar después de la descarga
   };
 
+  const DescargarExcelReporte = async (id) => {
+    const url = `/masivo/exportar?masivosId=${id}&cuenta_id=${GetTokenDecoded().cuenta_id}`;
+    const { data, status } = await BmHttp.get(url);
+    if (status === 200) {
+      const headers = Object.keys(data.data[0]);
+      const csv = [
+        headers.join(","),
+        ...data.data.map((row) =>
+          headers.map((fieldName) => JSON.stringify(row[fieldName])).join(",")
+        ),
+      ];
+      const csvArray = csv.join("\r\n");
+      const blob = new Blob([csvArray], { type: "text/xlsx" });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.setAttribute("hidden", "");
+      a.setAttribute("href", url);
+      a.setAttribute("download", "Reporte_de_envio.xlsx");
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a); // Limpiar después de la descarga
+    }
+  }
+
+  const DetenerEnvio = async (id) => {
+    const url = `masivo/detener/${id}`;
+    const { data, status } = await BmHttp.put(url);
+    if (status === 200) {
+      Swal.fire({
+        icon: "success",
+        title: data.data,
+        showConfirmButton: false,
+        timer: 1500,
+      });
+      ListarMasivos();
+    }
+  }
+
   useEffect(() => {
     (async () => {
       await ListarBots();
@@ -807,7 +848,7 @@ function Masivos(props) {
     } else if (item.video) {
       return (
         <>
-        <div className="row">
+          <div className="row">
             <div className="col-12 box-info-text">
               <div className="d-flex" style={{gap: '10px'}}>
                 <b>Formato: </b>
@@ -903,6 +944,10 @@ function Masivos(props) {
                             <b>Total a enviar:</b>
                             <span>{item.total}</span>
                           </div>
+                          <div className="d-flex" style={{ gap: "10px" }}>
+                            <b>Fallos:</b>
+                            <span>{item.total_fallos}</span>
+                          </div>
                         </div>
                       </div>
 
@@ -955,8 +1000,9 @@ function Masivos(props) {
                           <button
                             className="bot-card-buttons-btn"
                             onClick={() => handleClose2(item)}
+                            title="Subir excel de contactos"
                           >
-                            <span class="material-symbols-outlined text-secondary">
+                            <span className="material-symbols-outlined text-secondary">
                               upload_file
                             </span>
                           </button>
@@ -965,8 +1011,9 @@ function Masivos(props) {
                         <button
                           className="bot-card-buttons-btn"
                           onClick={() => handleEditar(item)}
+                          title="Editar programa de envio"
                         >
-                          <span class="material-symbols-outlined text-secondary">
+                          <span className="material-symbols-outlined text-secondary">
                             edit_square
                           </span>
                         </button>
@@ -974,9 +1021,37 @@ function Masivos(props) {
                         <button
                           className="bot-card-buttons-btn"
                           onClick={() => EliminarMasivo(item.id)}
+                          title="Eliminar programa de envio"
                         >
-                          <span class="material-symbols-outlined text-secondary">
+                          <span className="material-symbols-outlined text-secondary">
                             delete
+                          </span>
+                        </button>
+
+                        {/* descargar reporde de envio */}
+                        <button
+                          className="bot-card-buttons-btn"
+                          onClick={() => DescargarExcelReporte(item.id)}
+                          title="Descargar reporte de envio"
+                        >
+                          <span className="material-symbols-outlined text-secondary">
+                            download
+                          </span>
+                        </button>
+
+                        {/* poner en stop el envio */}
+                        <button
+                          className="bot-card-buttons-btn"
+                          title="Detener envio"
+                          onClick={() => DetenerEnvio(item.id)}
+                          disabled={item.estado === "finalizado" ? true : false}
+                        >
+                          <span className="material-symbols-outlined "
+                            style={{
+                              color: item.estado === "finalizado" ? "" : "red",
+                            }}
+                          >
+                            stop_circle
                           </span>
                         </button>
                       </div>
@@ -1323,6 +1398,22 @@ function Masivos(props) {
                   }
                 />
               </div>
+
+                {
+                  show3 ?
+                  <>
+                    <div className="d-flex justify-content-center text-center mt-3">
+                      <Spinner animation="border" role="status" className="spinner-border text-primary">
+                        <span className="sr-only">Loading...</span>
+                      </Spinner>
+                    </div> 
+                    <div className="d-flex justify-content-center text-center mt-3">
+                      <p>Subiendo archivo...</p>
+                    </div>
+                  </>
+                  : null
+                }
+
               <div className="d-flex justify-content-center">
                 <button
                   type="submit"

@@ -1,6 +1,5 @@
-import axios from 'axios';
 import { GetTokenDecoded } from 'function/storeUsuario';
-import { host } from 'function/util/global';
+import { BmHttp } from 'function/util/global';
 import { useEffect, useState } from 'react';
 import {
     Card,
@@ -29,15 +28,16 @@ function HorarioAtencion(props) {
     })
 
     const ListarEquipos = async () => {
-        let url = host + 'equipo/'+GetTokenDecoded().cuenta_id
-        const { data, status } = await axios.get(url)
+        let url = 'equipo/'+GetTokenDecoded().cuenta_id
+        const { data, status } = await BmHttp.get(url)
         if(status === 200){
             setEquipos(data.data)
         }
     }
+    
     const ListarHorarios = async () => {
-        let url = host + 'horarios/'+GetTokenDecoded().cuenta_id
-        const { data, status } = await axios.get(url)
+        let url = 'horarios/'+GetTokenDecoded().cuenta_id
+        const { data, status } = await BmHttp.get(url)
         if(status === 200){
             setHorarios(data)
         }
@@ -50,13 +50,13 @@ function HorarioAtencion(props) {
 
     const ActualizarHorario = async (e) => {
         e.preventDefault()
-        let url = host + 'horarios/'+horario.id
+        let url = 'horarios/'+horario.id
         let data = {
             ...horario,
             equipo_id: parseInt(horario.equipo_id),
             horario: horario.inicio_horario+' - '+horario.fin_horario
         }
-        const { status } = await axios.put(url, data)
+        const { status } = await BmHttp.put(url, data)
         if(status === 200){
             Swal.fire({
                 icon: 'success',
@@ -82,8 +82,8 @@ function HorarioAtencion(props) {
             confirmButtonText: 'Sí, eliminar'
         }).then(async (result) => {
             if (result.isConfirmed) {
-                let url = host + 'horarios/'+id
-                const { status } = await axios.delete(url)
+                let url = 'horarios/'+id
+                const { status } = await BmHttp.delete(url)
                 if(status === 200){
                     ListarHorarios()
                 }
@@ -93,13 +93,13 @@ function HorarioAtencion(props) {
 
     const GuardarHorario = async (e) => {
         e.preventDefault()
-        let url = host + 'horarios'
+        let url = 'horarios'
         let data = {
             ...horario,
             equipo_id: parseInt(horario.equipo_id),
             horario: horario.inicio_horario+' - '+horario.fin_horario
         }
-        const { status } = await axios.post(url, data)
+        const { status } = await BmHttp.post(url, data)
         if(status === 200){
             Swal.fire({
                 icon: 'success',

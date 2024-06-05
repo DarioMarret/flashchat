@@ -1,6 +1,5 @@
-import axios from 'axios';
 import { GetTokenDecoded } from 'function/storeUsuario';
-import { host } from 'function/util/global';
+import { BmHttp } from 'function/util/global';
 import { useEffect, useState } from 'react';
 import {
     Card,
@@ -38,29 +37,29 @@ function MensajesAutomaticos(props) {
 
 
     const ListarMensajes = async () => {
-        const url = `${host}mensaje_predeterminado/${GetTokenDecoded().cuenta_id}`
-        const { data, status } = await axios.get(url)
+        const url = `mensaje_predeterminado/${GetTokenDecoded().cuenta_id}`
+        const { data, status } = await BmHttp.get(url)
         if (status === 200 && data.data !== null) {
             setMensajes(data.data)
         }
     }
     // estados mensajes
     const ListarMensajeEstados = async () => {
-        const url = `${host}estado_mensaje/${GetTokenDecoded().cuenta_id}`
-        const { data } = await axios.get(url)
+        const url = `estado_mensaje/${GetTokenDecoded().cuenta_id}`
+        const { data } = await BmHttp.get(url)
         if (data.status === 200) {
             setMensajeEstado(data.data)
         }
     }
     const ActualizarMensajeEstado = async () => {
-        const url = `${host}estado_mensaje`
+        const url = `estado_mensaje`
         const data = {
             id: mensaje.id,
             cuenta_id: GetTokenDecoded().cuenta_id,
             mensaje: mensaje.mensaje,
             estado: mensaje.estado
         }
-        const { status } = await axios.put(url, data)
+        const { status } = await BmHttp.put(url, data)
         if (status === 200) {
             await ListarMensajeEstados()
             Swal.fire({
@@ -74,8 +73,8 @@ function MensajesAutomaticos(props) {
     }
 
     const ListaEstados = async () => {
-        const url = `${host}estados`
-        const { data, status } = await axios.get(url)
+        const url = `estados`
+        const { data, status } = await BmHttp.get(url)
         if (status === 200 && data.data !== null) {
             setEstados(data.data)
         }
@@ -86,12 +85,12 @@ function MensajesAutomaticos(props) {
     }
     const CrearMensaje = async () => {
         if(mensaje.id === 0){
-            const url = `${host}/mensaje_predeterminado`
+            const url = `/mensaje_predeterminado`
             const data = {
                 mensaje: mensaje.mensaje,
                 cuenta_id: GetTokenDecoded().cuenta_id
             }
-            const { status } = await axios.post(url, data)
+            const { status } = await BmHttp.post(url, data)
             if (status === 200) {
                 await ListarMensajes()
                 Swal.fire({
@@ -102,13 +101,13 @@ function MensajesAutomaticos(props) {
                 })
             }
         }else{
-            const url = `${host}/mensaje_predeterminado`
+            const url = `/mensaje_predeterminado`
             const data = {
                 id: mensaje.id,
                 mensaje: mensaje.mensaje,
                 cuenta_id: GetTokenDecoded().cuenta_id
             }
-            const { status } = await axios.put(url, data)
+            const { status } = await BmHttp.put(url, data)
             if (status === 200) {
                 await ListarMensajes()
                 Swal.fire({
@@ -134,8 +133,8 @@ function MensajesAutomaticos(props) {
             confirmButtonColor: '#3085d6',
         }).then(async (result) => {
             if (result.isConfirmed) {
-                const url = `${host}/mensaje_predeterminado/${id}`
-                const { status } = await axios.delete(url)
+                const url = `/mensaje_predeterminado/${id}`
+                const { status } = await BmHttp.delete(url)
                 if (status === 200) {
                     await ListarMensajes()
                 }
