@@ -270,7 +270,7 @@ function ComprobantesOcr(props) {
                                         </Form.Group>
                                         <Button
                                             className='button-bm mr-2 w-100'
-                                            type="submit"
+                                            // type="submit"
                                             disabled={url === ''}
                                             onClick={ValidarComprobante}
                                             >
