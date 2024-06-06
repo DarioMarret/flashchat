@@ -175,6 +175,8 @@ function Masivos(props) {
   };
 
   const handleEnvio = (e) => {
+    console.log("E: ", e.target.name);
+    console.log("E: ", e.target.value);
     try {
       setEnvio({
         ...envio,
@@ -288,6 +290,7 @@ function Masivos(props) {
         nombreunico: inf.nombreunico,
         api_key: inf.api_key,
         access_token: inf.access_token,
+        plantilla: inf.plantilla,
       });
       if (inf.channel_id === 4) {
         ListarPlatilla360(inf.api_key);
@@ -454,23 +457,7 @@ function Masivos(props) {
   };
 
   const handleEditar = (item) => {
-    setEnvio({
-      ...envio,
-      id: item.id,
-      cuenta_id: item.cuenta_id,
-      channel_id: item.channel_id,
-      titulo: item.titulo,
-      nombre_bot: item.nombre_bot,
-      nombreunico: item.nombreunico,
-      fecha_envio: item.fecha_envio,
-      mensaje: item.mensaje,
-      imagen: item.imagen,
-      plantilla: item.plantilla,
-      parametros: item.parametros,
-      estado: item.estado,
-      progreso: item.progreso,
-      updatedAt: item.updatedAt,
-    });
+    setEnvio(item);
     setShow(true);
   };
 
@@ -591,7 +578,8 @@ function Masivos(props) {
           }
         }
       });
-    } else if (envio.channel_id == 2) {
+    } else if (envio.channel_id === 2) {
+      
       const { status } = await BmHttp.post("qr_mensaje_external", {
         sessionName: envio.nombreunico,
         numero: [envio.numero],
@@ -605,7 +593,7 @@ function Masivos(props) {
       if (status === 200) {
         Swal.fire({
           icon: "success",
-          title: "Plantilla enviada",
+          title: "Mensaje enviado",
           showConfirmButton: false,
           timer: 1500,
         });
@@ -1099,18 +1087,19 @@ function Masivos(props) {
                 />
               </div>
               <div className="form-group">
-                <label htmlFor="nombreunico">Bot Envio</label>
+                <label htmlFor="nombreunico">Conexion</label>
                 <select
                   className="form-control"
                   id="nombreunico"
                   name="nombreunico"
+                  value={JSON.stringify(envio)}
                   onChange={handleSelect}
                 >
-                  <option value="">Seleccione un bot</option>
+                  <option value="">Seleccione una conexion</option>
                   {bots.map((item, index) => (
-                    <option key={index} value={JSON.stringify(item)}>
-                      {item.nombre_bot}
-                    </option>
+                      <option key={index} value={JSON.stringify(item)}>
+                        {item.nombre_bot}
+                      </option>
                   ))}
                 </select>
               </div>
@@ -1152,6 +1141,7 @@ function Masivos(props) {
                     id="fecha_envio"
                     placeholder="Fecha de envio"
                     name="fecha_envio"
+                    min={moment().format("YYYY-MM-DDTHH:mm")}
                     value={envio.fecha_envio}
                     onChange={handleEnvio}
                   />
@@ -1168,7 +1158,7 @@ function Masivos(props) {
                   style={{ height: "100px" }}
                   name="mensaje"
                   value={envio.mensaje}
-                  onChange={handleEnvio}
+                  onChange={(e)=>handleEnvio(e)}
                 />
               </div>
               {envio.channel_id === 4 ? (

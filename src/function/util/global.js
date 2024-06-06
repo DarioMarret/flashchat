@@ -13,12 +13,9 @@ export const plantillas_360 = "https://waba.360dialog.io/v1/configs/templates?of
 export const host_360 = "https://waba.360dialog.io/v1/messages"
 export const host_widget = dev ? "http://localhost:3001/?custom=" : "https://widget.flashchat.chat/?custom="
 export const host_sdk = dev ? "http://localhost:8080/main.js" : "https://sdk.flashchat.chat/main.js"
-// export const proxy = ""
-// export const host = "http://localhost:5002";
 export const host_facturacion = "https://ordenfacil.org/api_facturacion";
 export const colorPrimario = "#3F98F8";
 // validar si es produccion o desarrollo
-
 const bm = new axios.create({
     baseURL: host,
     headers: {
