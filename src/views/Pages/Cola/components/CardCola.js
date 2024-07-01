@@ -66,7 +66,7 @@ function CardCola(props) {
                                             }}
                                         >
                                             <i className="fas fa-star" style={{color: 'gold'}}></i>
-                                            {e}
+                                            {e.length > 10 ? e.substring(0, 6) + '...' : e}
                                         </span>
                                     )
                                 }): null
