@@ -17,14 +17,14 @@ function Cola(props) {
     const [cuenta_id, setCuenta_id] = useState(GetTokenDecoded().cuenta_id);
 
     const ListarAgentes = async () => {
-        const { data } = await BmHttp.get(`agentes/${GetTokenDecoded().cuenta_id}`);
+        const { data } = await BmHttp().get(`agentes/${GetTokenDecoded().cuenta_id}`);
         if(data.status === 200){
             await ListarEquipos(data.data);
         }
     }
     const ListarEquipos = async (agent) => {
         try {
-            const { data } = await BmHttp.get(`equipo/${GetTokenDecoded().cuenta_id}`);
+            const { data } = await BmHttp().get(`equipo/${GetTokenDecoded().cuenta_id}`);
             if(data.status === 200){
                 agent.map((item, i) => {
                     agent[i]['equipo'] = [];

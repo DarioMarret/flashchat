@@ -1,7 +1,7 @@
 import {
-  GetTokenDecoded,
-  IsKeyObject,
-  SubirMedia,
+    GetTokenDecoded,
+    IsKeyObject,
+    SubirMedia,
 } from "function/storeUsuario";
 import { BmHttp, host } from "function/util/global";
 import moment from "moment";
@@ -360,14 +360,14 @@ function Masivos(props) {
 
   const ListarBots = async () => {
     const url = `bots/${GetTokenDecoded().cuenta_id}`;
-    const { data, status } = await BmHttp.get(url);
+    const { data, status } = await BmHttp().get(url);
     if (status === 200) {
       setBots(data.data);
     }
   };
 
   const ListarPlatilla360 = async (api_key) => {
-    const { data, status } = await BmHttp.post("plantilla_360", {
+    const { data, status } = await BmHttp().post("plantilla_360", {
       api_key,
     });
     if (status === 200) {
@@ -560,7 +560,7 @@ function Masivos(props) {
               },
             },
           };
-          const { status } = await BmHttp.post("plantilla_envio_360", plan);
+          const { status } = await BmHttp().post("plantilla_envio_360", plan);
           if (status === 200) {
             Swal.fire({
               icon: "success",
@@ -580,7 +580,7 @@ function Masivos(props) {
       });
     } else if (envio.channel_id === 2) {
       
-      const { status } = await BmHttp.post("qr_mensaje_external", {
+      const { status } = await BmHttp().post("qr_mensaje_external", {
         sessionName: envio.nombreunico,
         numero: [envio.numero],
         mensaje: {
@@ -646,7 +646,7 @@ function Masivos(props) {
     if (envio.id !== 0) {
       try {
         const url = `masivo/${envio.id}`;
-        const { status } = await BmHttp.put(url, envio);
+        const { status } = await BmHttp().put(url, envio);
         if (status === 200) {
           ListarMasivos();
           setShow(false);
@@ -664,7 +664,7 @@ function Masivos(props) {
     } else {
       try {
         const url = `masivo`;
-        const { status } = await BmHttp.post(url, { ...envio, plantilla: info });
+        const { status } = await BmHttp().post(url, { ...envio, plantilla: info });
         if (status === 200) {
           ListarMasivos();
           setShow(false);
@@ -684,7 +684,7 @@ function Masivos(props) {
 
   const ListarMasivos = async () => {
     const url = `masivo/${GetTokenDecoded().cuenta_id}`;
-    const { data, status } = await BmHttp.get(url);
+    const { data, status } = await BmHttp().get(url);
     if (status === 200) {
       setMasivos(data.data);
     }
@@ -702,7 +702,7 @@ function Masivos(props) {
     }).then(async (result) => {
       if (result.isConfirmed) {
         const url = `masivo/${id}`;
-        const { data, status } = await BmHttp.delete(url);
+        const { data, status } = await BmHttp().delete(url);
         if (status === 200) {
           ListarMasivos();
         }
@@ -716,7 +716,7 @@ function Masivos(props) {
     const url = `masivo/subir?cuenta_id=${excel.cuenta_id}&conexion=${excel.conexion}&masivosId=${excel.masivosId}`;
     const formData = new FormData();
     formData.append("file", excel.file);
-    fetch(`${host}${url}`, {
+    fetch(`${host()}${url}`, {
       method: "POST",
       body: formData,
     }).then((response) => {
@@ -770,7 +770,7 @@ function Masivos(props) {
 
   const DescargarExcelReporte = async (id) => {
     const url = `/masivo/exportar?masivosId=${id}&cuenta_id=${GetTokenDecoded().cuenta_id}`;
-    const { data, status } = await BmHttp.get(url);
+    const { data, status } = await BmHttp().get(url);
     if (status === 200) {
       const headers = Object.keys(data.data[0]);
       const csv = [
@@ -794,7 +794,7 @@ function Masivos(props) {
 
   const DetenerEnvio = async (id) => {
     const url = `masivo/detener/${id}`;
-    const { data, status } = await BmHttp.put(url);
+    const { data, status } = await BmHttp().put(url);
     if (status === 200) {
       Swal.fire({
         icon: "success",

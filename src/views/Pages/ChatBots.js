@@ -9,7 +9,6 @@ import QR from "assets/img/codigo-qr-whatsapp.png";
 import gupshup from "assets/img/gupshup.jpeg";
 import instagram from "assets/img/instagram.jpeg";
 import telegram from "assets/img/telegram.jpeg";
-import axios from "axios";
 import { GetTokenDecoded, SubirMedia } from "function/storeUsuario";
 import { BmHttp, colorPrimario, host, host_widget } from "function/util/global";
 import { useEffect, useState } from "react";
@@ -79,7 +78,7 @@ function ChatBots(props) {
   const AcualizarSdk = async () => {
     try {
       const payload = { sdk: { ...sdk } };
-      const { data, status } = await BmHttp.post(`update_sdk_bot?nombreunico=${nombreunico}`, payload)
+      const { data, status } = await BmHttp().post(`update_sdk_bot?nombreunico=${nombreunico}`, payload)
       if(status === 200 && data.status === 200){
         Swal.fire({
           title: "Actualizado correctamente puede generar el script nuevamente",
@@ -131,32 +130,28 @@ function ChatBots(props) {
   };
 
   const ListarPlantillaBot = async () => {
-    const url = `${host}bots_plantillas`;
-    const { data, status } = await axios.get(url);
+    const { data, status } = await BmHttp().get(`bots_plantillas`);
     if (status === 200) {
       setBotPlantilla(data.data);
     }
   };
 
   const ListarCanal = async () => {
-    const url = `${host}canales`;
-    const { data, status } = await axios.get(url);
+    const { data, status } = await BmHttp().get(`canales`);
     if (status === 200) {
       setCanales(data.data);
     }
   };
 
   const ListarBots = async () => {
-    const url = `bots/${GetTokenDecoded().cuenta_id}`;
-    const { data, status } = await BmHttp.get(url);
+    const { data, status } = await BmHttp().get(`bots/${GetTokenDecoded().cuenta_id}`);
     if (status === 200) {
       setBots(data.data);
     }
   };
 
   const ListarBotUnico = async (nombreunico) => {
-    const url = `bot/${nombreunico}`;
-    const { data, status } = await BmHttp.get(url);
+    const { data, status } = await BmHttp().get(`bot/${nombreunico}`);
     if (status === 200 && data.status === 200) {
       setSdk(data.data.sdk);
       setId(data.data.id)
@@ -169,7 +164,7 @@ function ChatBots(props) {
 
   const DublicarBot = async () => {
     try {
-      const { data, status } = await BmHttp.post('bot_webchat', {id});
+      const { data, status } = await BmHttp().post('bot_webchat', {id});
       if (status === 200) {
         setSdk(data.data);
         setId(data.id)
@@ -193,8 +188,7 @@ function ChatBots(props) {
     if (perfil && userFb) {
       await SuccessSetuserFb();
     } else {
-      const url = `${host}bots`;
-      const { data, status } = await axios.post(url, bot);
+      const { data, status } = await BmHttp().post(`bots`, bot);
       if (data.status === 200) {
         setShow(!show);
         Swal.fire({
@@ -235,8 +229,7 @@ function ChatBots(props) {
   }
 
   const Actualizar = async () => {
-    const url = `bots/${bot.id}`;
-    const { status } = await BmHttp.put(url, bot);
+    const { status } = await BmHttp().put(`bots/${bot.id}`, bot);
     if (status === 200) {
       setShow(!show);
       Swal.fire({
@@ -260,8 +253,7 @@ function ChatBots(props) {
       cancelButtonText: "No",
     }).then(async (result) => {
       if (result.isConfirmed) {
-        const url = `bots/${id}`;
-        const { status } = await BmHttp.delete(url);
+        const { status } = await BmHttp().delete(`bots/${id}`);
         if (status === 200) {
           ListarBots();
         }
@@ -344,7 +336,7 @@ function ChatBots(props) {
   const listarQrNombreunico = async (nombreunico)=>{
     try {
       console.log("listarQrNombreunico: "+nombreunico)
-      const { data } = await BmHttp.get('qr/link?nombreunico='+nombreunico)
+      const { data } = await BmHttp().get('qr/link?nombreunico='+nombreunico)
       if(data.status === 200){
         console.log(data.data)
         setLinkQr(data.data.qr)
@@ -364,7 +356,7 @@ function ChatBots(props) {
       cancelButtonText: "No",
     }).then(async (result) => {
       if(result.isConfirmed){
-        await BmHttp.get(`reconectar_qr?sessionName=${nombreunico}`)
+        await BmHttp().get(`reconectar_qr?sessionName=${nombreunico}`)
       }
     });
   };
@@ -387,7 +379,7 @@ function ChatBots(props) {
 
   const EstadoSession = () => {
     if (estadoQr.estado && estadoQr.nombreunico) {
-      fetch(`${host}estado_session?sessionName=${estadoQr.nombreunico}`)
+      fetch(`estado_session?sessionName=${estadoQr.nombreunico}`)
         .then((res) => res.json())
         .then((data) => {
           if (data.status === 200) {
@@ -411,8 +403,8 @@ function ChatBots(props) {
     })
       .then(async (result) => {
         if (result.isConfirmed) {
-          const url = `${host}qr_close/${nombreunico}`;
-          const { data } = await axios.post(url);
+          const url = `qr_close/${nombreunico}`;
+          const { data } = await BmHttp().post(url);
         }
       })
       .catch((error) => {
@@ -447,7 +439,7 @@ function ChatBots(props) {
     const img = document.getElementById('qrImage');
     // Construir la URL de la imagen
     const timestamp = new Date().getTime(); // Obtiene una marca de tiempo única
-    const imageUrl = `${host}qr/${estadoQr.nombreunico}.png?timestamp=${timestamp}`;
+    const imageUrl = `qr/${estadoQr.nombreunico}.png?timestamp=${timestamp}`;
     // Actualizar el atributo src de la imagen
     img.src = imageUrl;
   }
@@ -485,7 +477,7 @@ function ChatBots(props) {
           accounts: perfil.accounts,
         };
         setUserFb(null);
-        const { data, status } = await axios.post(`${host}webhookFConfig?cuenta_id=${GetTokenDecoded().cuenta_id}`, datos);
+        const { data, status } = await BmHttp().post(`${host()}webhookFConfig?cuenta_id=${GetTokenDecoded().cuenta_id}`, datos);
         if (status === 200) {
           await ListarBots();
           setShow(!show);
@@ -820,10 +812,10 @@ function ChatBots(props) {
                     className="form-control"
                     id="IdWhatsAppBusiness"
                     disabled={true}
-                    value={`${host}webhookCloud?bots=${bot.nombreunico}`}
+                    value={`${host()}webhookCloud?bots=${bot.nombreunico}`}
                   />
                   <CopyToClipboard
-                    text={`${host}webhookCloud?bots=${bot.nombreunico}`}
+                    text={`${host()}webhookCloud?bots=${bot.nombreunico}`}
                   >
                     <a href={"#"} className="">
                       Copiar
@@ -838,10 +830,10 @@ function ChatBots(props) {
                     className="form-control"
                     id="WebHookGupsup"
                     disabled={true}
-                    value={`${host}webhookGupshup?bots=${bot.nombreunico}`}
+                    value={`${host()}webhookGupshup?bots=${bot.nombreunico}`}
                   />
                   <CopyToClipboard
-                    text={`${host}webhookGupshup?bots=${bot.nombreunico}`}
+                    text={`${host()}webhookGupshup?bots=${bot.nombreunico}`}
                   >
                     <a href={"#"} className="">
                       Copiar

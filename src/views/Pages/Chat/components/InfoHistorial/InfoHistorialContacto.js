@@ -1,6 +1,6 @@
-import axios from 'axios';
+/* eslint-disable jsx-a11y/iframe-has-title */
 import { GetManejoConversacion, GetTokenDecoded, SetManejoConversacionStorange } from 'function/storeUsuario';
-import { host } from 'function/util/global';
+import { BmHttp } from 'function/util/global';
 import useMensajeria from 'hook/useMensajeria';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
@@ -24,8 +24,7 @@ function InfoHistorialContacto(props) {
 
     
     const ListarEtiquetas = async () => {
-        let url = host + 'etiqueta/' + GetTokenDecoded().cuenta_id
-        const { data, status } = await axios.get(url)
+        const { data, status } = await BmHttp().get(`etiqueta/${GetTokenDecoded().cuenta_id}`)
         if (status === 200) {
             setEtiquetas(data.data)
         }
@@ -46,7 +45,7 @@ function InfoHistorialContacto(props) {
             if (conV === null || conV === undefined) {
                 return null
             }
-            const { data, status } = await axios.post(`${host}conversacion_historial`, {
+            const { data, status } = await BmHttp().post(`conversacion_historial`, {
                 cuenta_id: GetTokenDecoded().cuenta_id,
                 contacto_id: conV.contacto_id,
                 nombreunico: conV.nombreunico,
@@ -88,8 +87,8 @@ function InfoHistorialContacto(props) {
     }
 
     const ListarAgentes = async () => {
-        const url = `${host}agentes/${GetTokenDecoded().cuenta_id}`
-        const { data, status } = await axios.get(url)
+        const url = `agentes/${GetTokenDecoded().cuenta_id}`
+        const { data, status } = await BmHttp().get(url)
         if (status === 200) {
             let ag = []
             data.data.map((agente, index) => {
@@ -107,7 +106,7 @@ function InfoHistorialContacto(props) {
 
     const AgregarEtiqueta = async (etiqueta) => {
         let covActiva = GetManejoConversacion();
-        const { data } = await axios.post(`${host}conversacion_etiqueta`, {
+        const { data } = await BmHttp().post(`conversacion_etiqueta`, {
             cuenta_id: GetTokenDecoded().cuenta_id,
             conversacion_id: covActiva.conversacion_id,
             contacto_id: covActiva.contacto_id,
@@ -218,8 +217,6 @@ function InfoHistorialContacto(props) {
             setInfoContacto(GetManejoConversacion())
         })()
     }, [ping])
-
-
 
     return (
         <div className="chat-list bg-chat rounded-end" style={{ overflow: 'auto' }}>

@@ -13,7 +13,7 @@ function ProximaFactura(props) {
 
     const ListarProximoPago = async () => {
         try {
-            const {data, status} = await BmHttp.get(`proximo_pago_plan/${GetTokenDecoded().cuenta_id}`)
+            const {data, status} = await BmHttp().get(`proximo_pago_plan/${GetTokenDecoded().cuenta_id}`)
             if(status === 200){
                 console.log(data);
                 setProximoPago(data.data);

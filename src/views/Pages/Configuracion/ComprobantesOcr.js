@@ -54,7 +54,7 @@ function ComprobantesOcr(props) {
 
     const ListarOcrs = async () => {
         let url = 'comprobantes/'+GetTokenDecoded().cuenta_id
-        const { data, status } = await BmHttp.get(url)
+        const { data, status } = await BmHttp().get(url)
         if(status === 200 && data !== null){
             setOcrs(data)
         }
@@ -82,7 +82,7 @@ function ComprobantesOcr(props) {
                     key: JSON.parse(i),
                     cuenta_id: GetTokenDecoded().cuenta_id
                 }
-                const { status } = await BmHttp.post('comprobantes', keys)
+                const { status } = await BmHttp().post('comprobantes', keys)
                 if(status === 200){
                     ListarOcrs()
                     setShow(false)
@@ -120,7 +120,7 @@ function ComprobantesOcr(props) {
             info.tipoCompr.push(valor)
             info.tipoCompr.sort()
         }
-        const { data, status } = await BmHttp.put('comprobantes_validacion', info)
+        const { data, status } = await BmHttp().put('comprobantes_validacion', info)
         if(status === 200){
             setOcrs(data)
         }
@@ -139,7 +139,7 @@ function ComprobantesOcr(props) {
         }else if(typo === 'tipoCompr'){
             info.tipoCompr = info.tipoCompr.filter(item => item !== valor)
         }
-        const { data, status } = await BmHttp.put('comprobantes_validacion', info)
+        const { data, status } = await BmHttp().put('comprobantes_validacion', info)
         if(status === 200){
             setOcrs(data)
         }
@@ -157,7 +157,7 @@ function ComprobantesOcr(props) {
 
     const ValidarComprobante = async () => {
         let urlHtt = `comprobantes_scaner/${ocr.cuenta_id}`
-        const { data, status } = await BmHttp.post(urlHtt, {url})
+        const { data, status } = await BmHttp().post(urlHtt, {url})
         if(status === 200){
             setResponse(data)
         }else{
@@ -194,10 +194,10 @@ function ComprobantesOcr(props) {
                                 className="form-control border-0 "
                                 type="text"
                                 name="key"
-                                value={`${host}comprobantes_scaner/${ocr.cuenta_id}`}
+                                value={`${host()}comprobantes_scaner/${ocr.cuenta_id}`}
                                 disabled
                                 />
-                            <CopyToClipboard text={`${host}comprobantes_scaner/${ocr.cuenta_id}`}>
+                            <CopyToClipboard text={`${host()}comprobantes_scaner/${ocr.cuenta_id}`}>
                                 {/* icono de copiar */}
                                 <button className="btn active ml-2 border-0">
                                     <i className="fas fa-copy text-dark"></i>
@@ -235,7 +235,7 @@ function ComprobantesOcr(props) {
                                         className="form-control border-0"
                                         type="text"
                                         name="url"
-                                        value={`POST:  ${host}comprobantes_scaner/${ocr.cuenta_id}`}
+                                        value={`POST:  ${host()}comprobantes_scaner/${ocr.cuenta_id}`}
                                     />
                                     <input
                                         className="form-control border-0"
@@ -291,7 +291,7 @@ function ComprobantesOcr(props) {
                                 "--data-raw '{\"url\": \"https://codigomarret.online/upload/img/rodas.jpeg\"}'"}
                                 disabled
                                 />
-                            <CopyToClipboard text={`curl --location ${host}comprobantes_scaner?cuenta_id=${ocr.cuenta_id}' \
+                            <CopyToClipboard text={`curl --location ${host()}comprobantes_scaner?cuenta_id=${ocr.cuenta_id}' \
                                 --header 'Content-Type: application/json' \
                                 --data '{
                                     "url": "https://codigomarret.online/upload/img/rodas.jpeg"

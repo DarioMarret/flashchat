@@ -75,7 +75,7 @@ function Agentes(props) {
 
     const ListarAgentes = async() => {
         const url = `agentes/${GetTokenDecoded().cuenta_id}`
-        const { data, status } = await BmHttp.get(url)
+        const { data, status } = await BmHttp().get(url)
         if (status === 200) {
             let ag = []
             data.data.map((agente, index) => {
@@ -140,7 +140,7 @@ function Agentes(props) {
 
     const ListarBots = async() => {
         const url = `bots/${GetTokenDecoded().cuenta_id}`
-        const { data, status } = await BmHttp.get(url)
+        const { data, status } = await BmHttp().get(url)
         if (status === 200) {
             let labels = []
             data.data.map(bot => {
@@ -155,7 +155,7 @@ function Agentes(props) {
 
     const ListarEquipos = async() => {
         const url = `equipo/${GetTokenDecoded().cuenta_id}`
-        const { data, status } = await BmHttp.get(url)
+        const { data, status } = await BmHttp().get(url)
         if (status === 200) {
             setEquipos(data.data)
         }
@@ -163,7 +163,7 @@ function Agentes(props) {
 
     const CrearAgente = async() => {
         const url = `agentes`
-        const { data, status } = await BmHttp.post(url, agente)
+        const { data, status } = await BmHttp().post(url, agente)
         if (status === 200) {
             Swal.fire({
                 icon: 'success',
@@ -221,7 +221,7 @@ function Agentes(props) {
             confirmButtonColor: '#3085d6',
         }).then((result) => {
             if (result.isConfirmed) {
-                BmHttp.delete(url)
+                BmHttp().delete(url)
                 .then(response => {
                     ListarAgentes()
                 })
@@ -231,7 +231,7 @@ function Agentes(props) {
 
     const ActualizarAgente = async() => {
         const url = `agentes/${agente.id}`
-        const { data, status } = await BmHttp.put(url, agente)
+        const { data, status } = await BmHttp().put(url, agente)
         if (status === 200) {
             ListarAgentes()
             handleClose()

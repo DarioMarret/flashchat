@@ -1,6 +1,5 @@
-import axios from 'axios';
 import { GetTokenDecoded, SetManejoConversacionStorange } from 'function/storeUsuario';
-import { colorPrimario, host } from 'function/util/global';
+import { BmHttp, colorPrimario, host } from 'function/util/global';
 import { useState } from 'react';
 import {
   Modal
@@ -45,8 +44,8 @@ function CardContacto(props) {
   }
 
   const ListarAgentes = async() => {
-    const url = `${host}agentes/${GetTokenDecoded().cuenta_id}`
-    const { data, status } = await axios.get(url)
+    const url = `${host()}agentes/${GetTokenDecoded().cuenta_id}`
+    const { data, status } = await BmHttp().get(url)
     if (status === 200) {
         let ag = []
         data.data.map((agente, index) => {

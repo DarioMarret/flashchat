@@ -1,6 +1,5 @@
-import axios from 'axios';
 import { GetTokenDecoded, SetManejoConversacionStorange } from 'function/storeUsuario';
-import { colorPrimario, host } from 'function/util/global';
+import { BmHttp, colorPrimario } from 'function/util/global';
 import useMensajeria from 'hook/useMensajeria';
 import { useState } from 'react';
 import {
@@ -52,8 +51,8 @@ function CardChat(props) {
   }
 
   const ListarAgentes = async() => {
-    const url = `${host}agentes/${GetTokenDecoded().cuenta_id}`
-    const { data, status } = await axios.get(url)
+    const url = `agentes/${GetTokenDecoded().cuenta_id}`
+    const { data, status } = await BmHttp().get(url)
     if (status === 200) {
         let ag = []
         data.data.map((agente, index) => {

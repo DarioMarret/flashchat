@@ -39,7 +39,7 @@ function Inactividad(props) {
 
     const ListarInactividad = async() => {
         let url = 'inactividad/'+GetTokenDecoded().cuenta_id
-        const { data, status } = await BmHttp.get(url)
+        const { data, status } = await BmHttp().get(url)
         if(status === 200){
             // ordenar por tiempo menor a mayor
             const inactividad = data.sort((a, b) => a.tiempo - b.tiempo)
@@ -57,7 +57,7 @@ function Inactividad(props) {
             mensaje: inactividad.mensaje,
             cuenta_id: parseInt(inactividad.cuenta_id)
         }
-        const { status } = await BmHttp.put(url, info)
+        const { status } = await BmHttp().put(url, info)
         if(status === 200){
             ListarInactividad()
             setShow(false)

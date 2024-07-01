@@ -1,9 +1,8 @@
-import axios from 'axios';
 import { GetTokenDecoded } from 'function/storeUsuario';
-import { host } from 'function/util/global';
+import { BmHttp } from 'function/util/global';
 import { useEffect, useState } from 'react';
 import {
-    Container,
+  Container,
 } from 'react-bootstrap';
 import Swal from 'sweetalert2';
 // import Swal from 'sweetalert2';
@@ -31,8 +30,7 @@ export default function Suscripciones() {
   })
 
   const ListarCuenta = async () => {
-    const url = `${host}planes`;
-    await axios.get(url)
+    await BmHttp().get(`planes`)
       .then(response => {
         response.data.data.map((plan, index) => {
           if(plan.id === 4){
@@ -47,8 +45,7 @@ export default function Suscripciones() {
   }
 
   const PlanAsignado = async () => {
-    const url = `${host}cuenta_plan/${GetTokenDecoded().cuenta_id}`
-    const { data } = await axios.get(url)
+    const { data } = await BmHttp().get(`cuenta_plan/${GetTokenDecoded().cuenta_id}`)
     setListarPlanAsignado(data.data[0])
     console.log(data.data[0])
     if(data.data[0].plan_id === 4){
@@ -97,8 +94,7 @@ export default function Suscripciones() {
   }
 
   const SuscribirPlan = async (info) => {
-    const url = `${host}suscribir_plan`
-    await axios.post(url, info)
+    await BmHttp().post(`suscribir_plan`, info)
     .then(response => {
       Swal.fire({
         icon: 'success',

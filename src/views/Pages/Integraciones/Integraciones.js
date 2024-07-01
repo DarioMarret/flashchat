@@ -28,7 +28,7 @@ function Integraciones(props) {
     
     const ListarBots = async () => {
         const url = `bots/${GetTokenDecoded().cuenta_id}`;
-        const { data, status } = await BmHttp.get(url);
+        const { data, status } = await BmHttp().get(url);
         if(typeof data === 'string'){
             // convertir a json
             let newBot = JSON.parse(data);
@@ -42,7 +42,7 @@ function Integraciones(props) {
 
     const ListarEstados = async () => {
         const url = `estados`;
-        const { data, status } = await BmHttp.get(url);
+        const { data, status } = await BmHttp().get(url);
         if(typeof data  === 'string'){
             let newEstados = JSON.parse(data);
             console.log(newEstados);

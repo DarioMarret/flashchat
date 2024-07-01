@@ -34,7 +34,7 @@ function ModalMensaje(props) {
     const [bots, setBots] = useState([])
     const ListarBot = async() => {
         const url = `bots/${GetTokenDecoded().cuenta_id}`
-        const { data } = await BmHttp.get(url)
+        const { data } = await BmHttp().get(url)
         console.log(typeof data)
         if (data.status === 200) {
             setBots(data.data)

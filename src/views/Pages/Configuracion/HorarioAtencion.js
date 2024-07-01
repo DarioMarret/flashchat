@@ -29,7 +29,7 @@ function HorarioAtencion(props) {
 
     const ListarEquipos = async () => {
         let url = 'equipo/'+GetTokenDecoded().cuenta_id
-        const { data, status } = await BmHttp.get(url)
+        const { data, status } = await BmHttp().get(url)
         if(status === 200){
             setEquipos(data.data)
         }
@@ -37,7 +37,7 @@ function HorarioAtencion(props) {
     
     const ListarHorarios = async () => {
         let url = 'horarios/'+GetTokenDecoded().cuenta_id
-        const { data, status } = await BmHttp.get(url)
+        const { data, status } = await BmHttp().get(url)
         if(status === 200){
             setHorarios(data)
         }
@@ -56,7 +56,7 @@ function HorarioAtencion(props) {
             equipo_id: parseInt(horario.equipo_id),
             horario: horario.inicio_horario+' - '+horario.fin_horario
         }
-        const { status } = await BmHttp.put(url, data)
+        const { status } = await BmHttp().put(url, data)
         if(status === 200){
             Swal.fire({
                 icon: 'success',
@@ -83,7 +83,7 @@ function HorarioAtencion(props) {
         }).then(async (result) => {
             if (result.isConfirmed) {
                 let url = 'horarios/'+id
-                const { status } = await BmHttp.delete(url)
+                const { status } = await BmHttp().delete(url)
                 if(status === 200){
                     ListarHorarios()
                 }
@@ -99,7 +99,7 @@ function HorarioAtencion(props) {
             equipo_id: parseInt(horario.equipo_id),
             horario: horario.inicio_horario+' - '+horario.fin_horario
         }
-        const { status } = await BmHttp.post(url, data)
+        const { status } = await BmHttp().post(url, data)
         if(status === 200){
             Swal.fire({
                 icon: 'success',

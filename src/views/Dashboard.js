@@ -2,7 +2,6 @@
 // react components used to create a SVG / Vector map
 
 // react-bootstrap components
-import axios from "axios";
 import {
   BarElement,
   CategoryScale,
@@ -13,7 +12,7 @@ import {
   Tooltip,
 } from 'chart.js';
 import { GetTokenDecoded } from "function/storeUsuario";
-import { host } from "function/util/global";
+import { BmHttp } from 'function/util/global';
 import moment from "moment";
 import { useEffect, useState } from "react";
 import {
@@ -195,7 +194,7 @@ function Dashboard() {
   }
 
   const ListarBots = async() => {
-    const conversacionBot = await axios.get(`${host}bots_conversacion/${GetTokenDecoded().cuenta_id}`)
+    const conversacionBot = await BmHttp().get(`bots_conversacion/${GetTokenDecoded().cuenta_id}`)
     setBots(conversacionBot.data.bot)
     setConversaciones(conversacionBot.data.conversacionesCantidad);
     if(conversacionBot.status === 200){
@@ -233,15 +232,15 @@ function Dashboard() {
   }
 
   const ListarContactos = async() => {
-    const url = `${host}contactos/${GetTokenDecoded().cuenta_id}?skip=0&take=10`;
-    const { data, status } = await axios.get(url);
+    const url = `contactos/${GetTokenDecoded().cuenta_id}?skip=0&take=10`;
+    const { data, status } = await BmHttp().get(url);
     if (status === 200) {
       setContactos(data.total);
     }
   }
   const ListarAgentes = async() => {
-    const url = `${host}agentes/${GetTokenDecoded().cuenta_id}`
-    const { data, status } = await axios.get(url)
+    const url = `agentes/${GetTokenDecoded().cuenta_id}`
+    const { data, status } = await BmHttp().get(url)
     if (status === 200) {
       setAgentes(data.data);
     }

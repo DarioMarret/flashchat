@@ -26,7 +26,7 @@ function TabPanel(props) {
 
     const ListarAgentes = async() => {
         const url = `agentes/${GetTokenDecoded().cuenta_id}`
-        const { data } = await BmHttp.get(url)
+        const { data } = await BmHttp().get(url)
         if (data.status === 200) {
             let ag = []
             data.data.map((agente, index) => {

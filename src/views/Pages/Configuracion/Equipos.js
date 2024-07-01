@@ -54,7 +54,7 @@ function Equipos(props) {
 
     const ListarAgentes = async () => {
         let url = 'agentes/'+GetTokenDecoded().cuenta_id
-        const { data, status } = await BmHttp.get(url)
+        const { data, status } = await BmHttp().get(url)
         if(status === 200){
             let labels = []
             data.data.map((item) => {
@@ -65,7 +65,7 @@ function Equipos(props) {
     }
     const ListarEquipos = async () => {
         let url = 'equipo/'+GetTokenDecoded().cuenta_id
-        const { data, status } = await BmHttp.get(url)
+        const { data, status } = await BmHttp().get(url)
         if(status === 200){
             setEquipos(data.data)
             Limpiar()
@@ -75,7 +75,7 @@ function Equipos(props) {
     const CrearEquipo = async (e) => {
         e.preventDefault()
         let url = 'equipo'
-        const { data, status } = await BmHttp.post(url, equipo)
+        const { data, status } = await BmHttp().post(url, equipo)
         if(status === 200){
             Swal.fire({
                 icon: 'success',
@@ -110,7 +110,7 @@ function Equipos(props) {
         }).then(async (result) => {
             if (result.isConfirmed) {
                 let url = 'equipo/'+id
-                const { status } = await BmHttp.delete(url)
+                const { status } = await BmHttp().delete(url)
                 if(status === 200){
                     Limpiar()
                     ListarEquipos()
@@ -128,7 +128,7 @@ function Equipos(props) {
         e.preventDefault()
         try {
             let url = 'equipo/'+id
-            const { status } = await BmHttp.put(url, equipo)
+            const { status } = await BmHttp().put(url, equipo)
             if(status === 200){
                 Swal.fire({
                     icon: 'success',

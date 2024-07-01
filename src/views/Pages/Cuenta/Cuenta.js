@@ -16,7 +16,7 @@ export default function Cuenta() {
 
   const ListarCuenta = async () => {
     const url = `cuenta_plan/${GetTokenDecoded().cuenta_id}`
-    const { data } = await BmHttp.get(url)
+    const { data } = await BmHttp().get(url)
     setCuenta(data.data[0]);
     setPlanes(data.data[0].planes);
     if(data.data[0].planes.plan === 'Free'){

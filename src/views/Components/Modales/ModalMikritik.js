@@ -47,7 +47,7 @@ function ModalMikritik(props) {
 
     const GuardarMidkritik = async() => {
         try {
-            const { data, status } = await BmHttp.post("crearte_mikrotik", infoMidkritik)
+            const { data, status } = await BmHttp().post("crearte_mikrotik", infoMidkritik)
             if(data.status === 200){
                 showMidkritik()
                 Limpiar()
@@ -59,7 +59,7 @@ function ModalMikritik(props) {
 
     const ListarInfoMikritik = async (nombreunico) => {
         try {
-            const { data, status } = await BmHttp.get("obtener_mikrotik/"+nombreunico)
+            const { data, status } = await BmHttp().get("obtener_mikrotik/"+nombreunico)
             if(data.status === 200){
                 setInfoMidkritik({
                     id: data.data.id,

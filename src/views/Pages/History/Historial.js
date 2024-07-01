@@ -1,6 +1,5 @@
-import axios from 'axios';
 import { GetTokenDecoded } from 'function/storeUsuario';
-import { BmHttp, host } from 'function/util/global';
+import { BmHttp } from 'function/util/global';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
 import { Modal } from 'react-bootstrap';
@@ -30,8 +29,8 @@ function Historial(props) {
 
 
     const ListarAgentes = async () => {
-        const url = `${host}agentes/${GetTokenDecoded().cuenta_id}`
-        const { data, status } = await axios.get(url)
+        const url = `agentes/${GetTokenDecoded().cuenta_id}`
+        const { data, status } = await BmHttp().get(url)
         if (status === 200) {
             let ag = []
             data.data.map((agente, index) => {
@@ -48,16 +47,16 @@ function Historial(props) {
     }
 
     const ListarEquipos = async () => {
-        let url = host + 'equipo/' + GetTokenDecoded().cuenta_id
-        const { data, status } = await axios.get(url)
+        let url = 'equipo/' + GetTokenDecoded().cuenta_id
+        const { data, status } = await BmHttp().get(url)
         if (status === 200) {
             setEquipos(data.data)
         }
     }
 
     const ListarBots = async () => {
-        const url = `${host}bots/${GetTokenDecoded().cuenta_id}`;
-        const { data, status } = await axios.get(url);
+        const url = `bots/${GetTokenDecoded().cuenta_id}`;
+        const { data, status } = await BmHttp().get(url);
         if (status === 200) {
             setBots(data.data);
         }
@@ -65,7 +64,7 @@ function Historial(props) {
 
 
     const OntenerConversacion = async (items) => {
-        const { data, status } = await axios.post(`${host}conversacion_activa`, {
+        const { data, status } = await BmHttp().post(`conversacion_activa`, {
             cuenta_id: GetTokenDecoded().cuenta_id,
             conversacion_id: items.conversacion_id,
             equipo_id: items.equipo_id,
@@ -126,7 +125,7 @@ function Historial(props) {
                 setModal(true)
                 setMensajeHistorial("Buscando historial...")
                 // si se selecciona fecha desde y fecha hasta
-                const { data, status } = await BmHttp.post(`${host}conversacion_historial_filter`, {
+                const { data, status } = await BmHttp().post(`conversacion_historial_filter`, {
                     cuenta_id: GetTokenDecoded().cuenta_id,
                     desde: moment(filtro.fecha_desde).format('YYYY-MM-DD'),
                     hasta: moment(filtro.fecha_hasta).format('YYYY-MM-DD'),

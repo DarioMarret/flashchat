@@ -38,7 +38,7 @@ function MensajesAutomaticos(props) {
 
     const ListarMensajes = async () => {
         const url = `mensaje_predeterminado/${GetTokenDecoded().cuenta_id}`
-        const { data, status } = await BmHttp.get(url)
+        const { data, status } = await BmHttp().get(url)
         if (status === 200 && data.data !== null) {
             setMensajes(data.data)
         }
@@ -46,7 +46,7 @@ function MensajesAutomaticos(props) {
     // estados mensajes
     const ListarMensajeEstados = async () => {
         const url = `estado_mensaje/${GetTokenDecoded().cuenta_id}`
-        const { data } = await BmHttp.get(url)
+        const { data } = await BmHttp().get(url)
         if (data.status === 200) {
             setMensajeEstado(data.data)
         }
@@ -59,7 +59,7 @@ function MensajesAutomaticos(props) {
             mensaje: mensaje.mensaje,
             estado: mensaje.estado
         }
-        const { status } = await BmHttp.put(url, data)
+        const { status } = await BmHttp().put(url, data)
         if (status === 200) {
             await ListarMensajeEstados()
             Swal.fire({
@@ -74,7 +74,7 @@ function MensajesAutomaticos(props) {
 
     const ListaEstados = async () => {
         const url = `estados`
-        const { data, status } = await BmHttp.get(url)
+        const { data, status } = await BmHttp().get(url)
         if (status === 200 && data.data !== null) {
             setEstados(data.data)
         }
@@ -90,7 +90,7 @@ function MensajesAutomaticos(props) {
                 mensaje: mensaje.mensaje,
                 cuenta_id: GetTokenDecoded().cuenta_id
             }
-            const { status } = await BmHttp.post(url, data)
+            const { status } = await BmHttp().post(url, data)
             if (status === 200) {
                 await ListarMensajes()
                 Swal.fire({
@@ -107,7 +107,7 @@ function MensajesAutomaticos(props) {
                 mensaje: mensaje.mensaje,
                 cuenta_id: GetTokenDecoded().cuenta_id
             }
-            const { status } = await BmHttp.put(url, data)
+            const { status } = await BmHttp().put(url, data)
             if (status === 200) {
                 await ListarMensajes()
                 Swal.fire({
@@ -134,7 +134,7 @@ function MensajesAutomaticos(props) {
         }).then(async (result) => {
             if (result.isConfirmed) {
                 const url = `/mensaje_predeterminado/${id}`
-                const { status } = await BmHttp.delete(url)
+                const { status } = await BmHttp().delete(url)
                 if (status === 200) {
                     await ListarMensajes()
                 }

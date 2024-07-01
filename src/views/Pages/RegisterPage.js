@@ -30,7 +30,7 @@ function RegisterPage(props) {
 
   const Register = async (event) => {
     event.preventDefault();
-    const { data, status } = await axios.post(`${host}cuentas`, empresa);
+    const { data, status } = await axios.post(`${host()}cuentas`, empresa);
     if(status === 200){
       if(data.status === 200){
         console.log(data);

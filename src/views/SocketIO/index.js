@@ -8,7 +8,7 @@ if(dev){
     transports: ["websocket"],
   });
 }else{
-  socket = io.connect(String(host).replace(`/${proxy}/`, ""), {
+  socket = io.connect(String(host()).replace(`/${proxy}/`, ""), {
     path: `/${proxy}/socket.io/socket.io.js`,
     transports: ["websocket"],
   });

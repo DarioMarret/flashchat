@@ -36,7 +36,7 @@ function Etiquetas(props) {
     };
     const ListarEtiquetas = async () => {
         let url = 'etiqueta/'+GetTokenDecoded().cuenta_id
-        const { data, status } = await BmHttp.get(url)
+        const { data, status } = await BmHttp().get(url)
         if(status === 200){
             setEtiquetas(data.data)
         }
@@ -54,7 +54,7 @@ function Etiquetas(props) {
     const ActualizarEtiqueta = async (e) => {
         e.preventDefault()
         let url = 'etiqueta/'+etiqueta.id
-        const { data, status } = await BmHttp.put(url, etiqueta)
+        const { data, status } = await BmHttp().put(url, etiqueta)
         if(status === 200){
             Swal.fire({
                 icon: 'success',
@@ -88,7 +88,7 @@ function Etiquetas(props) {
         }).then(async (result) => {
             if (result.isConfirmed) {
                 let url = 'etiqueta/'+id
-                const { status } = await BmHttp.delete(url)
+                const { status } = await BmHttp().delete(url)
                 if(status === 200){
                     ListarEtiquetas()
                 }
@@ -99,7 +99,7 @@ function Etiquetas(props) {
     const CrearEquipo = async (e) => {
         e.preventDefault()
         let url = 'etiqueta'
-        const { status } = await BmHttp.post(url, etiqueta)
+        const { status } = await BmHttp().post(url, etiqueta)
         if(status === 200){
             Swal.fire({
                 icon: 'success',

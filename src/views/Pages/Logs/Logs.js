@@ -12,7 +12,7 @@ function Logs(props) {
 
     const ListarLogs = async(pass) => {
         if(pass){
-            const { data, status } = await BmHttp.get(pass)
+            const { data, status } = await BmHttp().get(pass)
             if (status === 200) {
                 if(data){
                     setLogs(data.data)
@@ -24,8 +24,8 @@ function Logs(props) {
             }
             return
         }else{
-            const url = `${host}logs/?cuenta_id=${GetTokenDecoded().cuenta_id}&skip=0&take=15`
-            const { data, status } = await BmHttp.get(url)
+            const url = `${host()}logs/?cuenta_id=${GetTokenDecoded().cuenta_id}&skip=0&take=15`
+            const { data, status } = await BmHttp().get(url)
             if (status === 200) {
                 if(data){
                     setLogs(data.data)

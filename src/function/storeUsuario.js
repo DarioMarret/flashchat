@@ -63,7 +63,7 @@ export const RemoverConversacion = () => {
 }
 
 export const SubirMedia = async (imagen, type, nombre) => {
-    const url = `${host}upload`;
+    const url = `${host()}upload`;
     const formData = new FormData();
     if(type){
         formData.append("media", imagen, nombre);

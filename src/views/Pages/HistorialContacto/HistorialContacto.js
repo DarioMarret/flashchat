@@ -1,6 +1,5 @@
-import axios from 'axios';
 import { GetTokenDecoded } from 'function/storeUsuario';
-import { host } from 'function/util/global';
+import { BmHttp, host } from 'function/util/global';
 import moment from 'moment';
 import { useEffect, useRef, useState } from 'react';
 import {
@@ -29,8 +28,8 @@ function HistorialContacto(props) {
     })
 
     const ListarAgentes = async () => {
-        const url = `${host}agentes/${GetTokenDecoded().cuenta_id}`
-        const { data, status } = await axios.get(url)
+        const url = `agentes/${GetTokenDecoded().cuenta_id}`
+        const { data, status } = await BmHttp().get(url)
         if (status === 200) {
             let ag = []
             data.data.map((agente, index) => {
@@ -48,15 +47,15 @@ function HistorialContacto(props) {
 
     const ListarEquipos = async () => {
         let url = host + 'equipo/' + GetTokenDecoded().cuenta_id
-        const { data, status } = await axios.get(url)
+        const { data, status } = await BmHttp().get(url)
         if (status === 200) {
             setEquipos(data.data)
         }
     }
 
     const ListarBots = async () => {
-        const url = `${host}bots/${GetTokenDecoded().cuenta_id}`;
-        const { data, status } = await axios.get(url);
+        const url = `bots/${GetTokenDecoded().cuenta_id}`;
+        const { data, status } = await BmHttp().get(url);
         if (status === 200) {
             setBots(data.data);
         }
@@ -64,15 +63,15 @@ function HistorialContacto(props) {
 
     const ObtenerContactos = async () => {
         let id = window.location.pathname.split('/')[3]
-        const url = `${host}contacto/${id}`
-        const { data, status } = await axios.get(url)
+        const url = `contacto/${id}`
+        const { data, status } = await BmHttp().get(url)
         if (status === 200) {
             setContactos(data.data[0])
         }
     }
 
     const OntenerConversacion = async (items) => {
-        const { data, status } = await axios.post(`${host}conversacion_activa`, {
+        const { data, status } = await BmHttp().post(`conversacion_activa`, {
             cuenta_id: GetTokenDecoded().cuenta_id,
             conversacion_id: items.conversacion_id,
             equipo_id: items.equipo_id,
@@ -87,8 +86,8 @@ function HistorialContacto(props) {
     const ListarCardContacto = async () => {
         let id = window.location.pathname.split('/')[3]
         // espera a que se obtenga el id del contacto
-        const url = `${host}conversacion_card_contacto`
-        const { data, status } = await axios.post(url, {
+        const url = `conversacion_card_contacto`
+        const { data, status } = await BmHttp().post(url, {
             contacto_id: parseInt(id),
             cuenta_id: GetTokenDecoded().cuenta_id
         })

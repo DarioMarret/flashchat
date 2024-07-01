@@ -4,9 +4,9 @@ import React from "react";
 
 // react-bootstrap components
 import {
-    Button,
-    Card,
-    Form
+  Button,
+  Card,
+  Form
 } from "react-bootstrap";
 import Swal from "sweetalert2";
 
@@ -54,7 +54,7 @@ const LoginPage =(props)=> {
         timer: 1500
       })
     }else{
-      const { data, status } = await BmHttp.post(`${host}agendar_demo`, agenda);
+      const { data, status } = await BmHttp().post(`${host()}agendar_demo`, agenda);
       console.log(data)
       if (status === 200) {
         Swal.fire({
@@ -96,10 +96,10 @@ const LoginPage =(props)=> {
         timer: 1500
       })
     }else{
-      const { data, status } = await BmHttp.post(`${host}login`, usuario);
+      const { data, status } = await BmHttp().post(`${host()}login`, usuario);
       if (status === 200) {
         if (data.status === 200) {
-          localStorage.setItem(usuario_token, JSON.stringify(data.token));
+          localStorage.setItem(usuario_token, data.token);
           login(data.token);
           setReloadUser(true);
         } else {

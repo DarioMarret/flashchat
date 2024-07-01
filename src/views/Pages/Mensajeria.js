@@ -3,9 +3,8 @@
 // dependency plugin for react-big-calendar
 // react component used to create alerts
 // react-bootstrap components
-import axios from "axios";
 import { GetTokenDecoded } from "function/storeUsuario";
-import { host, proxy } from "function/util/global";
+import { BmHttp, host, proxy } from "function/util/global";
 import moment from "moment";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AudioRecorder } from 'react-audio-voice-recorder';
@@ -21,7 +20,7 @@ import Swal from 'sweetalert2';
 import MensajeriaContext from "context/MensajeriaContext";
 import Picker from "emoji-picker-react";
 import { DeletManejoConversacionStorange, GetManejoConversacion, SetManejoConversacionStorange, SubirMedia, removeDatosUsuario, setDatosUsuario } from "function/storeUsuario";
-import { BmHttp, colorPrimario, dev } from "function/util/global";
+import { colorPrimario, dev } from "function/util/global";
 import useAuth from "hook/useAuth";
 import io from "socket.io-client";
 import ComponenteMultimedia from "views/Components/ComponenteMultimedia";
@@ -36,7 +35,7 @@ try {
       transports: ["websocket"],
     });
   }else{
-    socket = io.connect(String(host).replace(`/${proxy}/`, ""), {
+    socket = io.connect(String(host()).replace(`/${proxy}/`, ""), {
       path: `/${proxy}/socket.io/socket.io.js`,
       transports: ["websocket"],
     });
@@ -91,8 +90,7 @@ export default function Mensajeria() {
 
 
   const PlanAsignado = async () => {
-    const url = `${host}cuenta_plan/${GetTokenDecoded().cuenta_id}`
-    const { data } = await axios.get(url)
+    const { data } = await BmHttp().get(`cuenta_plan/${GetTokenDecoded().cuenta_id}`)
     setListarPlanAsignado(data.data[0])
     // verificar si el plan asignado es el 1 osea el plan gratuito y si la fecha ya expiro
     // a la fecha es mayor a 15 dias 
@@ -116,8 +114,7 @@ export default function Mensajeria() {
 
 
   const ListarEtiquetas = async () => {
-    let url = host + 'etiqueta/'+GetTokenDecoded().cuenta_id
-    const { data, status } = await axios.get(url)
+    const { data, status } = await BmHttp().get('etiqueta/'+GetTokenDecoded().cuenta_id)
     if(status === 200){
         setEtiquetas(data.data)
     }
@@ -129,8 +126,7 @@ export default function Mensajeria() {
   }
 
   const ListarAgentes = async() => {
-    const url = `${host}agentes/${GetTokenDecoded().cuenta_id}`
-    const { data, status } = await axios.get(url)
+    const { data, status } = await BmHttp().get(`agentes/${GetTokenDecoded().cuenta_id}`)
     if (status === 200) {
         let ag = []
         data.data.map((agente, index) => {
@@ -157,8 +153,7 @@ export default function Mensajeria() {
 
   const ListarMensajesRespuestaRapida = async () => {
     try {
-      const url = `mensaje_predeterminado/${GetTokenDecoded().cuenta_id}`
-      const { data, status } = await BmHttp.get(url)
+      const { data, status } = await BmHttp().get(`mensaje_predeterminado/${GetTokenDecoded().cuenta_id}`)
       if (status === 200 && data.data !== null) {
         setRespuestaRapidas(data.data)
       }
@@ -551,8 +546,8 @@ export default function Mensajeria() {
   }
 
   const ListarEstados = async () => {
-    const url = `${host}estados`;
-    const { data, status } = await axios.get(url);
+    const url = `estados`;
+    const { data, status } = await BmHttp().get(url);
     if (status === 200) {
       setEstados(data.data);
     }
