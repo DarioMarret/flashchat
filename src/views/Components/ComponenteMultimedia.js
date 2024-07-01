@@ -11,7 +11,12 @@ function ComponenteMultimedia(props) {
         // validar si la dentro de la imagen hay texto, si hay texto mostrarlo debajo de la imagen
         return (
             <div className="d-flex flex-column gap-2 align-items-center">
-                <img src={item.url} alt="imagen" width={250} />
+                <img src={item.url} alt="imagen" width={250}
+                    style={{ cursor: "pointer" }}
+                    onClick={() => {
+                        window.open(item.url, "_blank");
+                    }}
+                />
                 {item.text !== "" && <span style={{ whiteSpace: "pre-wrap", wordWrap: "break-word" }} >{String(item.text)}</span>}
             </div>
         );
