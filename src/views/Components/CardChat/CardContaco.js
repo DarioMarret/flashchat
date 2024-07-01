@@ -1,5 +1,5 @@
 import { GetTokenDecoded, SetManejoConversacionStorange } from 'function/storeUsuario';
-import { BmHttp, colorPrimario, host } from 'function/util/global';
+import { BmHttp, colorPrimario } from 'function/util/global';
 import { useState } from 'react';
 import {
   Modal
@@ -44,7 +44,7 @@ function CardContacto(props) {
   }
 
   const ListarAgentes = async() => {
-    const url = `${host()}agentes/${GetTokenDecoded().cuenta_id}`
+    const url = `agentes/${GetTokenDecoded().cuenta_id}`
     const { data, status } = await BmHttp().get(url)
     if (status === 200) {
         let ag = []

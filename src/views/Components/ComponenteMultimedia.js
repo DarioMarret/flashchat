@@ -8,16 +8,12 @@ function ComponenteMultimedia(props) {
         return <span style={{ whiteSpace: "pre-wrap", wordWrap: "break-word" }} >{String(item.text)}</span>;
     } else if (item.type === "image") {
         // cuando se haga click en la imagen se debe abrir en un modal
+        // validar si la dentro de la imagen hay texto, si hay texto mostrarlo debajo de la imagen
         return (
-            <img
-                src={item.url}
-                alt="..."
-                className="mr-3"
-                width={250}
-                onClick={() => {
-                    window.open(item.url, "_blank");
-                }}
-            />
+            <div className="d-flex flex-column gap-2 align-items-center">
+                <img src={item.url} alt="imagen" width={250} />
+                {item.text !== "" && <span style={{ whiteSpace: "pre-wrap", wordWrap: "break-word" }} >{String(item.text)}</span>}
+            </div>
         );
     } else if (item.type === "video") {
         return (

@@ -232,15 +232,13 @@ function Dashboard() {
   }
 
   const ListarContactos = async() => {
-    const url = `contactos/${GetTokenDecoded().cuenta_id}?skip=0&take=10`;
-    const { data, status } = await BmHttp().get(url);
+    const { data, status } = await BmHttp().get(`contactos/${GetTokenDecoded().cuenta_id}?skip=0&take=10`);
     if (status === 200) {
       setContactos(data.total);
     }
   }
   const ListarAgentes = async() => {
-    const url = `agentes/${GetTokenDecoded().cuenta_id}`
-    const { data, status } = await BmHttp().get(url)
+    const { data, status } = await BmHttp().get(`agentes/${GetTokenDecoded().cuenta_id}`)
     if (status === 200) {
       setAgentes(data.data);
     }

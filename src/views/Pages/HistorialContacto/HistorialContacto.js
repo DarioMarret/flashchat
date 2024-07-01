@@ -1,5 +1,5 @@
 import { GetTokenDecoded } from 'function/storeUsuario';
-import { BmHttp, host } from 'function/util/global';
+import { BmHttp } from 'function/util/global';
 import moment from 'moment';
 import { useEffect, useRef, useState } from 'react';
 import {
@@ -28,8 +28,7 @@ function HistorialContacto(props) {
     })
 
     const ListarAgentes = async () => {
-        const url = `agentes/${GetTokenDecoded().cuenta_id}`
-        const { data, status } = await BmHttp().get(url)
+        const { data, status } = await BmHttp().get(`agentes/${GetTokenDecoded().cuenta_id}`)
         if (status === 200) {
             let ag = []
             data.data.map((agente, index) => {
@@ -46,16 +45,14 @@ function HistorialContacto(props) {
     }
 
     const ListarEquipos = async () => {
-        let url = host + 'equipo/' + GetTokenDecoded().cuenta_id
-        const { data, status } = await BmHttp().get(url)
+        const { data, status } = await BmHttp().get('equipo/' + GetTokenDecoded().cuenta_id)
         if (status === 200) {
             setEquipos(data.data)
         }
     }
 
     const ListarBots = async () => {
-        const url = `bots/${GetTokenDecoded().cuenta_id}`;
-        const { data, status } = await BmHttp().get(url);
+        const { data, status } = await BmHttp().get(`bots/${GetTokenDecoded().cuenta_id}`);
         if (status === 200) {
             setBots(data.data);
         }
@@ -63,8 +60,7 @@ function HistorialContacto(props) {
 
     const ObtenerContactos = async () => {
         let id = window.location.pathname.split('/')[3]
-        const url = `contacto/${id}`
-        const { data, status } = await BmHttp().get(url)
+        const { data, status } = await BmHttp().get(`contacto/${id}`)
         if (status === 200) {
             setContactos(data.data[0])
         }
