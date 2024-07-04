@@ -209,7 +209,7 @@ export default function Mensajeria() {
       });
       //listar las conversaciones y las precenta en una card con el nombre del contacto, el mensaje, el estado, la fecha y la hora
       socket.on(`response_conversacion_${cuenta_id}`, (data) => {
-        console.log("response_conversacion_: ", data)
+        // console.log("response_conversacion_: ", data)
         const covActiva = GetManejoConversacion();
         setEquipoUsuario(GetTokenDecoded());
         let new_card = [];
@@ -678,6 +678,7 @@ export default function Mensajeria() {
         url: typeInput === "text" ? null : inputStr,
         type: typeInput,
         parems: null,
+        chat_id: covActiva.mensaje.chat_id,
         sessionId: covActiva.sessionIdWebChat
       };
       socket.emit("enviando_mensajes", {

@@ -5,10 +5,18 @@ function ComponenteMultimedia(props) {
         return null;
     }
     if (item.type === "text") {
-        return <span style={{ whiteSpace: "pre-wrap", wordWrap: "break-word" }} >{String(item.text)}</span>;
+        let texto = item.text ? String(item.text) : "";
+        // Expresiones regulares para encontrar texto entre asteriscos y guiones bajos
+        const boldRegex = /\*(.*?)\*/g;
+        const italicRegex = /_(.*?)_/g;
+        // Reemplaza el texto entre asteriscos y guiones bajos con etiquetas <strong> y <em>
+        let formattedText = texto.replace(boldRegex, "<strong>$1</strong>");
+        formattedText = formattedText.replace(italicRegex, "<em>$1</em>");
+        return <span style={{ whiteSpace: "pre-wrap", wordWrap: "break-word" }} dangerouslySetInnerHTML={{ __html: formattedText }} />;
     } else if (item.type === "image") {
         // cuando se haga click en la imagen se debe abrir en un modal
         // validar si la dentro de la imagen hay texto, si hay texto mostrarlo debajo de la imagen
+        let texto = item.text ? String(item.text) : "";
         return (
             <div className="d-flex flex-column gap-2 align-items-center">
                 <img src={item.url} alt="imagen" width={250}
@@ -17,7 +25,9 @@ function ComponenteMultimedia(props) {
                         window.open(item.url, "_blank");
                     }}
                 />
-                {item.text !== "" && <span style={{ whiteSpace: "pre-wrap", wordWrap: "break-word" }} >{String(item.text)}</span>}
+                {item.text !== "" && <span style={{ whiteSpace: "pre-wrap", wordWrap: "break-word" }} >{
+                    texto
+                }</span>}
             </div>
         );
     } else if (item.type === "video") {
