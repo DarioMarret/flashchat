@@ -20,6 +20,11 @@ const bm = () => {
     let token = GetToken();
     // let url = "http://localhost:5002/"
     let url = GetTokenDecoded() !== null ? GetTokenDecoded().cuenta.url_dominio !== "" ? GetTokenDecoded().cuenta.url_dominio : "https://api.flashchat.chat/backflash/" : "https://api.flashchat.chat/backflash/";
+    // validar la expiracion del token
+    if (token === null) {
+        Logout()
+    }
+
     return axios.create({
         baseURL: url,
         headers: {
@@ -29,9 +34,33 @@ const bm = () => {
         timeout: 555550000,
     });
 };
+
+
+
+const Logout = () => {
+    localStorage.removeItem(usuario_token)
+    localStorage.removeItem(usuario_local)
+    localStorage.removeItem(card_mensajes)
+    localStorage.removeItem(estaso_nav)
+    localStorage.removeItem(tabconversacion)
+    localStorage.removeItem(conversacion_activa)
+    window.location.href = "/"
+}
 export const BmHttp = bm;
 const dominio = () => {
     // return "http://localhost:5002/";
     return GetTokenDecoded() !== null ? GetTokenDecoded().cuenta.url_dominio === "" ? "https://api.flashchat.chat/backflash/" : GetTokenDecoded().cuenta.url_dominio : "https://api.flashchat.chat/backflash/";
 }
 export const host = dominio;
+
+const httplogin = () => {
+    return axios.create({
+        baseURL: "https://api.flashchat.chat/backflash/",
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        timeout: 555550000,
+    });
+};
+
+export const HttpLogin = httplogin;

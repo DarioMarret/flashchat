@@ -12,6 +12,10 @@ export const GetToken = () => {
     if(token === null){
         return null;
     }else{
+        let info = DecodeJwt(token);
+        if(info.exp < Date.now() / 1000){
+            return null;
+        }
         return token;
     }
 }

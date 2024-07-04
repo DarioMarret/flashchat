@@ -1,4 +1,4 @@
-import { BmHttp, host, usuario_token } from "function/util/global";
+import { BmHttp, host, HttpLogin, usuario_token } from "function/util/global";
 import useAuth from "hook/useAuth";
 import React from "react";
 
@@ -96,7 +96,7 @@ const LoginPage =(props)=> {
         timer: 1500
       })
     }else{
-      const { data, status } = await BmHttp().post(`${host()}login`, usuario);
+      const { data, status } = await HttpLogin().post(`login`, usuario);
       if (status === 200) {
         if (data.status === 200) {
           localStorage.setItem(usuario_token, data.token);
