@@ -21,10 +21,11 @@ import Inactividad from "views/Pages/Configuracion/Inactividad";
 import Masivos from "views/Pages/Configuracion/Masivos";
 import MensajesAutomaticos from "views/Pages/Configuracion/MensajesAutomaticos";
 import Contactos from "views/Pages/Contactos";
-import Mensajeria from "views/Pages/Mensajeria";
+import Mensajeria from "views/Pages/Mensajeria/Mensajeria";
 import Auths from "views/Pages/auth/Auths";
 
-import { GetTokenDecoded, setDatosUsuario } from "function/storeUsuario";
+import { GetTokenDecoded } from "function/storeUsuario";
+import Swal from "sweetalert2";
 import { AlertBanner } from "views/Components/Alert/Alert";
 import PageContrucion from "views/PageContrucion";
 import Cola from "views/Pages/Cola/Cola";
@@ -89,7 +90,7 @@ export default function App() {
   )
   socket.on('banner', (data) => {
     const { mensaje, cuenta_id } = data;
-    if (cuenta_id === GetTokenDecoded().cuenta_id) {
+    if (GetTokenDecoded() && cuenta_id === GetTokenDecoded().cuenta_id) {
       setMensajeBanner({
         mensaje: mensaje,
         color: data.color,
@@ -105,9 +106,17 @@ export default function App() {
     try {
       const { type, data, agente_id, cuenta_id, estado } = msg;
       if (type === "recargarToken" && agente_id === GetTokenDecoded().id && data !== null) {
-        setDatosUsuario(data)
+        logout();
       }else if (type === "status" && agente_id !== GetTokenDecoded().id && cuenta_id === GetTokenDecoded().cuenta_id) {
         socket.emit('infoUsuario', { type: "online", agente_id: GetTokenDecoded().id, cuenta_id: GetTokenDecoded().cuenta_id, estado: estado});
+      }else if(type === "mensaje_personalizado" && agente_id === GetTokenDecoded().id && cuenta_id === GetTokenDecoded().cuenta_id){
+        Swal.fire({
+          title: 'Mensaje personalizado',
+          text: data.mensaje,
+          icon: data.tipo,
+          confirmButtonText: 'Ok',
+          confirmButtonColor: '#3F98F8',
+        })
       }
     } catch (error) {
       console.log(error)

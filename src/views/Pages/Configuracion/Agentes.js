@@ -22,6 +22,8 @@ function Agentes(props) {
         nombre: '',
         avatar: '',
         correo: '',
+        horario_ini: '',
+        horario_fin: '',
         clave: '',
         newclave: '',
         menu: [],
@@ -39,6 +41,8 @@ function Agentes(props) {
             equipo_id: 0,
             nombre: '',
             avatar: '',
+            horario_fin: '',
+            horario_ini: '',
             correo: '',
             clave: '',
             menu: [],
@@ -75,7 +79,9 @@ function Agentes(props) {
 
     const ListarAgentes = async() => {
         const url = `agentes/${GetTokenDecoded().cuenta_id}`
-        const { data, status } = await BmHttp().get(url)
+        const { data, status } = await BmHttp().get(url, {
+            infomacion: "listar agentes"
+        })
         if (status === 200) {
             let ag = []
             data.data.map((agente, index) => {
@@ -87,6 +93,7 @@ function Agentes(props) {
                     equipo_id: agente.equipo_id,
                     equipo: agente.equipos.equipos,
                     nombre: agente.nombre,
+                    horario: agente.horario_ini + " - " + agente.horario_fin,
                     avatar: agente.avatar === "" ?
                     <img src="https://codigomarret.online/upload/img/chatbot.jpeg" alt="avatar" width={40} className="rounded-circle"/> :   
                     <img src={agente.avatar} alt="avatar" width={40} className="rounded-circle"/>,
@@ -118,6 +125,8 @@ function Agentes(props) {
                                     avatar: agente.avatar,
                                     correo: agente.correo,
                                     contacto: agente.contacto,
+                                    horario_ini: agente.horario_ini,
+                                    horario_fin: agente.horario_fin,
                                     clave: agente.clave,
                                     perfil: agente.perfil,
                                 })
@@ -203,6 +212,7 @@ function Agentes(props) {
             botId: e
         })
     }
+
     const handlebotRemove = (e) => {
         setAgente({
             ...agente,
@@ -276,6 +286,10 @@ function Agentes(props) {
                                 className='align-middle text-white' 
                             >Correo</th>
                             <th
+                                className='align-middle text-white'
+                            >Horario</th>
+
+                            <th
                                 className='align-middle text-white' 
                             >Estado</th>
                             <th
@@ -297,6 +311,7 @@ function Agentes(props) {
                                     <td>{agente.perfil}</td>
                                     <td>{agente.avatar}</td>
                                     <td>{agente.correo}</td>
+                                    <td>{agente.horario !== 'undefined - undefined' ? agente.horario : 'Sin horario'}</td>
                                     <td>{agente.estado}</td>
                                     <td>{agente.contacto}</td>
                                     <td>{agente.accion}</td>
@@ -311,13 +326,15 @@ function Agentes(props) {
                 onHide={handleClose}
                 backdrop="static"
                 keyboard={false}
+                centered={true}
+                size='lg'
             >
                 <Modal.Header >
                     <div
                         className='d-flex justify-content-between w-100'
                     >
                     {
-                        agente.id == 0 ?
+                        agente.id === 0 ?
                         <Modal.Title>Crear Agente</Modal.Title>
                         :
                         <Modal.Title>Editar Agente</Modal.Title>
@@ -345,60 +362,58 @@ function Agentes(props) {
                                 selectedValues={agente.botId}
                             />
                         </Form.Group>
-                        <Form.Group controlId="exampleForm.ControlInput1">
-                            <Form.Label>Nombre</Form.Label>
-                            <Form.Control type="text"
-                                name='nombre'
-                                value={agente.nombre}
-                                onChange={(e) => setAgente({...agente, nombre: e.target.value})}
-                            />
-                        </Form.Group>
-                        <Form.Group controlId="exampleForm.ControlInput1">
-                            <Form.Label>Avatar</Form.Label>
-                            <Form.Control type="file"
-                                accept="image/png, image/jpeg"
-                                name='avatar'
-                                onChange={(e) => CargarAvatar(e.target.files[0])}
-                            />
-                        </Form.Group>
-                        <Form.Group controlId="exampleForm.ControlInput1">
-                            <Form.Label>Correo</Form.Label>
-                            <Form.Control type="email"
-                                name='correo'
-                                value={agente.correo}
-                                onChange={(e) => setAgente({...agente, correo: e.target.value})}
-                            />
-                        </Form.Group>
-                        <Form.Group controlId="exampleForm.ControlInput1">
-                            <Form.Label>Contacto</Form.Label>
-                            <Form.Control type="text"
-                                name='contacto'
-                                value={agente.contacto}
-                                onChange={(e) => setAgente({...agente, contacto: e.target.value})}
-                            />
-                        </Form.Group>
-                        <Form.Group controlId="exampleForm.ControlInput1">
-                            <Form.Label>Clave</Form.Label>
-                            {
-                                agente.id === 0 ?
-                                <Form.Control 
-                                    type="password"
-                                    name='clave'
-                                    autoComplete='off'
-                                    aria-autocomplete='none'
-                                    onChange={(e) => setAgente({...agente, clave: e.target.value})}
+
+                        <Form.Group controlId="exampleForm.ControlInput2" className='d-flex justify-content-between'>
+                            <div className='w-50 p-1'>
+                                <Form.Label>Nombre</Form.Label>
+                                <Form.Control type="text"
+                                    name='nombre'
+                                    value={agente.nombre}
+                                    onChange={(e) => setAgente({...agente, nombre: e.target.value})}
                                 />
-                                :
-                                <Form.Control 
-                                    type="password"
-                                    name='clave'
-                                    autoComplete='off'
-                                    aria-autocomplete='none'
-                                    onChange={(e) => setAgente({...agente, newclave: e.target.value})}
-                                />
-                            }
+                            </div>
+                            <div className='w-50 p-1'>
+                                <Form.Label>Clave</Form.Label>
+                                {
+                                    agente.id === 0 ?
+                                    <Form.Control 
+                                        type="password"
+                                        name='clave'
+                                        autoComplete='off'
+                                        aria-autocomplete='none'
+                                        onChange={(e) => setAgente({...agente, clave: e.target.value})}
+                                    />
+                                    :
+                                    <Form.Control 
+                                        type="password"
+                                        name='clave'
+                                        autoComplete='off'
+                                        aria-autocomplete='none'
+                                        onChange={(e) => setAgente({...agente, newclave: e.target.value})}
+                                    />
+                                }
+                            </div>
                         </Form.Group>
-                        <Form.Group controlId="exampleForm.ControlInput1">
+                        <Form.Group controlId="exampleForm.ControlInput3" className='d-flex justify-content-between'>
+                            <div className='w-50 p-1'>
+                                <Form.Label>Correo</Form.Label>
+                                <Form.Control type="email"
+                                    name='correo'
+                                    value={agente.correo}
+                                    onChange={(e) => setAgente({...agente, correo: e.target.value})}
+                                />
+                            </div>
+                            <div className='w-50 p-1'>
+                                <Form.Label>Contacto</Form.Label>
+                                <Form.Control type="text"
+                                    name='contacto'
+                                    value={agente.contacto}
+                                    onChange={(e) => setAgente({...agente, contacto: e.target.value})}
+                                />
+                            </div>
+                        </Form.Group>
+
+                        <Form.Group controlId="exampleForm.ControlInput4">
                             <Form.Label>Perfil</Form.Label>
                             <Form.Control as="select"
                                 onChange={(e) => setAgente({...agente, perfil: e.target.value})}
@@ -409,20 +424,48 @@ function Agentes(props) {
                                     <option value="Administrador" key={2}>Administrador</option>
                             </Form.Control>
                         </Form.Group>
+                        {/* horario de trabajo */}
+                        <Form.Group controlId="exampleForm.ControlInput5"  className='d-flex justify-content-between'>
+                            <div className='w-50 p-1'>
+                                <Form.Label>Hora Entrada</Form.Label>
+                                <Form.Control type="time"
+                                    name='horario_ini'
+                                    value={agente.horario_ini}
+                                    onChange={(e) => setAgente({...agente, horario_ini: e.target.value})}
+                                />
+                            </div>
+                            <div className='w-50 p-1'>
+                            <Form.Label>Hora Salida </Form.Label>
+                            <Form.Control type="time"
+                                name='horario_fin'
+                                value={agente.horario_fin}
+                                onChange={(e) => setAgente({...agente, horario_fin: e.target.value})}
+                            />
+                            </div>
+                        </Form.Group>
+                        {/* Cargar avatar */}
+                        <Form.Group controlId="exampleForm.ControlInput6">
+                            <Form.Label>Avatar</Form.Label>
+                            <Form.Control type="file"
+                                accept="image/png, image/jpeg"
+                                name='avatar'
+                                onChange={(e) => CargarAvatar(e.target.files[0])}
+                            />
+                        </Form.Group>
                     </Form>
                 </Modal.Body>
                 <Modal.Footer>
                 {
                     agente.id !== 0 ?
-                    <button 
+                    <button
                         className='button-bm mr-2 w-100'
                         onClick={ActualizarAgente}
-                    >Actualizar</button>
+                    >ACTUALIZAR</button>
                     :
-                    <button 
+                    <button
                         className='button-bm mr-2 w-100'
                         onClick={CrearAgente}
-                    >Guardar</button>
+                    >GUARDAR</button>
                 }
                 </Modal.Footer>
 

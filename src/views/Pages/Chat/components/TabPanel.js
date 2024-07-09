@@ -5,6 +5,7 @@ import { BmHttp } from 'function/util/global';
 import useMensajeria from 'hook/useMensajeria';
 import { useEffect, useState } from 'react';
 import Swal from 'sweetalert2';
+import { v4 as uuidv4 } from 'uuid';
 import { CardChat } from 'views/Pages/CardChat';
 import socket from 'views/SocketIO';
 
@@ -133,7 +134,7 @@ function TabPanel(props) {
                         if(item.agente_id === 0){
                             return <CardChat
                                 messageItem={item} 
-                                index={index}
+                                index={ uuidv4() }
                                 verConversacion={() => ManejarConversacion(item)}
                             />
                         }
@@ -150,7 +151,7 @@ function TabPanel(props) {
                         if(item.agente_id === GetTokenDecoded().id){
                             return <CardChat 
                                 messageItem={item} 
-                                index={index}
+                                index={uuidv4()}
                                 verConversacion={() => ManejarConversacion(item)}
                             />
                         }
@@ -163,11 +164,12 @@ function TabPanel(props) {
         return (
             <div className="w-100 d-flex flex-column gap-3 box-items-chat">
                 {newCardMensajes.map((item, index) => {
+                    console.log(item)
                     if(item.mensaje && item.estado !== "Eliminado" && item.estado !== "Resuelta"){
                         return (
                             <CardChat 
                                 messageItem={item} 
-                                index={index}
+                                index={uuidv4()}
                                 verConversacion={() => ManejarConversacion(item)}
                             />
                         );
@@ -185,7 +187,7 @@ function TabPanel(props) {
                             return (
                                 <CardChat 
                                     messageItem={item} 
-                                    index={index}
+                                    index={uuidv4()}
                                     verConversacion={() => ManejarConversacion(item)}
                                 />
                             );

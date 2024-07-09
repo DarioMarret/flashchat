@@ -25,8 +25,8 @@ import useAuth from "hook/useAuth";
 import io from "socket.io-client";
 import ComponenteMultimedia from "views/Components/ComponenteMultimedia";
 import ModalMensaje from "views/Components/Modales/ModalMensaje";
-import InfoHistorialContacto from "./Chat/components/InfoHistorial/InfoHistorialContacto";
-import TabChat from "./Chat/components/Tab";
+import InfoHistorialContacto from "../Chat/components/InfoHistorial/InfoHistorialContacto";
+import TabChat from "../Chat/components/Tab";
 var socket = null;
 try {
   if(dev){
@@ -84,6 +84,7 @@ export default function Mensajeria() {
   
   const [agentes, setAgentes] = useState([]);
   const [inputStr, setInputStr] = useState("");
+  const [linkPreview, setLinkPreview] = useState("");
   const [typeInput, setTypeInput] = useState("text");
   const [showPicker, setShowPicker] = useState(false);
   const [showMensaje, onHideMensaje] = useState(false);
@@ -124,6 +125,17 @@ export default function Mensajeria() {
     setInputStr((prevInput) => prevInput + emojiObject.emoji);
     setShowPicker(false);
   }
+
+  useEffect(() => {
+    // Expresión regular para detectar enlaces
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    const foundLinks = inputStr.match(urlRegex);
+    if (foundLinks && foundLinks.length > 0) {
+      setLinkPreview(foundLinks[0]);
+    } else {
+      setLinkPreview("");
+    }
+  }, [inputStr]);
 
   const ListarAgentes = async() => {
     const { data, status } = await BmHttp().get(`agentes/${GetTokenDecoded().cuenta_id}`)
@@ -701,6 +713,7 @@ export default function Mensajeria() {
       nombreunico: covActiva.nombreunico,
       estado: estado,
       agente_id: GetTokenDecoded().id,
+      mensaje: covActiva.mensaje,
     });
     if(estado !== "Eliminado" || estado !== "Resuelta"){
       SetManejoConversacionStorange({...covActiva,estado: estado})
@@ -713,7 +726,7 @@ export default function Mensajeria() {
     }else{
       const conV = GetManejoConversacion()
       if(conV !== null){
-        console.log("se quita: ", card_mensajes)
+        // console.log("se quita: ", card_mensajes)
         card = card.filter((item) => item.conversacion_id !== covActiva.conversacion_id  && item.contacto_id !== covActiva.contacto_id && covActiva.nombreunico !== item.nombreunico)
         setCard_mensajes(card)
         ContadorCon(card)
@@ -783,6 +796,7 @@ export default function Mensajeria() {
             url: url,
             type: "audio",
             parems: null,
+            chat_id: covActiva.mensaje.chat_id,
           };
           socket.emit("enviando_mensajes", {
             infoClient: infoClient,
@@ -834,6 +848,7 @@ export default function Mensajeria() {
     <MensajeriaContext.Provider value={Mensajeria}>
       <div className="d-flex box-chat box-chat-container flex-column flex-md-row px-0 py-0 position-relative"
         style={{ margin: "0px", height: '100%'}}>
+
         <div className="chat-list bg-chat rounded-start">
           <div className="d-flex py-2 px-2 flex-wrap align-items-center justify-content-between">
             <div className="w-100 m-1">
@@ -1034,8 +1049,8 @@ export default function Mensajeria() {
                 {/* se hace visible las respuesta rapidas que el usuario las puedas seleccionar  */}
                 <textarea
                   className="w-100 rounded border text-dark px-3 bg-chat chat-text py-1"
-                  cols={"2"}
-                  rows={"2"}
+                  cols={"3"}
+                  rows={"3"}
                   placeholder="Escribir ..."
                   disabled={disabledInput}
                   value={inputStr}
@@ -1057,6 +1072,23 @@ export default function Mensajeria() {
                     }
                   }}
                 ></textarea>
+                {linkPreview && (
+                  <div className="link-preview">
+                    {
+                      // ver si es una imagen
+                      linkPreview.includes(".png") || linkPreview.includes(".jpg") || linkPreview.includes(".jpeg") ? (
+                        <img src={linkPreview} alt="link-preview" 
+                          // que la imagen se muestre en un tamaño pequeño
+                          style={{ width: "100px", height: "100px" }}
+                        />
+                      ) : (
+                        <a href={linkPreview} target="_blank" rel="noreferrer">
+                          {linkPreview}
+                        </a>
+                      )
+                    }
+                  </div>
+                )}
               </div>
 
               <div

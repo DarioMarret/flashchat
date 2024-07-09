@@ -439,7 +439,7 @@ function ChatBots(props) {
     const img = document.getElementById('qrImage');
     // Construir la URL de la imagen
     const timestamp = new Date().getTime(); // Obtiene una marca de tiempo única
-    const imageUrl = `qr/${estadoQr.nombreunico}.png?timestamp=${timestamp}`;
+    const imageUrl = `${host()}qr/${estadoQr.nombreunico}.png?timestamp=${timestamp}`;
     // Actualizar el atributo src de la imagen
     img.src = imageUrl;
   }
@@ -477,7 +477,7 @@ function ChatBots(props) {
           accounts: perfil.accounts,
         };
         setUserFb(null);
-        const { data, status } = await BmHttp().post(`${host()}webhookFConfig?cuenta_id=${GetTokenDecoded().cuenta_id}`, datos);
+        const { data, status } = await BmHttp().post(`webhookFConfig?cuenta_id=${GetTokenDecoded().cuenta_id}`, datos);
         if (status === 200) {
           await ListarBots();
           setShow(!show);
@@ -507,6 +507,7 @@ function ChatBots(props) {
           <button className="button-bm active ml-2" onClick={handleClose}>
             Crear nuevo bot
           </button>
+          {/* <FacebookLoginApp/> */}
         </div>
 
         <div className="row my-4">
@@ -527,7 +528,7 @@ function ChatBots(props) {
 
                   </div>
 
-
+                  {/*  Mostrar el boton de qr*/}
                   <div className="w-100 d-flex flex-row gap-3 justify-content-center flex-wrap bot-card-buttons">
                     {ScannerQR(bot.channel_id, bot.nombreunico, bot.estado)}
 
@@ -653,10 +654,11 @@ function ChatBots(props) {
                 // si el canal es facebook o instagram
                 bot.channel_id === 6 || bot.channel_id === 8 ? (
                   <>
+                  {/* <FacebookLoginApp/> */}
                     <FacebookLogin
                       appId="3176667395950990"
                       fields="email,name,picture,accounts"
-                      scope="pages_show_list,public_profile,pages_messaging,pages_read_engagement,pages_manage_metadata,business_management"
+                      scope="pages_show_list,pages_read_engagement,pages_manage_metadata,pages_read_user_content,pages_manage_ads"
                       autoLoad={true}
                       onSuccess={(response) => {
                         console.log('Login Success!', response);

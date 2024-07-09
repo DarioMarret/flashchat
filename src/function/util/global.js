@@ -56,6 +56,7 @@ export const host = dominio;
 const httplogin = () => {
     return axios.create({
         baseURL: "https://api.flashchat.chat/backflash/",
+        // baseURL: "http://localhost:5002/",
         headers: {
             'Content-Type': 'application/json',
         },

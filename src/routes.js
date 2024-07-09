@@ -14,7 +14,7 @@ import Historial from "views/Pages/History/Historial";
 import Integraciones from "views/Pages/Integraciones/Integraciones";
 import LoginPage from "views/Pages/LoginPage";
 import Logs from "views/Pages/Logs/Logs";
-import Mensajeria from "views/Pages/Mensajeria";
+import Mensajeria from "views/Pages/Mensajeria/Mensajeria";
 import Suscripciones from "views/Pages/Suscripcion/Suscripcion";
 
 var routes = [
