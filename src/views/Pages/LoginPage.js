@@ -1,7 +1,6 @@
 import { DecodeJwt } from "function/util/ecrypt";
 import { BmHttp, colorPrimario, HoraServer, host, HttpLogin, usuario_token } from "function/util/global";
 import useAuth from "hook/useAuth";
-import moment from "moment";
 import React from "react";
 
 // react-bootstrap components
@@ -87,60 +86,78 @@ const LoginPage =(props)=> {
   }
 
   const { login, setReloadUser } = useAuth();
+
+  // separar la hora por : para convertirn en numero
+  const separarHora = (hora) => {
+    return parseFloat(hora.split(":").join("."));
+  }
   
   const Login = async (event) => {
     event.preventDefault();
-    if(usuario.correo === "" || usuario.clave === ""){
+    
+    if (usuario.correo === "" || usuario.clave === "") {
       Swal.fire({
         title: 'Error',
-        html: '<p className="text-white">Todos los campos son obligatorios</p>',
+        html: '<p class="text-white">Todos los campos son obligatorios</p>',
         confirmButtonColor: '#000',
         timer: 1500
-      })
-    }else{
+      });
+      return;
+    }
+    
+    try {
       const { data, status } = await HttpLogin().post(`login`, usuario);
+      
       if (status === 200) {
         if (data.status === 200) {
           let info_token = await DecodeJwt(data.token);
           const { activar_ini, horario_ini } = info_token;
-          if(!activar_ini){
+          if (!activar_ini) {
             localStorage.setItem(usuario_token, data.token);
             login(data.token);
             setReloadUser(true);
-          }else{
+          } else {
             let hora_actual = await HoraServer();
-            if(hora_actual === null) return;
+            if (hora_actual === null) return;
             const { hora } = hora_actual;
-            if (activar_ini && moment(horario_ini).format('HH:mm') <= moment(hora).format('HH:mm')) {
+            if (separarHora(hora) >= separarHora(horario_ini)){
               localStorage.setItem(usuario_token, data.token);
               login(data.token);
               setReloadUser(true);
-            }else{
+            } else {
               Swal.fire({
                 title: 'Error',
-                html: '<p className="text-white">Usuario inactivado temporalmente hora de inicio: ' + moment(horario_ini).format('HH:mm') + '</p>',
+                text: `Usuario inactivado temporalmente. Hora de inicio: ${horario_ini} `,
                 confirmButtonColor: colorPrimario,
                 timer: 2000
-              })
+              });
             }
           }
         } else {
           Swal.fire({
             title: 'Error',
-            html: '<p className="text-white">Usuario o contraseña incorrectos</p>',
-            confirmButtonColor: '#000',
-          })
+            html: '<p class="text-white">Usuario o contraseña incorrectos</p>',
+            confirmButtonColor: '#000'
+          });
         }
       } else {
         Swal.fire({
           title: 'Error',
-          html: '<p className="text-white">Error de conexión</p>',
+          html: '<p class="text-white">Error de conexión</p>',
           confirmButtonColor: '#000',
           timer: 2000
-        })
+        });
       }
+    } catch (error) {
+      console.error("Error during login:", error);
+      Swal.fire({
+        title: 'Error',
+        html: '<p class="text-white">Ha ocurrido un error. Por favor, inténtelo de nuevo más tarde.</p>',
+        confirmButtonColor: '#000',
+        timer: 2000
+      });
     }
-  }
+  };
 
   return (
     <>

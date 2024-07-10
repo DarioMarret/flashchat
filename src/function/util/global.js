@@ -66,7 +66,7 @@ const httplogin = () => {
 
 export const HoraServer = async() => {
     try {
-        const { data, status } = await axios.get("https://flashbot.bot/zonahoraria/hora")
+        const { data, status } = await axios.get("https://api.flashchat.chat/backflash/hora")
         if (status === 200) {
             return data;
         }else{
