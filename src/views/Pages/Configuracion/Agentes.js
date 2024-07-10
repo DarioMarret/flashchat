@@ -23,7 +23,9 @@ function Agentes(props) {
         avatar: '',
         correo: '',
         horario_ini: '',
+        activar_ini: false,
         horario_fin: '',
+        activar_fin: false,
         clave: '',
         newclave: '',
         menu: [],
@@ -64,16 +66,6 @@ function Agentes(props) {
             title: 'Se envio la solicitud de recarga',
             showConfirmButton: false,
             timer: 1500
-        })
-    }
-
-    const CerrarSessionAgente = (item) => {
-        socket.emit("recargar_pagina", {
-            type: "cerrar_session",
-            data:{
-                agente_id: item.id,
-                cuenta_id: GetTokenDecoded().cuenta_id
-            }
         })
     }
 
@@ -126,7 +118,9 @@ function Agentes(props) {
                                     correo: agente.correo,
                                     contacto: agente.contacto,
                                     horario_ini: agente.horario_ini,
+                                    activar_ini: agente.activar_ini,
                                     horario_fin: agente.horario_fin,
+                                    activar_fin: agente.activar_fin,
                                     clave: agente.clave,
                                     perfil: agente.perfil,
                                 })
@@ -426,21 +420,43 @@ function Agentes(props) {
                         </Form.Group>
                         {/* horario de trabajo */}
                         <Form.Group controlId="exampleForm.ControlInput5"  className='d-flex justify-content-between'>
-                            <div className='w-50 p-1'>
-                                <Form.Label>Hora Entrada</Form.Label>
-                                <Form.Control type="time"
-                                    name='horario_ini'
-                                    value={agente.horario_ini}
-                                    onChange={(e) => setAgente({...agente, horario_ini: e.target.value})}
-                                />
+                            <div className='w-50 p-1 flex-d justify-content-between'>
+                                <div>
+                                    <Form.Label>Hora Entrada</Form.Label>
+                                    <Form.Control type="time"
+                                        name='horario_ini'
+                                        value={agente.horario_ini}
+                                        onChange={(e) => setAgente({...agente, horario_ini: e.target.value})}
+                                    />
+                                </div>
+                                <div className='d-flex justify-content-center align-items-center'>
+                                    <label className='mx-1'>Activar validacion de entrada</label>
+                                    <input type="checkbox"
+                                        name='activar_ini'
+                                        className=''
+                                        checked={agente.activar_ini}
+                                        onChange={(e) => setAgente({...agente, activar_ini: e.target.checked})}
+                                    />
+                                </div>
                             </div>
-                            <div className='w-50 p-1'>
-                            <Form.Label>Hora Salida </Form.Label>
-                            <Form.Control type="time"
-                                name='horario_fin'
-                                value={agente.horario_fin}
-                                onChange={(e) => setAgente({...agente, horario_fin: e.target.value})}
-                            />
+                            <div className='w-50 p-1 flex-d justify-content-between'>
+                                <div>
+                                    <Form.Label>Hora Salida </Form.Label>
+                                    <Form.Control type="time"
+                                        name='horario_fin'
+                                        value={agente.horario_fin}
+                                        onChange={(e) => setAgente({...agente, horario_fin: e.target.value})}
+                                    />
+                                </div>
+                                <div className='d-flex justify-content-center align-items-center'>
+                                    <label className='mx-1'>Activar validacion de salida</label>
+                                    <input type="checkbox"
+                                        name='activar_fin'
+                                        className=''
+                                        checked={agente.activar_fin}
+                                        onChange={(e) => setAgente({...agente, activar_fin: e.target.checked})}
+                                    />
+                                </div>
                             </div>
                         </Form.Group>
                         {/* Cargar avatar */}

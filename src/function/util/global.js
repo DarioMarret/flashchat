@@ -64,4 +64,17 @@ const httplogin = () => {
     });
 };
 
+export const HoraServer = async() => {
+    try {
+        const { data, status } = await axios.get("https://flashbot.bot/zonahoraria/hora")
+        if (status === 200) {
+            return data;
+        }else{
+            return null;
+        }
+    } catch (error) {
+        return null;
+    }
+}
+
 export const HttpLogin = httplogin;

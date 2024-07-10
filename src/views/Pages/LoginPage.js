@@ -1,5 +1,7 @@
-import { BmHttp, host, HttpLogin, usuario_token } from "function/util/global";
+import { DecodeJwt } from "function/util/ecrypt";
+import { BmHttp, colorPrimario, HoraServer, host, HttpLogin, usuario_token } from "function/util/global";
 import useAuth from "hook/useAuth";
+import moment from "moment";
 import React from "react";
 
 // react-bootstrap components
@@ -99,9 +101,29 @@ const LoginPage =(props)=> {
       const { data, status } = await HttpLogin().post(`login`, usuario);
       if (status === 200) {
         if (data.status === 200) {
-          localStorage.setItem(usuario_token, data.token);
-          login(data.token);
-          setReloadUser(true);
+          let info_token = await DecodeJwt(data.token);
+          const { activar_ini, horario_ini } = info_token;
+          if(!activar_ini){
+            localStorage.setItem(usuario_token, data.token);
+            login(data.token);
+            setReloadUser(true);
+          }else{
+            let hora_actual = await HoraServer();
+            if(hora_actual === null) return;
+            const { hora } = hora_actual;
+            if (activar_ini && moment(horario_ini).format('HH:mm') <= moment(hora).format('HH:mm')) {
+              localStorage.setItem(usuario_token, data.token);
+              login(data.token);
+              setReloadUser(true);
+            }else{
+              Swal.fire({
+                title: 'Error',
+                html: '<p className="text-white">Usuario inactivado temporalmente hora de inicio: ' + moment(horario_ini).format('HH:mm') + '</p>',
+                confirmButtonColor: colorPrimario,
+                timer: 2000
+              })
+            }
+          }
         } else {
           Swal.fire({
             title: 'Error',
