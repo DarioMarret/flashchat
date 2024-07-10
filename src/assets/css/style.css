@@ -2,6 +2,10 @@
   border: 1px solid red;
 }
 
+.border-top-green {
+  border-top: 5px solid green;
+}
+
 .background-backdrop {
   background: #fff;
   backdrop-filter: blur(10px);

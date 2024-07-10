@@ -505,7 +505,7 @@ function ChatBots(props) {
       <Container fluid>
         <div className="d-flex justify-content-start mb-3">
           <button className="button-bm active ml-2" onClick={handleClose}>
-            Crear nuevo bot
+            CREAR BOT
           </button>
           {/* <FacebookLoginApp/> */}
         </div>

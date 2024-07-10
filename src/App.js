@@ -27,7 +27,6 @@ import Auths from "views/Pages/auth/Auths";
 import { GetTokenDecoded } from "function/storeUsuario";
 import Swal from "sweetalert2";
 import { AlertBanner } from "views/Components/Alert/Alert";
-import PageContrucion from "views/PageContrucion";
 import Cola from "views/Pages/Cola/Cola";
 import Cuenta from "views/Pages/Cuenta/Cuenta";
 import Factura from "views/Pages/Factura/Factura";
@@ -35,6 +34,7 @@ import HistorialContacto from "views/Pages/HistorialContacto/HistorialContacto";
 import Historial from "views/Pages/History/Historial";
 import Integraciones from "views/Pages/Integraciones/Integraciones";
 import Logs from "views/Pages/Logs/Logs";
+import Recordatorio from "views/Pages/Recordatorio/Recordatorio";
 import Suscripciones from "views/Pages/Suscripcion/Suscripcion";
 import socket from "views/SocketIO";
 import "./assets/css/style.css";
@@ -244,7 +244,8 @@ export default function App() {
                     />
                     <Route
                       path="/admin/recordatorios"
-                      element={<PageContrucion />}
+                      // element={<PageContrucion />}
+                      element={<Recordatorio />}
                       exact
                     />
                   </Routes>
