@@ -1,5 +1,6 @@
 import { GetTokenDecoded } from "function/storeUsuario";
 import { BmHttp, colorPrimario } from "function/util/global";
+import moment from "moment";
 import { useEffect, useState } from "react";
 import { Container, Modal, Row } from "react-bootstrap";
 import Swal from "sweetalert2";
@@ -7,13 +8,14 @@ import CardRecordatorio from "./CardRecordatorio";
 
 export default function Recordatorio() {
   const [show, setShow] = useState(false);
+  const [showRegendar, setShowRegendar] = useState(false);
   const [bots, setBots] = useState([]);
   const [recordatorios, setRecordatorios] = useState([]);
   const [recordatorio, setRecordatorio] = useState({
     id: 0,
     cuenta_id: GetTokenDecoded().cuenta_id,
     contacto_id: 0,
-    agente_id: 0,
+    agente_id: GetTokenDecoded().agente_id,
     bot_id: 0,
     fecha: "",
     mes: 0,
@@ -23,6 +25,49 @@ export default function Recordatorio() {
     color: "",
     form: {},
   });
+  let [fecha, setFecha] = useState(moment().format("YYYY-MM-DD"));
+  const [openCheck, setOpenCheck] = useState(false);
+  const [infoRecordatorio, setInfoRecordatorio] = useState({
+    info: [],
+    id: 0,
+    fecha: "",
+    hora: "",
+    motivo: "",
+    bot_id: 0,
+    cuenta_id: GetTokenDecoded().cuenta_id,
+    agente_id: GetTokenDecoded().agente_id,
+  });
+
+  const reagendarHandler = () => {
+    setShowRegendar(!showRegendar);
+    if(openCheck){
+      let info = recordatorios.filter((recordatorio) => recordatorio.openCheck === true);
+      setInfoRecordatorio({
+        ...infoRecordatorio,
+        info: info,
+        fecha: recordatorios[0].fecha,
+      });
+      console.log(infoRecordatorio);
+    }
+  };
+
+  const handleOpenCheck = () => {
+    setOpenCheck(!openCheck);
+    let rec = recordatorios.map((recordatorio) => {
+        recordatorio['openCheck'] = !openCheck;
+        return recordatorio;
+    });
+    setInfoRecordatorio({
+        ...infoRecordatorio,
+        info: rec,
+        fecha: recordatorios[0].fecha,
+    });
+    if(openCheck === false){
+        setInfoRecordatorio({
+            info: [],
+        });
+    }
+  }
 
   const handClose = () => {
     setShow(!show);
@@ -36,21 +81,53 @@ export default function Recordatorio() {
     }
   };
 
-  const ListarRecordatiorios = async () => {
-    const { data, status } = await BmHttp().get(
-      "recordatorio/" + GetTokenDecoded().cuenta_id
-    );
+  const ListarRecordatiorios = async (fecha) => {
+    const { data, status } = await BmHttp().get(`recordatorio/${GetTokenDecoded().cuenta_id}?fecha=${fecha}`);
     if (status !== 200) return console.error("Error al listar recordatorios");
-    setRecordatorios(data.data);
+    setFecha(fecha);
+    setRecordatorios(data.data.map((recordatorio) => {
+        recordatorio['openCheck'] = openCheck;
+      return recordatorio;
+    }));
   };
 
+  const EliminarRecordatorio = async (id) => {
+    let info = recordatorios.filter((recordatorio) => recordatorio.openCheck === true);
+    const { status } = await BmHttp().post("recordatorio/" + id, {
+      info: info,
+    })
+    if (status !== 200) {
+      Swal.fire({
+        icon: "error",
+        title: "Error al eliminar recordatorio",
+        showConfirmButton: false,
+        timer: 1500,
+      });
+    } else {
+      Swal.fire({
+        icon: "success",
+        title: "Recordatorio eliminado",
+        showConfirmButton: false,
+        timer: 1500,
+      });
+      ListarRecordatiorios(fecha);
+    }
+  }
+
   const ReagendarRecordatorio = async () => {
-    const { status } = await BmHttp().put("recordatorio_reagendar", {
-      id: recordatorio.id,
-      fecha: recordatorio.fecha,
-      hora: recordatorio.hora,
-      estado: recordatorio.estado,
-    });
+    let info = recordatorios.filter((recordatorio) => recordatorio.openCheck === true);
+    let re = {
+      info: info,
+      id: parseInt(infoRecordatorio.id),
+      fecha: infoRecordatorio.fecha,
+      hora: infoRecordatorio.hora,
+      motivo: infoRecordatorio.motivo,
+      cuenta_id: GetTokenDecoded().cuenta_id,
+      agente_id: GetTokenDecoded().agente_id,
+      bot_id: infoRecordatorio.bot_id,
+      estado: "Reagendado",
+    }
+    const { status } = await BmHttp().put("recordatorio_reagendar", re);
     if (status !== 200) {
       Swal.fire({
         icon: "error",
@@ -65,7 +142,8 @@ export default function Recordatorio() {
         showConfirmButton: false,
         timer: 1500,
       });
-      handClose();
+      setShowRegendar(false);
+      setShow(false);
       await ListarRecordatiorios();
     }
   };
@@ -86,8 +164,8 @@ export default function Recordatorio() {
         showConfirmButton: false,
         timer: 1500,
       });
+      await ListarRecordatiorios(fecha);
       handClose();
-      await ListarRecordatiorios();
     }
   };
 
@@ -101,7 +179,7 @@ export default function Recordatorio() {
   useEffect(() => {
     (async () => {
       try {
-        await ListarRecordatiorios();
+        await ListarRecordatiorios(moment().format("YYYY-MM-DD"));
         await ListarBots();
       } catch (error) {
         console.error(error);
@@ -125,26 +203,87 @@ export default function Recordatorio() {
           <button
             className="button-bm active ml-2"
             style={{ 'width': '50px'}}
-            onClick={() => setShow(true)}
+            onClick={() => 
+              ListarRecordatiorios(moment(fecha).subtract(1, 'days').format("YYYY-MM-DD"))
+            }
           >
             <span class="material-symbols-outlined">arrow_back_ios</span>
           </button>
 
+            {/* en la mita que se vea la fecha, para listar todo */}
+            <div className="d-flex justify-content-center w-50 text-center">
+              <h5>{
+                fecha !== "" ? (
+                  fecha
+                ) : ("")
+                }</h5>
+              <a href="#;" className="text-primary mx-2"
+                onClick={() => 
+                  setFecha("")+
+                  ListarRecordatiorios("")
+                }
+              >
+                Listar todo
+              </a>
+            </div>
+
           <button
             className="button-bm active ml-2"
             style={{ 'width': '50px'}}
-            onClick={() => setShow(true)}
+            onClick={() => 
+              ListarRecordatiorios(moment(fecha).add(1, 'days').format("YYYY-MM-DD"))
+            }
           >
             <span class="material-symbols-outlined">arrow_forward_ios</span>
           </button>
         </div>
 
+        {
+          recordatorios.length !== 0 ? (
+          <div className="d-flex justify-content-between">
+            <div className="d-flex">
+              <label>
+                  Seleccionar todo
+              </label>
+              <input type="checkbox" 
+                  className="mx-2"
+                  onClick={handleOpenCheck}
+              />
+              {
+                openCheck ? (
+                <div className="d-flex">
+                  <a href="#;" className="text-danger mx-2"
+                    onClick={() => EliminarRecordatorio(0)}
+                  >
+                    Eliminar
+                  </a>
+                  <a href="#;" className="text-primary mx-2"
+                    onClick={() => reagendarHandler()}
+                  >
+                    Reagendar
+                  </a>
+                </div>
+                ) : ("")
+              }
+            </div>
+
+          </div>) : ("")
+        }
+
         <Row className="mt-2">
           {recordatorios.map((recordatorio, index) => (
             <CardRecordatorio
               key={index}
+              recordatorios={recordatorios}
+              setRecordatorios={setRecordatorios}
               recordatorio={recordatorio}
               index={index + 1}
+              EliminarRecordatorio={EliminarRecordatorio}
+              ReagendarRecordatorio={ReagendarRecordatorio}
+              handleOpenCheck={handleOpenCheck}
+              openCheck={openCheck}
+              setInfoRecordatorio={setInfoRecordatorio}
+              infoRecordatorio={infoRecordatorio}
             />
           ))}
         </Row>
@@ -209,6 +348,8 @@ export default function Recordatorio() {
                 <input
                   type="time"
                   name="hora"
+                  // de intevalo de tiempo cada 30 minutos
+                  step="1800"
                   value={recordatorio.hora}
                   onChange={handleOnchange}
                   className="form-control"
@@ -261,6 +402,60 @@ export default function Recordatorio() {
             </button>
           </Modal.Footer>
         </Modal>
+
+        {/* All reagendar */}
+        <Modal
+        size="md"
+        show={showRegendar}
+        onHide={reagendarHandler}
+        aria-labelledby="example-modal-sizes-title-lg"
+      >
+        <Modal.Header>
+          <Modal.Title id="example-modal-sizes-title-lg">Reagendar</Modal.Title>
+          <button
+            type="button"
+            className="btn-dark mr-2 w-10"
+            onClick={reagendarHandler}
+          >
+            <i className="fa fa-times"></i>
+          </button>
+        </Modal.Header>
+
+        <Modal.Body>
+          <form className="w-100">
+            <div className="form-group">
+              <label htmlFor="tiempo">Fecha</label>
+              <input
+                type="date"
+                className="form-control"
+                placeholder="Fecha"
+                value={infoRecordatorio.fecha}
+                onChange={(e) => setInfoRecordatorio({ ...infoRecordatorio, fecha: moment(e.target.value).format("YYYY-MM-DD") })}
+              />
+            </div>
+
+            {/* Si hay un checkout activo entoces no se actualizar la hora solo la fecha y el motivo */}
+
+            <div className="form-group mt-2">
+              <label htmlFor="tiempo">Motivo</label>
+              <input
+                type="text"
+                className="form-control"
+                id="nombre_bot"
+                placeholder="Escriba el motivo"
+                value={infoRecordatorio.motivo}
+                onChange={(e) => setInfoRecordatorio({ ...infoRecordatorio, motivo: e.target.value })}
+              />
+            </div>
+
+            <button type="submit" className="button-bm w-100 mt-3"
+              onClick={() => ReagendarRecordatorio()}
+            >
+              Reagendar
+            </button>
+          </form>
+        </Modal.Body>
+      </Modal>
       </Container>
     </>
   );
