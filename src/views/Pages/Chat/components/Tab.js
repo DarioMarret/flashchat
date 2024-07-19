@@ -1,3 +1,4 @@
+import { GetTokenDecoded } from 'function/storeUsuario';
 import { colorPrimario, tabconversacion } from 'function/util/global';
 import useMensajeria from 'hook/useMensajeria';
 import { useEffect, useState } from 'react';
@@ -6,11 +7,13 @@ import {
   Spinner,
   Tab
 } from 'react-bootstrap';
+import { useSelector } from 'react-redux';
 import TabPanel from './TabPanel';
 
 
 function TabChat(props) {
     const { onHideMensaje, countC, card_mensajes, loading } = props;
+    const { mensaje_card, historial, pingMensaje } = useSelector(state => state.mensajeria);
     const [misConversaciones, setMisConversaciones] = useState('Sin leer');
 
     const { historyInfo, ping } = useMensajeria();
@@ -25,7 +28,7 @@ function TabChat(props) {
         if(tab){
             setMisConversaciones(tab)
         }
-    }, [misConversaciones])
+    }, [misConversaciones, mensaje_card])
 
     return (
         <>
@@ -37,7 +40,9 @@ function TabChat(props) {
                   className="gap-1 d-flex"
                   style={{ fontSize: '13px' }}>
                   <span className="">Sin leer</span>
-                  <span className="text-warning">{countC.sinLeer}</span>
+                  <span className="text-warning">{
+                    mensaje_card.filter(item => item.agente_id === 0).length
+                  }</span>
                 </Nav.Link>
               </Nav.Item>
 
@@ -46,7 +51,9 @@ function TabChat(props) {
                   className="gap-1 d-flex"
                   style={{ fontSize: '13px' }}>
                   <span className="">Mias</span>
-                  <span className="text-warning">{countC.misConversaciones}</span>
+                  <span className="text-warning">{
+                    mensaje_card.filter(item => item.agente_id === GetTokenDecoded().id).length
+                  }</span>
                 </Nav.Link>
               </Nav.Item>
 
@@ -54,7 +61,9 @@ function TabChat(props) {
                 <Nav.Link eventKey="Todas" 
                   className="gap-1 d-flex"
                   style={{ fontSize: '13px' }}>
-                  Todos <span className="text-warning">{countC.todas}</span>
+                  Todos <span className="text-warning">{
+                    mensaje_card.length
+                  }</span>
                 </Nav.Link>
               </Nav.Item>
               

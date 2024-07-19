@@ -186,11 +186,14 @@ function Sidebar({ routes, image, background }) {
                     <li>
                       <a
                         className="profile-dropdown"
-                        href="#pablo"
-                        onClick={(e) => e.preventDefault()}
+                        href="/admin/perfil"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          window.location.href = "/admin/perfil";
+                        }}
                       >
                         <span className="sidebar-mini">MP</span>
-                        <span className="sidebar-normal">My Profile</span>
+                        <span className="sidebar-normal">MI PERFIL</span>
                       </a>
                     </li>
                     {/* <li>

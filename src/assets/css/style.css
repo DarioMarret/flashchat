@@ -1,3 +1,7 @@
+.draggable-recordatorio {
+  cursor: move;
+}
+
 .background-red {
   border: 1px solid red;
 }
@@ -310,6 +314,17 @@
 .chat-messages {
   width: 100%;
   height: 100%;
+}
+
+.chat-list-transition {
+  transition: opacity 0.5s ease, max-height 0.5s ease;
+  overflow: hidden;
+  opacity: 1;
+  max-height:  100%; /* Ajusta según tus necesidades */
+}
+.chat-list-transition.hidden {
+  opacity: 0;
+  max-height: 0;
 }
 
 .tab-content {

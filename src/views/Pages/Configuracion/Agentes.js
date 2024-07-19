@@ -8,6 +8,7 @@ import {
     Form,
     Modal
 } from 'react-bootstrap';
+import { useDispatch, useSelector } from 'react-redux';
 import Swal from 'sweetalert2';
 import socket from 'views/SocketIO';
 
@@ -31,8 +32,23 @@ function Agentes(props) {
         menu: [],
         contacto: '',
         perfil: '',
-        botId: []
+        botId: [],
+        dias_laborales: [
+            {
+                agente_id: GetTokenDecoded().id,
+                lunes: false,
+                martes: false,
+                miercoles: false,
+                jueves: false,
+                viernes: false,
+                sabado: false,
+                domingo: false,
+                id: 0
+            }
+        ]
     })
+    const dispatch = useDispatch();
+    const agentesredux = useSelector(state => state.agentes.agentes);
 
     const [bots, setBots] = useState([])
     const handleClose = () => {
@@ -50,6 +66,20 @@ function Agentes(props) {
             menu: [],
             contacto: '',
             perfil: '',
+            botId: [],
+            dias_laborales: [
+                {
+                    agente_id: GetTokenDecoded().id,
+                    lunes: false,
+                    martes: false,
+                    miercoles: false,
+                    jueves: false,
+                    viernes: false,
+                    sabado: false,
+                    domingo: false,
+                    id: 0
+                }
+            ]
         })
     }
 
@@ -123,6 +153,7 @@ function Agentes(props) {
                                     activar_fin: agente.activar_fin,
                                     clave: agente.clave,
                                     perfil: agente.perfil,
+                                    dias_laborales: agente.dias_laborales
                                 })
                                 setShow(!show)
                             }}
@@ -458,6 +489,82 @@ function Agentes(props) {
                                     />
                                 </div>
                             </div>
+
+                        </Form.Group>
+                        <Form.Group controlId="exampleForm.ControlInput5">
+                            {/* activar dias laborares */}
+                            {
+                                agente.dias_laborales.length > 0 ?
+                                    <div className='w-100 p-1'>
+                                        <Form.Label>Dias laborales</Form.Label>
+                                        <div className='d-flex justify-content-between'>
+                                            <div className='d-flex justify-content-center align-items-center'>
+                                                <label className='mx-1'>Lunes</label>
+                                                <input type="checkbox"
+                                                    name='lunes'
+                                                    className=''
+                                                    checked={agente.dias_laborales[0].lunes}
+                                                    onChange={(e) => setAgente({...agente, dias_laborales: [{...agente.dias_laborales[0], lunes: e.target.checked}]})}
+                                                />
+                                            </div>
+                                            <div className='d-flex justify-content-center align-items-center'>
+                                                <label className='mx-1'>Martes</label>
+                                                <input type="checkbox"
+                                                    name='martes'
+                                                    className=''
+                                                    checked={agente.dias_laborales[0].martes}
+                                                    onChange={(e) => setAgente({...agente, dias_laborales: [{...agente.dias_laborales[0], martes: e.target.checked}]})}
+                                                />
+                                            </div>
+                                            <div className='d-flex justify-content-center align-items-center'>
+                                                <label className='mx-1'>Miercoles</label>
+                                                <input type="checkbox"
+                                                    name='miercoles'
+                                                    className=''
+                                                    checked={agente.dias_laborales[0].miercoles}
+                                                    onChange={(e) => setAgente({...agente, dias_laborales: [{...agente.dias_laborales[0], miercoles: e.target.checked}]})}
+                                                />
+                                            </div>
+                                            <div className='d-flex justify-content-center align-items-center'>
+                                                <label className='mx-1'>Jueves</label>
+                                                <input type="checkbox"
+                                                    name='jueves'
+                                                    className=''
+                                                    checked={agente.dias_laborales[0].jueves}
+                                                    onChange={(e) => setAgente({...agente, dias_laborales: [{...agente.dias_laborales[0], jueves: e.target.checked}]})}
+                                                />
+                                            </div>
+                                            <div className='d-flex justify-content-center align-items-center'>
+                                                <label className='mx-1'>Viernes</label>
+                                                <input type="checkbox"
+                                                    name='viernes'
+                                                    className=''
+                                                    checked={agente.dias_laborales[0].viernes}
+                                                    onChange={(e) => setAgente({...agente, dias_laborales: [{...agente.dias_laborales[0], viernes: e.target.checked}]})}
+                                                />
+                                            </div>
+                                            <div className='d-flex justify-content-center align-items-center'>
+                                                <label className='mx-1'>Sabado</label>
+                                                <input type="checkbox"
+                                                    name='sabado'
+                                                    className=''
+                                                    checked={agente.dias_laborales[0].sabado}
+                                                    onChange={(e) => setAgente({...agente, dias_laborales: [{...agente.dias_laborales[0], sabado: e.target.checked}]})}
+                                                />
+                                            </div>
+                                            <div className='d-flex justify-content-center align-items-center'>
+                                                <label className='mx-1'>Domingo</label>
+                                                <input type="checkbox"
+                                                    name='domingo'
+                                                    className=''
+                                                    checked={agente.dias_laborales[0].domingo}
+                                                    onChange={(e) => setAgente({...agente, dias_laborales: [{...agente.dias_laborales[0], domingo: e.target.checked}]})}
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    : null
+                            }
                         </Form.Group>
                         {/* Cargar avatar */}
                         <Form.Group controlId="exampleForm.ControlInput6">

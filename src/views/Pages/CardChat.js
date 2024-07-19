@@ -1,4 +1,4 @@
-import { GetTokenDecoded, SetManejoConversacionStorange } from 'function/storeUsuario';
+import { GetManejoConversacion, GetTokenDecoded, SetManejoConversacionStorange } from 'function/storeUsuario';
 import { BmHttp, colorPrimario } from 'function/util/global';
 import useMensajeria from 'hook/useMensajeria';
 import { useState } from 'react';
@@ -6,10 +6,12 @@ import {
   Dropdown, DropdownItem, DropdownMenu, DropdownToggle,
   Modal
 } from 'react-bootstrap';
+import { useDispatch } from 'react-redux';
 import Swal from 'sweetalert2';
 import socket from 'views/SocketIO';
 
 function CardChat(props) {
+  const dispatch = useDispatch();
   const { index, messageItem, verConversacion } = props;
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const { historyInfo } = useMensajeria();
@@ -97,6 +99,29 @@ function CardChat(props) {
     historyInfo()
   }
 
+  const RemoverEtiqueta = async (etiqueta, et) => {
+    const { data } = await BmHttp().post(`conversacion_etiqueta`, {
+        cuenta_id: GetTokenDecoded().cuenta_id,
+        conversacion_id: etiqueta.conversacion_id,
+        contacto_id: etiqueta.contacto_id,
+        nombreunico: etiqueta.nombreunico,
+        etiqueta: et,
+        accion: 'remover'
+    })
+    if (data.status === 200) {
+      historyInfo()
+      let covActiva = GetManejoConversacion();
+      covActiva.etiquetas_estado = data.data.etiquetas_estado
+      socket.emit("listar_conversacion", {
+        cuenta_id: GetTokenDecoded().cuenta_id,
+        equipo_id: null,
+        agente_id: GetTokenDecoded().id,
+        estado: null,
+      })
+      SetManejoConversacionStorange(covActiva)
+    }
+  }
+
   useState(() => {
     (async()=>{
       await ListarAgentes()
@@ -145,7 +170,7 @@ function CardChat(props) {
         </div>
 
         <div className="d-flex gap-2 align-items-center p-2 cursor-pointer" 
-        onClick={verConversacion}>
+          onClick={verConversacion}>
           <div className="w-25 d-flex flex-column align-items-center justify-content-center">
             <div className="w-25 rounded d-flex align-items-center justify-content-center">
                 <img src={ messageItem.url_avatar } className="rounded-circle" width="50px" height="50px"/>
@@ -173,7 +198,12 @@ function CardChat(props) {
 
             <div className="d-flex flex-row justify-content-between my-1" 
             style={{ lineHeight: '17px'}}>
-              <small className="text-dark">
+              <small className="text-dark"
+                //cuando pase el mouse mostrar el mensaje completo
+                data-toggle="tooltip"
+                data-placement="top"
+                title={messageItem.mensaje.type === "text" ? messageItem.mensaje.text : null}
+              >
                 {
                   // limitar la cantidad de caracteres a mostrar
                   messageItem.mensaje.type === "text"
@@ -218,8 +248,36 @@ function CardChat(props) {
             <span className="w-20 text-dark font-bold"
               style={{ fontSize: "12px" }}
             >
-            Ag: {NombreAgente(messageItem.agente_id)}
+              Ag: {NombreAgente(messageItem.agente_id)}
             </span>
+          </div>
+          <div className="d-flex justify-content-between">
+            <span className="w-20 text-dark font-bold"
+              style={{ fontSize: "12px" }}
+            >
+              Etiqueta: {" "}
+              {
+                messageItem.etiquetas_estado !== null ?
+                  messageItem.etiquetas_estado.map((et, index) => {
+                    if (et !== null && et !== "" && et !== undefined){
+                      return (
+                        <span
+                          key={index + 1}
+                          className="chat-tag rounded text-white"
+                          style={{ background: et.color }}
+                        >
+                          <i className="fas fa-times-circle"
+                            onClick={() => RemoverEtiqueta(messageItem, et)}
+                            style={{ cursor: 'pointer' }}
+                          ></i>
+                          {et.etiquetas}
+                        </span>
+                      );
+                    }
+                  }): null
+              }
+            </span>
+            
           </div>
         </div>
       </div>

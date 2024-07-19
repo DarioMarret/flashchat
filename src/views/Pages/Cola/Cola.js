@@ -22,6 +22,7 @@ function Cola(props) {
             await ListarEquipos(data.data);
         }
     }
+
     const ListarEquipos = async (agent) => {
         try {
             const { data } = await BmHttp().get(`equipo/${GetTokenDecoded().cuenta_id}`);
@@ -37,11 +38,9 @@ function Cola(props) {
                     })
                 })
                 setAgentes(agent);
-                socket.emit("listar_conversacion", {
-                    cuenta_id: cuenta_id,
-                    equipo_id: null,
-                    agente_id: null,
-                    estado: null,
+                socket.emit("listar_conversacion_cola", {
+                    cuenta_id: GetTokenDecoded().cuenta_id,
+                    agente_id: GetTokenDecoded().id,
                 });
             }
         } catch (error) {
@@ -57,21 +56,23 @@ function Cola(props) {
     }, [])
     
 
-    // useEffect(() => {
-        socket.on(`response_conversacion_${cuenta_id}`, (data) => {
-            if(data.length > 0){
-                setTotalConevrsacion(data);
-                agentes.map((agente, index) => {
-                    let conversacion = data.filter((conversacion) => conversacion.agente_id === agente.id);
-                    agentes[index]['conversacion'] = conversacion;
-                })
-                setAgenteConConversacion(agentes)
-                if(agentes.length > 0){
-                    setAgentes(agentes);
+    useEffect(() => {
+        if(socket){
+            socket.on(`response_conversacion_${cuenta_id}_${GetTokenDecoded().id}`, (data) => {
+                if(data && data.length > 0){
+                    setTotalConevrsacion(data);
+                    agentes.map((agente, index) => {
+                        let conversacion = data.filter((conversacion) => conversacion.agente_id === agente.id);
+                        agentes[index]['conversacion'] = conversacion;
+                    })
+                    setAgenteConConversacion(agentes)
+                    if(agentes.length > 0){
+                        setAgentes(agentes);
+                    }
                 }
-            }
-        })
-    // }, [])
+            })
+        }
+    }, [socket])
 
 
     return (

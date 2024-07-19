@@ -3,6 +3,7 @@ import { BmHttp, colorPrimario } from "function/util/global";
 import moment from "moment";
 import { useEffect, useState } from "react";
 import { Container, Modal, Row } from "react-bootstrap";
+import Draggable from "react-draggable";
 import Swal from "sweetalert2";
 import CardRecordatorio from "./CardRecordatorio";
 
@@ -37,6 +38,26 @@ export default function Recordatorio() {
     cuenta_id: GetTokenDecoded().cuenta_id,
     agente_id: GetTokenDecoded().agente_id,
   });
+  const [positions, setPositions] = useState({});
+
+
+  // Cargar posiciones desde localStorage cuando el componente se monte
+  useEffect(() => {
+    const savedPositions = localStorage.getItem('recordatorioPositions');
+    if (savedPositions) {
+      setPositions(JSON.parse(savedPositions));
+    }
+  }, []);
+
+   // Guardar la posición en localStorage cuando cambie
+  const handleDragStop = (index, e, data) => {
+    const newPosition = { x: data.x, y: data.y };
+    setPositions((prevPositions) => {
+      const updatedPositions = { ...prevPositions, [index]: newPosition };
+      localStorage.setItem('recordatorioPositions', JSON.stringify(updatedPositions));
+      return updatedPositions;
+    });
+  }; 
 
   const reagendarHandler = () => {
     setShowRegendar(!showRegendar);
@@ -270,23 +291,33 @@ export default function Recordatorio() {
           </div>) : ("")
         }
 
-        <Row className="mt-2">
-          {recordatorios.map((recordatorio, index) => (
-            <CardRecordatorio
-              key={index}
-              recordatorios={recordatorios}
-              setRecordatorios={setRecordatorios}
-              recordatorio={recordatorio}
-              index={index + 1}
-              EliminarRecordatorio={EliminarRecordatorio}
-              ReagendarRecordatorio={ReagendarRecordatorio}
-              handleOpenCheck={handleOpenCheck}
-              openCheck={openCheck}
-              setInfoRecordatorio={setInfoRecordatorio}
-              infoRecordatorio={infoRecordatorio}
-            />
-          ))}
-        </Row>
+            <Row className="mt-2">
+                {recordatorios.map((recordatorio, index) => (
+                  <Draggable
+                    key={index}
+                    position={positions[index] || { x: 0, y: 0 }}
+                    onStop={(e, data) => handleDragStop(index, e, data)}
+                  >
+                    <div className="draggable-recordatorio" 
+                      style={{ width: "18rem" }}
+                    >
+                      <CardRecordatorio
+                        key={index}
+                        recordatorios={recordatorios}
+                        setRecordatorios={setRecordatorios}
+                        recordatorio={recordatorio}
+                        index={index + 1}
+                        EliminarRecordatorio={EliminarRecordatorio}
+                        ReagendarRecordatorio={ReagendarRecordatorio}
+                        handleOpenCheck={handleOpenCheck}
+                        openCheck={openCheck}
+                        setInfoRecordatorio={setInfoRecordatorio}
+                        infoRecordatorio={infoRecordatorio}
+                      />
+                    </div>
+                  </Draggable>
+                ))}
+            </Row>
 
         <Modal show={show} onHide={handClose}>
           <Modal.Header>

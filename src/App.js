@@ -5,8 +5,10 @@ import Sidebar from "components/Sidebar/Sidebar";
 import AuthContext from "context/AuthContext";
 import { GetToken, removeDatosUsuario } from "function/storeUsuario";
 import React, { useEffect, useMemo, useState } from "react";
+import { Provider } from "react-redux";
 import { Navigate, Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import routes from "routes";
+import store from "./redux/store";
 
 import image3 from "assets/img/full-screen-image-3.jpg";
 import { RemoverConversacion } from "function/storeUsuario";
@@ -34,6 +36,7 @@ import HistorialContacto from "views/Pages/HistorialContacto/HistorialContacto";
 import Historial from "views/Pages/History/Historial";
 import Integraciones from "views/Pages/Integraciones/Integraciones";
 import Logs from "views/Pages/Logs/Logs";
+import Perfil from "views/Pages/Perfil/Perfil";
 import Recordatorio from "views/Pages/Recordatorio/Recordatorio";
 import Suscripciones from "views/Pages/Suscripcion/Suscripcion";
 import socket from "views/SocketIO";
@@ -126,160 +129,166 @@ export default function App() {
 
   if (auth === undefined) return null;
   return (
-    <AuthContext.Provider value={authData}>
-      <Router>
-        {!auth ? (
-            <>
-              <div className="wrapper wrapper-full-page">
-                <Auths />
-              </div>
-            </>
-        ) : (
-          <>
-            <div className="wrapper">
-              <Sidebar routes={routes} image={sidebarImage} 
-                // background={colorPrimario}
-                background={sidebarBackground}
-              />
-              <div className="main-panel">
-                <AlertBanner 
-                  message={mensajeBanner.mensaje} 
-                  type={mensajeBanner.tipo}
-                  btnColor={mensajeBanner.btnColor}
-                  setMensajeBanner={setMensajeBanner}
-                />
-                <AdminNavbar />
-                
-                <div className="content pt-2" style={{ overflow: 'auto'}}>
-                  <Routes
-                    basename="/"
-                    forceRefresh={true}
-                    initialEntries={["/admin/dashboard"]}
-                  >
-                    <Route
-                      path="/admin/dashboard"
-                      element={<Dashboard />}
-                      exact
-                    />
-                    <Route
-                      path="/admin/cuenta"
-                      element={<Cuenta />}
-                      exact
-                    />
-                    <Route
-                      path="/admin/suscripciones"
-                      element={<Suscripciones />}
-                      exact
-                    />
-                    <Route
-                      path="/admin/en-cola"
-                      element={<Cola />}
-                      exact
-                    />
-                    <Route
-                      path="/admin/factura"
-                      element={<Factura />}
-                      exact
-                    />
-                    <Route
-                      path="/admin/historial-contacto/:id"
-                      element={<HistorialContacto />}
-                      exact
-                    />
-                    <Route
-                      path="/admin/historial"
-                      element={<Historial />}
-                      exact
-                    />
-                    <Route path="/*" element={<Navigate to="admin/dashboard" replace />} />
-                    <Route
-                      path="/admin/mensajeria"
-                      element={<Mensajeria />}
-                      exact
-                    />
-                    <Route
-                      path="/admin/contactos"
-                      element={<Contactos />}
-                      exact
-                    />
-                    <Route path="/admin/equipos" element={<Equipos />} exact />
-                    <Route path="/admin/agentes" element={<Agentes />} exact />
-                    <Route
-                      path="/admin/etiquetas"
-                      element={<Etiquetas exact />}
-                    />
-                    <Route
-                      path="/admin/horarios-atencion"
-                      element={<HorarioAtencion />}
-                      exact
-                    />
-                    <Route path="/admin/equipos" element={<Equipos />} exact />
-                    <Route
-                      path="/admin/mensajes-automaticos"
-                      element={<MensajesAutomaticos />}
-                      exact
-                    />
-                    <Route
-                      path="/admin/inactividad"
-                      element={<Inactividad />}
-                      exact
-                    />
-                    <Route path="/admin/masivos" element={<Masivos />} exact />
-                    <Route
-                      path="/admin/ocr"
-                      element={<ComprobantesOcr />}
-                      exact
-                    />
-                    <Route path="/admin/bots" element={<ChatBots />} exact />
-                    {/* <Route path="/admin/sweet-alert" element={<SweetAlertPage />} exact /> */}
-                    <Route
-                      path="/admin/integraciones"
-                      element={<Integraciones />}
-                      exact
-                    />
-                    <Route 
-                      path="/admin/logs"
-                      element={<Logs/>}
-                      exact
-                    />
-                    <Route
-                      path="/admin/recordatorios"
-                      // element={<PageContrucion />}
-                      element={<Recordatorio />}
-                      exact
-                    />
-                  </Routes>
+    <Provider store={store}>
+      <AuthContext.Provider value={authData}>
+        <Router>
+          {!auth ? (
+              <>
+                <div className="wrapper wrapper-full-page">
+                  <Auths />
                 </div>
-                {/* <AdminFooter /> */}
-                <div
-                  className="close-layer"
-                  onClick={() =>
-                    document.documentElement.classList.toggle("nav-open")
-                  }
+              </>
+          ) : (
+            <>
+              <div className="wrapper">
+                <Sidebar routes={routes} image={sidebarImage} 
+                  // background={colorPrimario}
+                  background={sidebarBackground}
                 />
+                <div className="main-panel">
+                  <AlertBanner 
+                    message={mensajeBanner.mensaje} 
+                    type={mensajeBanner.tipo}
+                    btnColor={mensajeBanner.btnColor}
+                    setMensajeBanner={setMensajeBanner}
+                  />
+                  <AdminNavbar />
+                  
+                  <div className="content pt-2" style={{ overflow: 'auto'}}>
+                    <Routes
+                      basename="/"
+                      forceRefresh={true}
+                      initialEntries={["/admin/dashboard"]}
+                    >
+                      <Route
+                        path="/admin/dashboard"
+                        element={<Dashboard />}
+                        exact
+                      />
+                      <Route
+                        path="/admin/cuenta"
+                        element={<Cuenta />}
+                        exact
+                      />
+                      <Route
+                        path="/admin/suscripciones"
+                        element={<Suscripciones />}
+                        exact
+                      />
+                      <Route
+                        path="/admin/en-cola"
+                        element={<Cola />}
+                        exact
+                      />
+                      <Route
+                        path="/admin/factura"
+                        element={<Factura />}
+                        exact
+                      />
+                      <Route
+                        path="/admin/historial-contacto/:id"
+                        element={<HistorialContacto />}
+                        exact
+                      />
+                      <Route
+                        path="/admin/historial"
+                        element={<Historial />}
+                        exact
+                      />
+                      <Route path="/*" element={<Navigate to="admin/dashboard" replace />} />
+                      <Route
+                        path="/admin/mensajeria"
+                        element={<Mensajeria />}
+                        exact
+                      />
+                      <Route
+                        path="/admin/contactos"
+                        element={<Contactos />}
+                        exact
+                      />
+                      <Route path="/admin/equipos" element={<Equipos />} exact />
+                      <Route path="/admin/agentes" element={<Agentes />} exact />
+                      <Route
+                        path="/admin/etiquetas"
+                        element={<Etiquetas exact />}
+                      />
+                      <Route
+                        path="/admin/horarios-atencion"
+                        element={<HorarioAtencion />}
+                        exact
+                      />
+                      <Route path="/admin/equipos" element={<Equipos />} exact />
+                      <Route
+                        path="/admin/mensajes-automaticos"
+                        element={<MensajesAutomaticos />}
+                        exact
+                      />
+                      <Route
+                        path="/admin/inactividad"
+                        element={<Inactividad />}
+                        exact
+                      />
+                      <Route path="/admin/masivos" element={<Masivos />} exact />
+                      <Route
+                        path="/admin/ocr"
+                        element={<ComprobantesOcr />}
+                        exact
+                      />
+                      <Route path="/admin/bots" element={<ChatBots />} exact />
+                      {/* <Route path="/admin/sweet-alert" element={<SweetAlertPage />} exact /> */}
+                      <Route
+                        path="/admin/integraciones"
+                        element={<Integraciones />}
+                        exact
+                      />
+                      <Route 
+                        path="/admin/logs"
+                        element={<Logs/>}
+                        exact
+                      />
+                      <Route
+                        path="/admin/recordatorios"
+                        // element={<PageContrucion />}
+                        element={<Recordatorio />}
+                        exact
+                      />
+                      <Route path="/admin/perfil"
+                        element={<Perfil />}
+                        exact
+                      />
+                    </Routes>
+                  </div>
+                  {/* <AdminFooter /> */}
+                  <div
+                    className="close-layer"
+                    onClick={() =>
+                      document.documentElement.classList.toggle("nav-open")
+                    }
+                  />
+                </div>
               </div>
-            </div>
-            {/* <FixedPlugin
-              setSidebarImageParent={(value) => setSidebarImage(value)}
-              sidebarDefaultImage={sidebarImage}
-              sidebarImages={[image1, image2, image3, image4]}
-              backgroundColors={[
-                "black",
-                "azure",
-                "green",
-                "orange",
-                "red",
-                "purple",
-              ]}
-              backgroundColor={sidebarBackground}
-              setSidebarBackgroundParent={(value) =>
-                setSidebarBackground(value)
-              }
-            /> */}
-          </>
-        )}
-      </Router>
-      
-    </AuthContext.Provider>
+              {/* <FixedPlugin
+                setSidebarImageParent={(value) => setSidebarImage(value)}
+                sidebarDefaultImage={sidebarImage}
+                sidebarImages={[image1, image2, image3, image4]}
+                backgroundColors={[
+                  "black",
+                  "azure",
+                  "green",
+                  "orange",
+                  "red",
+                  "purple",
+                ]}
+                backgroundColor={sidebarBackground}
+                setSidebarBackgroundParent={(value) =>
+                  setSidebarBackground(value)
+                }
+              /> */}
+            </>
+          )}
+        </Router>
+        
+      </AuthContext.Provider>
+    </Provider>
   );
 }
