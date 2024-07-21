@@ -7,7 +7,7 @@ export const card_mensajes = "card_mensajes:";
 export const estaso_nav = "estado:";
 export const tabconversacion = "tabconversacion:";
 export const conversacion_activa = "conversacion_activa";
-export const dev = false;
+export const dev = true;
 export const proxy = "backflash"
 export const plantillas_360 = "https://waba.360dialog.io/v1/configs/templates?offset=0&limit=1000&sort=business_templates.name&filters={}"
 export const host_360 = "https://waba.360dialog.io/v1/messages"

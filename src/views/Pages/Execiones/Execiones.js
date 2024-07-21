@@ -39,7 +39,7 @@ export default function Execiones() {
             confirmButtonText: 'Si',
         }).then((result) => {
             if (result.isConfirmed) {
-                EliminarExeciones();
+                EliminarExeciones(item.id);
             }
         });
     }
@@ -125,8 +125,8 @@ export default function Execiones() {
             ListarExeciones();
         }
     }
-    const EliminarExeciones = async () => {
-        const { data } = await BmHttp().delete(`execion_numero/${numero.id}`, numero);
+    const EliminarExeciones = async (id) => {
+        const { data } = await BmHttp().delete(`execion_numero/${id}`, numero);
         if (data.status === 200) {
             ListarExeciones();
         }

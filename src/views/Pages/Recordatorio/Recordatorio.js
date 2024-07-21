@@ -103,9 +103,12 @@ export default function Recordatorio() {
   };
 
   const ListarRecordatiorios = async (fecha) => {
-    const { data, status } = await BmHttp().get(`recordatorio/${GetTokenDecoded().cuenta_id}?fecha=${fecha}`);
+    let slectedDate = fecha
+    if(fecha !== ""){
+      setFecha(fecha);
+    }
+    const { data, status } = await BmHttp().get(`recordatorio/${GetTokenDecoded().cuenta_id}?fecha=${slectedDate}`);
     if (status !== 200) return console.error("Error al listar recordatorios");
-    setFecha(fecha);
     setRecordatorios(data.data.map((recordatorio) => {
         recordatorio['openCheck'] = openCheck;
       return recordatorio;
@@ -240,7 +243,6 @@ export default function Recordatorio() {
                 }</h5>
               <a href="#;" className="text-primary mx-2"
                 onClick={() => 
-                  setFecha("")+
                   ListarRecordatiorios("")
                 }
               >
