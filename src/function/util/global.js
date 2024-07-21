@@ -47,7 +47,11 @@ const Logout = () => {
 export const BmHttp = bm;
 
 const dominio = () => {
-    return  GetTokenDecoded() && GetTokenDecoded().cuenta.url_dominio ? GetTokenDecoded().cuenta.url_dominio : dev ? "https://flash.codigomarret.com/backflash/" : "https://api.flashchat.chat/backflash/";
+    if(GetTokenDecoded() === null){
+        return  dev ? "https://flash.codigomarret.com/backflash/" : "https://api.flashchat.chat/backflash/";
+    }
+    return GetTokenDecoded().cuenta.url_dominio
+    // return  GetTokenDecoded() && GetTokenDecoded().cuenta.url_dominio ? GetTokenDecoded().cuenta.url_dominio : dev ? "https://flash.codigomarret.com/backflash/" : "https://api.flashchat.chat/backflash/";
 }
 export const host = dominio;
 

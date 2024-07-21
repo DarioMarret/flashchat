@@ -32,6 +32,7 @@ import CardTab from "./components/CardTab/CardTab";
 
 var socket = null;
 try {
+  if(GetTokenDecoded() !== null){
     socket = io.connect(String(host()).replace(`/${proxy}/`, ""), {
       path: `/${proxy}/socket.io/socket.io.js`,
       transports: ["websocket"],
@@ -39,6 +40,7 @@ try {
         sessionId: GetTokenDecoded().id
       }
     });
+  }
 } catch (error) {
   console.log(error) 
 }
@@ -750,6 +752,7 @@ export default function Mensajeria() {
   const historyInfo =()=>{
     setPing(Math.random())
   }
+
   const verHistorial=(item)=>{
     if(item.length>0){
       setConversacionActiva(item)

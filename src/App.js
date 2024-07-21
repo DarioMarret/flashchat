@@ -26,8 +26,6 @@ import Contactos from "views/Pages/Contactos";
 import Mensajeria from "views/Pages/Mensajeria/Mensajeria";
 import Auths from "views/Pages/auth/Auths";
 
-import { GetTokenDecoded } from "function/storeUsuario";
-import Swal from "sweetalert2";
 import { AlertBanner } from "views/Components/Alert/Alert";
 import Cola from "views/Pages/Cola/Cola";
 import Cuenta from "views/Pages/Cuenta/Cuenta";
@@ -40,12 +38,11 @@ import Logs from "views/Pages/Logs/Logs";
 import Perfil from "views/Pages/Perfil/Perfil";
 import Recordatorio from "views/Pages/Recordatorio/Recordatorio";
 import Suscripciones from "views/Pages/Suscripcion/Suscripcion";
-import socket from "views/SocketIO";
 import "./assets/css/style.css";
 
 export default function App() {
   const [auth, setAuth] = useState(undefined);
-  
+  // const dispatch = useDispatch();
   const [ReloadUser, setReloadUser] = useState(false);
   const [sidebarImage, setSidebarImage] = React.useState(image3);
   const [sidebarBackground, setSidebarBackground] = React.useState("black")
@@ -92,42 +89,6 @@ export default function App() {
     }),
     [auth]
   )
-  if(GetTokenDecoded() && GetTokenDecoded().cuenta_id){
-    socket.on('banner_'+GetTokenDecoded().cuenta_id, (data) => {
-      const { mensaje, cuenta_id } = data;
-      if (GetTokenDecoded() && cuenta_id === GetTokenDecoded().cuenta_id) {
-        setMensajeBanner({
-          mensaje: mensaje,
-          color: data.color,
-          btnColor: data.btnColor,
-          tipo: data.tipo,
-          cuenta_id: cuenta_id,
-          tiempo: data.tiempo
-        });
-      }
-    })
-  
-    socket.on("infoUsuario_"+GetTokenDecoded().cuenta_id, (msg) => {
-      try {
-        const { type, data, agente_id, cuenta_id, estado } = msg;
-        if (type === "recargarToken" && agente_id === GetTokenDecoded().id && data !== null) {
-          logout();
-        }else if (type === "status" && agente_id !== GetTokenDecoded().id && cuenta_id === GetTokenDecoded().cuenta_id) {
-          socket.emit('infoUsuario', { type: "online", agente_id: GetTokenDecoded().id, cuenta_id: GetTokenDecoded().cuenta_id, estado: estado});
-        }else if(type === "mensaje_personalizado" && agente_id === GetTokenDecoded().id && cuenta_id === GetTokenDecoded().cuenta_id){
-          Swal.fire({
-            title: 'Mensaje personalizado',
-            text: data.mensaje,
-            icon: data.tipo,
-            confirmButtonText: 'Ok',
-            confirmButtonColor: '#3F98F8',
-          })
-        }
-      } catch (error) {
-        console.log(error)
-      }
-    })
-  }
 
 
   if (auth === undefined) return null;
@@ -146,6 +107,7 @@ export default function App() {
               <div className="wrapper">
                 <Sidebar routes={routes} image={sidebarImage} 
                   // background={colorPrimario}
+                  setMensajeBanner={setMensajeBanner}
                   background={sidebarBackground}
                 />
                 <div className="main-panel">

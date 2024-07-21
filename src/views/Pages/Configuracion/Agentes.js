@@ -11,11 +11,14 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import Swal from 'sweetalert2';
 import socket from 'views/SocketIO';
+import { addAgente } from '../../../redux/Agentes/agente.servicio';
 
 function Agentes(props) {
+    const dispatch = useDispatch();
+    const { agenteArray } = useSelector(state => state.agentes);
     const [show, setShow] = useState(false);
 
-    const [agentes, setAgentes] = useState([])
+    const [agentes, setAgentes] = useState(agenteArray)
     const [equipos, setEquipos] = useState([])
     const [agente, setAgente] = useState({
         cuenta_id: GetTokenDecoded().cuenta_id,
@@ -47,8 +50,7 @@ function Agentes(props) {
             }
         ]
     })
-    const dispatch = useDispatch();
-    const agentesredux = useSelector(state => state.agentes.agentes);
+    
 
     const [bots, setBots] = useState([])
     const handleClose = () => {
@@ -100,14 +102,13 @@ function Agentes(props) {
     }
 
     const ListarAgentes = async() => {
-        const url = `agentes/${GetTokenDecoded().cuenta_id}`
-        const { data, status } = await BmHttp().get(url, {
-            infomacion: "listar agentes"
-        })
-        if (status === 200) {
+        // const url = `agentes/${GetTokenDecoded().cuenta_id}`
+        // const { data, status } = await BmHttp().get(url, {
+        //     infomacion: "listar agentes"
+        // })
+        // if (status === 200) {
             let ag = []
-            data.data.map((agente, index) => {
-                console.log(agente.avatar)
+            agenteArray.map((agente, index) => {
                 ag.push({
                     id: agente.id,
                     botId: agente.botId,
@@ -120,6 +121,7 @@ function Agentes(props) {
                     <img src="https://codigomarret.online/upload/img/chatbot.jpeg" alt="avatar" width={40} className="rounded-circle"/> :   
                     <img src={agente.avatar} alt="avatar" width={40} className="rounded-circle"/>,
                     correo: agente.correo,
+                    live: agente.estado,
                     estado: agente.estado === 'offline' ? <button className="btn btn text-danger" disabled={true} >Offline</button>
                     : <button disabled={true} className="btn btn text-success">Online</button>,
                     contacto: agente.contacto,
@@ -169,7 +171,7 @@ function Agentes(props) {
                 })
             })
             setAgentes(ag)
-        }
+        // }
     }
 
     const ListarBots = async() => {
@@ -205,6 +207,7 @@ function Agentes(props) {
                 showConfirmButton: false,
                 timer: 1500
             }).then(() => {
+                dispatch(addAgente())
                 ListarAgentes()
                 handleClose()
             })
@@ -268,6 +271,7 @@ function Agentes(props) {
         const url = `agentes/${agente.id}`
         const { data, status } = await BmHttp().put(url, agente)
         if (status === 200) {
+            dispatch(addAgente())
             ListarAgentes()
             handleClose()
         }
@@ -275,11 +279,12 @@ function Agentes(props) {
 
     useEffect(() => {
         (async()=>{
+            dispatch(addAgente())
             await ListarAgentes()
             await ListarEquipos()
             await ListarBots()
         })()
-    }, [])
+    }, [agenteArray])
 
     return (
         <>
@@ -289,7 +294,19 @@ function Agentes(props) {
                     onClick={handleClose}
                 >Crear agente</button>
             </div>
+            <div className='d-flex justify-content-between'>
+                <div className='d-flex justify-content-start'>
+                    <h4 className='text-center'>Agentes</h4>
+                </div>
+                <div className='d-flex justify-content-end'>
+                    <h4 className='text-center mx-1'>Total: {agentes.length}</h4>
+                    <h4 className='text-center mx-1 text-success'>Online: {agentes.filter(agente => agente.live === 'online').length}</h4>
+                    <h4 className='text-center mx-1 text-danger'>Offline: {agentes.filter(agente => agente.live === 'offline').length}</h4>
+                </div>
+            </div>
             <Card style={{ overflow: 'auto' }}>
+                {/* Catidad de usuario total total en online o total en ofline */}
+
                 <table responsive className="table-personalisado ">
                     <thead className='table-active'>
                         <tr 

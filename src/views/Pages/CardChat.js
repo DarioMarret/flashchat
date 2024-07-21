@@ -16,7 +16,7 @@ function CardChat(props) {
   // const { mensaje_card, ver_conversacion, historial, pingMensaje } = useSelector(state => state.mensajeria);
   const { index, messageItem, verConversacion } = props;
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const { historyInfo } = useMensajeria();
+  const { historyInfo, verHistorial } = useMensajeria();
 
   const toggle = () => setDropdownOpen((prevState) => !prevState);
   const [show, setShow] = useState(false);
@@ -40,6 +40,7 @@ function CardChat(props) {
           SetManejoConversacionStorange({...messageItem, cuenta_id: GetTokenDecoded().cuenta_id})
           GetActivaConversacion(messageItem)
           EventoAsignacionAgente(messageItem)
+          historyInfo()
         }
       })
     }else if(messageItem.agente_id === GetTokenDecoded().id){
@@ -55,7 +56,7 @@ function CardChat(props) {
       });
       dispatch({ type: 'SET_HISTORIAL', payload: [] });
       dispatch({ type: 'SET_VER_CONVERSACION', payload: [] });
-
+      historyInfo()
     }else{
       SetManejoConversacionStorange({...messageItem, cuenta_id: GetTokenDecoded().cuenta_id})//se guarda en localstorage la conversacion activa
       socket.emit("asignacion_agente", { // se asigna el agente a la conversacion
@@ -81,6 +82,7 @@ function CardChat(props) {
       agente_id: GetTokenDecoded().id,
       nombreunico: item.nombreunico,
     })
+    historyInfo()
   }
   const EventoAsignacionAgente = (item) => {
     socket.emit("asignacion_agente", {

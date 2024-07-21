@@ -6,18 +6,64 @@ import { Link, useLocation } from "react-router-dom";
 // react-bootstrap components
 import { GetTokenDecoded } from "function/storeUsuario";
 import { colorPrimario } from "function/util/global";
+import useAuth from "hook/useAuth";
 import {
   Collapse,
   Nav
 } from "react-bootstrap";
+import { useDispatch } from "react-redux";
+import Swal from "sweetalert2";
+import socket from "views/SocketIO";
+import { addAgente } from "../../redux/Agentes/agente.servicio";
 
-function Sidebar({ routes, image, background }) {
+function Sidebar({ routes, image, background, setMensajeBanner }) {
+  const { logout } = useAuth();
+  const dispatch = useDispatch();
   // to check for active links and opened collapses
   let location = useLocation();
   // const navigate = useNavigate();
   // this is for the user collapse
   const [userCollapseState, setUserCollapseState] = React.useState(false);
   // this is for the rest of the collapses
+  if(GetTokenDecoded() && GetTokenDecoded().cuenta_id){
+    socket.on('banner_'+GetTokenDecoded().cuenta_id, (data) => {
+      const { mensaje, cuenta_id } = data;
+      if (GetTokenDecoded() && cuenta_id === GetTokenDecoded().cuenta_id) {
+        setMensajeBanner({
+          mensaje: mensaje,
+          color: data.color,
+          btnColor: data.btnColor,
+          tipo: data.tipo,
+          cuenta_id: cuenta_id,
+          tiempo: data.tiempo
+        });
+      }
+    })
+  
+    socket.on("infoUsuario_"+GetTokenDecoded().cuenta_id+'_'+GetTokenDecoded().id, (msg) => {
+      try {
+        const { type, data, agente_id, cuenta_id, estado } = msg;
+        console.log(msg)
+        if (type === "recargarToken" && agente_id === GetTokenDecoded().id && data !== null) {
+          logout();
+        }else if (type === "status" && agente_id === GetTokenDecoded().id && cuenta_id === GetTokenDecoded().cuenta_id) {
+          socket.emit('infoUsuario', { type: "online", agente_id, cuenta_id, estado});
+          dispatch(addAgente());
+        }else if(type === "mensaje_personalizado" && agente_id === GetTokenDecoded().id && cuenta_id === GetTokenDecoded().cuenta_id){
+          Swal.fire({
+            title: 'Mensaje personalizado',
+            text: data.mensaje,
+            icon: data.tipo,
+            confirmButtonText: 'Ok',
+            confirmButtonColor: '#3F98F8',
+          })
+        }
+      } catch (error) {
+        console.log(error)
+      }
+    })
+  }
+
   const [state, setState] = React.useState({});
   React.useEffect(() => {
     setState(getCollapseStates(routes));
