@@ -8,10 +8,12 @@ import {
   Dropdown, DropdownItem, DropdownMenu, DropdownToggle
 } from 'react-bootstrap';
 import Draggable from 'react-draggable';
+import { useSelector } from 'react-redux';
 import ComponenteMultimedia from 'views/Components/ComponenteMultimedia';
 import socket from 'views/SocketIO';
 
 function InfoHistorialContacto(props) {
+    const { agenteArray } = useSelector(state => state.agentes)
     const [etiquetas, setEtiquetas] = useState([])
     const [agentes, setAgentes] = useState([]);
     const [activarNota, setActivarNota] = useState(false)
@@ -24,6 +26,11 @@ function InfoHistorialContacto(props) {
     const { historyInfo, ping, verHistorial } = useMensajeria();
     const [isVisible, setIsVisible] = useState(true); // Estado de visibilidad
     const [position, setPosition] = useState({ x: 0, y: 0 });
+
+    const [paginacion , setPaginacion] = useState({
+        init: 0,
+        end: 5
+    })
 
 
     
@@ -50,7 +57,7 @@ function InfoHistorialContacto(props) {
               setContactoHistorial([])
               return null
             }
-            const { data, status } = await BmHttp().post(`conversacion_historial?init=${0}&end=${5}`, {
+            const { data, status } = await BmHttp().post(`conversacion_historial?init=${paginacion.init}&end=${paginacion.end}`, {
                 cuenta_id: GetTokenDecoded().cuenta_id,
                 contacto_id: conV.contacto_id,
                 nombreunico: conV.nombreunico,
@@ -72,7 +79,7 @@ function InfoHistorialContacto(props) {
                     index === self.findIndex((t) => (
                         t.conversacion_id === item.conversacion_id
                     )))
-                setContactoHistorial(card)
+                setContactoHistorial([...card, ...contactoHistorial])
             }
 
         } catch (error) {
@@ -80,33 +87,28 @@ function InfoHistorialContacto(props) {
         }
     }
 
-    const VerHistorialIDConversacion = async (conversacion_id, contacto_id) => {
-        var conversacion = []
-        verHistorialC.map((item) => {
-            if (item.conversacion_id === conversacion_id && item.contacto_id === contacto_id) {
-                conversacion.push(item)
-            }
-        })
-        conversacion.sort((a, b) => a.id - b.id)
-        verHistorial(conversacion)
+    const VerHistorialIDConversacion = async (conversacion_id, contacto_id, nombreunico) => {
+      const { data, status } = await BmHttp().post(`conversacion_historial?init=0&end=0`, {
+        cuenta_id: GetTokenDecoded().cuenta_id,
+        contacto_id: contacto_id,
+        conversacion_id: conversacion_id,
+        nombreunico: nombreunico,
+      })
+      if (status === 200) {
+        verHistorial(data.data)
+      }
     }
 
     const ListarAgentes = async () => {
-        const url = `agentes/${GetTokenDecoded().cuenta_id}`
-        const { data, status } = await BmHttp().get(url)
-        if (status === 200) {
-            let ag = []
-            data.data.map((agente, index) => {
-                ag.push({
-                    id: agente.id,
-                    cuenta_id: agente.cuenta_id,
-                    nombre: agente.nombre,
-                })
-            })
-            setAgentes(ag)
-        } else {
-            setAgentes([])
-        }
+      let ag = []
+      agenteArray.map((agente, index) => {
+        ag.push({
+          id: agente.id,
+          cuenta_id: agente.cuenta_id,
+          nombre: agente.nombre,
+        })
+      })
+      setAgentes(ag)
     }
 
     const AgregarEtiqueta = async (etiqueta) => {
@@ -149,83 +151,16 @@ function InfoHistorialContacto(props) {
             historyInfo()
             socket.emit("listar_conversacion", {
               cuenta_id: GetTokenDecoded().cuenta_id,
-              equipo_id: null,
               agente_id: GetTokenDecoded().id,
-              estado: null,
             })
         }
     }
-
-    // const CompomenteMultimedis = (item) => {
-    //     if (item === null || item === undefined) {
-    //         return null;
-    //     }
-    //     if (item.type === "text") {
-    //         return <span style={{ whiteSpace: "pre-wrap", wordWrap: "break-word" }} >{String(item.text)}</span>;
-    //     } else if (item.type === "image") {
-    //         // cuando se haga click en la imagen se debe abrir en un modal
-    //         return (
-    //             <img
-    //                 src={item.url}
-    //                 alt="..."
-    //                 className="mr-3"
-    //                 width={250}
-    //                 onClick={() => {
-    //                     window.open(item.url, "_blank");
-    //                 }}
-    //             />
-    //         );
-    //     } else if (item.type === "video") {
-    //         return (
-    //             <video controls width={250}>
-    //                 <source src={item.url} type="video/mp4" />
-    //             </video>
-    //         )
-    //     } else if (item.type === "contact") {
-    //         return <span className="">{String(item.text)}</span>;
-    //     } else if (item.type === "file") {
-    //         // preview del archivo
-    //         if (item.url.split('.').pop() === 'xlsx' || item.url.split('.').pop() === 'xls') {
-    //             // si es xlsx mostrar el icono de excel y cuando se haga click descargar el archivo
-    //             return (
-    //                 <div className="d-flex gap-2">
-    //                     <span className="material-symbols-outlined">insert_drive_file</span>
-    //                     <a href={item.url} download>
-    //                         {item.url.split('/').pop()}
-    //                     </a>
-    //                 </div>
-    //             )
-    //             // si es .json .exe .docx .doc .pptx .ppt .txt .zip .rar mostrar el icono de archivo y cuando se haga click descargar el archivo
-    //         } else if (item.url.split('.').pop() === 'json' || item.url.split('.').pop() === 'exe' || item.url.split('.').pop() === 'docx' || item.url.split('.').pop() === 'doc' || item.url.split('.').pop() === 'pptx' || item.url.split('.').pop() === 'ppt' || item.url.split('.').pop() === 'txt' || item.url.split('.').pop() === 'zip' || item.url.split('.').pop() === 'rar') {
-    //             return (
-    //                 <div className="d-flex gap-2">
-    //                     <span className="material-symbols-outlined">insert_drive_file</span>
-    //                     <a href={item.url} download>
-    //                         {item.url.split('/').pop()}
-    //                     </a>
-    //                 </div>
-    //             )
-    //         } else {
-    //             return <iframe src={item.url} height="400px"></iframe>;
-    //         }
-
-    //     } else if (item.type === "audio") {
-    //         return (
-    //             <audio controls>
-    //                 <source src={item.url} type="audio/ogg" />
-    //             </audio>
-    //         );
-    //     } else {
-    //         return null;
-    //     }
-    // }
 
     const HandleActivarNota = () => {
         setActivarNota(!activarNota)
     }
 
     const HandleGuardarNota = () => {
-        // guardar la nota
         let covActiva = GetManejoConversacion()
         socket.emit('guardar_nota', {
             cuenta_id: GetTokenDecoded().cuenta_id,
@@ -238,17 +173,15 @@ function InfoHistorialContacto(props) {
         covActiva.nota = nota
         SetManejoConversacionStorange(covActiva)
         historyInfo()
-        //limpiar el input
         setNota('')
-        //cerrar el input
         setActivarNota(false)
     }
 
     useEffect(() => {
         (async () => {
             setInfoContacto(GetManejoConversacion())
+            ListarAgentes()
             await ListarEtiquetas()
-            await ListarAgentes()
             await HistorialContacto()
         })()
     }, [ping])
@@ -259,6 +192,13 @@ function InfoHistorialContacto(props) {
         if (savedPosition) {
         setPosition(JSON.parse(savedPosition));
         }
+      // validar si hay una conversacion activa
+      if (GetManejoConversacion() === null) {
+        setIsVisible(false)
+      }else{
+        setIsVisible(true)
+      }
+
     }, []);
     // Guardar la posición en localStorage cuando cambie
     const handleDragStop = (e, data) => {
@@ -266,6 +206,8 @@ function InfoHistorialContacto(props) {
         setPosition(newPosition);
         localStorage.setItem('buttonPosition', JSON.stringify(newPosition));
     };
+
+
 
     return (
         <>
@@ -434,7 +376,27 @@ function InfoHistorialContacto(props) {
                         <ComponenteMultimedia item={item.mensajes} />
                       </p>
                     </div>
+                    
                   ))}
+                    {/* una opcion para ver cargar mas conversaciones */}
+                    {
+                      contactoHistorial.length === 0 ? (
+                        <div className="w-100 d-flex justify-content-center">
+                          <span className="text-span font-bold box-info-text">No hay conversaciones anteriores</span>
+                        </div>
+                      ) : 
+                      <div className="w-100 d-flex justify-content-center">
+                        <button className="button-bm ml-2"
+                          onClick={() => 
+                            setPaginacion({init: paginacion.init + 5, end: paginacion.end + 5})+
+                            HistorialContacto()
+                          }> 
+                            <i className="fas fa-plus"></i> Cargar más conversaciones
+                        </button>
+                      </div>
+                    }
+
+
                 </div>
               </div>
             </div>

@@ -6,7 +6,7 @@ import mensajeriaReducer from './Mensajeria/mensajeria.redux';
 
 const rootReducer = combineReducers({
     agentes: agentesReducer,
-    mensajeria: mensajeriaReducer
+    mensajeria: mensajeriaReducer,
     // Otros reducers pueden ser añadidos aquí
 });
 

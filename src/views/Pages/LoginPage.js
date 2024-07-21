@@ -1,5 +1,5 @@
 import { DecodeJwt } from "function/util/ecrypt";
-import { BmHttp, colorPrimario, HoraServer, host, HttpLogin, usuario_token } from "function/util/global";
+import { BmHttp, colorPrimario, HoraServer, host, HttpLogin, tabconversacion, usuario_token } from "function/util/global";
 import useAuth from "hook/useAuth";
 import React from "react";
 
@@ -9,10 +9,12 @@ import {
   Card,
   Form
 } from "react-bootstrap";
+import { useDispatch } from "react-redux";
 import Swal from "sweetalert2";
 
 
 const LoginPage =(props)=> {
+  const dispatch = useDispatch();
   const [cardClasses, setCardClasses] = React.useState("card-hidden");
   const [demoStatus, setDemoStatus] = React.useState(false);
   const [agenda, setAgenda] = React.useState({
@@ -123,6 +125,7 @@ const LoginPage =(props)=> {
             if (separarHora(hora) >= separarHora(horario_ini)){
               localStorage.setItem(usuario_token, data.token);
               login(data.token);
+              localStorage.setItem(tabconversacion, 'Sin leer');
               setReloadUser(true);
             } else {
               Swal.fire({

@@ -22,22 +22,25 @@ function Cola(props) {
             await ListarEquipos(data.data);
         }
     }
+    useEffect(() => {
+        (async()=>{
+            setCuenta_id(GetTokenDecoded().cuenta_id);
+            await ListarAgentes();
+        })()
+    }, [])
 
     const ListarEquipos = async (agent) => {
         try {
             const { data } = await BmHttp().get(`equipo/${GetTokenDecoded().cuenta_id}`);
-            if(data.status === 200){
-                agent.map((item, i) => {
-                    agent[i]['equipo'] = [];
-                    data.data.map((equipo, index) => {
-                        equipo.agenteId.map((agente, index) => {
-                            if(agente.id === item.id){
-                                agent[i]['equipo'].push(equipo.equipos);
-                            }
-                        })
-                    })
-                })
-                setAgentes(agent);
+            if (data.status === 200) {
+                const updatedAgents = agent.map((item) => {
+                    const equipos = data.data.filter((equipo) => 
+                        equipo.agenteId.some((agente) => agente.id === item.id)
+                    ).map((equipo) => equipo.equipos);
+                    return { ...item, equipo: equipos };
+                });
+    
+                setAgentes(updatedAgents);
                 socket.emit("listar_conversacion_cola", {
                     cuenta_id: GetTokenDecoded().cuenta_id,
                     agente_id: GetTokenDecoded().id,
@@ -47,34 +50,50 @@ function Cola(props) {
             console.log(error);
         }
     }
-
-    useEffect(() => {
-        (async()=>{
-            setCuenta_id(GetTokenDecoded().cuenta_id);
-            await ListarAgentes();
-        })()
-    }, [])
     
-
     useEffect(() => {
-        if(socket){
-            socket.on(`response_conversacion_${cuenta_id}_${GetTokenDecoded().id}`, (data) => {
-                if(data && data.length > 0){
+        if (socket) {
+            const handleResponseConversacion = (data) => {
+                if (data && data.length > 0) {
                     setTotalConevrsacion(data);
-                    agentes.map((agente, index) => {
-                        let conversacion = data.filter((conversacion) => conversacion.agente_id === agente.id);
-                        agentes[index]['conversacion'] = conversacion;
-                    })
-                    setAgenteConConversacion(agentes)
-                    if(agentes.length > 0){
-                        setAgentes(agentes);
+                    const agentesConConversacion = agentes.map((agente) => {
+                        const conversacion = data.filter((conversacion) => conversacion.agente_id === agente.id);
+                        return { ...agente, conversacion };
+                    });
+                    setAgenteConConversacion(agentesConConversacion);
+                    if (agentesConConversacion.length > 0) {
+                        setAgentes(agentesConConversacion);
+                    } else {
+                        console.log('No hay agentes');
                     }
                 }
-            })
+            };
+    
+            socket.on(`response_conversacion_${cuenta_id}_${GetTokenDecoded().id}`, handleResponseConversacion);
+    
+            return () => {
+                socket.off(`response_conversacion_${cuenta_id}_${GetTokenDecoded().id}`, handleResponseConversacion);
+            };
         }
-    }, [socket])
+    }, [socket, agentes]);
 
-
+    useEffect(() => {
+        if (socket) {
+            const handleNuevoMensaje = () => {
+                socket.emit("listar_conversacion_cola", {
+                    cuenta_id: GetTokenDecoded().cuenta_id,
+                    agente_id: GetTokenDecoded().id,
+                });
+            };
+    
+            socket.on(`mensaje_${cuenta_id}`, handleNuevoMensaje);
+    
+            return () => {
+                socket.off(`mensaje_${cuenta_id}`, handleNuevoMensaje);
+            };
+        }
+    }, [socket, agentes]);
+    
     return (
         <Container fluid>
             <Row

@@ -31,6 +31,7 @@ import Swal from "sweetalert2";
 import { AlertBanner } from "views/Components/Alert/Alert";
 import Cola from "views/Pages/Cola/Cola";
 import Cuenta from "views/Pages/Cuenta/Cuenta";
+import Execiones from "views/Pages/Execiones/Execiones";
 import Factura from "views/Pages/Factura/Factura";
 import HistorialContacto from "views/Pages/HistorialContacto/HistorialContacto";
 import Historial from "views/Pages/History/Historial";
@@ -91,40 +92,42 @@ export default function App() {
     }),
     [auth]
   )
-  socket.on('banner', (data) => {
-    const { mensaje, cuenta_id } = data;
-    if (GetTokenDecoded() && cuenta_id === GetTokenDecoded().cuenta_id) {
-      setMensajeBanner({
-        mensaje: mensaje,
-        color: data.color,
-        btnColor: data.btnColor,
-        tipo: data.tipo,
-        cuenta_id: cuenta_id,
-        tiempo: data.tiempo
-      });
-    }
-  })
-
-  socket.on("infoUsuario", (msg) => {
-    try {
-      const { type, data, agente_id, cuenta_id, estado } = msg;
-      if (type === "recargarToken" && agente_id === GetTokenDecoded().id && data !== null) {
-        logout();
-      }else if (type === "status" && agente_id !== GetTokenDecoded().id && cuenta_id === GetTokenDecoded().cuenta_id) {
-        socket.emit('infoUsuario', { type: "online", agente_id: GetTokenDecoded().id, cuenta_id: GetTokenDecoded().cuenta_id, estado: estado});
-      }else if(type === "mensaje_personalizado" && agente_id === GetTokenDecoded().id && cuenta_id === GetTokenDecoded().cuenta_id){
-        Swal.fire({
-          title: 'Mensaje personalizado',
-          text: data.mensaje,
-          icon: data.tipo,
-          confirmButtonText: 'Ok',
-          confirmButtonColor: '#3F98F8',
-        })
+  if(GetTokenDecoded() && GetTokenDecoded().cuenta_id){
+    socket.on('banner_'+GetTokenDecoded().cuenta_id, (data) => {
+      const { mensaje, cuenta_id } = data;
+      if (GetTokenDecoded() && cuenta_id === GetTokenDecoded().cuenta_id) {
+        setMensajeBanner({
+          mensaje: mensaje,
+          color: data.color,
+          btnColor: data.btnColor,
+          tipo: data.tipo,
+          cuenta_id: cuenta_id,
+          tiempo: data.tiempo
+        });
       }
-    } catch (error) {
-      console.log(error)
-    }
-  })
+    })
+  
+    socket.on("infoUsuario_"+GetTokenDecoded().cuenta_id, (msg) => {
+      try {
+        const { type, data, agente_id, cuenta_id, estado } = msg;
+        if (type === "recargarToken" && agente_id === GetTokenDecoded().id && data !== null) {
+          logout();
+        }else if (type === "status" && agente_id !== GetTokenDecoded().id && cuenta_id === GetTokenDecoded().cuenta_id) {
+          socket.emit('infoUsuario', { type: "online", agente_id: GetTokenDecoded().id, cuenta_id: GetTokenDecoded().cuenta_id, estado: estado});
+        }else if(type === "mensaje_personalizado" && agente_id === GetTokenDecoded().id && cuenta_id === GetTokenDecoded().cuenta_id){
+          Swal.fire({
+            title: 'Mensaje personalizado',
+            text: data.mensaje,
+            icon: data.tipo,
+            confirmButtonText: 'Ok',
+            confirmButtonColor: '#3F98F8',
+          })
+        }
+      } catch (error) {
+        console.log(error)
+      }
+    })
+  }
 
 
   if (auth === undefined) return null;
@@ -183,6 +186,11 @@ export default function App() {
                       <Route
                         path="/admin/factura"
                         element={<Factura />}
+                        exact
+                      />
+                      <Route
+                        path="/admin/execiones"
+                        element={<Execiones />}
                         exact
                       />
                       <Route

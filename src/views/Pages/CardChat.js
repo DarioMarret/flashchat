@@ -1,25 +1,96 @@
 import { GetManejoConversacion, GetTokenDecoded, SetManejoConversacionStorange } from 'function/storeUsuario';
-import { BmHttp, colorPrimario } from 'function/util/global';
+import { BmHttp, colorPrimario, tabconversacion } from 'function/util/global';
 import useMensajeria from 'hook/useMensajeria';
 import { useState } from 'react';
 import {
   Dropdown, DropdownItem, DropdownMenu, DropdownToggle,
   Modal
 } from 'react-bootstrap';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import Swal from 'sweetalert2';
 import socket from 'views/SocketIO';
 
 function CardChat(props) {
   const dispatch = useDispatch();
+  const { agenteArray } = useSelector(state => state.agentes);
+  // const { mensaje_card, ver_conversacion, historial, pingMensaje } = useSelector(state => state.mensajeria);
   const { index, messageItem, verConversacion } = props;
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const { historyInfo } = useMensajeria();
 
   const toggle = () => setDropdownOpen((prevState) => !prevState);
   const [show, setShow] = useState(false);
-  const [agentes, setAgentes] = useState([])
+  const [agentes, setAgentes] = useState(agenteArray)
   const [agente_id, setAgente_id] = useState(0)
+
+
+  const ManejarConversacion = () => {
+    if(messageItem.agente_id !== 0  && messageItem.agente_id !== GetTokenDecoded().id){
+      Swal.fire({
+        title: 'Conversación en curso',
+        text: 'Esta conversación ya está siendo atendida por el agente *' + NombreAgente(messageItem.agente_id)+'*',
+        html: 'Esta conversación ya está siendo atendida por el agente <b className="w-100 text-dark font-bold">' + NombreAgente(messageItem.agente_id)+'</b>',
+        icon: 'info',
+        confirmButtonText: 'Tomar la conversación',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          SetManejoConversacionStorange({...messageItem, cuenta_id: GetTokenDecoded().cuenta_id})
+          GetActivaConversacion(messageItem)
+          EventoAsignacionAgente(messageItem)
+        }
+      })
+    }else if(messageItem.agente_id === GetTokenDecoded().id){
+      SetManejoConversacionStorange({...messageItem, cuenta_id: GetTokenDecoded().cuenta_id})
+      socket.emit("get_conversacion_activa", {
+        cuenta_id: GetTokenDecoded().cuenta_id,
+        conversacion_id: messageItem.conversacion_id,
+        equipo_id: messageItem.equipo_id,
+        channel_id: messageItem.channel_id,
+        contacto_id: messageItem.Contactos.id,
+        agente_id: GetTokenDecoded().id,
+        nombreunico: messageItem.nombreunico,
+      });
+      dispatch({ type: 'SET_HISTORIAL', payload: [] });
+      dispatch({ type: 'SET_VER_CONVERSACION', payload: [] });
+
+    }else{
+      SetManejoConversacionStorange({...messageItem, cuenta_id: GetTokenDecoded().cuenta_id})//se guarda en localstorage la conversacion activa
+      socket.emit("asignacion_agente", { // se asigna el agente a la conversacion
+        cuenta_id: GetTokenDecoded().cuenta_id,
+        contacto_id: messageItem.contacto_id,
+        conversacion_id: messageItem.conversacion_id,
+        nombreunico: messageItem.nombreunico,
+        agente_id: GetTokenDecoded().id,
+      });
+      dispatch({ type: 'SET_HISTORIAL', payload: [] });
+      dispatch({ type: 'SET_VER_CONVERSACION', payload: [] });
+      GetActivaConversacion(messageItem)
+    }
+  }
+
+  const GetActivaConversacion = async(item) => {
+    socket.emit("get_conversacion_activa", {
+      cuenta_id: GetTokenDecoded().cuenta_id,
+      conversacion_id: item.conversacion_id,
+      equipo_id: item.equipo_id,
+      channel_id: item.channel_id,
+      contacto_id: item.Contactos.id,
+      agente_id: GetTokenDecoded().id,
+      nombreunico: item.nombreunico,
+    })
+  }
+  const EventoAsignacionAgente = (item) => {
+    socket.emit("asignacion_agente", {
+      cuenta_id: GetTokenDecoded().cuenta_id,
+      contacto_id: item.Contactos.id,
+      conversacion_id: item.conversacion_id,
+      nombreunico: item.nombreunico,
+      agente_id: GetTokenDecoded().id,
+    });
+  }
 
   const ChatLiberado = (data) => {
     socket.emit("liberar_chat", {
@@ -41,7 +112,6 @@ function CardChat(props) {
     })
   }
 
-
   const SetTransferirChat = (data) => {
     socket.emit("transferir_chat", {
       cuenta_id: GetTokenDecoded().cuenta_id,
@@ -52,24 +122,17 @@ function CardChat(props) {
     });
   }
 
-  const ListarAgentes = async() => {
-    const url = `agentes/${GetTokenDecoded().cuenta_id}`
-    const { data, status } = await BmHttp().get(url)
-    if (status === 200) {
-        let ag = []
-        data.data.map((agente, index) => {
-            ag.push({
-              id: agente.id,
-              cuenta_id: agente.cuenta_id,
-              nombre: agente.nombre,
-            })
-        })
-        setAgentes(ag)
-    }else{
-      setAgentes([])
-    }
+  const ListarAgentes = () => {
+      let ag = []
+      agenteArray.map((agente, index) => {
+          ag.push({
+            id: agente.id,
+            cuenta_id: agente.cuenta_id,
+            nombre: agente.nombre,
+          })
+      })
+      setAgentes(ag)
   }
-  
 
   const NombreAgente = (id) => {
     let nombre = agentes.filter((item) => item.id === id)
@@ -78,7 +141,7 @@ function CardChat(props) {
     }else{
       return "Sin agente"
     }
-}
+  }
 
   const VerConversacionesSinAsignar = (items) => {
     let data = {
@@ -122,15 +185,13 @@ function CardChat(props) {
     }
   }
 
-  useState(() => {
-    (async()=>{
-      await ListarAgentes()
-    })()
-  },[])
-
-  if(messageItem === undefined){
-    return null
+  const GetTab = () => {
+    return localStorage.getItem(tabconversacion)
   }
+
+  useState(() => {
+    ListarAgentes()
+  },[])
 
   return (
     <>
@@ -138,7 +199,7 @@ function CardChat(props) {
         <div className="w-100 rounded px-2 rounded-1 rounded-bottom-0 d-flex justify-content-between align-items-center" 
         style={{ 
           // backgroundColor: "#3F98F8",
-          backgroundColor: colorPrimario,
+          backgroundColor: GetTab() === 'Mias' ? (messageItem.leido  ? "#2CBCEE" : "#57B94D") :  colorPrimario ,
           color: "white",
           fontSize: "13px" }}>
             <span>{ messageItem.bot +" - "+messageItem.telefono }</span>
@@ -170,7 +231,7 @@ function CardChat(props) {
         </div>
 
         <div className="d-flex gap-2 align-items-center p-2 cursor-pointer" 
-          onClick={verConversacion}>
+          onClick={ManejarConversacion}>
           <div className="w-25 d-flex flex-column align-items-center justify-content-center">
             <div className="w-25 rounded d-flex align-items-center justify-content-center">
                 <img src={ messageItem.url_avatar } className="rounded-circle" width="50px" height="50px"/>
@@ -186,13 +247,14 @@ function CardChat(props) {
 
               <div className="w-100 d-flex justify-content-between">
                 <small 
-                className="text-warning" 
-                style={{ fontSize: '12px' }}>{messageItem.fecha}</small>
+                  className="text-warning" 
+                  style={{ fontSize: '12px' }}>{messageItem.fecha}</small>
 
-                <div className="rounded-circle text-center p-0 circle-count bg-warning"
-                style={{ fontSize: '12px' }}>
-                  1
-                </div>
+                {/* <div className="rounded-circle text-center p-0 circle-count bg-warning"
+                  style={{ fontSize: '12px' }}> */}
+                    {/* {console.log(messageItem.leido)} */}
+                  {messageItem.leido}
+                {/* </div> */}
               </div>
             </div>
 
@@ -212,15 +274,19 @@ function CardChat(props) {
                         "..."
                       : messageItem.mensaje.text
                     : // si es imagen o video mostrar el tipo de archivo
-                    messageItem.mensaje.type === "image" ||
+                    messageItem.mensaje.type === "image" ?
+                    <i className="fas fa-file-image"></i>
+                    : // si es video mostrar el tipo de archivo
                       messageItem.mensaje.type === "video"
-                    ? messageItem.mensaje.type
+                    ? 
+                    //icono de una video
+                     <i className="fas fa-file-video"></i>
                     : // si es audio mostrar el nombre del archivo
                     messageItem.mensaje.type === "audio"
-                    ? messageItem.mensaje.type
+                    ? <i className="fas fa-file-audio"></i>
                     : // si es archivo mostrar el nombre del archivo
                     messageItem.mensaje.type === "file"
-                    ? messageItem.mensaje.type
+                    ? <i className="fas fa-file"></i>
                     : null
                 }
               </small>

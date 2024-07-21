@@ -6,8 +6,6 @@ import React, { useEffect } from "react";
 import {
   Button,
   Container,
-  Form,
-  InputGroup,
   Nav,
   Navbar
 } from "react-bootstrap";
@@ -71,7 +69,7 @@ function AdminNavbar() {
           </button>
 
           <Navbar.Collapse className="justify-content-end" in={collapseOpen}>
-            <Nav className="nav mr-auto ml-2" navbar>
+            {/* <Nav className="nav mr-auto ml-2" navbar>
               <Form
                 className="navbar-form navbar-left navbar-search-form"
                 style={{ marginRight: '15px' }}
@@ -89,7 +87,7 @@ function AdminNavbar() {
                   ></Form.Control>
                 </InputGroup>
               </Form>
-            </Nav>
+            </Nav> */}
 
             <Nav navbar>
               {/* <Dropdown as={Nav.Item}>

@@ -21,7 +21,7 @@ export default function CardTab({handleBusqueda, onHideMensaje, countC, card_men
         card_mensajes={card_mensajes}
         loading={loading}
         VerConversaciones={VerConversaciones}
-        ManejarConversacion={ManejarConversacion}
+        // ManejarConversacion={ManejarConversacion}
       />
     </div>
   )

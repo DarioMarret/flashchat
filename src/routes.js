@@ -9,6 +9,7 @@ import Inactividad from "views/Pages/Configuracion/Inactividad";
 import Masivos from "views/Pages/Configuracion/Masivos";
 import MensajesAutomaticos from "views/Pages/Configuracion/MensajesAutomaticos";
 import Contactos from "views/Pages/Contactos";
+import Execiones from "views/Pages/Execiones/Execiones";
 import Factura from "views/Pages/Factura/Factura";
 import Historial from "views/Pages/History/Historial";
 import Integraciones from "views/Pages/Integraciones/Integraciones";
@@ -61,6 +62,13 @@ var routes = [
       state: "openMaps",
       icon: "nc-icon nc-settings-gear-64",
       views: [
+        {
+          path: "/execiones",
+          layout: "/admin",
+          name: "Execiones Numeros",
+          mini: "EX",
+          component: Execiones
+        },
         {
           path: "/equipos",
           layout: "/admin",

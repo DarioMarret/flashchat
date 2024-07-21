@@ -18,9 +18,7 @@ export const colorPrimario = "#3F98F8";
 // validar si es produccion o desarrollo
 const bm = () => {
     let token = GetToken();
-    // let url = "http://localhost:5002/"
-    let url = GetTokenDecoded() !== null ? GetTokenDecoded().cuenta.url_dominio !== "" ? GetTokenDecoded().cuenta.url_dominio : "https://api.flashchat.chat/backflash/" : "https://api.flashchat.chat/backflash/";
-    // validar la expiracion del token
+    let url = GetTokenDecoded().cuenta.url_dominio;
     if (token === null) {
         Logout()
     }
@@ -47,16 +45,15 @@ const Logout = () => {
     window.location.href = "/"
 }
 export const BmHttp = bm;
+
 const dominio = () => {
-    // return "http://localhost:5002/";
-    return GetTokenDecoded() !== null ? GetTokenDecoded().cuenta.url_dominio === "" ? "https://api.flashchat.chat/backflash/" : GetTokenDecoded().cuenta.url_dominio : "https://api.flashchat.chat/backflash/";
+    return  GetTokenDecoded() && GetTokenDecoded().cuenta.url_dominio ? GetTokenDecoded().cuenta.url_dominio : dev ? "https://flash.codigomarret.com/backflash/" : "https://api.flashchat.chat/backflash/";
 }
 export const host = dominio;
 
 const httplogin = () => {
     return axios.create({
-        baseURL: "https://api.flashchat.chat/backflash/",
-        // baseURL: "http://localhost:5002/",
+        baseURL: dev ? "https://flash.codigomarret.com/backflash/" : "https://api.flashchat.chat/backflash/",
         headers: {
             'Content-Type': 'application/json',
         },
@@ -66,7 +63,8 @@ const httplogin = () => {
 
 export const HoraServer = async() => {
     try {
-        const { data, status } = await axios.get("https://api.flashchat.chat/backflash/hora")
+        let url = dev ?  "https://flash.codigomarret.com/backflash/hora" : "https://api.flashchat.chat/backflash/hora"
+        const { data, status } = await axios.get(url)
         if (status === 200) {
             return data;
         }else{

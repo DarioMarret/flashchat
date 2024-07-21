@@ -1,4 +1,3 @@
-import { GetTokenDecoded } from 'function/storeUsuario';
 import { colorPrimario, tabconversacion } from 'function/util/global';
 import useMensajeria from 'hook/useMensajeria';
 import { useEffect, useState } from 'react';
@@ -13,14 +12,14 @@ import TabPanel from './TabPanel';
 
 function TabChat(props) {
     const { onHideMensaje, countC, card_mensajes, loading } = props;
-    const { mensaje_card, historial, pingMensaje } = useSelector(state => state.mensajeria);
-    const [misConversaciones, setMisConversaciones] = useState('Sin leer');
+    const { mensaje_card, count, historial, pingMensaje } = useSelector(state => state.mensajeria);
+    const [misConversaciones, setMisConversaciones] = useState(localStorage.getItem(tabconversacion) || 'Sin leer');
 
     const { historyInfo, ping } = useMensajeria();
 
     const HanbleTab = (item) => {
-        localStorage.setItem(tabconversacion, item)
-        setMisConversaciones(item)
+      localStorage.setItem(tabconversacion, item)
+      setMisConversaciones(item)
     }
 
     useEffect(() => {
@@ -32,27 +31,44 @@ function TabChat(props) {
 
     return (
         <>
-          <Tab.Container id="left-tabs-example" defaultActiveKey="Sin leer">
+          <Tab.Container id="left-tabs-example" defaultActiveKey={misConversaciones}>
             <Nav variant="tabs" className="flex-row flex-wrap">
 
               <Nav.Item onClick={() => HanbleTab('Sin leer')}>
                 <Nav.Link eventKey="Sin leer" 
                   className="gap-1 d-flex"
-                  style={{ fontSize: '13px' }}>
+                  active={misConversaciones === 'Sin leer'}
+                  style={{ 
+                    fontSize: '12px',
+                    borderRadius: '10px',
+                    padding: '0 5px',
+                    margin: '0 5px',
+                    backgroundColor: misConversaciones === 'Sin leer' ? colorPrimario : '#CDCCCC',
+                    color: misConversaciones === 'Sin leer' ? 'white' : 'black'
+                  }}>
                   <span className="">Sin leer</span>
-                  <span className="text-warning">{
-                    mensaje_card.filter(item => item.agente_id === 0).length
+                  <span className="">{
+                    count.sinLeer
                   }</span>
                 </Nav.Link>
               </Nav.Item>
 
               <Nav.Item onClick={() => HanbleTab('Mias')}>
                 <Nav.Link eventKey="Mias" 
-                  className="gap-1 d-flex"
-                  style={{ fontSize: '13px' }}>
+                  active={misConversaciones === 'Mias'}
+                  className="gap-1 d-flex "
+                  style={{ 
+                    fontSize: '12px',
+                    borderRadius: '10px',
+                    padding: '0 5px',
+                    margin: '0 5px',
+                    backgroundColor: misConversaciones === 'Mias' ? colorPrimario : '#CDCCCC',
+                    color: misConversaciones === 'Mias' ? 'white' : 'black'
+                    
+                   }}>
                   <span className="">Mias</span>
-                  <span className="text-warning">{
-                    mensaje_card.filter(item => item.agente_id === GetTokenDecoded().id).length
+                  <span className="">{
+                    count.misConversaciones
                   }</span>
                 </Nav.Link>
               </Nav.Item>
@@ -60,9 +76,18 @@ function TabChat(props) {
               <Nav.Item onClick={() => HanbleTab('Todas')}>
                 <Nav.Link eventKey="Todas" 
                   className="gap-1 d-flex"
-                  style={{ fontSize: '13px' }}>
-                  Todos <span className="text-warning">{
-                    mensaje_card.length
+                  active={misConversaciones === 'Todas'}
+                  style={{ 
+                    fontSize: '12px',
+                    borderRadius: '10px',
+                    padding: '0 5px',
+                    margin: '0 5px',
+                    backgroundColor: misConversaciones === 'Todas' ? colorPrimario : '#CDCCCC',
+                    color: misConversaciones === 'Todas' ? 'white' : 'black',
+                  }}
+                >
+                  Todos <span className="">{
+                    count.todas
                   }</span>
                 </Nav.Link>
               </Nav.Item>
@@ -70,7 +95,14 @@ function TabChat(props) {
               <Nav.Item onClick={() => onHideMensaje(true)}>
                 <Nav.Link
                   className="gap-1 d-flex hover-pointer"
-                  style={{ fontSize: '13px' }}>
+                  style={{ 
+                    fontSize: '12px',
+                    borderRadius: '10px',
+                    padding: '0 5px',
+                    margin: '0 5px',
+                    backgroundColor: 'transparent',
+                    color: 'black'
+                   }}>
                   {/* icono para envia mensaje */}
                   <span className="material-symbols-outlined">
                     sms

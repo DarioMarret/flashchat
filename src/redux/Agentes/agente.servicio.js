@@ -3,10 +3,11 @@ import { BmHttp } from "function/util/global";
 import Swal from "sweetalert2";
 
 
-export const addAgente = (agente) => async (dispatch) => {
+export const addAgente = () => async (dispatch) => {
     try {
-        const response = await BmHttp().post('/api/agentes', agente);
-        dispatch({ type: 'ADD_AGENTE', payload: response.data });
+        const url = `agentes/${GetTokenDecoded().cuenta_id}`
+        const {data} = await BmHttp().get(url);
+        dispatch({ type: 'ADD_AGENTE', payload: data.data });
     } catch (error) {
         console.error('Error adding agente:', error);
     }

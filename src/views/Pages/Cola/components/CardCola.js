@@ -1,3 +1,4 @@
+import { IsKeyObject } from 'function/storeUsuario';
 import {
     Card,
     CardBody,
@@ -7,6 +8,9 @@ import {
 } from 'reactstrap';
 function CardCola(props) {
     const { items } = props;
+    if(!IsKeyObject(items, 'conversacion')){
+        return null;
+    }
     return (
         <>
             <Col>
