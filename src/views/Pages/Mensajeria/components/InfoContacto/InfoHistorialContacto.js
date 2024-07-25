@@ -35,10 +35,10 @@ function InfoHistorialContacto(props) {
     })
     const [recordatorio, setRecordatorio] = useState({
       id: 0,
-      cuenta_id: GetTokenDecoded().cuenta_id,
-      contacto_id: GetManejoConversacion().Contactos.id,
-      agente_id: GetTokenDecoded().id,
-      bot_id: GetTokenDecoded().botId.filter((item) => item.name === GetManejoConversacion().bot)[0].id,
+      cuenta_id: 0,
+      contacto_id: 0,
+      agente_id: 0,
+      bot_id: 0,
       fecha: "",
       mes: 0,
       hora: "",
@@ -203,6 +203,7 @@ function InfoHistorialContacto(props) {
         ...recordatorio,
         bot_id: GetTokenDecoded().botId.filter((item) => item.name === GetManejoConversacion().bot)[0].id,
         contacto_id: GetManejoConversacion().Contactos.id,
+        cuenta_id: GetTokenDecoded().cuenta_id
       });
     }
 
