@@ -5,7 +5,6 @@
     <meta charset="utf-8" />
     <link rel="icon" href="%PUBLIC_URL%/favicon.ico" 
       type="image/x-icon"
-      style="border-radius: 50%;"
     />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#000000" />
@@ -15,7 +14,9 @@
     />
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/favicon.ico" />
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"></noscript>
+    
     <meta name="facebook-domain-verification" content="re53pssz1yix7gw93hqijubcmgdwvi" />
     <title>FlashChat</title>
   </head>
@@ -26,10 +27,9 @@
       integracion con whatsapp, telegram, email, webchat, mikrotik, ordenfacil
     </noscript>
     <div id="root"></div>
-    <!-- <script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js"></script> -->
 
     <script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js"></script>
     <script async defer crossorigin="anonymous" src="https://connect.facebook.net/es_ES/sdk.js#xfbml=1&version=v18.0&appId=3176667395950990&autoLogAppEvents=1" nonce="PGyk9SsQ"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script async defer src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   </body>
 </html>

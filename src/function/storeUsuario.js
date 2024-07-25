@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { DecodeJwt, DescryptCualquierDato } from "./util/ecrypt";
-import { conversacion_activa, host, usuario_token } from "./util/global";
+import { conversacion_activa, host, recordatorio_store, usuario_token } from "./util/global";
 
 
 export const IsKeyObject =(obj, str)=>{
@@ -107,5 +107,20 @@ export const SetManejoConversacionStorange = (data) => {
 
 export const DeletManejoConversacionStorange = () => {
     localStorage.removeItem(conversacion_activa);
+    return true;
+}
+
+
+export const GetCountRecordatorio = () => {
+    const local = localStorage.getItem(recordatorio_store);
+    if (local) {
+      return parseInt(local);
+    } else {
+      return null;
+    }
+}
+
+export const SetCountRecordatorio = (data) => {
+    localStorage.setItem(recordatorio_store, data);
     return true;
 }

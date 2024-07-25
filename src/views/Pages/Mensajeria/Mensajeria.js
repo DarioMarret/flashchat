@@ -27,8 +27,9 @@ import ComponenteMultimedia from "views/Components/ComponenteMultimedia";
 import ModalMensaje from "views/Components/Modales/ModalMensaje";
 import { addAgente } from "../../../redux/Agentes/agente.servicio";
 import { fetchMensajeriaCard } from '../../../redux/Mensajeria/mensajeria.servicio';
-import InfoHistorialContacto from "../Chat/components/InfoHistorial/InfoHistorialContacto";
 import CardTab from "./components/CardTab/CardTab";
+import InfoHistorialContacto from "./components/InfoContacto/InfoHistorialContacto";
+import { EmiittingMensaje, EmittMesnaje, EventoAsignacionAgente, GetActivaConversacion } from "./service/Eventos";
 
 var socket = null;
 try {
@@ -45,8 +46,6 @@ try {
   console.log(error) 
 }
 
-
-
 moment.locale("es");
 var cardMensage = [];
 export default function Mensajeria() {
@@ -59,23 +58,14 @@ export default function Mensajeria() {
   const [ping, setPing] = useState(undefined);
   const [card_mensajes, setCard_mensajes] = useState(mensaje_card);
   const [conversacionActiva, setConversacionActiva] = useState([]);
-  const [ListarPlanAsignado, setListarPlanAsignado] = useState(null)
   const [loading, setLoading] = useState(false)
   const [estados, setEstados] = useState([]);
-  const [misConversaciones, setMisConversaciones] = useState('Sin leer')
   const [respuestaRapidas, setRespuestaRapidas] = useState([])
   const dummy = useRef(null);
   const audioRef = useRef(null);
-  const [etiquetas, setEtiquetas] = useState([])
   const [showRespuesta, setShowRespuesta] = useState(false)
   const [disabledInput, setDisabledInput] = useState(false)
-  const [countC, setCountC] = useState({
-    sinLeer: 0,
-    misConversaciones: 0,
-    todas: 0,
-  })
 
-  const [agentes, setAgentes] = useState([]);
   const [inputStr, setInputStr] = useState("");
   const [linkPreview, setLinkPreview] = useState("");
   const [typeInput, setTypeInput] = useState("text");
@@ -85,7 +75,6 @@ export default function Mensajeria() {
 
   const PlanAsignado = async () => {
     const { data } = await BmHttp().get(`cuenta_plan/${GetTokenDecoded().cuenta_id}`)
-    setListarPlanAsignado(data.data[0])
     // verificar si el plan asignado es el 1 osea el plan gratuito y si la fecha ya expiro
     // a la fecha es mayor a 15 dias 
     if(data.data[0].plan_id === 1 && moment(data.data[0].fecha) <= moment().subtract(15, 'days')){
@@ -106,14 +95,6 @@ export default function Mensajeria() {
     }
   }
 
-
-  const ListarEtiquetas = async () => {
-    const { data, status } = await BmHttp().get('etiqueta/'+GetTokenDecoded().cuenta_id)
-    if(status === 200){
-        setEtiquetas(data.data)
-    }
-  }
-  
   const onEmojiClick = (emojiObject, event) => {
     setInputStr((prevInput) => prevInput + emojiObject.emoji);
     setShowPicker(false);
@@ -152,139 +133,17 @@ export default function Mensajeria() {
     }
   }
 
+  // Despacha la acción para obtener los mensajes
+  useEffect(() => {
+    dispatch(fetchMensajeriaCard());
+    dispatch(addAgente());
+  }, [dispatch]);
+
   // Pre-cargar el audio
   useEffect(() => {
     const audioSrc = GetTokenDecoded().audio_mensaje || 'https://codigomarret.online/upload/img/intercom-in-83962.mp3';
     audioRef.current = new Audio(audioSrc);
   }, []);
-
-  // Despacha la acción para obtener los mensajes
-  useEffect(() => {
-      dispatch(fetchMensajeriaCard());
-      dispatch(addAgente());
-  }, [dispatch]);
-
-
-
-  useEffect(() => {
-    if(mensaje_card.length > 0){
-      setLoading(true)
-      const covActiva = GetManejoConversacion();
-      let new_card = [];
-      if (mensaje_card.length > 0) {
-        LimpiarCounC()
-        for (let index = 0; index < mensaje_card.length; index++) {
-          const item = mensaje_card[index];
-          if (covActiva && covActiva !== null && covActiva !== undefined) {// verificamos si hay una conversacion activa
-            if (item.conversacion_id === covActiva.conversacion_id && item.nombreunico === covActiva.nombreunico && item.Contactos.id === covActiva.Contactos.id) {
-              if(item.agente_id === GetTokenDecoded().id){
-                // const { id, cuenta_id } = GetTokenDecoded();
-                //si hay convresacion activa se debe obtener los mensajes de la conversacion activa
-                socket.emit(`get_conversacion_activa`, {
-                  cuenta_id: GetTokenDecoded().cuenta_id,
-                  contacto_id: item.Contactos.id,
-                  equipo_id: item.equipo_id,
-                  channel_id: item.channel_id,
-                  agente_id: GetTokenDecoded().id,
-                  conversacion_id: item.conversacion_id,
-                  nombreunico: item.nombreunico,
-                })
-              }else if(covActiva.sin_asignar === true){
-                socket.emit("get_conversacion_activa", {
-                  cuenta_id: GetTokenDecoded().cuenta_id,
-                  contacto_id: item.Contactos.id,
-                  equipo_id: item.equipo_id,
-                  channel_id: item.channel_id,
-                  agente_id: item.agente_id,
-                  conversacion_id: item.conversacion_id,
-                  nombreunico: item.nombreunico,
-                })
-              }
-            }
-          }
-          // if(equipos.includes(item.equipo_id) && bots.includes(item.nombre_bot)){
-            new_card.push({
-              id: item.id,
-              bot: item.nombre_bot,
-              conversacion_id: item.conversacion_id,
-              name: item.Contactos.nombre,
-              telefono: item.Contactos.telefono,
-              Contactos: item.Contactos,
-              contacto_id: item.contacto_id,
-              channel_id: item.channel_id,
-              mensaje: item.mensajes,
-              // mensajes: item.mensajes,
-              equipo_id: item.equipo_id,
-              tipo: item.tipo,
-              estado: item.estado,
-              etiquetas_estado: item.etiquetas_estado,
-              fecha: moment(item.updatedAt) >= moment().subtract(1, "days") ? moment(item.updatedAt).format("hh:mm a") : moment(item.updatedAt).format("DD/MM/YYYY hh:mm a"),
-              url_avatar: item.Contactos.avatar,
-              proveedor: item.channel.proveedor,
-              leido: item.leido,
-              alerta: item.alerta,
-              active: true,
-              nombreunico: item.nombreunico,
-              etiqueta: item.etiquetas,
-              agente_id: item.agente_id,
-              nota: item.nota,
-              sessionIdWebChat: item.sessionIdWebChat,
-            })
-          // }
-        }
-        cardMensage = new_card;
-        if(new_card.length > 0){
-          // ordenar las conversaciones por fecha
-          new_card.sort((a, b) => {
-            return new Date(b.updatedAt) - new Date(a.updatedAt);
-          });
-          setLoading(false)
-          setCard_mensajes(new_card);
-          // ContadorCon(new_card)
-        }else{
-          setLoading(false)
-        }
-      }else{
-        setLoading(false)
-        setCard_mensajes([])
-        ContadorCon([])
-      }
-    }else{
-      setLoading(false)
-      setCard_mensajes([])
-      // ContadorCon([])
-    }
-  }, [mensaje_card, pingMensaje, verConversacion, pingNuevoMensaje]);
-
-
-  // recibe un nuevo mensaje card
-  useEffect(() => {
-    if (socket) {
-      try {
-        const cuenta_id = GetTokenDecoded().cuenta_id;
-        socket.on("mensaje_"+cuenta_id, (msg) => {
-          const { type, data } = msg;
-          if (type === "mensaje_card" && data.cuenta_id === cuenta_id && data.mensaje.length > 0) {
-            if(data && data.mensaje){
-              dispatch({ type: 'NEW_MENSAJE_OR_REMPLAZAR_MENSAJE_CARD', payload: data.mensaje });
-              dispatch({ type: 'RESET_PING_MENSAJE' });
-              setPingNuevoMensaje(Math.random())
-            }
-          }else if(type === "finaliza-conversacion" && data.cuenta_id === cuenta_id){
-            dispatch({ type: 'REMOVER_MENSAJE_CARD', payload: data });
-            dispatch({ type: 'RESET_PING_MENSAJE' });
-            setPingNuevoMensaje(Math.random())
-          }else if(type === "mensaje_array_card" && data.cuenta_id === cuenta_id && data.card){
-            dispatch({ type: 'SET_CARD_MENSAJERIA', payload: data.card });
-            dispatch({ type: 'RESET_PING_MENSAJE' });
-            setPingNuevoMensaje(Math.random())
-          }
-        });
-      } catch (error) {
-        console.log(error)
-      }
-    }
-  }, [socket])
 
   useEffect(() => {
     // Expresión regular para detectar enlaces
@@ -297,17 +156,6 @@ export default function Mensajeria() {
     }
   }, [inputStr]);
 
-  const ListarAgentes = async() => {
-    let ag = []
-    agenteArray.map((agente, index) => {
-        ag.push({
-          id: agente.id,
-          cuenta_id: agente.cuenta_id,
-          nombre: agente.nombre,
-        })
-    })
-    setAgentes(agenteArray)
-  }
 
   const ListarMensajesRespuestaRapida = async () => {
     try {
@@ -320,12 +168,9 @@ export default function Mensajeria() {
     }
   }
 
-
   useEffect(() => {
     (async()=>{
-      ListarAgentes()
       await ListarMensajesRespuestaRapida()
-      await ListarEtiquetas()
       await PlanAsignado()
     })()
   }, []);
@@ -333,187 +178,307 @@ export default function Mensajeria() {
   const VerConversaciones = (item) => {
     localStorage.setItem('misConversaciones', item)
     EmiittingMensaje()
-    setMisConversaciones(item)
     dispatch({ type: 'VER_CONVERSACION', payload: Math.random() });
-  }
-
-  const LimpiarCounC = () => {
-    setCountC({
-      sinLeer: 0,
-      misConversaciones: 0,
-      todas: 0,
-    })
   }
 
   const { logout } = useAuth();
   
+
+
+  // Eventod que de las cards de los mensajes
   useEffect(() => {
-    if(socket){
+    if (mensaje_card.length > 0) {
+      setLoading(true);
+      const covActiva = GetManejoConversacion();
+      let new_card = [];
+  
+      mensaje_card.forEach((item) => {
+        if (covActiva && item.conversacion_id === covActiva.conversacion_id &&
+            item.nombreunico === covActiva.nombreunico && item.Contactos.id === covActiva.Contactos.id) {
+  
+          const isActiveAgent = item.agente_id === GetTokenDecoded().id;
+  
+          socket.emit("get_conversacion_activa", {
+            cuenta_id: GetTokenDecoded().cuenta_id,
+            contacto_id: item.Contactos.id,
+            equipo_id: item.equipo_id,
+            channel_id: item.channel_id,
+            agente_id: isActiveAgent ? GetTokenDecoded().id : item.agente_id,
+            conversacion_id: item.conversacion_id,
+            nombreunico: item.nombreunico,
+          });
+        }
+  
+        // Construir new_card con datos relevantes
+        new_card.push({
+          id: item.id,
+          bot: item.nombre_bot,
+          conversacion_id: item.conversacion_id,
+          name: item.Contactos.nombre,
+          telefono: item.Contactos.telefono,
+          Contactos: item.Contactos,
+          contacto_id: item.contacto_id,
+          channel_id: item.channel_id,
+          mensaje: item.mensajes,
+          equipo_id: item.equipo_id,
+          tipo: item.tipo,
+          estado: item.estado,
+          etiquetas_estado: item.etiquetas_estado,
+          fecha: moment(item.updatedAt).isAfter(moment().subtract(1, "days"))
+                  ? moment(item.updatedAt).format("hh:mm a")
+                  : moment(item.updatedAt).format("DD/MM/YYYY hh:mm a"),
+          url_avatar: item.Contactos.avatar.includes("https://pps.whatsapp.net/") 
+                      ? 'https://codigomarret.online/upload/img/avatarwhatsapp-fotor-2024021116415.png'
+                      : item.Contactos.avatar,
+          proveedor: item.channel.proveedor,
+          leido: item.leido,
+          alerta: item.alerta,
+          active: true,
+          nombreunico: item.nombreunico,
+          etiqueta: item.etiquetas,
+          agente_id: item.agente_id,
+          nota: item.nota,
+          sessionIdWebChat: item.sessionIdWebChat,
+        });
+      });
+  
+      cardMensage = new_card;
+  
+      if (new_card.length > 0) {
+        new_card.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+        setLoading(false);
+        setCard_mensajes(new_card);
+      } else {
+        setLoading(false);
+        setCard_mensajes([]);
+      }
+    } else {
+      setLoading(false);
+      setCard_mensajes([]);
+    }
+  }, [mensaje_card, pingMensaje, verConversacion, pingNuevoMensaje]);
+
+  // recibe un nuevo mensaje card
+  useEffect(() => {
+    if (socket) {
       try {
-        socket.on("cambiar_estado_"+GetTokenDecoded().cuenta_id, (msg) => {
-          const { type, data, listMensajes } = msg;
-          if (type === "response_cambiar_estado" && data.cuenta_id === GetTokenDecoded().cuenta_id) {
-            dispatch({ type: 'SET_CARD_MENSAJERIA', payload: listMensajes });
-            dispatch({ type: 'RESET_PING_MENSAJE' });
-            setPingNuevoMensaje(Math.random())
-          }
-        });
-        
-        socket.on("liberar_chat_"+GetTokenDecoded().cuenta_id, (msg) => {
-          const { type, data, card } = msg;
-          if (type === "response_liberar_chat" && data.cuenta_id === GetTokenDecoded().cuenta_id) {
-            dispatch({ type: 'SET_CARD_MENSAJERIA', payload: card });
-            dispatch({ type: 'RESET_PING_MENSAJE' });
-            setPingNuevoMensaje(Math.random())
-          }
-        })
-        
-        socket.on("transferir_chat_"+GetTokenDecoded().cuenta_id, (msg) => {
-          const { type, data, card } = msg;
-          if (type === "response_transferir_chat" && data.cuenta_id === GetTokenDecoded().cuenta_id) {
-            dispatch({ type: 'SET_CARD_MENSAJERIA', payload: card });
-            dispatch({ type: 'RESET_PING_MENSAJE' });
-            setPingNuevoMensaje(Math.random())
-          }
-        });
-        
-        socket.on("infoUsuario_"+GetTokenDecoded().cuenta_id, (msg) => {
-          try {
-            const { type, data, agente_id } = msg;
-            if (type === "recargarToken" && agente_id === GetTokenDecoded().id) {
-              if(cardMensage.length > 0){
-                setDatosUsuario(data)
-              }
-            }
-          } catch (error) {
-            console.log(error)
-          }
-        })
-        
-        socket.on("asignacion_agente_"+GetTokenDecoded().cuenta_id, (msg) => {
-          try {
-            const { type, data } = msg;
-            if (type === "response_asignacion_agente" && data.cuenta_id === GetTokenDecoded().cuenta_id) {
-              if(cardMensage.length > 0){
-                CambiodeAgente(data)
-              }
-            }
-          } catch (error) {
-            console.log(error)
-          }
-        })
-        
-        // recargar navegador
-        socket.on("recargar_"+GetTokenDecoded().cuenta_id, (msg) => {
+        const cuenta_id = GetTokenDecoded().cuenta_id;
+        const handleMensaje = (msg) => {
           const { type, data } = msg;
-          if (type === "recargar" && data.cuenta_id === GetTokenDecoded().cuenta_id) {
-            Swal.fire({
-              title: 'Alerta',
-              text: 'Por favor recarge el navegador o cierre sesión y vuelva a iniciar sesión',
-              icon: 'info',
-              confirmButtonColor: "#8F8F8F",
-              timer: 2000,
-            })
-          }else if(type === "recargar_agente_id" && data.agente_id === GetTokenDecoded().id){
-            Swal.fire({
-              title: 'Alerta',
-              text: 'Su cuenta se recarga por otro usuario',
-              icon: 'info',
-              confirmButtonColor: "#8F8F8F",
-              timer: 2500,
-            }).then(() => {
-              window.location.reload()
-            })
-          }else if(type === "cerrar_session" && data.cuenta_id !== GetTokenDecoded().cuenta_id){
-            Swal.fire({
-              title: 'Alerta',
-              text: 'La cuenta fue cerrada por otro usuario',
-              icon: 'warning',
-              confirmButtonColor: "#8F8F8F",
-              timer: 2000,
-            }).then(() => {
-              logout()
-              removeDatosUsuario()
-              window.location.href = "/"
-            })
+          if (data && data.cuenta_id === cuenta_id) {
+            if (type === "mensaje_card" && data.mensaje.length > 0) {
+              dispatch({ type: 'NEW_MENSAJE_OR_REMPLAZAR_MENSAJE_CARD', payload: data.mensaje });
+            } else if (type === "finaliza-conversacion") {
+              dispatch({ type: 'REMOVER_MENSAJE_CARD', payload: data });
+            } else if (type === "mensaje_array_card" && data.card) {
+              dispatch({ type: 'SET_CARD_MENSAJERIA', payload: data.card });
+            }
+            dispatch({ type: 'RESET_PING_MENSAJE' });
+            setPingNuevoMensaje(Math.random());
           }
-        })
+        };
+  
+        // Establecer el listener de eventos
+        socket.on(`mensaje_${cuenta_id}`, handleMensaje);
+  
+        // Limpieza de listeners
+        return () => {
+          socket.off(`mensaje_${cuenta_id}`, handleMensaje);
+        };
+  
       } catch (error) {
         console.log(error);
       }
-      return () => {
-        socket.off("cambiar_estado");
-        socket.off("infoUsuario");
-        socket.off("asignacion_agente");
-        socket.off("recargar")
-      }
     }
-  }, [])
+  }, [socket]);
 
-
+  // Escuchar los eventos de los mensajes
   useEffect(() => {
-    if(socket){
+    if (socket) {
+      const cuentaId = GetTokenDecoded().cuenta_id;
+      const usuarioId = GetTokenDecoded().id;
+  
+      const handleCambiarEstado = (msg) => {
+        const { type, data, listMensajes } = msg;
+        if (type === "response_cambiar_estado" && data.cuenta_id === cuentaId) {
+          dispatch({ type: 'SET_CARD_MENSAJERIA', payload: listMensajes });
+          dispatch({ type: 'RESET_PING_MENSAJE' });
+          setPingNuevoMensaje(Math.random());
+        }
+      };
+  
+      const handleLiberarChat = (msg) => {
+        const { type, data, card } = msg;
+        if (type === "response_liberar_chat" && data.cuenta_id === cuentaId) {
+          dispatch({ type: 'SET_CARD_MENSAJERIA', payload: card });
+          dispatch({ type: 'RESET_PING_MENSAJE' });
+          setPingNuevoMensaje(Math.random());
+        }
+      };
+  
+      const handleTransferirChat = (msg) => {
+        const { type, data, card } = msg;
+        if (type === "response_transferir_chat" && data.cuenta_id === cuentaId) {
+          dispatch({ type: 'SET_CARD_MENSAJERIA', payload: card });
+          dispatch({ type: 'RESET_PING_MENSAJE' });
+          setPingNuevoMensaje(Math.random());
+        }
+      };
+  
+      const handleInfoUsuario = (msg) => {
+        try {
+          const { type, data, agente_id } = msg;
+          if (type === "recargarToken" && agente_id === usuarioId) {
+            if(cardMensage.length > 0){
+              setDatosUsuario(data);
+            }
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      };
+  
+      const handleAsignacionAgente = (msg) => {
+        try {
+          const { type, data } = msg;
+          if (type === "response_asignacion_agente" && data.cuenta_id === cuentaId) {
+            if(cardMensage.length > 0){
+              CambiodeAgente(data);
+            }
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      };
+  
+      const handleRecargar = (msg) => {
+        const { type, data } = msg;
+        if (type === "recargar" && data.cuenta_id === cuentaId) {
+          Swal.fire({
+            title: 'Alerta',
+            text: 'Por favor recarge el navegador o cierre sesión y vuelva a iniciar sesión',
+            icon: 'info',
+            confirmButtonColor: "#8F8F8F",
+            timer: 2000,
+          });
+        } else if (type === "recargar_agente_id" && data.agente_id === usuarioId) {
+          Swal.fire({
+            title: 'Alerta',
+            text: 'Su cuenta se recarga por otro usuario',
+            icon: 'info',
+            confirmButtonColor: "#8F8F8F",
+            timer: 2500,
+          }).then(() => {
+            window.location.reload();
+          });
+        } else if (type === "cerrar_session" && data.cuenta_id !== cuentaId) {
+          Swal.fire({
+            title: 'Alerta',
+            text: 'La cuenta fue cerrada por otro usuario',
+            icon: 'warning',
+            confirmButtonColor: "#8F8F8F",
+            timer: 2000,
+          }).then(() => {
+            logout();
+            removeDatosUsuario();
+            window.location.href = "/";
+          });
+        }
+      };
+  
+      // Setting up the listeners
+      socket.on(`cambiar_estado_${cuentaId}`, handleCambiarEstado);
+      socket.on(`liberar_chat_${cuentaId}`, handleLiberarChat);
+      socket.on(`transferir_chat_${cuentaId}`, handleTransferirChat);
+      socket.on(`infoUsuario_${cuentaId}`, handleInfoUsuario);
+      socket.on(`asignacion_agente_${cuentaId}`, handleAsignacionAgente);
+      socket.on(`recargar_${cuentaId}`, handleRecargar);
+  
+      // Cleanup
+      return () => {
+        socket.off(`cambiar_estado_${cuentaId}`, handleCambiarEstado);
+        socket.off(`liberar_chat_${cuentaId}`, handleLiberarChat);
+        socket.off(`transferir_chat_${cuentaId}`, handleTransferirChat);
+        socket.off(`infoUsuario_${cuentaId}`, handleInfoUsuario);
+        socket.off(`asignacion_agente_${cuentaId}`, handleAsignacionAgente);
+        socket.off(`recargar_${cuentaId}`, handleRecargar);
+      };
+    }
+  }, [socket]);
+  
+
+  // para escuchar los mensajes de la conversacion activa
+  useEffect(() => {
+    if (socket) {
       const { cuenta_id } = GetTokenDecoded();
-      socket.on(`get_conversacion_activa_${cuenta_id}`, (msg) => {//listamos los mensajes de la conversacion activa (la que esta siendo atendida por el agente)
+  
+      const handleConversacionActiva = (msg) => {
         const covActiva = GetManejoConversacion();
         const { type, data, listMensajes } = msg;
-        if(covActiva && covActiva !== null && covActiva !== undefined && listMensajes.length > 0){
-          if (type === "response_get_conversacion_activa" && data.cuenta_id === cuenta_id && 
-          data.conversacion_id === covActiva.conversacion_id && data.nombreunico === covActiva.nombreunico  && data.contacto_id === covActiva.contacto_id) {
-            if(data.agente_id === GetTokenDecoded().id){
+  
+        if (covActiva && listMensajes.length > 0) {
+          if (
+            type === "response_get_conversacion_activa" &&
+            data.cuenta_id === cuenta_id &&
+            data.conversacion_id === covActiva.conversacion_id &&
+            data.nombreunico === covActiva.nombreunico &&
+            data.contacto_id === covActiva.contacto_id
+          ) {
+            if (historial.length === 0 && data.agente_id === GetTokenDecoded().id) {
               socket.emit('mensaje_leido', {
                 id: listMensajes[listMensajes.length - 1].id,
-                cuenta_id: GetTokenDecoded().cuenta_id,
+                cuenta_id: cuenta_id,
                 contacto_id: listMensajes[listMensajes.length - 1].contacto_id,
                 conversacion_id: listMensajes[listMensajes.length - 1].conversacion_id,
                 nombreunico: listMensajes[listMensajes.length - 1].nombreunico,
-              })
-              if(listMensajes.length !== 0 && JSON.stringify(listMensajes) !== JSON.stringify(conversacionActiva)){
-                setConversacionActiva(listMensajes)
-                if(GetTokenDecoded().ver_ultimo_mensaje){
+              });
+              if (listMensajes.length !== 0 && JSON.stringify(listMensajes) !== JSON.stringify(conversacionActiva)) {
+                setConversacionActiva(listMensajes);
+                if (GetTokenDecoded().ver_ultimo_mensaje) {
                   dummy.current.scrollIntoView({ behavior: "smooth", block: "end", inline: "nearest" });
                 }
-                // antes que suene el audio se verifica si el ultimo mensaje es del cliente para que suene el audio
-                if(listMensajes[listMensajes.length - 1].tipo === "ingoing" && listMensajes[listMensajes.length - 1].leido === false){
-                  if(GetTokenDecoded().mensaje_notificacion){
-                    // notificacion windows
-                    var notification = new Notification('Nuevo mensaje', {
+                if (listMensajes[listMensajes.length - 1].tipo === "ingoing" && listMensajes[listMensajes.length - 1].leido === false) {
+                  if (GetTokenDecoded().mensaje_notificacion) {
+                    const notification = new Notification('Nuevo mensaje', {
                       body: listMensajes[listMensajes.length - 1].mensajes.type === 'text' ? listMensajes[listMensajes.length - 1].mensajes.text : listMensajes[listMensajes.length - 1].mensajes.type,
                       icon: listMensajes[listMensajes.length - 1].Contactos.avatar,
-
-                    })
+                    });
+  
                     notification.onclick = function(event) {
                       event.preventDefault();
-                      OpenConversacion(listMensajes[listMensajes.length - 1])
+                      OpenConversacion(listMensajes[listMensajes.length - 1]);
                       window.focus();
-                    }
-                  
-                    // crear una etiqueta audio 
+                    };
+  
                     audioRef.current.play().catch(error => {
                       console.log('Error al reproducir el audio:', error);
                     });
                   }
                 }
-                if(listMensajes[listMensajes.length - 1].tipo !== "ingoing"){
+                if (listMensajes[listMensajes.length - 1].tipo !== "ingoing") {
                   dummy.current.scrollIntoView({ behavior: "smooth", block: "end", inline: "nearest" });
                 }
               }
-            }else if(covActiva.sin_asignar === true && covActiva.agente_id === data.agente_id){
-              if(listMensajes.length !== 0 && JSON.stringify(listMensajes) !== JSON.stringify(conversacionActiva)){
-                setConversacionActiva(listMensajes)
-                if(GetTokenDecoded().ver_ultimo_mensaje){
+            } else if (historial.length === 0 && covActiva.sin_asignar === true && covActiva.agente_id === data.agente_id) {
+              if (listMensajes.length !== 0 && JSON.stringify(listMensajes) !== JSON.stringify(conversacionActiva)) {
+                setConversacionActiva(listMensajes);
+                if (GetTokenDecoded().ver_ultimo_mensaje) {
                   dummy.current.scrollIntoView({ behavior: "smooth", block: "end", inline: "nearest" });
                 }
               }
             }
           }
         }
-      })
+      };
+  
+      socket.on(`get_conversacion_activa_${cuenta_id}`, handleConversacionActiva);
+  
       return () => {
-        socket.off(`get_conversacion_activa_${cuenta_id}`);
-      }
+        socket.off(`get_conversacion_activa_${cuenta_id}`, handleConversacionActiva);
+      };
     }
-  }, [socket])
+  }, [socket]);
+  
 
   const OpenConversacion = (item) => {
     // redireccionar a la conversacion activa
@@ -523,29 +488,27 @@ export default function Mensajeria() {
   //buscar la conversacion y por cuenta_id, contacto_id, conversacion_id, agente_id, y reemplazar los valores
   const CambiodeAgente = (data) => {
     try {
+      const CuentaId = GetTokenDecoded().cuenta_id;
       const { cuenta_id, contacto_id, conversacion_id, agente_id } = data;
-      var card = [...cardMensage];
-      card.map((item) => {
-        if (item.conversacion_id === conversacion_id && item.Contactos.id === contacto_id && cuenta_id === GetTokenDecoded().cuenta_id) {
-          item.agente_id = agente_id;
+      const updatedCards = cardMensage.map((item) => {
+        if (item.conversacion_id === conversacion_id && item.Contactos.id === contacto_id && cuenta_id === CuentaId) {
+          return {
+            ...item,
+            agente_id: agente_id,
+          };
         }
-      })
-      setCard_mensajes(card)
-      // contar las conversaciones sin leer, las mis conversaciones y todas
-      ContadorCon(card)
+        return item;
+      });
+  
+      setCard_mensajes(updatedCards);
+      dispatch({ type: 'SET_CARD_MENSAJERIA', payload: updatedCards });
     } catch (error) {
-      alert("Error al cambiar de agente")
+      console.log(error);
     }
   }
+  
 
-  const EmiittingMensaje = () => {
-    socket.emit("listar_conversacion", {
-      cuenta_id: GetTokenDecoded().cuenta_id,
-      equipo_id: null,
-      agente_id: GetTokenDecoded().id,
-      estado: null,
-    })
-  }
+
 
   const ListarEstados = async () => {
     const url = `estados`;
@@ -563,28 +526,6 @@ export default function Mensajeria() {
     }else{
       return null
     }
-  }
-
-  const GetActivaConversacion = async(item) => {
-    socket.emit("get_conversacion_activa", {
-      cuenta_id: GetTokenDecoded().cuenta_id,
-      conversacion_id: item.conversacion_id,
-      equipo_id: item.equipo_id,
-      channel_id: item.channel_id,
-      contacto_id: item.Contactos.id,
-      agente_id: GetTokenDecoded().id,
-      nombreunico: item.nombreunico,
-    })
-  }
-
-  const EventoAsignacionAgente = (item) => {
-    socket.emit("asignacion_agente", {
-      cuenta_id: GetTokenDecoded().cuenta_id,
-      contacto_id: item.Contactos.id,
-      conversacion_id: item.conversacion_id,
-      nombreunico: item.nombreunico,
-      agente_id: GetTokenDecoded().id,
-    });
   }
 
   const DeletManejoConversacion = () => {
@@ -639,10 +580,7 @@ export default function Mensajeria() {
         chat_id: covActiva.mensaje.chat_id,
         sessionId: covActiva.sessionIdWebChat
       };
-      socket.emit("enviando_mensajes", {
-        infoClient: infoClient,
-        mensaje: mensaje,
-      });
+      EmittMesnaje(infoClient, mensaje);
       setInputStr("");
       setTypeInput("text");
       EmiittingMensaje();
@@ -652,26 +590,27 @@ export default function Mensajeria() {
   }
 
   const handleBusqueda = (e) => {
-    // se tiene que buscar coincidencias con el nombre del contacto, numero de telefono y el mensaje
-    let busqueda = e.target.value;
-    let card = cardMensage;
+    const busqueda = e.target.value.toLowerCase();
     let new_card = [];
-    if(e.target.value === ""){
+  
+    if (busqueda === "") {
       setCard_mensajes(cardMensage);
       return;
-    }else{
-      card.map((item) => {
-        let mensaje = item.mensaje.type === "text" ? item.mensaje.text : item.mensaje.url
-        if (
-          item.bot.toLowerCase().includes(busqueda.toLowerCase()) || item.name.toLowerCase().includes(busqueda.toLowerCase()) ||
-          item.telefono.toLowerCase().includes(busqueda.toLowerCase()) || mensaje.toLowerCase().includes(busqueda.toLowerCase())
-        ) {
-          new_card.push(item);
-        }
-      });
-      setCard_mensajes(new_card);
     }
-  }
+  
+    new_card = cardMensage.filter((item) => {
+      let mensaje = item.mensaje.type === "text" ? item.mensaje.text : item.mensaje.url;
+      return (
+        item.bot.toLowerCase().includes(busqueda) ||
+        item.name.toLowerCase().includes(busqueda) ||
+        item.telefono.toLowerCase().includes(busqueda) ||
+        mensaje.toLowerCase().includes(busqueda)
+      );
+    });
+  
+    setCard_mensajes(new_card);
+  };
+  
 
   useEffect(() => {
     ListarEstados();
@@ -684,7 +623,7 @@ export default function Mensajeria() {
           }
       });
     } else {
-        console.log('Las notificaciones no son soportadas por este navegador');
+      console.log('Las notificaciones no son soportadas por este navegador');
     }
   }, [])
 
@@ -733,22 +672,6 @@ export default function Mensajeria() {
     }
   }
 
-  const ContadorCon = (card) => {
-    let sinLeer = 0
-    let todo = 0
-    let misConversaciones = 0
-    LimpiarCounC()
-    card.map((item) => {
-      if(item.agente_id === 0){
-        sinLeer = sinLeer + 1
-      }else if(item.agente_id === GetTokenDecoded().id){
-        misConversaciones = misConversaciones + 1
-      }
-      todo = todo + 1
-    })
-    setCountC({sinLeer: sinLeer, misConversaciones: misConversaciones, todas: todo})
-  }
-
   const historyInfo =()=>{
     setPing(Math.random())
   }
@@ -777,7 +700,6 @@ export default function Mensajeria() {
         {/* Los tab */}
         <CardTab
           onHideMensaje={onHideMensaje}
-          countC={countC}
           card_mensajes={card_mensajes}
           loading={loading}
           VerConversaciones={VerConversaciones}
@@ -849,7 +771,7 @@ export default function Mensajeria() {
                     <DropdownMenu>
                       {estados.map((item, index) => {
                         return (
-                          <DropdownItem className="d-flex align-items-center gap-2" onClick={()=>ActualizarEstadoConversacion(item.estados)} >
+                          <DropdownItem key={index} className="d-flex align-items-center gap-2" onClick={()=>ActualizarEstadoConversacion(item.estados)} >
                             <span>{item.estados}</span>
                           </DropdownItem>
                         );
@@ -863,55 +785,104 @@ export default function Mensajeria() {
             {/* Chat conversation */}
             <div className="row chat-body">
               <div className="col-12">
-                {conversacionActiva.map((item, index) => {
-                  if (item.tipo === "ingoing") {
-                    return (
-                      <div key={index + 1} className="w-100 my-3">
-                        <div className="w-50">
-                          <section
-                            className="w-fit d-flex flex-column px-3 py-2 rounded 
-                            chat-item-detail chat-receiver"
+                {
+                  historial.length > 0 ? (
+                    historial.map((item, index) => {
+                      if (item.tipo === "ingoing") {
+                        return (
+                          <div key={index + 1} className="w-100 my-3">
+                            <div className="w-50">
+                              <section
+                                className="w-fit d-flex flex-column px-3 py-2 rounded 
+                                chat-item-detail chat-receiver"
+                              >
+                                <ComponenteMultimedia item={item.mensajes} />
+                                <small>
+                                  {moment(item.createdAt) >=
+                                  moment().subtract(1, "days")
+                                    ? moment(item.createdAt).format("hh:mm a")
+                                    : moment(item.createdAt).format(
+                                        "DD/MM/YYYY hh:mm a"
+                                      )}
+                                </small>
+                              </section>
+                            </div>
+                          </div>
+                        );
+                      } else {
+                        return (
+                          <div
+                            key={index + 1}
+                            className="w-100 my-3  d-flex justify-content-end"
                           >
-                            <ComponenteMultimedia item={item.mensajes} />
-                            <small>
-                              {moment(item.createdAt) >=
-                              moment().subtract(1, "days")
-                                ? moment(item.createdAt).format("hh:mm a")
-                                : moment(item.createdAt).format(
-                                    "DD/MM/YYYY hh:mm a"
-                                  )}
-                            </small>
-                          </section>
-                        </div>
-                      </div>
-                    );
-                  } else {
-                    return (
-                      <div
-                        key={index + 1}
-                        className="w-100 my-3  d-flex justify-content-end"
-                      >
-                        <div className="w-50 d-flex justify-content-end">
-                          <section
-                            className="border w-fit d-flex flex-column px-3 py-2 rounded 
-                            chat-item-detail chat-sender"
+                            <div className="w-50 d-flex justify-content-end">
+                              <section
+                                className="border w-fit d-flex flex-column px-3 py-2 rounded 
+                                chat-item-detail chat-sender"
+                              >
+                                {/* {CompomenteMultimedis(item.mensajes)} */}
+                                < ComponenteMultimedia item={item.mensajes} />
+                                <small>
+                                  {moment(item.createdAt) >=
+                                    moment().subtract(1, "days")
+                                    ? moment(item.createdAt).format("hh:mm a")
+                                    : moment(item.createdAt).format("DD/MM/YYYY hh:mm a")}
+                                </small>
+                              </section>
+                            </div>
+                          </div>
+                        );
+                      }
+                    })):
+                    conversacionActiva.map((item, index) => {
+                      if (item.tipo === "ingoing") {
+                        return (
+                          <div key={index + 1} className="w-100 my-3">
+                            <div className="w-50">
+                              <section
+                                className="w-fit d-flex flex-column px-3 py-2 rounded 
+                                chat-item-detail chat-receiver"
+                              >
+                                <ComponenteMultimedia item={item.mensajes} />
+                                <small>
+                                  {moment(item.createdAt) >=
+                                    moment().subtract(1, "days")
+                                    ? moment(item.createdAt).format("hh:mm a")
+                                    : moment(item.createdAt).format(
+                                        "DD/MM/YYYY hh:mm a"
+                                      )}
+                                </small>
+                              </section>
+                            </div>
+                          </div>
+                        );
+                      } else {
+                        return (
+                          <div
+                            key={index + 1}
+                            className="w-100 my-3  d-flex justify-content-end"
                           >
-                            {/* {CompomenteMultimedis(item.mensajes)} */}
-                            < ComponenteMultimedia item={item.mensajes} />
-                            <small>
-                              {moment(item.createdAt) >=
-                              moment().subtract(1, "days")
-                                ? moment(item.createdAt).format("hh:mm a")
-                                : moment(item.createdAt).format(
-                                    "DD/MM/YYYY hh:mm a"
-                                  )}
-                            </small>
-                          </section>
-                        </div>
-                      </div>
-                    );
-                  }
-                })}
+                            <div className="w-50 d-flex justify-content-end">
+                              <section
+                                className="border w-fit d-flex flex-column px-3 py-2 rounded 
+                                chat-item-detail chat-sender"
+                              >
+                                {/* {CompomenteMultimedis(item.mensajes)} */}
+                                < ComponenteMultimedia item={item.mensajes} />
+                                <small>
+                                  {moment(item.createdAt) >=
+                                  moment().subtract(1, "days")
+                                    ? moment(item.createdAt).format("hh:mm a")
+                                    : moment(item.createdAt).format(
+                                        "DD/MM/YYYY hh:mm a"
+                                      )}
+                                </small>
+                              </section>
+                            </div>
+                          </div>
+                        );
+                      }
+                    })}
                 <p className="text-center mt-3" ref={dummy}></p>
               </div>
             </div>

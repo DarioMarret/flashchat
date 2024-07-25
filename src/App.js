@@ -13,7 +13,7 @@ import store from "./redux/store";
 import image3 from "assets/img/full-screen-image-3.jpg";
 import { RemoverConversacion } from "function/storeUsuario";
 import Dashboard from "views/Dashboard";
-import ChatBots from "views/Pages/ChatBots";
+import Bots from "views/Pages/Bot/Bots";
 import Agentes from "views/Pages/Configuracion/Agentes";
 import ComprobantesOcr from "views/Pages/Configuracion/ComprobantesOcr";
 import Equipos from "views/Pages/Configuracion/Equipos";
@@ -31,6 +31,7 @@ import Cola from "views/Pages/Cola/Cola";
 import Cuenta from "views/Pages/Cuenta/Cuenta";
 import Execiones from "views/Pages/Execiones/Execiones";
 import Factura from "views/Pages/Factura/Factura";
+import Galeria from "views/Pages/Galeria/Galeria";
 import HistorialContacto from "views/Pages/HistorialContacto/HistorialContacto";
 import Historial from "views/Pages/History/Historial";
 import Integraciones from "views/Pages/Integraciones/Integraciones";
@@ -194,6 +195,11 @@ export default function App() {
                         exact
                       />
                       <Route
+                        path="/admin/multimedia"
+                        element={<Galeria />}
+                        exact
+                      />
+                      <Route
                         path="/admin/inactividad"
                         element={<Inactividad />}
                         exact
@@ -204,7 +210,7 @@ export default function App() {
                         element={<ComprobantesOcr />}
                         exact
                       />
-                      <Route path="/admin/bots" element={<ChatBots />} exact />
+                      <Route path="/admin/bots" element={<Bots />} exact />
                       {/* <Route path="/admin/sweet-alert" element={<SweetAlertPage />} exact /> */}
                       <Route
                         path="/admin/integraciones"

@@ -18,7 +18,7 @@ import Swal from "sweetalert2";
 import ModelSdk from "views/Components/Modales/ModelSdk";
 
 
-function ChatBots(props) {
+function Bots(props) {
   const [show, setShow] = useState(false);
   const [opQr, setOpQr] = useState(false);
   const [estadoQr, setEstadoQr] = useState({
@@ -45,6 +45,7 @@ function ChatBots(props) {
     srcname: "",
     source: "",
     url: "",
+    flowise: false
   });
   const [sdk, setSdk] = useState(null);
   const [ruta, setRuta] = useState("");
@@ -296,6 +297,7 @@ function ChatBots(props) {
       api_telegram: "",
       srcname: "",
       source: "",
+      flowise: false
     });
   };
 
@@ -460,6 +462,7 @@ function ChatBots(props) {
       api_telegram: item.api_telegram,
       srcname: item.srcname,
       source: item.source,
+      flowise: item.flowise
     });
     setShow(!show);
   };
@@ -552,11 +555,19 @@ function ChatBots(props) {
                       onClick={() =>{
                         if(bot.url){
                           let url = bot.url.replaceAll("http://177.234.209.101:3022", "https://flashbot.bot")
-                          window.open(`${url}?cuenta_id=${bot.cuenta_id}`,"_blank")
+                          if(bot.flowise){
+                            window.open(`${url}`,"_blank")  
+                          }else{
+                            window.open(`${url}?cuenta_id=${bot.cuenta_id}`,"_blank")
+                          }
                         }else{
                           ListarBots()
                           let url = bot.url.replaceAll("http://177.234.209.101:3022", "https://flashbot.bot")
-                          window.open(`${url}?cuenta_id=${bot.cuenta_id}`,"_blank")
+                          if(bot.flowise){
+                            window.open(`${url}`,"_blank")  
+                          }else{
+                            window.open(`${url}?cuenta_id=${bot.cuenta_id}`,"_blank")
+                          }
                         }
                       }}
                     >
@@ -612,8 +623,27 @@ function ChatBots(props) {
                   ))}
                 </select>
               </div>
+              {/* Checkout para flowise o tipebot */}
               <div className="form-group">
-                <label htmlFor="description">Plantilla Bot</label>
+                <label htmlFor="description">
+                  Flowise
+                  <b
+                    className="text-secondary"
+                    style={{ fontSize: "12px" }}
+                  > (Crear tu bot con inteligencia artifical ChatGpt, Llama)</b>
+                </label>
+                <input type="checkbox"
+                  className="mx-2"
+                  id="exampleFormControlSelect1"
+                  checked={bot.flowise}
+                  onChange={(e) =>
+                    setBot({ ...bot, flowise: e.target.checked })
+                  }
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="description">Modelo de bot</label>
                 <select
                   className="form-control"
                   id="exampleFormControlSelect1"
@@ -623,7 +653,7 @@ function ChatBots(props) {
                   }
                   disabled={bot.id !== 0}
                 >
-                  <option>Seleccione una plantilla</option>
+                  <option>Seleccione un modelo</option>
                   {botPlantilla.map((item, index) => (
                     <option key={index} value={item.plantilla}>
                       {item.plantilla}
@@ -633,7 +663,7 @@ function ChatBots(props) {
               </div>
               {bot.channel_id === 6 || bot.channel_id === 8 ? null : (
                 <div className="form-group">
-                  <label htmlFor="tiempo">Nombre Bots</label>
+                  <label htmlFor="tiempo">Nombre bots</label>
                   <input
                     type="text"
                     className="form-control"
@@ -1010,4 +1040,4 @@ function ChatBots(props) {
   );
 }
 
-export default ChatBots;
+export default Bots;

@@ -8,11 +8,14 @@ import {
   Dropdown, DropdownItem, DropdownMenu, DropdownToggle
 } from 'react-bootstrap';
 import Draggable from 'react-draggable';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import Swal from 'sweetalert2';
 import ComponenteMultimedia from 'views/Components/ComponenteMultimedia';
+import ModalRecordatorioMensajeria from 'views/Components/Modales/ModalRecordatorioMensajeria';
 import socket from 'views/SocketIO';
 
 function InfoHistorialContacto(props) {
+    const dispatch = useDispatch();
     const { agenteArray } = useSelector(state => state.agentes)
     const [etiquetas, setEtiquetas] = useState([])
     const [agentes, setAgentes] = useState([]);
@@ -26,13 +29,26 @@ function InfoHistorialContacto(props) {
     const { historyInfo, ping, verHistorial } = useMensajeria();
     const [isVisible, setIsVisible] = useState(true); // Estado de visibilidad
     const [position, setPosition] = useState({ x: 0, y: 0 });
-
     const [paginacion , setPaginacion] = useState({
         init: 0,
         end: 5
     })
-
-
+    const [recordatorio, setRecordatorio] = useState({
+      id: 0,
+      cuenta_id: GetTokenDecoded().cuenta_id,
+      contacto_id: GetManejoConversacion().Contactos.id,
+      agente_id: GetTokenDecoded().id,
+      bot_id: GetTokenDecoded().botId.filter((item) => item.name === GetManejoConversacion().bot)[0].id,
+      fecha: "",
+      mes: 0,
+      hora: "",
+      nota: "",
+      tipo: "",
+      color: "",
+      form: {},
+    });
+    const [show, setShow] = useState(false);
+    const [bots, setBots] = useState([]);
     
     const ListarEtiquetas = async () => {
         const { data, status } = await BmHttp().get(`etiqueta/${GetTokenDecoded().cuenta_id}`)
@@ -49,6 +65,26 @@ function InfoHistorialContacto(props) {
             return "Sin agente"
         }
     }
+
+    const CrearRecordatorio = async () => {
+      const { status } = await BmHttp().post("recordatorio", recordatorio);
+      if (status !== 200) {
+        Swal.fire({
+          icon: "error",
+          title: "Error al crear recordatorio",
+          showConfirmButton: false,
+          timer: 1500,
+        });
+      } else {
+        Swal.fire({
+          icon: "success",
+          title: "Recordatorio creado con exito",
+          showConfirmButton: false,
+          timer: 1500,
+        });
+        handClose();
+      }
+    };
 
     const HistorialContacto = async () => {
         try {
@@ -95,7 +131,8 @@ function InfoHistorialContacto(props) {
         nombreunico: nombreunico,
       })
       if (status === 200) {
-        verHistorial(data.data)
+        // verHistorial(data.data)
+        dispatch({type: 'SET_HISTORIAL', payload: data.data})
       }
     }
 
@@ -156,6 +193,26 @@ function InfoHistorialContacto(props) {
         }
     }
 
+    const handClose = () => {
+      setShow(!show);
+    };
+    
+    const OpenRecordatorio = () => {
+      setShow(true);
+      setRecordatorio({
+        ...recordatorio,
+        bot_id: GetTokenDecoded().botId.filter((item) => item.name === GetManejoConversacion().bot)[0].id,
+        contacto_id: GetManejoConversacion().Contactos.id,
+      });
+    }
+
+    const handleOnchange = (e) => {
+      setRecordatorio({
+        ...recordatorio,
+        [e.target.name]: e.target.value,
+      });
+    };
+
     const HandleActivarNota = () => {
         setActivarNota(!activarNota)
     }
@@ -202,9 +259,9 @@ function InfoHistorialContacto(props) {
     }, []);
     // Guardar la posición en localStorage cuando cambie
     const handleDragStop = (e, data) => {
-        const newPosition = { x: data.x, y: data.y };
-        setPosition(newPosition);
-        localStorage.setItem('buttonPosition', JSON.stringify(newPosition));
+      const newPosition = { x: data.x, y: data.y };
+      setPosition(newPosition);
+      localStorage.setItem('buttonPosition', JSON.stringify(newPosition));
     };
 
 
@@ -219,17 +276,17 @@ function InfoHistorialContacto(props) {
             <button 
                 className='button-bm'
                 style={{ position: 'absolute', top: '50px', right: '0', zIndex: '1000',
-                        background: '#BFBFC1', border: 'none',
-                        height: '40px', width: '50px',
+                  background: '#BFBFC1', border: 'none',
+                  height: '40px', width: '50px',
                 }}
                 onClick={() => setIsVisible(!isVisible)}>
-            {isVisible ? 
-                    <span className="material-symbols-outlined text-white" style={{ fontSize: '20px' }}>
-                        arrow_back_ios
-                    </span> :
-                    <span className="material-symbols-outlined text-white" style={{ fontSize: '20px' }}>
-                        arrow_forward_ios
-                    </span>
+                {isVisible ? 
+                  <span className="material-symbols-outlined text-white" style={{ fontSize: '20px' }}>
+                      arrow_back_ios
+                  </span> :
+                  <span className="material-symbols-outlined text-white" style={{ fontSize: '20px' }}>
+                      arrow_forward_ios
+                  </span>
                 }
             </button>
         </Draggable>
@@ -269,6 +326,17 @@ function InfoHistorialContacto(props) {
                   </span>
                   <span className="font-bold text-span box-info-text">
                     {infoContacto ? infoContacto.fecha : null}
+                  </span>
+                </div>
+                {/* anadir recordatorio */}
+                <div className="d-flex gap-2 align-items-center" style={{cursor: 'pointer'}} onClick={() => {
+                  OpenRecordatorio()
+                }}>
+                  <span className="material-symbols-outlined text-span" style={{ fontSize: '20px' }}>
+                    alarm
+                  </span>
+                  <span className="font-bold text-span box-info-text cursor-pointer" >
+                    Crear recordatorio
                   </span>
                 </div>
               </div>
@@ -396,12 +464,18 @@ function InfoHistorialContacto(props) {
                       </div>
                     }
 
-
                 </div>
               </div>
             </div>
           </div>
         )}
+        <ModalRecordatorioMensajeria
+          show={show}
+          handClose={handClose}
+          recordatorio={recordatorio}
+          handleOnchange={handleOnchange}
+          CrearRecordatorio={CrearRecordatorio}
+        />
       </>
     );
 }

@@ -1,3 +1,4 @@
+import logo from "assets/img/logo512.png";
 import { DecodeJwt } from "function/util/ecrypt";
 import { BmHttp, colorPrimario, HoraServer, host, HttpLogin, tabconversacion, usuario_token } from "function/util/global";
 import useAuth from "hook/useAuth";
@@ -11,6 +12,7 @@ import {
 } from "react-bootstrap";
 import { useDispatch } from "react-redux";
 import Swal from "sweetalert2";
+import FlashChat from "views/Components/FlashChat/FlashChat";
 
 
 const LoginPage =(props)=> {
@@ -174,9 +176,9 @@ const LoginPage =(props)=> {
           <div className="row w-100">
             <div className="col-12 col-md-6 col-lg-8 d-none d-md-flex d-flex flex-column align-items-center justify-content-center">
               <div className="text-center">
-                <h3 className="text-uppercase mx-auto text-white font-600 text-center typing">Obtén tu cuenta demo por 10 días !</h3>
+                <h3 className="text-uppercase mx-auto text-white font-600 text-center typing">Obtén tu cuenta demo por 5 días !</h3>
 
-                <p className="text-gray frasphe text-center mx-auto my-3">Descubre la revolución en atención al cliente con nuestro innovador chatbot durante 10 días de demo gratuito</p>
+                <p className="text-gray frasphe text-center mx-auto my-3">Descubre la revolución en atención al cliente con nuestro innovador chatbot durante 5 días de demo gratuito</p>
                 <button className="btn-outline-white" 
                 onClick={() => setDemoStatus(!demoStatus)}>Quiero mi demo</button>
               </div>
@@ -190,7 +192,8 @@ const LoginPage =(props)=> {
                   <Card className={"card-login background-backdrop" + cardClasses}>
                     <Card.Header>
                       <h4 className="header text-center">Agenda tu demo</h4>
-                      <h3 className="header text-center font-bold">FlashChat</h3>
+                      {/* <h3 className="header text-center font-bold">FlashChat</h3> */}
+                      <FlashChat />
                       <hr/>
                     </Card.Header>
                       <Card.Body>
@@ -277,8 +280,14 @@ const LoginPage =(props)=> {
                 <Form action="" className="form" method="">
                   <Card className={"card-login background-backdrop" + cardClasses}>
                     <Card.Header>
-                      <h4 className="header text-center">Bienvenido</h4>
-                      <h3 className="header text-center font-bold">FlashChat</h3>
+                      {/* <h4 className="header text-center">Bienvenido</h4> */}
+                      {/* <h3 className="header text-center font-bold">FlashChat</h3> */}
+                      <div className="d-flex justify-content-center align-items-center">
+                        <img src={logo} alt="FlashChat" className="logo" 
+                          style={{width: '100px', height: '100px'}}
+                        />
+                      </div>
+                      <FlashChat />
                       <hr/>
                     </Card.Header>
                       <Card.Body>

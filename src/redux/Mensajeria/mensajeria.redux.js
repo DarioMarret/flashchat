@@ -172,6 +172,10 @@ export default function mensajeriaReducer(state = initialState, action) {
                     }
                 }
             case 'SET_HISTORIAL':
+                // primero ordenar por fecha y hora solo si el array tiene elementos
+                if (action.payload.length > 0){
+                    action.payload.sort((a, b) => new Date(a.updatedAt) - new Date(b.updatedAt));
+                }
                 return {
                     ...state,
                     historial: action.payload,

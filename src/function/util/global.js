@@ -1,12 +1,13 @@
 import axios from "axios";
 import { GetToken, GetTokenDecoded } from "function/storeUsuario";
 
-export const usuario_local = "usuario:";
-export const usuario_token = "token_usuario:";
-export const card_mensajes = "card_mensajes:";
-export const estaso_nav = "estado:";
-export const tabconversacion = "tabconversacion:";
-export const conversacion_activa = "conversacion_activa";
+export const usuario_local = "flash_usuario:";
+export const usuario_token = "flash_token_usuario:";
+export const card_mensajes = "flash_card_mensajes:";
+export const estaso_nav = "flash_estado:";
+export const tabconversacion = "flash_tabconversacion:";
+export const conversacion_activa = "flash_conversacion_activa";
+export const recordatorio_store = "flash_recordatorio";
 export const dev = false;
 export const proxy = "backflash"
 export const plantillas_360 = "https://waba.360dialog.io/v1/configs/templates?offset=0&limit=1000&sort=business_templates.name&filters={}"
@@ -47,10 +48,14 @@ const Logout = () => {
 export const BmHttp = bm;
 
 const dominio = () => {
-    if(GetTokenDecoded() === null){
-        return  dev ? "https://flash.codigomarret.com/backflash/" : "https://api.flashchat.chat/backflash/";
+    try {
+        if(GetTokenDecoded() === null){
+            return  dev ? "https://flash.codigomarret.com/backflash/" : "https://api.flashchat.chat/backflash/";
+        }
+        return GetTokenDecoded().cuenta.url_dominio
+    } catch (error) {
+        console.log(error)
     }
-    return GetTokenDecoded().cuenta.url_dominio
     // return  GetTokenDecoded() && GetTokenDecoded().cuenta.url_dominio ? GetTokenDecoded().cuenta.url_dominio : dev ? "https://flash.codigomarret.com/backflash/" : "https://api.flashchat.chat/backflash/";
 }
 export const host = dominio;

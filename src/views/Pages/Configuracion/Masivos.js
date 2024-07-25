@@ -1,7 +1,7 @@
 import {
-    GetTokenDecoded,
-    IsKeyObject,
-    SubirMedia,
+  GetTokenDecoded,
+  IsKeyObject,
+  SubirMedia,
 } from "function/storeUsuario";
 import { BmHttp, host } from "function/util/global";
 import moment from "moment";
@@ -73,7 +73,7 @@ function Masivos(props) {
     video: null,
     type: "imagen",
     plantilla_id: null,
-    numero: null,
+    numero: "",
     parametros: [],
     plantilla: null,
     estado: null,
@@ -178,10 +178,10 @@ function Masivos(props) {
     console.log("E: ", e.target.name);
     console.log("E: ", e.target.value);
     try {
-      setEnvio({
-        ...envio,
-        [e.target.name]: e.target.value,
-      });
+      // setEnvio({
+      //   ...envio,
+      //   [e.target.name]: e.target.value,
+      // });
       if (envio.type === "video") {
         setEnvio({
           ...envio,
@@ -274,6 +274,11 @@ function Masivos(props) {
           ...envio,
           contact_plantilla: e.target.checked,
         });
+      }else{
+        setEnvio({
+          ...envio,
+          [e.target.name]: e.target.value,
+        });
       }
     } catch (error) {
       console.log(error);
@@ -342,6 +347,7 @@ function Masivos(props) {
           imagen: url,
         });
       }
+      console.log("envio: ", envio);
       let i = 0;
       for (i = progresoFile; i <= 100; i++) {
         setProgresoFile(i);
@@ -462,6 +468,8 @@ function Masivos(props) {
   };
 
   const handleType = (e) => {
+    console.log("E: ", e.target.value);
+    console.log("E: ", e.target.name);
     setEnvio({
       ...envio,
       type: e.target.value,
@@ -469,6 +477,7 @@ function Masivos(props) {
   };
 
   const EnvioPrueba = async (e) => {
+    console.log("Envio: ", envio);
     e.preventDefault();
     if (envio.numero === null || envio.numero === "") {
       Swal.fire({
@@ -1118,7 +1127,7 @@ function Masivos(props) {
                   />
                 </div>
 
-                {/* restartdo entre mensajes */}
+                {/* restardo entre mensajes */}
 
                 <div className="form-group m-1 col-4 col-md-4 col-lg-4">
                   <label htmlFor="nombreunico">Retardo</label>
@@ -1324,7 +1333,7 @@ function Masivos(props) {
                     id="numero"
                     name="numero"
                     value={envio.numero}
-                    onChange={handleEnvio}
+                    onChange={(e)=>handleEnvio(e)}
                   />
                 </div>
               }

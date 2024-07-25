@@ -44,6 +44,7 @@ function TabPanel(props) {
                     if(item.mensaje){
                         if(item.agente_id === 0){
                             return <CardChat
+                                key={index}
                                 messageItem={item} 
                                 index={ uuidv4() }
                                 // verConversacion={() => ManejarConversacion(item)}
@@ -61,6 +62,7 @@ function TabPanel(props) {
                     if(item.mensaje){
                         if(item.agente_id === GetTokenDecoded().id){
                             return <CardChat 
+                                key={index}
                                 messageItem={item} 
                                 index={uuidv4()}
                                 // verConversacion={() => ManejarConversacion(item)}
@@ -78,6 +80,7 @@ function TabPanel(props) {
                     if(item.mensaje){
                         return (
                             <CardChat 
+                                key={index}
                                 messageItem={item} 
                                 index={uuidv4()}
                                 // verConversacion={() => ManejarConversacion(item)}

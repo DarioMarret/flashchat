@@ -1,10 +1,10 @@
-import logo from "assets/img/favicon1.ico";
+import logo from "assets/img/logo512.png";
 import PropTypes from "prop-types";
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 
 // react-bootstrap components
-import { GetTokenDecoded } from "function/storeUsuario";
+import { GetCountRecordatorio, GetTokenDecoded, SetCountRecordatorio } from "function/storeUsuario";
 import { colorPrimario } from "function/util/global";
 import useAuth from "hook/useAuth";
 import {
@@ -13,6 +13,7 @@ import {
 } from "react-bootstrap";
 import { useDispatch } from "react-redux";
 import Swal from "sweetalert2";
+import FlashChat from "views/Components/FlashChat/FlashChat";
 import socket from "views/SocketIO";
 import { addAgente } from "../../redux/Agentes/agente.servicio";
 
@@ -24,45 +25,60 @@ function Sidebar({ routes, image, background, setMensajeBanner }) {
   // const navigate = useNavigate();
   // this is for the user collapse
   const [userCollapseState, setUserCollapseState] = React.useState(false);
+  const [recor, setRecor] = React.useState(null);
+  const tokenDecoded = useRef(GetTokenDecoded());
   // this is for the rest of the collapses
-  if(GetTokenDecoded() && GetTokenDecoded().cuenta_id){
-    socket.on('banner_'+GetTokenDecoded().cuenta_id, (data) => {
-      const { mensaje, cuenta_id } = data;
-      if (GetTokenDecoded() && cuenta_id === GetTokenDecoded().cuenta_id) {
-        setMensajeBanner({
-          mensaje: mensaje,
-          color: data.color,
-          btnColor: data.btnColor,
-          tipo: data.tipo,
-          cuenta_id: cuenta_id,
-          tiempo: data.tiempo
-        });
-      }
-    })
-  
-    socket.on("infoUsuario_"+GetTokenDecoded().cuenta_id+'_'+GetTokenDecoded().id, (msg) => {
-      try {
-        const { type, data, agente_id, cuenta_id, estado } = msg;
-        console.log(msg)
-        if (type === "recargarToken" && agente_id === GetTokenDecoded().id && data !== null) {
-          logout();
-        }else if (type === "status" && agente_id === GetTokenDecoded().id && cuenta_id === GetTokenDecoded().cuenta_id) {
-          socket.emit('infoUsuario', { type: "online", agente_id, cuenta_id, estado});
-          dispatch(addAgente());
-        }else if(type === "mensaje_personalizado" && agente_id === GetTokenDecoded().id && cuenta_id === GetTokenDecoded().cuenta_id){
-          Swal.fire({
-            title: 'Mensaje personalizado',
-            text: data.mensaje,
-            icon: data.tipo,
-            confirmButtonText: 'Ok',
-            confirmButtonColor: '#3F98F8',
-          })
+
+  useEffect(() => {
+    if (tokenDecoded.current && tokenDecoded.current.cuenta_id) {
+      const cuentaId = tokenDecoded.current.cuenta_id;
+      const userId = tokenDecoded.current.id;
+      socket.on(`banner_${cuentaId}`, (data) => {
+        const { mensaje, cuenta_id } = data;
+        if (tokenDecoded.current && cuenta_id === tokenDecoded.current.cuenta_id) {
+          setMensajeBanner({
+            mensaje: mensaje,
+            color: data.color,
+            btnColor: data.btnColor,
+            tipo: data.tipo,
+            cuenta_id: cuenta_id,
+            tiempo: data.tiempo
+          });
         }
-      } catch (error) {
-        console.log(error)
-      }
-    })
-  }
+      });
+
+      socket.on(`infoUsuario_${cuentaId}_${userId}`, (msg) => {
+        try {
+          const { type, data, agente_id, cuenta_id, estado } = msg;
+          if (type === "recargarToken" && agente_id === userId && data !== null) {
+            logout();
+          } else if (type === "status" && agente_id === userId && cuenta_id === cuentaId) {
+            socket.emit('infoUsuario', { type: "online", agente_id, cuenta_id, estado });
+            dispatch(addAgente());
+          } else if (type === "mensaje_personalizado" && agente_id === userId && cuenta_id === cuentaId) {
+            Swal.fire({
+              title: 'Mensaje personalizado',
+              text: data.mensaje,
+              icon: data.tipo,
+              confirmButtonText: 'Ok',
+              confirmButtonColor: '#3F98F8',
+            });
+          } else if (type === "recordatorio" && agente_id === userId && cuenta_id === cuentaId) {
+            SetCountRecordatorio(data);
+            setRecor(data);
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      });
+    }
+    
+    // Cleanup function to avoid memory leaks
+    return () => {
+      socket.off(`banner_${tokenDecoded.current.cuenta_id}`);
+      socket.off(`infoUsuario_${tokenDecoded.current.cuenta_id}_${tokenDecoded.current.id}`);
+    };
+  }, [socket]);
 
   const [state, setState] = React.useState({});
   React.useEffect(() => {
@@ -154,8 +170,31 @@ function Sidebar({ routes, image, background, setMensajeBanner }) {
           className={`nav-link ${activeRoute(prop.layout + prop.path)}`}>
             {prop.icon ? (
               <>
+              <div className="icon">
                 <i className={prop.icon} />
                 <p>{prop.name}</p>
+                {/* poner un icono de notificacion que esten end de fondo rojo */}
+                <div className="notification" style={{
+                  display: prop.path === "/recordatorios" ? "flex" : "none",
+                  justifyContent: "end",
+                  zIndex: 1000,
+                  position: "absolute",
+                  left: "7%",
+                  marginTop: "-7%",
+                                    
+                }}>
+                  <span className="badge badge-danger"
+                  style={{
+                    backgroundColor: "#f44336",
+                    color: "#fff",
+                    borderRadius: "50%",
+                  }}
+                  >{GetCountRecordatorio() || recor}</span>
+                </div>
+
+
+              </div>
+                
               </>
             ) : (
               <>
@@ -192,22 +231,29 @@ function Sidebar({ routes, image, background, setMensajeBanner }) {
               <div className="logo-img">
                 <img
                   src={logo}
-                  className="img-fluid rounded-circle"
+                  className="img-fluid rounded-circle "
                   alt="logo"
+                  style={{
+                    top: "-5%",
+                  }}
                 />
               </div>
             </a>
             <a
               className="simple-text logo-normal"
-              href="http://flashchat.chat"
+              href="#;"
+              style={{
+                textDecoration: "none",
+                marginRight: "20px",
+              }}
             >
-              FlashChat
+              <FlashChat />
             </a>
           </div>
           <div className="user">
             <div className="photo">
               <img alt="..." src={
-                GetTokenDecoded() && GetTokenDecoded().avatar === "" ? require("assets/img/faces/face-0.jpg") : GetTokenDecoded().avatar
+                GetTokenDecoded() && GetTokenDecoded().avatar
                 } />
             </div>
             <div className="info">

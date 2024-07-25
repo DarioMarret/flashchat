@@ -161,7 +161,9 @@ function CardChat(props) {
       nombreunico: items.nombreunico,
       tipo: "sin_asignar",
     })
+    dispatch({type: 'SET_HISTORIAL', payload: []})
     historyInfo()
+    
   }
 
   const RemoverEtiqueta = async (etiqueta, et) => {

@@ -2,14 +2,14 @@ import { GetTokenDecoded, SubirMedia } from "function/storeUsuario";
 import { BmHttp, colorPrimario } from "function/util/global";
 import { useEffect, useState } from "react";
 import {
-    Card,
-    CardBody,
-    CardFooter,
-    CardHeader,
-    CardTitle,
-    Col,
-    Form,
-    Row,
+  Card,
+  CardBody,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+  Col,
+  Form,
+  Row,
 } from "react-bootstrap";
 import { Container, FormGroup, Input } from "reactstrap";
 import Swal from "sweetalert2";
@@ -240,7 +240,7 @@ export default function Perfil() {
                   <FormGroup
                     className="d-flex flex-column align-items-center "
                     style={{
-                      border: "1px solid #ccc",
+                      // border: "1px solid #ccc",
                       borderRadius: "50%",
                       width: "40%",
                     }}
@@ -250,6 +250,7 @@ export default function Perfil() {
                       src={agente.avatar}
                       alt="avatar"
                       style={{ width: "260px" }}
+                      className="rounded-circle"
                     />
                   </FormGroup>
                 </Col>

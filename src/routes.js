@@ -1,5 +1,5 @@
 import Dashboard from "views/Dashboard.js";
-import ChatBots from "views/Pages/ChatBots";
+import Bots from "views/Pages/Bot/Bots";
 import Agentes from "views/Pages/Configuracion/Agentes";
 import ComprobantesOcr from "views/Pages/Configuracion/ComprobantesOcr";
 import Equipos from "views/Pages/Configuracion/Equipos";
@@ -10,7 +10,7 @@ import Masivos from "views/Pages/Configuracion/Masivos";
 import MensajesAutomaticos from "views/Pages/Configuracion/MensajesAutomaticos";
 import Contactos from "views/Pages/Contactos";
 import Execiones from "views/Pages/Execiones/Execiones";
-import Factura from "views/Pages/Factura/Factura";
+import Galeria from "views/Pages/Galeria/Galeria";
 import Historial from "views/Pages/History/Historial";
 import Integraciones from "views/Pages/Integraciones/Integraciones";
 import LoginPage from "views/Pages/LoginPage";
@@ -146,7 +146,14 @@ var routes = [
       layout: "/admin",
       name: "Bots",
       icon: "nc-icon nc-android",
-      component: ChatBots
+      component: Bots
+    },
+    {
+      path: "/multimedia",
+      layout: "/admin",
+      name: "Multimedia",
+      icon: "nc-icon nc-album-2",
+      component: Galeria
     },
     {
       path: "/login-page",
@@ -155,20 +162,20 @@ var routes = [
       mini: "LP",
       component: LoginPage
     },
-    {
-      path: "/suscripciones",
-      layout: "/admin",
-      name: "Suscripciones",
-      icon: "nc-icon nc-money-coins",
-      component: Suscripciones
-    },
-    {
-      path: "/factura",
-      layout: "/admin",
-      name: "Facturas",
-      icon: "nc-icon nc-single-copy-04",
-      component: Factura
-    },
+    // {
+    //   path: "/suscripciones",
+    //   layout: "/admin",
+    //   name: "Suscripciones",
+    //   icon: "nc-icon nc-money-coins",
+    //   component: Suscripciones
+    // },
+    // {
+    //   path: "/factura",
+    //   layout: "/admin",
+    //   name: "Facturas",
+    //   icon: "nc-icon nc-single-copy-04",
+    //   component: Factura
+    // },
     {
       path: "/integraciones",
       layout: "/admin",
