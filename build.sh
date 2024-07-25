@@ -2,7 +2,7 @@ git add .
 git commit -m "Coreccion de errores en el modal de Script"
 git push
 export SHORT_COMMIT=$(git log -1 --pretty="%H" | cut -b -8)
-export DOCKER_IMAGE_VERSION="prod_v_1_6"
+export DOCKER_IMAGE_VERSION="prod_v_1_7"
 docker login -u "djmarret1992" -p "Tumadre1@" docker.io
 
 docker build -t djmarret1992/flashchat:${DOCKER_IMAGE_VERSION} -f Dockerfile .
