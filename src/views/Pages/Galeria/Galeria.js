@@ -1,24 +1,33 @@
 /* eslint-disable jsx-a11y/iframe-has-title */
 import { GetTokenDecoded } from "function/storeUsuario";
-import { BmHttp, colorPrimario } from "function/util/global";
+import { BmHttp } from "function/util/global";
 import moment from "moment";
 import { useEffect, useState } from "react";
 import { Card, Col, Input, Row, Spinner } from "reactstrap";
 
 export default function Galeria() {
 
-    const [galeria, setGaleria] = useState([]);
+    const [ToatlSize, setTotalSize] = useState(0);
     const [galeriaFiltrada, setGaleriaFiltrada] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [fecha, setFecha] = useState("");
+    const [fechaFilter, setFechaFilter] = useState(moment().format("YYYY-MM-DD"));
+    const Token = GetTokenDecoded();
 
-    const ListarMultimedias = async () => {
+    const ListarMultimedias = async (fecha) => {
         try {
-            setLoading(true);
-            const { data } = await BmHttp().get('multimedia?cuenta_id=' + GetTokenDecoded().cuenta.id);
-            console.log(data);
-            setGaleria(data.data);
-            setLoading(false);
+            if(fecha === null){
+                setLoading(true);
+                const {data} = await BmHttp().get(`multimedia?cuenta_id=${Token.cuenta.id}&skip=${0}&take=${50}&fecha=${fechaFilter}`);
+                setGaleriaFiltrada(data.data);
+                setTotalSize(data.size);
+                setLoading(false);
+            }else{
+                setLoading(true);
+                const {data} = await BmHttp().get(`multimedia?cuenta_id=${Token.cuenta.id}&skip=${0}&take=${50}&fecha=${fecha}`);
+                setGaleriaFiltrada(data.data);
+                setTotalSize(data.size);
+                setLoading(false);
+            }
         } catch (error) {
             console.log(error);
             setLoading(false);
@@ -26,12 +35,12 @@ export default function Galeria() {
     };
 
     useEffect(() => {
-        if (fecha !== "") {
-            setGaleriaFiltrada(galeria.filter(item => moment(item.fecha).format("YYYY-MM-DD") === fecha));
-        } else {
-            setGaleriaFiltrada(galeria);
-        }
-    }, [fecha, galeria]);
+        (async()=>{
+            if (fechaFilter !== "") {
+                await ListarMultimedias(fechaFilter);
+            }
+        })()
+    }, [fechaFilter]);
 
     const formatSize = (size) => {
         if (size >= 1e9) {
@@ -46,7 +55,7 @@ export default function Galeria() {
     };
     useEffect(() => {
         (async () => {
-            await ListarMultimedias();
+            await ListarMultimedias(null);
         })();
     }, []);
 
@@ -56,11 +65,14 @@ export default function Galeria() {
             <div className="d-flex justify-content-between align-items-center mb-3">
                 <Row>
                     <div className="d-flex align-items-center">
-                        <label className="mr-2 font-weight-bold mx-2">Total de archivos: {galeria.length}</label>
-                        <label className="mr-2 font-weight-bold mx-2">Total de archivos filtrados: {galeriaFiltrada.length}</label>
-                        <label className="mr-2 font-weight-bold mx-2">Tamaño Total: 
+                        <label className="mr-2 font-weight-bold mx-2">Total de archivos: {galeriaFiltrada.length}</label>
+                        {/* <label className="mr-2 font-weight-bold mx-2">Total de archivos filtrados: {galeriaFiltrada.length}</label> */}
+                        {/* <label className="mr-2 font-weight-bold mx-2">Tamaño Total: 
                             Tamaño Total: {formatSize(galeria.reduce((acc, item) => acc + item.size, 0))}
-
+                        </label> */}
+                        {/* almacenamiento toatl */}
+                        <label className="mr-2 font-weight-bold mx-2">Almacenamiento Total:
+                            {formatSize(ToatlSize)}
                         </label>
                     </div>
                 </Row>
@@ -69,22 +81,10 @@ export default function Galeria() {
                     <div className="d-flex">
                         <Input
                             type="date"
-                            value={fecha}
-                            onChange={(e) => setFecha(e.target.value)}
+                            value={fechaFilter}
+                            onChange={(e) => setFechaFilter(e.target.value)}
                             className="mr-2"
                         />
-                        <button 
-                            style={{ height: '38px',
-                                padding: '0 10px',
-                                fontSize: '14px',
-                                borderRadius: '5px',
-                                border: 'none',
-                                color: 'white',
-                                backgroundColor: colorPrimario,
-                                cursor: 'pointer',
-                                marginLeft: '10px'
-                             }}
-                        onClick={() => setFecha("")}>Limpiar</button>
                     </div>
                 </div>
             </div>
@@ -101,23 +101,23 @@ export default function Galeria() {
                             className="mb-3"
                         >
                             <Card className="shadow-sm">
-                                {item.type.startsWith("image/") && (
+                                {item.tipo.startsWith("image/") && (
                                     <img src={item.url} alt={item.nombre} className="card-img-top" style={{ height: '200px', objectFit: 'cover' }} />
                                 )}
-                                {item.type === "audio/ogg" && (
+                                {item.tipo === "audio/ogg" && (
                                     <audio controls className="w-100">
                                         <source src={item.url} type="audio/ogg" />
                                     </audio>
                                 )}
-                                {item.type === "video/mp4" && (
+                                {item.tipo === "video/mp4" && (
                                     <video width="100%" height="200" controls>
                                         <source src={item.url} type="video/mp4" />
                                     </video>
                                 )}
-                                {item.type === "application/pdf" && (
+                                {item.tipo === "application/pdf" && (
                                     <embed src={item.url} width="100%" height="200px" />
                                 )}
-                                {item.type.startsWith("application/") && !item.type.includes("pdf") && (
+                                {item.tipo.startsWith("application/") && !item.tipo.includes("pdf") && (
                                     <iframe src={item.url} width="100%" height="200px">
                                         
                                     </iframe>
@@ -127,11 +127,28 @@ export default function Galeria() {
                                         Tamaño: {item.size > 1000000 ? (item.size / 1000000).toFixed(2) + " MB" : (item.size / 1000).toFixed(2) + " KB"}
                                     </p>
                                     <p className="mb-1" style={{ fontSize: '14px' }}>
-                                        Fecha: {moment(item.fecha).format("YYYY-MM-DD HH:mm:ss")}
+                                        Fecha: {moment(item.fecha_modificacion).format("YYYY-MM-DD HH:mm:ss")}
                                     </p>
                                     <div className="d-flex justify-content-center">
                                         <i className="fa fa-trash text-danger mx-2" style={{ cursor: 'pointer' }}></i>
-                                        <i className="fa fa-download text-primary mx-2" style={{ cursor: 'pointer' }}></i>
+                                        <i className="fa fa-download text-primary mx-2" style={{ cursor: 'pointer' }}
+                                            onClick={() => {
+                                                if (item && item.url && item.nombre) {
+                                                    // Crear un enlace para descargar el archivo
+                                                    const a = document.createElement("a");
+                                                    a.href = item.url;
+                                                    a.download = item.nombre;
+                                                    // Añadir el enlace al DOM
+                                                    document.body.appendChild(a);
+                                                    // Simular el clic
+                                                    a.click();
+                                                    // Remover el enlace del DOM
+                                                    document.body.removeChild(a);
+                                                } else {
+                                                    console.error('URL o nombre del archivo no definido');
+                                                }
+                                            }}
+                                        ></i>
                                     </div>
                                 </div>
                             </Card>
