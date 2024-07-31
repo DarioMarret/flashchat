@@ -81,17 +81,17 @@ function InfoHistorialContacto(props) {
         });
         return
       }
-      if(e.target.value.length > 15){
+      if(e.target.value.length > 20){
         Swal.fire({
           icon: 'warning',
-          title: 'La etiqueta no puede tener mas de 15 caracteres',
+          title: 'La etiqueta no puede tener mas de 20 caracteres',
           showConfirmButton: false,
           timer: 1500
         })
         return
       }
-      // todo en minuscula
-      e.target.value = e.target.value.toLowerCase()
+      // todo en mayuscula
+      e.target.value = e.target.value.toUpperCase()
       setEtiqueta({
         ...etiqueta,
         etiqueta: e.target.value,
@@ -274,6 +274,13 @@ function InfoHistorialContacto(props) {
               timer: 1500
           }).then(() => {
               ListarEtiquetas()
+              // limpiar el input
+              setEtiqueta({
+                id: 0,
+                etiqueta: '',
+                color: '#'+Math.floor(Math.random()*16777215).toString(16),
+                cuenta_id: GetTokenDecoded().cuenta_id
+              })
           })
       }
 
