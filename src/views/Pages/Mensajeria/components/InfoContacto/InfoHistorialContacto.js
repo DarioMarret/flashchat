@@ -33,6 +33,23 @@ function InfoHistorialContacto(props) {
         init: 0,
         end: 5
     })
+    const handleInputClick = (e) => {
+      console.log('click')
+      // Evitar el cierre del dropdown
+      e.stopPropagation();
+    };
+
+    const OpenSelectEtiqueta = (e) => {
+      e.preventDefault()
+      setDropdownOpenEtiqueta(!dropdownOpenEtiqueta)
+    }
+
+    const [etiqueta, setEtiqueta] = useState({
+      id: 0,
+      etiqueta: '',
+      color: '#'+Math.floor(Math.random()*16777215).toString(16),
+      cuenta_id: GetTokenDecoded().cuenta_id
+    });
     const [recordatorio, setRecordatorio] = useState({
       id: 0,
       cuenta_id: 0,
@@ -48,7 +65,6 @@ function InfoHistorialContacto(props) {
       form: {},
     });
     const [show, setShow] = useState(false);
-    const [bots, setBots] = useState([]);
     
     const ListarEtiquetas = async () => {
         const { data, status } = await BmHttp().get(`etiqueta/${GetTokenDecoded().cuenta_id}`)
@@ -56,6 +72,31 @@ function InfoHistorialContacto(props) {
             setEtiquetas(data.data)
         }
     }
+
+    const handleInputChange = (e) => {
+      if(e.target.value == ''){
+        setEtiqueta({
+          ...etiqueta,
+          etiqueta: '',
+        });
+        return
+      }
+      if(e.target.value.length > 15){
+        Swal.fire({
+          icon: 'warning',
+          title: 'La etiqueta no puede tener mas de 15 caracteres',
+          showConfirmButton: false,
+          timer: 1500
+        })
+        return
+      }
+      // todo en minuscula
+      e.target.value = e.target.value.toLowerCase()
+      setEtiqueta({
+        ...etiqueta,
+        etiqueta: e.target.value,
+      });
+    };
 
     const NombreAgente = (id) => {
         let nombre = agentes.filter((item) => item.id === id)
@@ -207,6 +248,36 @@ function InfoHistorialContacto(props) {
       });
     }
 
+    const CrearNuevaEtiquet = async () => {
+      let url = 'etiqueta'
+      // evitar que la etiqueta sea crer con un color blanco
+      if(etiqueta.color === '#ffffff'){
+        // le asignamos un color aleatorio
+        etiqueta.color = '#'+Math.floor(Math.random()*16777215).toString(16)
+      }
+      // minimo 6 caracteres
+      if(etiqueta.etiqueta.length < 6){
+        Swal.fire({
+          icon: 'warning',
+          title: 'La etiqueta debe tener minimo 6 caracteres',
+          showConfirmButton: false,
+          timer: 1500
+        })
+        return
+      }
+      const { status } = await BmHttp().post(url, etiqueta)
+      if(status === 200){
+          Swal.fire({
+              icon: 'success',
+              title: 'Etiqueta creada',
+              showConfirmButton: false,
+              timer: 1500
+          }).then(() => {
+              ListarEtiquetas()
+          })
+      }
+
+    }
     const handleOnchange = (e) => {
       setRecordatorio({
         ...recordatorio,
@@ -345,7 +416,17 @@ function InfoHistorialContacto(props) {
               <div className="w-100 py-2 d-flex flex-column gap-3">
                 <div className="bg-blue p-2 rounded justify-content-between d-flex">
                   <span className="text-white font-bold">Etiquetas</span>
-                  <Dropdown isOpen={dropdownOpenEtiqueta} toggle={setDropdownOpenEtiqueta} direction="up">
+                  <Dropdown 
+                    isOpen={dropdownOpenEtiqueta} 
+                    toggle={(e)=>OpenSelectEtiqueta(e)} 
+                    direction="up" 
+                    onKeyDown={(e)=>{
+                      console.log('onKeyDown: ', e.key)
+                      if (e.key === ' ' || e.keyCode === 32) {
+                        e.stopPropagation(); // Evita que el dropdown se abra al presionar espacio
+                        e.preventDefault();  // Previene el comportamiento predeterminado
+                      }
+                    }}>
                     <DropdownToggle
                       data-toggle="dropdown"
                       tag="span"
@@ -356,9 +437,46 @@ function InfoHistorialContacto(props) {
                       {etiquetas.map((item, index) => (
                         <DropdownItem key={index + 1} className="d-flex align-items-center gap-2" onClick={() => AgregarEtiqueta(item)}>
                           <span style={{ color: item.color }}>{item.etiquetas}</span>
-
+                          
                         </DropdownItem>
                       ))}
+                      {/* 
+                        Lo opcion de crear nuevas etiquetas desde un imput
+                       */}
+                      <DropdownItem
+                        className="d-flex align-items-center gap-2"
+                      //  cuando se aga click se tiene que mantener el input abierto
+                      >
+                        {/* que pueda escojet el color de la etiqueta */}
+                        <input
+                            type="text"
+                            className="form-control text-black"
+                            style={{ 
+                              width: '100%',
+                              fontSize: '14px',
+                              // quitar el borde del input y el focus
+                              border: 'none',
+                              outline: 'none',
+                              boxShadow: 'none',
+                            }}
+                            placeholder="Nueva etiqueta"
+                            value={etiqueta.etiqueta}
+                            onChange={handleInputChange}
+                            onClick={handleInputClick}
+                            onKeyDown={(e)=>{
+                              console.log('onKeyDown: ', e.target.value)
+                              if (e.key === '' || e.keyCode === 32) {
+                                e.stopPropagation(); // Evita que el dropdown se abra al presionar espacio
+                              }
+                            }}
+                            onKeyPress={(e) => {
+                              if (e.key === 'Enter' || e.keyCode === 13) {
+                                // Aquí puedes manejar la creación de la nueva etiqueta
+                                CrearNuevaEtiquet();
+                              }
+                            }}
+                          />
+                      </DropdownItem>
                     </DropdownMenu>
                   </Dropdown>
                 </div>

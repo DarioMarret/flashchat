@@ -4,7 +4,7 @@
 // react component used to create alerts
 // react-bootstrap components
 import { GetTokenDecoded } from "function/storeUsuario";
-import { BmHttp, host, proxy } from "function/util/global";
+import { BmHttp } from "function/util/global";
 import moment from "moment";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AudioRecorder } from 'react-audio-voice-recorder';
@@ -22,39 +22,21 @@ import { DeletManejoConversacionStorange, GetManejoConversacion, SetManejoConver
 import { colorPrimario } from "function/util/global";
 import useAuth from "hook/useAuth";
 import { useDispatch, useSelector } from 'react-redux';
-import io from "socket.io-client";
 import ComponenteMultimedia from "views/Components/ComponenteMultimedia";
 import ModalMensaje from "views/Components/Modales/ModalMensaje";
+import socket from "views/SocketIO";
 import { addAgente } from "../../../redux/Agentes/agente.servicio";
 import { fetchMensajeriaCard } from '../../../redux/Mensajeria/mensajeria.servicio';
 import CardTab from "./components/CardTab/CardTab";
 import InfoHistorialContacto from "./components/InfoContacto/InfoHistorialContacto";
 import { EmiittingMensaje, EmittMesnaje, EventoAsignacionAgente, GetActivaConversacion } from "./service/Eventos";
 
-var socket = null;
-try {
-  if(GetTokenDecoded() !== null){
-    socket = io.connect(String(host()).replace(`/${proxy}/`, ""), {
-      path: `/${proxy}/socket.io/socket.io.js`,
-      transports: ["websocket"],
-      query: {
-        sessionId: GetTokenDecoded().id
-      }
-    });
-  }
-} catch (error) {
-  console.log(error) 
-}
-
 moment.locale("es");
 var cardMensage = [];
 export default function Mensajeria() {
   const dispatch = useDispatch();
-  const { mensaje_card, verConversacion, ver_conversacion, historial, pingMensaje } = useSelector(state => state.mensajeria);
-  const { agenteArray } = useSelector(state => state.agentes);
+  const { mensaje_card, verConversacion, historial, pingMensaje } = useSelector(state => state.mensajeria);
   const [pingNuevoMensaje, setPingNuevoMensaje] = useState(false);
-
-
   const [ping, setPing] = useState(undefined);
   const [card_mensajes, setCard_mensajes] = useState(mensaje_card);
   const [conversacionActiva, setConversacionActiva] = useState([]);
@@ -65,7 +47,6 @@ export default function Mensajeria() {
   const audioRef = useRef(null);
   const [showRespuesta, setShowRespuesta] = useState(false)
   const [disabledInput, setDisabledInput] = useState(false)
-
   const [inputStr, setInputStr] = useState("");
   const [linkPreview, setLinkPreview] = useState("");
   const [typeInput, setTypeInput] = useState("text");
@@ -183,8 +164,6 @@ export default function Mensajeria() {
 
   const { logout } = useAuth();
   
-
-
   // Eventod que de las cards de los mensajes
   useEffect(() => {
     if (mensaje_card.length > 0) {
@@ -506,9 +485,6 @@ export default function Mensajeria() {
       console.log(error);
     }
   }
-  
-
-
 
   const ListarEstados = async () => {
     const url = `estados`;
