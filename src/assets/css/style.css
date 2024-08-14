@@ -30,6 +30,11 @@
   color: #495057;
 }
 
+button.dropdown-toggle::after {
+  content: none;
+}
+
+
 .text-link {
   color: #585652;
   padding-left: 20px;

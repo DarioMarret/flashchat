@@ -296,6 +296,7 @@ export default function Mensajeria() {
       };
   
       const handleTransferirChat = (msg) => {
+        console.log("Transferir chat: ", msg)
         const { type, data, card } = msg;
         if (type === "response_transferir_chat" && data.cuenta_id === cuentaId) {
           dispatch({ type: 'SET_CARD_MENSAJERIA', payload: card });
@@ -518,6 +519,7 @@ export default function Mensajeria() {
     if (covActiva == null || covActiva.estado === "Eliminado") {
       return;
     }
+    console.log("covActiva: ", covActiva)
     if(covActiva.agente_id === 0 && covActiva.sin_asignar === true){
       Swal.fire({
         title: 'Conversación sin asignar',
@@ -536,32 +538,78 @@ export default function Mensajeria() {
         }
       })
     }
-    if (inputStr !== null && inputStr !== "") {
-      let infoClient = {
-        cuenta_id: GetTokenDecoded().cuenta_id,
-        conversacion_id: covActiva.conversacion_id,
-        equipo_id: covActiva.equipo_id,
-        channel_id: covActiva.channel_id,
-        contacto_id: covActiva.Contactos.id,
-        agente_id: GetTokenDecoded().id,
-        updatedAt: new Date(),
-        nombreunico: covActiva.nombreunico,
-      };
-      let mensaje = {
-        id: random(),
-        text: typeInput === "text" ? inputStr : null,
-        url: typeInput === "text" ? null : inputStr,
-        type: typeInput,
-        parems: null,
-        chat_id: covActiva.mensaje.chat_id,
-        sessionId: covActiva.sessionIdWebChat
-      };
-      EmittMesnaje(infoClient, mensaje);
-      setInputStr("");
-      setTypeInput("text");
-      EmiittingMensaje();
-      GetActivaConversacion(covActiva)
-      dummy.current.scrollIntoView({ behavior: "smooth", block: "end", inline: "nearest" });
+    if(covActiva.agente_id !== GetTokenDecoded().id){
+      Swal.fire({
+        title: 'Conversación asignada',
+        text: 'Esta conversación ha sido asignada a otro agente',
+        icon: 'info',
+        confirmButtonText: 'Tomar la conversación',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          covActiva['agente_id'] = GetTokenDecoded().id
+          SetManejoConversacionStorange(covActiva)
+          EventoAsignacionAgente(covActiva)
+          GetActivaConversacion(covActiva)
+          if (inputStr !== null && inputStr !== "") {
+            let infoClient = {
+              cuenta_id: GetTokenDecoded().cuenta_id,
+              conversacion_id: covActiva.conversacion_id,
+              equipo_id: covActiva.equipo_id,
+              channel_id: covActiva.channel_id,
+              contacto_id: covActiva.Contactos.id,
+              agente_id: GetTokenDecoded().id,
+              updatedAt: new Date(),
+              nombreunico: covActiva.nombreunico,
+            };
+            let mensaje = {
+              id: random(),
+              text: typeInput === "text" ? inputStr : null,
+              url: typeInput === "text" ? null : inputStr,
+              type: typeInput,
+              parems: null,
+              chat_id: covActiva.mensaje.chat_id,
+              sessionId: covActiva.sessionIdWebChat
+            };
+            EmittMesnaje(infoClient, mensaje);
+            setInputStr("");
+            setTypeInput("text");
+            EmiittingMensaje();
+            GetActivaConversacion(covActiva)
+            dummy.current.scrollIntoView({ behavior: "smooth", block: "end", inline: "nearest" });
+          }
+        }
+      })
+    }else{
+      if (inputStr !== null && inputStr !== "") {
+        let infoClient = {
+          cuenta_id: GetTokenDecoded().cuenta_id,
+          conversacion_id: covActiva.conversacion_id,
+          equipo_id: covActiva.equipo_id,
+          channel_id: covActiva.channel_id,
+          contacto_id: covActiva.Contactos.id,
+          agente_id: GetTokenDecoded().id,
+          updatedAt: new Date(),
+          nombreunico: covActiva.nombreunico,
+        };
+        let mensaje = {
+          id: random(),
+          text: typeInput === "text" ? inputStr : null,
+          url: typeInput === "text" ? null : inputStr,
+          type: typeInput,
+          parems: null,
+          chat_id: covActiva.mensaje.chat_id,
+          sessionId: covActiva.sessionIdWebChat
+        };
+        EmittMesnaje(infoClient, mensaje);
+        setInputStr("");
+        setTypeInput("text");
+        EmiittingMensaje();
+        GetActivaConversacion(covActiva)
+        dummy.current.scrollIntoView({ behavior: "smooth", block: "end", inline: "nearest" });
+      }
     }
   }
 
@@ -580,10 +628,11 @@ export default function Mensajeria() {
         item.bot.toLowerCase().includes(busqueda) ||
         item.name.toLowerCase().includes(busqueda) ||
         item.telefono.toLowerCase().includes(busqueda) ||
-        mensaje.toLowerCase().includes(busqueda)
+        mensaje.toLowerCase().includes(busqueda) ||
+        // en las etiquetas_estado es un array de objetos con el key etiquetas
+        item.etiquetas_estado.some((etiqueta) => etiqueta.etiquetas.toLowerCase().includes(busqueda))
       );
     });
-  
     setCard_mensajes(new_card);
   };
   

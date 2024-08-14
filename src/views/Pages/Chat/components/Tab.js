@@ -1,7 +1,9 @@
+import { ServicesListarEtiquetas } from 'function/services/Etiquestas.services';
 import { colorPrimario, tabconversacion } from 'function/util/global';
 import useMensajeria from 'hook/useMensajeria';
 import { useEffect, useState } from 'react';
 import {
+  Dropdown, DropdownItem, DropdownMenu, DropdownToggle,
   Nav,
   Spinner,
   Tab
@@ -14,6 +16,9 @@ function TabChat(props) {
     const { onHideMensaje, countC, card_mensajes, loading } = props;
     const { mensaje_card, count, historial, pingMensaje } = useSelector(state => state.mensajeria);
     const [misConversaciones, setMisConversaciones] = useState(localStorage.getItem(tabconversacion) || 'Sin leer');
+    const [etiquetaSelect, setEtiquetaSelect] = useState('');
+    const [etiquetas, setEtiquetas] = useState([]);
+    const [dropdownOpenEtiqueta, setDropdownOpenEtiqueta] = useState(false);
 
     const { historyInfo, ping } = useMensajeria();
 
@@ -21,11 +26,26 @@ function TabChat(props) {
       localStorage.setItem(tabconversacion, item)
       setMisConversaciones(item)
     }
+    const handleSelectEtiqueta = (key) => {
+      localStorage.setItem(etiquetas, key)
+      setEtiquetaSelect(key)
+    }
+    // listar Etiquestas
+    const ListarEtiquetas = async () => {
+      const data = await ServicesListarEtiquetas()
+      setEtiquetas(data)
+    }
+
+    const OpenSelectEtiqueta = (e) => {
+      e.preventDefault()
+      setDropdownOpenEtiqueta(!dropdownOpenEtiqueta)
+    }
 
     useEffect(() => {
         let tab = localStorage.getItem(tabconversacion)
         if(tab){
             setMisConversaciones(tab)
+            ListarEtiquetas()
         }
     }, [misConversaciones, mensaje_card])
 
@@ -91,12 +111,82 @@ function TabChat(props) {
                   }</span>
                 </Nav.Link>
               </Nav.Item>
+
+              {/* un filtro para las etiquetas */}
+              {
+                misConversaciones === 'Mias' || misConversaciones === 'Etiquetas' ? (
+                  <Nav.Item onClick={() => HanbleTab('Etiquetas')}>
+                    <Nav.Link eventKey="Etiquetas"
+                      className="gap-1 d-flex"
+                      style={{ 
+                        borderRadius: '10px',
+                        padding: '0px',
+                        margin: '0px',
+                        backgroundColor: 'transparent',
+                        // color: 'black'
+                      }}
+                    >
+                      <Dropdown
+                        isOpen={dropdownOpenEtiqueta} 
+                        toggle={(e)=>OpenSelectEtiqueta(e)} 
+                        direction="up"
+                      >
+                        <DropdownToggle
+                        style={{ 
+                          padding: '0px 2px 0px 0px',
+                          margin: '0px',
+                          backgroundColor: 'transparent',
+                          border: 'none',
+                          color: 'black'
+                        }}
+                        >
+                      <span class="material-symbols-outlined" 
+                        title='Filtro'
+                        aria-label='filter_list'
+                        style={{
+                          fontSize: '19px',
+                          color: 'black',
+                          padding: '0px 0px 0px 0px',
+                          margin: '0px',
+                        }}
+                      >
+                      filter_list
+                      </span>
+                        </DropdownToggle>
+                        <DropdownMenu>
+                          {
+                            etiquetas.map((item, index) => (
+                              <DropdownItem
+                                key={index}
+                                onClick={() => handleSelectEtiqueta(item.etiquetas)}
+                              >
+                                <p 
+                                  className="m-0"
+                                  style={{
+                                    fontSize: '12px',
+                                    color: item.color,
+                                  }}
+                                >{
+                                  item.etiquetas
+                                }</p>
+                              </DropdownItem>
+                            ))
+                          }
+                        </DropdownMenu>
+                      </Dropdown>
+                    </Nav.Link>
+
+
+
+                  </Nav.Item>
+                ) : null
+              }
               
               <Nav.Item onClick={() => onHideMensaje(true)}>
                 <Nav.Link
                   className="gap-1 d-flex hover-pointer"
                   style={{ 
-                    fontSize: '12px',
+                    fontSize: '10px',
                     borderRadius: '10px',
                     padding: '0 5px',
                     margin: '0 5px',
@@ -104,11 +194,16 @@ function TabChat(props) {
                     color: 'black'
                    }}>
                   {/* icono para envia mensaje */}
-                  <span className="material-symbols-outlined">
+                  <span className="material-symbols-outlined"
+                    title='Enviar mensaje'
+                  >
                     sms
                   </span>
                 </Nav.Link>
               </Nav.Item>
+              {/* cuando se aga click en el icono se tiene que desplegar la lista de etiquetas */}
+              
+                   
 
             </Nav>
 
@@ -128,6 +223,7 @@ function TabChat(props) {
             <TabPanel
               card_mensajes={card_mensajes}
               misConversaciones={misConversaciones}
+              etiquetaSelect={etiquetaSelect}
             />
           </Tab.Container>
         </>

@@ -687,6 +687,7 @@ function Bots(props) {
                   {/* <FacebookLoginApp/> */}
                     <FacebookLogin
                       appId="3176667395950990"
+                      // appId="398382928426980"
                       fields="email,name,picture,accounts"
                       scope="pages_show_list,pages_read_engagement,pages_manage_metadata,pages_read_user_content,pages_manage_ads"
                       autoLoad={true}

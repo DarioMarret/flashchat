@@ -28,6 +28,7 @@ import Auths from "views/Pages/auth/Auths";
 
 import { AlertBanner } from "views/Components/Alert/Alert";
 import Cola from "views/Pages/Cola/Cola";
+import PCorreo from "views/Pages/Correo/PCorreo";
 import Cuenta from "views/Pages/Cuenta/Cuenta";
 import Execiones from "views/Pages/Execiones/Execiones";
 import Factura from "views/Pages/Factura/Factura";
@@ -36,6 +37,8 @@ import HistorialContacto from "views/Pages/HistorialContacto/HistorialContacto";
 import Historial from "views/Pages/History/Historial";
 import Integraciones from "views/Pages/Integraciones/Integraciones";
 import Logs from "views/Pages/Logs/Logs";
+import NuevaPagina from "views/Pages/Paginas/NuevaPagina";
+import Paginas from "views/Pages/Paginas/Paginas";
 import Perfil from "views/Pages/Perfil/Perfil";
 import Recordatorio from "views/Pages/Recordatorio/Recordatorio";
 import Suscripciones from "views/Pages/Suscripcion/Suscripcion";
@@ -173,6 +176,11 @@ export default function App() {
                         exact
                       />
                       <Route
+                        path="/admin/correo"
+                        element={<PCorreo />}
+                        exact
+                      />
+                      <Route
                         path="/admin/contactos"
                         element={<Contactos />}
                         exact
@@ -230,6 +238,14 @@ export default function App() {
                       />
                       <Route path="/admin/perfil"
                         element={<Perfil />}
+                        exact
+                      />
+                      <Route path="/admin/nueva_pagina"
+                        element={<NuevaPagina />}
+                        exact
+                      />
+                      <Route path="/admin/pagina/:id"
+                        element={<Paginas />}
                         exact
                       />
                     </Routes>

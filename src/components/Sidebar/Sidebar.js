@@ -14,6 +14,8 @@ import {
 import { useDispatch } from "react-redux";
 import Swal from "sweetalert2";
 import FlashChat from "views/Components/FlashChat/FlashChat";
+import Paginas from "views/Pages/Paginas/Paginas";
+import { ControllerListarPaginas } from "views/Pages/Paginas/Services.pagina";
 import socket from "views/SocketIO";
 import { addAgente } from "../../redux/Agentes/agente.servicio";
 
@@ -25,9 +27,37 @@ function Sidebar({ routes, image, background, setMensajeBanner }) {
   // const navigate = useNavigate();
   // this is for the user collapse
   const [userCollapseState, setUserCollapseState] = React.useState(false);
+  const [paginasTab, setPaginasTab] = React.useState([]);
   const [recor, setRecor] = React.useState(null);
   const tokenDecoded = useRef(GetTokenDecoded());
   // this is for the rest of the collapses
+
+  useEffect(() => {
+    (async () => {
+      if (tokenDecoded.current && tokenDecoded.current.cuenta_id) {
+        const { data, status } = await ControllerListarPaginas();
+        if (status === 200) {
+          routes.forEach((route) => {
+            if (route.path === "/pages") {
+              const newViews = data.data.filter(pagina => 
+                !route.views.some(r => r.name === pagina.nombre)
+              ).map(pagina => ({
+                path: "/pagina/" + pagina.id,
+                name: pagina.nombre,
+                layout: "/admin",
+                mini: pagina.nombre.charAt(0) + pagina.nombre.charAt(1),
+                component: Paginas
+              }));
+              if (newViews.length > 0) {
+                route.views.push(...newViews);
+              }
+            }
+          });
+        }
+      }
+    })();
+  }, [tokenDecoded.current]); // Dependencia opcional basada en si tokenDecoded puede cambiar
+  
 
   useEffect(() => {
     if (tokenDecoded.current && tokenDecoded.current.cuenta_id) {
@@ -117,11 +147,12 @@ function Sidebar({ routes, image, background, setMensajeBanner }) {
   // this function creates the links and collapses that appear in the sidebar (left menu)
   const ViewAdmin = ['/configuracion', '/bots','/dashboard', '/cuenta','/suscripciones', '/factura', '/historial', '/logs']
   const createLinks = (routes) => {
+    // anadir las nuevas paginas en dentro del path pages y que no se muestren en el sidebar sin quitar el que esta en views
+
     return routes.map((prop, key) => {
       if (ViewAdmin.includes(prop.path) && GetTokenDecoded().perfil !== "Administrador") {
         return null;
       }
-
       if (prop.redirect) {
         return null;
       }

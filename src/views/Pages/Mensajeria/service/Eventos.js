@@ -1,4 +1,5 @@
 import { GetTokenDecoded } from "function/storeUsuario"
+import Swal from "sweetalert2"
 import socket from "views/SocketIO"
 
 
@@ -38,4 +39,34 @@ export const EmittMesnaje = (infoClient, mensaje) => {
         infoClient: infoClient,
         mensaje: mensaje,
     });
+}
+
+export const ChatLiberado = (data) => {
+  socket.emit("liberar_chat", {
+    cuenta_id: GetTokenDecoded().cuenta_id,
+    contacto_id: data.contacto_id,
+    conversacion_id: data.conversacion_id,
+    nombreunico: data.nombreunico,
+    agente_id: data.agente_id,
+    agente_libera: GetTokenDecoded().nombre,
+  })
+  Swal.fire({
+    icon: 'success',
+    title: 'Chat liberado',
+    showConfirmButton: false,
+    timer: 1500
+  })
+  socket.emit("borrar_conversacion", {
+    agente_id: GetTokenDecoded().id,
+  })
+}
+
+export const SetTransferirChat = (data, agente_id) => {
+  socket.emit("transferir_chat", {
+    cuenta_id: GetTokenDecoded().cuenta_id,
+    agente_transferir: GetTokenDecoded().nombre,
+    contacto_id: data.contacto_id,
+    conversacion_id: data.conversacion_id,
+    agente_id: agente_id,
+  });
 }

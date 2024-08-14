@@ -10,7 +10,7 @@ import { CardChat } from 'views/Pages/CardChat';
 function TabPanel(props) {
     const { agenteArray } = useSelector(state => state.agentes);
     const { verConversacion } = useSelector(state => state.mensajeria);
-    const { card_mensajes, misConversaciones } = props;
+    const { card_mensajes, misConversaciones, etiquetaSelect } = props;
     const [agentes, setAgentes] = useState(agenteArray);
     const [newCardMensajes, setNewCardMensajes] = useState([]);
 
@@ -61,6 +61,24 @@ function TabPanel(props) {
                 {newCardMensajes.map((item, index) => {
                     if(item.mensaje){
                         if(item.agente_id === GetTokenDecoded().id){
+                            return <CardChat 
+                                key={index}
+                                messageItem={item} 
+                                index={uuidv4()}
+                                // verConversacion={() => ManejarConversacion(item)}
+                            />
+                        }
+                    }
+                })}
+                <div className="offside-chat"></div>
+            </div>
+        )
+    }else if (misConversaciones === 'Etiquetas' && etiquetaSelect !== ''){
+        return (
+            <div className="w-100 d-flex flex-column gap-3 box-items-chat">
+                {newCardMensajes.map((item, index) => {
+                    if(item.mensaje){
+                        if(item.etiquetas_estado.length > 0 && item.etiquetas_estado.some(etiqueta => etiqueta.etiquetas === etiquetaSelect)){
                             return <CardChat 
                                 key={index}
                                 messageItem={item} 

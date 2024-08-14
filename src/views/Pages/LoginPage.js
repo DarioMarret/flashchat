@@ -115,7 +115,7 @@ const LoginPage =(props)=> {
       if (status === 200) {
         if (data.status === 200) {
           let info_token = await DecodeJwt(data.token);
-          const { activar_ini, horario_ini } = info_token;
+          const { activar_ini, horario_ini, activar_fin, horario_fin } = info_token;
           if (!activar_ini) {
             localStorage.setItem(usuario_token, data.token);
             login(data.token);
@@ -124,7 +124,7 @@ const LoginPage =(props)=> {
             let hora_actual = await HoraServer();
             if (hora_actual === null) return;
             const { hora } = hora_actual;
-            if (separarHora(hora) >= separarHora(horario_ini)){
+            if (separarHora(hora) >= separarHora(horario_ini) && separarHora(hora) <= separarHora(horario_fin)) {
               localStorage.setItem(usuario_token, data.token);
               login(data.token);
               localStorage.setItem(tabconversacion, 'Sin leer');
@@ -184,7 +184,7 @@ const LoginPage =(props)=> {
               </div>
             </div>
             {
-              demoStatus ? 
+              demoStatus ?
               <>
                {/* formulario para agendar un demos */}
               <div className="col-12 col-md-6 col-lg-4">

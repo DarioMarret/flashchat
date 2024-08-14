@@ -3,7 +3,6 @@ import { BmHttp, colorPrimario, tabconversacion } from 'function/util/global';
 import useMensajeria from 'hook/useMensajeria';
 import { useState } from 'react';
 import {
-  Dropdown, DropdownItem, DropdownMenu, DropdownToggle,
   Modal
 } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
@@ -115,6 +114,7 @@ function CardChat(props) {
   }
 
   const SetTransferirChat = (data) => {
+    console.log("SetTransferirChat: ", data)
     socket.emit("transferir_chat", {
       cuenta_id: GetTokenDecoded().cuenta_id,
       agente_transferir: GetTokenDecoded().nombre,
@@ -208,34 +208,16 @@ function CardChat(props) {
           fontSize: "13px" }}>
             <span>{ messageItem.bot +" - "+messageItem.telefono }</span>
             <span>#{ messageItem.conversacion_id }</span>
-            <Dropdown 
-              isOpen={dropdownOpen}
-              toggle={toggle}>
-              <DropdownToggle
-                data-toggle="dropdown"
-                tag="span"
-              >
-              </DropdownToggle>
-
-              <DropdownMenu>
-                {
-                  messageItem.agente_id === GetTokenDecoded().id ?
-                  <DropdownItem onClick={() => ChatLiberado(messageItem)}>Liberar</DropdownItem>
-                  : null
-                }
-                {
-                  messageItem.agente_id === GetTokenDecoded().id ?
-                  <DropdownItem onClick={() => setShow(!show)}>Transferir</DropdownItem>
-                  : null
-                }
-                <DropdownItem onClick={() => VerConversacionesSinAsignar(messageItem)}>Ver conversacion </DropdownItem>
-                {/* <DropdownItem>Historial de conversaciones</DropdownItem> */}
-              </DropdownMenu>
-            </Dropdown>
         </div>
 
         <div className="d-flex gap-2 align-items-center p-2 cursor-pointer" 
-          onClick={ManejarConversacion}>
+          onClick={() => {
+            if(GetTab() === 'Mias'){
+              ManejarConversacion()
+            }else{
+              VerConversacionesSinAsignar(messageItem)
+            }
+          }}>
           <div className="w-25 d-flex flex-column align-items-center justify-content-center">
             <div className="w-25 rounded d-flex align-items-center justify-content-center">
                 <img src={ messageItem.url_avatar } className="rounded-circle" width="50px" height="50px"/>
@@ -253,12 +235,7 @@ function CardChat(props) {
                 <small 
                   className="text-warning" 
                   style={{ fontSize: '12px' }}>{messageItem.fecha}</small>
-
-                {/* <div className="rounded-circle text-center p-0 circle-count bg-warning"
-                  style={{ fontSize: '12px' }}> */}
-                    {/* {console.log(messageItem.leido)} */}
                   {messageItem.leido}
-                {/* </div> */}
               </div>
             </div>
 

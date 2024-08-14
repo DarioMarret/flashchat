@@ -1,4 +1,5 @@
 import { IsKeyObject } from 'function/storeUsuario';
+import { colorPrimario } from 'function/util/global';
 import {
     Card,
     CardBody,
@@ -89,19 +90,48 @@ function CardCola(props) {
                         {
                             items.conversacion && items.conversacion.length > 0 ?
                             items.conversacion.map((c, index) => {
+                                console.log(c);
                                     return (
                                         <div key={index} className='d-flex justify-content-center align-items-center w-100 mb-1'
                                             style={{ background: '#f0f0f0', padding: '5px', borderRadius: '5px' }}
                                         >
-                                            <div className='d-flex justify-content-start align-items-center w-100'>
-                                                <img
-                                                    src={c.Contactos.avatar}
-                                                    alt='Adrian Mosquera'
-                                                    style={{ width: '30px', height: '30px', borderRadius: '50%' }}
-                                                    className='mx-2'
-                                                />
+                                            <div className='d-flex flex-column justify-content-start align-items-start w-100'>
+                                                <div className='d-flex justify-content-start align-items-center w-100 border-bottom'>
+                                                    <img
+                                                        src={c.Contactos.avatar}
+                                                        alt='Adrian Mosquera'
+                                                        style={{ width: '30px', height: '30px', borderRadius: '50%' }}
+                                                        className='mx-2'
+                                                    />
+                                                    <span className='d-flex flex-column justify-content-start align-items-start' style={{
+                                                            fontSize: '14px',
+                                                        }}>{c.Contactos.nombre}
+                                                    <span style={{
+                                                            fontSize: '10px',
+                                                        }} className='text-dark' >{c.Contactos.telefono}</span>
+                                                        <span className='text-dark' style={{ fontSize: '10px' }}>
+                                                            {"Bot: "} {c.nombre_bot}
+                                                        </span>
+                                                    </span>
+                                                    <div className='d-flex justify-content-end align-items-center w-100'>
+                                                        <span className='mx-2'
+                                                            style={{
+                                                                fontSize: '19px',
+                                                                cursor: 'pointer',
+                                                            }}
+                                                        >
+                                                            {/* icono para ver la conversacion */}
+                                                            <i className="fas fa-eye"
+                                                                style={{ color: colorPrimario }}
+                                                            ></i>
+                                                        </span>
+                                                    </div>
+                                                </div>
                                                 {/* <ComponenteMultimedia item={c.mensajes} /> */}
-                                                <small className="text-dark">
+                                                <label className='text-dark'>
+                                                    {"Mensaje: "}
+                                                </label>
+                                                <small className="text-dark px-2">
                                                     {
                                                     // limitar la cantidad de caracteres a mostrar
                                                     c.mensajes.type === "text"

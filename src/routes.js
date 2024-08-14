@@ -16,6 +16,7 @@ import Integraciones from "views/Pages/Integraciones/Integraciones";
 import LoginPage from "views/Pages/LoginPage";
 import Logs from "views/Pages/Logs/Logs";
 import Mensajeria from "views/Pages/Mensajeria/Mensajeria";
+import NuevaPagina from "views/Pages/Paginas/NuevaPagina";
 import Suscripciones from "views/Pages/Suscripcion/Suscripcion";
 
 var routes = [
@@ -40,12 +41,35 @@ var routes = [
       icon: "nc-icon nc-chat-round",
       component: Mensajeria
     },
+    // {
+    //   path: "/correo",
+    //   layout: "/admin",
+    //   name: "Correo",
+    //   icon: "nc-icon nc-email-85",
+    //   component: PCorreo
+    // },
     {
-      path: "/en-cola",
-      layout: "/admin",
-      name: "En cola",
+      collapse: true,
+      path: "/monitoreo",
+      name: "Monitoreo",
+      state: "monitoreo",
       icon: "nc-icon nc-tv-2",
-      component: Integraciones
+      views: [
+        {
+          path: "/en-cola",
+          layout: "/admin",
+          name: "General",
+          mini: "G",
+          component: Integraciones
+        },
+        // {
+        //   path: "/en-cola-equipos",
+        //   layout: "/admin",
+        //   name: "Equipos",
+        //   mini: "E",
+        //   component: Integraciones
+        // }
+      ]
     },
     {
       path: "/contactos",
@@ -184,10 +208,26 @@ var routes = [
       component: Integraciones
     },
     {
+      collapse: true,
+      path: "/pages",
+      name: "Paginas",
+      state: "openPages",
+      icon: "nc-icon nc-paper-2",
+      views: [
+        {
+          path: "/nueva_pagina",
+          layout: "/admin",
+          name: "Nueva Pagina",
+          mini: "NP",
+          component: NuevaPagina
+        }
+      ]
+    },
+    {
       path: "/logs",
       layout: "/admin",
       name: "Logs",
-      icon: "nc-icon nc-paper-2",
+      icon: "nc-icon nc-bullet-list-67",
       component: Logs
     }
     //   {

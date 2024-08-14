@@ -6,6 +6,7 @@ export const usuario_token = "flash_token_usuario:";
 export const card_mensajes = "flash_card_mensajes:";
 export const estaso_nav = "flash_estado:";
 export const tabconversacion = "flash_tabconversacion:";
+export const etiquetas = "flash_etiquetas:";
 export const conversacion_activa = "flash_conversacion_activa";
 export const recordatorio_store = "flash_recordatorio";
 export const dev = false;
@@ -20,6 +21,7 @@ export const colorPrimario = "#3F98F8";
 const bm = () => {
     let token = GetToken();
     let url = GetTokenDecoded().cuenta.url_dominio;
+    // let url = "http://localhost:5002/"
     if (token === null) {
         Logout()
     }
@@ -51,6 +53,7 @@ const dominio = () => {
     try {
         if(GetTokenDecoded() === null){
             return  dev ? "https://flash.codigomarret.com/backflash/" : "https://api.flashchat.chat/backflash/";
+            // return  "http://localhost:5002/"
         }
         return GetTokenDecoded().cuenta.url_dominio
     } catch (error) {
@@ -63,6 +66,7 @@ export const host = dominio;
 const httplogin = () => {
     return axios.create({
         baseURL: dev ? "https://flash.codigomarret.com/backflash/" : "https://api.flashchat.chat/backflash/",
+        // baseURL: "http://localhost:5002/",
         headers: {
             'Content-Type': 'application/json',
         },

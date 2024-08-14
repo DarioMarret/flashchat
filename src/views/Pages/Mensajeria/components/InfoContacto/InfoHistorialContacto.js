@@ -5,7 +5,7 @@ import useMensajeria from 'hook/useMensajeria';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
 import {
-  Dropdown, DropdownItem, DropdownMenu, DropdownToggle
+  Dropdown, DropdownItem, DropdownMenu, DropdownToggle, Modal
 } from 'react-bootstrap';
 import Draggable from 'react-draggable';
 import { useDispatch, useSelector } from 'react-redux';
@@ -13,6 +13,7 @@ import Swal from 'sweetalert2';
 import ComponenteMultimedia from 'views/Components/ComponenteMultimedia';
 import ModalRecordatorioMensajeria from 'views/Components/Modales/ModalRecordatorioMensajeria';
 import socket from 'views/SocketIO';
+import { ChatLiberado, SetTransferirChat } from '../../service/Eventos';
 
 function InfoHistorialContacto(props) {
     const dispatch = useDispatch();
@@ -21,12 +22,14 @@ function InfoHistorialContacto(props) {
     const [agentes, setAgentes] = useState([]);
     const [activarNota, setActivarNota] = useState(false)
     const [verHistorialC, setVerHistorialC] = useState([])
+    const [showTransferir, setShowTransferir] = useState(false);
     const [nota, setNota] = useState('')
     const [dropdownOpenEtiqueta, setDropdownOpenEtiqueta] = useState(false);
     const toggleEtiqueta = () => setDropdownOpenEtiqueta((prevState) => !prevState);
     const [contactoHistorial, setContactoHistorial] = useState([])
     const [infoContacto, setInfoContacto] = useState(GetManejoConversacion())
     const { historyInfo, ping, verHistorial } = useMensajeria();
+    const [agente_id, setAgente_id] = useState(0)
     const [isVisible, setIsVisible] = useState(true); // Estado de visibilidad
     const [position, setPosition] = useState({ x: 0, y: 0 });
     const [paginacion , setPaginacion] = useState({
@@ -371,22 +374,106 @@ function InfoHistorialContacto(props) {
         </Draggable>
         {isVisible && (
           <div className={`chat-list chat-list-transition bg-chat rounded-end ${isVisible ? '' : 'hidden'}`} style={{ overflow: 'auto' }}>
-            <div className="d-flex py-2 px-2 flex-wrap align-items-center justify-content-between">
-              <div className="w-100 d-flex gap-2 pb-3">
-                <div className="rounded-circle overflow-hidden">
+            <div className="d-flex py-2 px-1 flex-wrap align-items-center justify-content-between">
+              
+              <div className="w-100 d-flex gap-2 pb-2">
+                
+                <div className="rounded-circle overflow-hidden"
+                  style={{
+                    width: '20%',
+                  }}
+                >
                   <img src={infoContacto ? infoContacto.Contactos.avatar : null} className="rounded-circle" width={50} />
                 </div>
-  
-                <div className="d-flex flex-column">
-                  <span className="text-span font-bold" style={{ fontSize: '18px' }}>
-                    {infoContacto ? infoContacto.Contactos.nombre : null}
-                  </span>
-                  <span className="text-span">{infoContacto ? infoContacto.Contactos.telefono : null}</span>
-                </div>
+
+                  <div className="d-flex flex-column"
+                    style={{
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                      width: '60%',
+                    }}
+                  >
+                    <span className="text-span font-bold" style={{ fontSize: '18px' }}>
+                      {infoContacto ? infoContacto.Contactos.nombre : null}
+                    </span>
+                    <span className="text-span">{infoContacto ? infoContacto.Contactos.telefono : null}</span>
+                  </div>
+                  
+                  {/* ala izquierda un menu hamburgesa */}
+                  <div className="d-flex align-items-center justify-content-end">
+                    <Dropdown>
+                      <DropdownToggle
+                        data-toggle="dropdown"
+                        tag="span"
+                        className="cursor-pointer"
+                        style={{ padding: '0px 5px 0px 5px', margin: '0px' }}
+                      />
+                      <DropdownToggle
+                        style={{
+                          padding: '0px 2px 0px 0px',
+                          margin: '0px',
+                          backgroundColor: 'transparent',
+                          border: 'none',
+                          color: 'black',
+                        }}
+                      >
+                        {/* icono de la flecha asiabajo */}
+                        {/* tres puntos verticales */}
+                        <span
+                          className="material-symbols-outlined"
+                          style={{
+                            fontSize: '20px',
+                            color: 'gray',
+                          }}
+                        >
+                          more_vert
+                        </span>
+                      </DropdownToggle>
+                      <DropdownMenu>
+                          {/* transferir conversacion */}
+                          {/* Liberar conversacion */}
+
+                        <DropdownItem
+                          className="d-flex align-items-center gap-2"
+                          onClick={() => {
+                            // Liberar conversacion
+                            if(infoContacto.agente_id === GetTokenDecoded().id){
+                               ChatLiberado(infoContacto)
+                            }else{
+                              Swal.fire({
+                                icon: 'warning',
+                                title: 'No puedes liberar esta conversación',
+                                showConfirmButton: false,
+                                timer: 1500
+                              })
+                            }
+                          }}
+                        >
+                          <span className="material-symbols-outlined">logout</span>
+                          <span> Liberar conversación</span>
+                        </DropdownItem>
+
+                        <DropdownItem
+                          className="d-flex align-items-center gap-2"
+                          onClick={() => {
+                            if(infoContacto.agente_id === GetTokenDecoded().id){
+                              setShowTransferir(!show)
+                            }
+                          }}
+                        >
+                          <span className="material-symbols-outlined">swap_horiz</span>
+                          <span> Transferir conversación</span>
+                        </DropdownItem>
+
+                      </DropdownMenu>
+                    </Dropdown>
+                  </div>
+
               </div>
   
-              <div className="w-100 py-2 d-flex flex-column gap-2 pb-3">
-                <div className="bg-blue p-2 rounded">
+              <div className="w-100 py-1 d-flex flex-column gap-2 pb-3">
+                <div className="bg-blue p-1 rounded">
                   <span className="text-white font-bold">Información</span>
                 </div>
   
@@ -420,8 +507,8 @@ function InfoHistorialContacto(props) {
                 </div>
               </div>
   
-              <div className="w-100 py-2 d-flex flex-column gap-3">
-                <div className="bg-blue p-2 rounded justify-content-between d-flex">
+              <div className="w-100 py-1 d-flex flex-column gap-3">
+                <div className="bg-blue p-1 rounded justify-content-between d-flex">
                   <span className="text-white font-bold">Etiquetas</span>
                   <Dropdown 
                     isOpen={dropdownOpenEtiqueta} 
@@ -440,6 +527,23 @@ function InfoHistorialContacto(props) {
                       className="cursor-pointer"
                       style={{ padding: '0px 5px 0px 5px', margin: '0px' }}
                     />
+                      <DropdownToggle
+                        style={{ 
+                          padding: '0px 2px 0px 0px', 
+                          margin: '0px',
+                          backgroundColor: 'transparent',
+                          border: 'none',
+                          color: 'black'
+                        }}
+                        >
+                        {/* icono de la flecha asiabajo */}
+                        <span className="material-symbols-outlined" style={{ 
+                          fontSize: '20px',
+                          color: 'white'
+                          }}>
+                          arrow_drop_down
+                        </span>
+                      </DropdownToggle>
                     <DropdownMenu>
                       {etiquetas.map((item, index) => (
                         <DropdownItem key={index + 1} className="d-flex align-items-center gap-2" onClick={() => AgregarEtiqueta(item)}>
@@ -506,8 +610,8 @@ function InfoHistorialContacto(props) {
                 </div>
               </div>
   
-              <div className="w-100 py-2 d-flex flex-column gap-3">
-                <div className="bg-blue p-2 rounded justify-content-between d-flex">
+              <div className="w-100 py-1 d-flex flex-column gap-3">
+                <div className="bg-blue p-1 rounded justify-content-between d-flex">
                   <span className="text-white font-bold">Notas</span>
                   <span className="material-symbols-outlined text-white cursor-pointer" onClick={(e) => HandleActivarNota()}>
                     more
@@ -535,8 +639,8 @@ function InfoHistorialContacto(props) {
                 </div>
               </div>
   
-              <div className="w-100 py-2 d-flex flex-column gap-2 pb-3" style={{ maxHeight: '300px' }}>
-                <div className="bg-blue p-2 rounded">
+              <div className="w-100 py-1 d-flex flex-column gap-2 pb-3" style={{ maxHeight: '300px' }}>
+                <div className="bg-blue p-1 rounded">
                   <span className="text-white font-bold">Conversaciones anteriores</span>
                 </div>
   
@@ -602,6 +706,66 @@ function InfoHistorialContacto(props) {
           handleOnchange={handleOnchange}
           CrearRecordatorio={CrearRecordatorio}
         />
+      <Modal
+        show={showTransferir}
+        onHide={() => setShowTransferir(!showTransferir)+setAgente_id(0)}
+        size="md"
+        aria-labelledby="contained-modal-title-vcenter"
+        centered
+      >
+        {/* Listar a que agente le quiere transfer el chat */}
+        <Modal.Header closeButton>
+          <Modal.Title>Transferir chat</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <div className="d-flex flex-column gap-2">
+            {
+              // datos del chat
+              infoContacto && infoContacto.name !== undefined ?
+              <div className="d-flex gap-2">
+                <span className="text-dark">Usuario:</span>
+                <span className="text-dark font-bold">{infoContacto.name}</span>
+              </div>
+              : null
+            }
+            {
+              // bots
+              infoContacto && infoContacto.bot !== undefined ?
+              <div className="d-flex gap-2">
+                <span className="text-dark">Bot:</span>
+                <span className="text-dark font-bold">{infoContacto.bot}</span>
+              </div>
+              : null
+            }
+              <select
+                className="form-select"
+                aria-label="Default select example"
+                onChange={(e) => setAgente_id(parseInt(e.target.value))}
+              >
+                <option value="0">Seleccione un agente</option>
+                {
+                  agentes && agentes.length > 0 ?
+                  agentes.map((agente, index) => {
+                      return (
+                        <option key={index + 1} value={agente.id}>
+                          {agente.nombre}
+                        </option>
+                      );
+                    }): null
+                }
+              </select>
+
+              <button
+                className="btn btn-primary"
+                onClick={() => SetTransferirChat(infoContacto, agente_id)}
+              >
+                Transferir
+              </button>
+
+
+          </div>
+        </Modal.Body>
+      </Modal>
       </>
     );
 }
