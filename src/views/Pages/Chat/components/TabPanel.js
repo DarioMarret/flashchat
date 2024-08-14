@@ -78,7 +78,8 @@ function TabPanel(props) {
             <div className="w-100 d-flex flex-column gap-3 box-items-chat">
                 {newCardMensajes.map((item, index) => {
                     if(item.mensaje){
-                        if(item.etiquetas_estado.length > 0 && item.etiquetas_estado.some(etiqueta => etiqueta.etiquetas === etiquetaSelect)){
+                        console.log(item.etiquetas_estado)
+                        if(item.etiquetas_estado && item.etiquetas_estado.length > 0 && item.etiquetas_estado.some(etiqueta => etiqueta.etiquetas === etiquetaSelect)){
                             return <CardChat 
                                 key={index}
                                 messageItem={item} 

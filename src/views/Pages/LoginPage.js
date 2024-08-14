@@ -98,7 +98,6 @@ const LoginPage =(props)=> {
   
   const Login = async (event) => {
     event.preventDefault();
-    
     if (usuario.correo === "" || usuario.clave === "") {
       Swal.fire({
         title: 'Error',
@@ -338,61 +337,6 @@ const LoginPage =(props)=> {
               </div>
             }
           </div>
-
-          {/* <Container>
-            <Col sm="12" md="8"></Col>
-
-            <Col className="" sm="12" md="4">
-              <Form action="" className="form" method="">
-                <Card className={"card-login" + cardClasses}>
-                  <Card.Header>
-                    <h3 className="header text-center">Login</h3>
-                  </Card.Header>
-                  <Card.Body>
-                    <Card.Body>
-                      <Form.Group>
-                        <label>Email address</label>
-                        <Form.Control
-                          placeholder="Enter email"
-                          type="email"
-                          name="correo"
-                          value={usuario.correo}
-                          onChange={handleInputChange}
-                        ></Form.Control>
-                      </Form.Group>
-                      <Form.Group>
-                        <label>Password</label>
-                        <Form.Control
-                          placeholder="Password"
-                          type="password"
-                          name="clave"
-                          value={usuario.clave}
-                          onChange={handleInputChange}
-                        ></Form.Control>
-                      </Form.Group>
-                      <Form.Check className="pl-0">
-                        <Form.Check.Label>
-                          <Form.Check.Input
-                            defaultChecked
-                            type="checkbox"
-                          ></Form.Check.Input>
-                          <span className="form-check-sign"></span>
-                          Subscribe to newsletter
-                        </Form.Check.Label>
-                      </Form.Check>
-                    </Card.Body>
-                  </Card.Body>
-                  <Card.Footer className="ml-auto mr-auto">
-                    <Button className="btn-wd" type="submit" variant="warning"
-                      onClick={Login}
-                    >
-                      Login
-                    </Button>
-                  </Card.Footer>
-                </Card>
-              </Form>
-            </Col>
-          </Container> */}
         </div>
         <div
           className="full-page-background"

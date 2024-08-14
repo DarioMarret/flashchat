@@ -130,6 +130,9 @@ function TabChat(props) {
                         isOpen={dropdownOpenEtiqueta} 
                         toggle={(e)=>OpenSelectEtiqueta(e)} 
                         direction="up"
+                        // el scroll de la lista de etiquetas
+                        style={{
+                        }}
                       >
                         <DropdownToggle
                         style={{ 
@@ -153,7 +156,12 @@ function TabChat(props) {
                       filter_list
                       </span>
                         </DropdownToggle>
-                        <DropdownMenu>
+                        <DropdownMenu
+                          style={{
+                            maxHeight: '400px', // Define la altura máxima del menú desplegable
+                            overflowY: 'auto',  // Habilita el scroll vertical si el contenido es mayor a 200px
+                          }}
+                        >
                           {
                             etiquetas.map((item, index) => (
                               <DropdownItem

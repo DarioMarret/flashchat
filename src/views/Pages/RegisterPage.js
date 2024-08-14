@@ -4,9 +4,9 @@ import axios from "axios";
 import { host } from "function/util/global";
 import { useState } from "react";
 import {
-    Button,
-    Card,
-    Form
+  Button,
+  Card,
+  Form
 } from "react-bootstrap";
 
 function RegisterPage(props) {
@@ -20,6 +20,7 @@ function RegisterPage(props) {
     conatcto: "",
     menu:{}
   })
+  const [disableRegistro, setDisableRegistro] = useState(false);
 
   const handleInputChange = (event) => {
     setEmpresa({
@@ -111,6 +112,7 @@ function RegisterPage(props) {
                     </Card.Body>
                   <Card.Footer className="ml-auto mr-auto">
                     <Button className="btn button-bm w-100" type="submit" variant="dark"
+                      disabled={disableRegistro}
                       onClick={(event) => Register(event)}
                     >
                       Registrarme
@@ -135,6 +137,9 @@ function RegisterPage(props) {
           }}
         ></div>
       </div>
+      {/* realizar un modal de espera que estamos creando su cuenta por favor espere unos minutos */}
+      
+
     </>
   );
 }
