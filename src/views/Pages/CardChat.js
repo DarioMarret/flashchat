@@ -200,17 +200,18 @@ function CardChat(props) {
   return (
     <>
       <div key={index + 1} className="chat-item rounded w-100">
-        <div className="w-100 rounded px-2 rounded-1 rounded-bottom-0 d-flex justify-content-between align-items-center" 
-        style={{ 
-          // backgroundColor: "#3F98F8",
-          backgroundColor: GetTab() === 'Mias' ? (messageItem.leido  ? "#2CBCEE" : "#57B94D") :  colorPrimario ,
-          color: "white",
-          fontSize: "13px" }}>
+        <div className="w-100 rounded px-2 py-2 rounded-1 rounded-bottom-0 d-flex justify-content-between align-items-center" 
+          style={{ 
+            // backgroundColor: "#3F98F8",
+            backgroundColor: GetTab() === 'Mias' ? (messageItem.leido  ? "#2CBCEE" : "#57B94D") :  colorPrimario ,
+            color: "white",
+            fontSize: "13px" 
+          }}>
             <span>{ messageItem.bot +" - "+messageItem.telefono }</span>
             <span>#{ messageItem.conversacion_id }</span>
         </div>
 
-        <div className="d-flex gap-2 align-items-center p-2 cursor-pointer" 
+        <div className="d-flex gap-2 align-items-center p-2 cursor-pointer " 
           onClick={() => {
             if(GetTab() === 'Mias'){
               ManejarConversacion()
@@ -239,8 +240,7 @@ function CardChat(props) {
               </div>
             </div>
 
-            <div className="d-flex flex-row justify-content-between my-1" 
-            style={{ lineHeight: '17px'}}>
+            <div className="d-flex flex-row justify-content-between my-1" style={{ lineHeight: '17px'}}>
               <small className="text-dark"
                 //cuando pase el mouse mostrar el mensaje completo
                 data-toggle="tooltip"
