@@ -15,6 +15,19 @@ export const GetActivaConversacion = async(item) => {
     })
 }
 
+export const GetActivaConversacionMonitoreo = (item) => {
+  console.log(item)
+    socket.emit("get_conversacion_activa", {
+      cuenta_id: GetTokenDecoded().cuenta_id,
+      conversacion_id: item.conversacion_id,
+      equipo_id: item.equipo_id,
+      channel_id: item.channel_id,
+      contacto_id: item.Contactos.id,
+      agente_id: item.agente_id,
+      nombreunico: item.nombreunico,
+    })
+}
+
 export const EventoAsignacionAgente = (item) => {
     socket.emit("asignacion_agente", {
       cuenta_id: GetTokenDecoded().cuenta_id,
@@ -69,4 +82,8 @@ export const SetTransferirChat = (data, agente_id) => {
     conversacion_id: data.conversacion_id,
     agente_id: agente_id,
   });
+}
+
+export const random = () => {
+  return Math.random().toString(36).substr(2);
 }

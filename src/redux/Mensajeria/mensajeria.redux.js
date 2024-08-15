@@ -12,6 +12,7 @@ const initialState = {
         todas: 0,
     },
     verConversacion: undefined,
+    conversacionMonitoreo: null,
 }
 const BotEquipos = () => {
     let equipos = []
@@ -189,6 +190,11 @@ export default function mensajeriaReducer(state = initialState, action) {
                 return {
                     ...state,
                     verConversacion: action.payload,
+                }
+            case 'SET_CONVERSACION_MONITOREO':
+                return {
+                    ...state,
+                    conversacionMonitoreo: action.payload,
                 }
             default:
                 return state

@@ -1,6 +1,7 @@
 import { GetTokenDecoded } from 'function/storeUsuario';
 import { BmHttp, colorPrimario } from 'function/util/global';
 import { useEffect, useState } from 'react';
+import { useDispatch } from 'react-redux';
 import {
     Card,
     Col,
@@ -8,13 +9,32 @@ import {
     Row
 } from 'reactstrap';
 import socket from 'views/SocketIO';
+import { GetActivaConversacionMonitoreo } from '../Mensajeria/service/Eventos';
 import CardCola from './components/CardCola';
+import MensajeriaFlotante from './components/MensajeriaFlotante';
 
 function Cola(props) {
+    const dispatch = useDispatch();
+    
     const [agentes, setAgentes] = useState([]);
     const [agenteConConversacion, setAgenteConConversacion] = useState([]);
     const [TotalConevrsacion, setTotalConevrsacion] = useState([]);
     const [cuenta_id, setCuenta_id] = useState(GetTokenDecoded().cuenta_id);
+
+    const [selectedConversation, setSelectedConversation] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+  
+    const handleEyeClick = (conversation) => {
+      dispatch({ type: 'SET_CONVERSACION_MONITOREO', payload: conversation });
+      GetActivaConversacionMonitoreo(conversation);
+      setSelectedConversation(conversation);
+      setIsModalOpen(true);
+    };
+  
+    const handleCloseModal = () => {
+      setIsModalOpen(false);
+      setSelectedConversation(null);
+    };
 
     const ListarAgentes = async () => {
         const { data } = await BmHttp().get(`agentes/${GetTokenDecoded().cuenta_id}`);
@@ -233,11 +253,17 @@ function Cola(props) {
                     {
                         agenteConConversacion.length > 0 &&
                             agentes.map((agent, index) => (
-                                <CardCola key={index} items={agent} />
+                                <CardCola key={index} items={agent} handleEyeClick={handleEyeClick} />
                             ))
                     }
                 </Row>
             </Card>
+            <MensajeriaFlotante 
+                isOpen={isModalOpen} 
+                onClose={handleCloseModal} 
+                conversation={selectedConversation}
+                agentes={agentes}
+            />
         </Container>
     );
 }

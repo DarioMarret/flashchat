@@ -8,7 +8,8 @@ import {
     Row
 } from 'reactstrap';
 function CardCola(props) {
-    const { items } = props;
+    const { items, handleEyeClick } = props;
+    
     if(!IsKeyObject(items, 'conversacion')){
         return null;
     }
@@ -90,35 +91,38 @@ function CardCola(props) {
                         {
                             items.conversacion && items.conversacion.length > 0 ?
                             items.conversacion.map((c, index) => {
-                                console.log(c);
                                     return (
                                         <div key={index} className='d-flex justify-content-center align-items-center w-100 mb-1'
                                             style={{ background: '#f0f0f0', padding: '5px', borderRadius: '5px' }}
                                         >
                                             <div className='d-flex flex-column justify-content-start align-items-start w-100'>
                                                 <div className='d-flex justify-content-start align-items-center w-100 border-bottom'>
-                                                    <img
-                                                        src={c.Contactos.avatar}
-                                                        alt='Adrian Mosquera'
-                                                        style={{ width: '30px', height: '30px', borderRadius: '50%' }}
-                                                        className='mx-2'
-                                                    />
-                                                    <span className='d-flex flex-column justify-content-start align-items-start' style={{
-                                                            fontSize: '14px',
-                                                        }}>{c.Contactos.nombre}
-                                                    <span style={{
-                                                            fontSize: '10px',
-                                                        }} className='text-dark' >{c.Contactos.telefono}</span>
-                                                        <span className='text-dark' style={{ fontSize: '10px' }}>
-                                                            {"Bot: "} {c.nombre_bot}
+                                                    <div className='d-flex justify-content-start align-items-center w-75'>
+                                                        <img
+                                                            src={c.Contactos.avatar}
+                                                            alt='Adrian Mosquera'
+                                                            style={{ width: '30px', height: '30px', borderRadius: '50%' }}
+                                                            className='mx-2'
+                                                        />
+                                                        <span className='d-flex flex-column justify-content-start align-items-start' style={{
+                                                                fontSize: '14px',
+                                                            }}>{c.Contactos.nombre}
+                                                        <span style={{
+                                                                fontSize: '10px',
+                                                            }} className='text-dark' >{c.Contactos.telefono}</span>
+                                                            <span className='text-dark' style={{ fontSize: '10px' }}>
+                                                                {"conexion: "} {c.nombre_bot}
+                                                            </span>
                                                         </span>
-                                                    </span>
-                                                    <div className='d-flex justify-content-end align-items-center w-100'>
+                                                    </div>
+
+                                                    <div className='d-flex justify-content-end align-items-center w-25'>
                                                         <span className='mx-2'
                                                             style={{
                                                                 fontSize: '19px',
                                                                 cursor: 'pointer',
                                                             }}
+                                                            onClick={() => handleEyeClick(c)}
                                                         >
                                                             {/* icono para ver la conversacion */}
                                                             <i className="fas fa-eye"
@@ -164,6 +168,7 @@ function CardCola(props) {
                     </CardBody>
                 </Card>
             </Col>
+           
         </>
     );
 }

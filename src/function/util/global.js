@@ -51,11 +51,14 @@ export const BmHttp = bm;
 
 const dominio = () => {
     try {
+        console.log(GetTokenDecoded())
         if(GetTokenDecoded() === null){
+            console.log("no hay token")
             return  dev ? "https://flash.codigomarret.com/backflash/" : "https://api.flashchat.chat/backflash/";
+        }else{
             // return  "http://localhost:5002/"
+            return GetTokenDecoded().cuenta.url_dominio
         }
-        return GetTokenDecoded().cuenta.url_dominio
     } catch (error) {
         console.log(error)
     }

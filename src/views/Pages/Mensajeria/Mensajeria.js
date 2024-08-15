@@ -29,7 +29,7 @@ import { addAgente } from "../../../redux/Agentes/agente.servicio";
 import { fetchMensajeriaCard } from '../../../redux/Mensajeria/mensajeria.servicio';
 import CardTab from "./components/CardTab/CardTab";
 import InfoHistorialContacto from "./components/InfoContacto/InfoHistorialContacto";
-import { EmiittingMensaje, EmittMesnaje, EventoAsignacionAgente, GetActivaConversacion } from "./service/Eventos";
+import { EmiittingMensaje, EmittMesnaje, EventoAsignacionAgente, GetActivaConversacion, random } from "./service/Eventos";
 
 moment.locale("es");
 var cardMensage = [];
@@ -259,7 +259,6 @@ export default function Mensajeria() {
   
         // Establecer el listener de eventos
         socket.on(`mensaje_${cuenta_id}`, handleMensaje);
-  
         // Limpieza de listeners
         return () => {
           socket.off(`mensaje_${cuenta_id}`, handleMensaje);
@@ -509,10 +508,6 @@ export default function Mensajeria() {
     DeletManejoConversacionStorange()
   }
 
-  const random = () => {
-    return Math.random().toString(36).substr(2);
-  }
-
   const EnvianMensaje = (e) => {
     e.preventDefault();
     var covActiva = GetManejoConversacion()
@@ -535,10 +530,12 @@ export default function Mensajeria() {
           SetManejoConversacionStorange(covActiva)
           EventoAsignacionAgente(covActiva)
           GetActivaConversacion(covActiva)
+          // esperar 300 milesegundo y enviar el mensaje 
+          setTimeout(()=>EnviarMensajeSocket(), 350)
+          
         }
       })
-    }
-    if(covActiva.agente_id !== GetTokenDecoded().id){
+    }else if(covActiva.agente_id !== GetTokenDecoded().id){
       Swal.fire({
         title: 'Conversación asignada',
         text: 'Esta conversación ha sido asignada a otro agente',
@@ -553,63 +550,42 @@ export default function Mensajeria() {
           SetManejoConversacionStorange(covActiva)
           EventoAsignacionAgente(covActiva)
           GetActivaConversacion(covActiva)
-          if (inputStr !== null && inputStr !== "") {
-            let infoClient = {
-              cuenta_id: GetTokenDecoded().cuenta_id,
-              conversacion_id: covActiva.conversacion_id,
-              equipo_id: covActiva.equipo_id,
-              channel_id: covActiva.channel_id,
-              contacto_id: covActiva.Contactos.id,
-              agente_id: GetTokenDecoded().id,
-              updatedAt: new Date(),
-              nombreunico: covActiva.nombreunico,
-            };
-            let mensaje = {
-              id: random(),
-              text: typeInput === "text" ? inputStr : null,
-              url: typeInput === "text" ? null : inputStr,
-              type: typeInput,
-              parems: null,
-              chat_id: covActiva.mensaje.chat_id,
-              sessionId: covActiva.sessionIdWebChat
-            };
-            EmittMesnaje(infoClient, mensaje);
-            setInputStr("");
-            setTypeInput("text");
-            EmiittingMensaje();
-            GetActivaConversacion(covActiva)
-            dummy.current.scrollIntoView({ behavior: "smooth", block: "end", inline: "nearest" });
-          }
+          setTimeout(()=>EnviarMensajeSocket(), 350)
         }
       })
     }else{
-      if (inputStr !== null && inputStr !== "") {
-        let infoClient = {
-          cuenta_id: GetTokenDecoded().cuenta_id,
-          conversacion_id: covActiva.conversacion_id,
-          equipo_id: covActiva.equipo_id,
-          channel_id: covActiva.channel_id,
-          contacto_id: covActiva.Contactos.id,
-          agente_id: GetTokenDecoded().id,
-          updatedAt: new Date(),
-          nombreunico: covActiva.nombreunico,
-        };
-        let mensaje = {
-          id: random(),
-          text: typeInput === "text" ? inputStr : null,
-          url: typeInput === "text" ? null : inputStr,
-          type: typeInput,
-          parems: null,
-          chat_id: covActiva.mensaje.chat_id,
-          sessionId: covActiva.sessionIdWebChat
-        };
-        EmittMesnaje(infoClient, mensaje);
-        setInputStr("");
-        setTypeInput("text");
-        EmiittingMensaje();
-        GetActivaConversacion(covActiva)
-        dummy.current.scrollIntoView({ behavior: "smooth", block: "end", inline: "nearest" });
-      }
+      EnviarMensajeSocket()
+    }
+  }
+
+  const EnviarMensajeSocket = ()=>{
+    var covActiva = GetManejoConversacion()
+    if (inputStr !== null && inputStr !== "") {
+      let infoClient = {
+        cuenta_id: GetTokenDecoded().cuenta_id,
+        conversacion_id: covActiva.conversacion_id,
+        equipo_id: covActiva.equipo_id,
+        channel_id: covActiva.channel_id,
+        contacto_id: covActiva.Contactos.id,
+        agente_id: GetTokenDecoded().id,
+        updatedAt: new Date(),
+        nombreunico: covActiva.nombreunico,
+      };
+      let mensaje = {
+        id: random(),
+        text: typeInput === "text" ? inputStr : null,
+        url: typeInput === "text" ? null : inputStr,
+        type: typeInput,
+        parems: null,
+        chat_id: covActiva.mensaje.chat_id,
+        sessionId: covActiva.sessionIdWebChat
+      };
+      EmittMesnaje(infoClient, mensaje);
+      setInputStr("");
+      setTypeInput("text");
+      EmiittingMensaje();
+      GetActivaConversacion(covActiva)
+      dummy.current.scrollIntoView({ behavior: "smooth", block: "end", inline: "nearest" });
     }
   }
 
@@ -956,6 +932,7 @@ export default function Mensajeria() {
                   }
             </div>
 
+            {/* el imput de enviar mensaje */}
             <div className="row rounded border-top d-flex d-flex flex-column flex-md-row align-items-center pt-2" style={{ minHeight: "50px" }}>
               <div className="col-9 d-flex align-items-center py-1">
                 {/* se hace visible las respuesta rapidas que el usuario las puedas seleccionar  */}
@@ -1079,6 +1056,7 @@ export default function Mensajeria() {
                 </button>
               </div>
             </div>
+
           </div>
         </div>
 
