@@ -124,13 +124,19 @@ export default function MensajeriaFlotante({ isOpen, onClose, conversation, agen
           const { type, data } = msg;
           if (data && data.cuenta_id === cuenta_id) {
             if (type === "mensaje_card" && data.mensaje.length > 0) {
-              // conversacionActiva  //anadir el nuevo mensaje a la conversacion activa
-              if (conversacionMonitoreo && data.mensaje[0].conversacion_id === conversacionMonitoreo.conversacion_id 
-                && data.mensaje[0].nombreunico === conversacionMonitoreo.nombreunico 
-                && data.mensaje[0].Contactos.id === conversacionMonitoreo.Contactos.id) {
-                let copia = [...conversacionActiva];
-                copia.push(data.mensaje[0]);
-                setConversacionActiva(copia);
+              // Verifica si la conversación de monitoreo está activa y si los detalles del mensaje coinciden con la conversación activa
+              const nuevoMensaje = data.mensaje[0];
+              if (
+                conversacionMonitoreo &&
+                nuevoMensaje.conversacion_id === conversacionMonitoreo.conversacion_id &&
+                nuevoMensaje.nombreunico === conversacionMonitoreo.nombreunico &&
+                nuevoMensaje.Contactos.id === conversacionMonitoreo.Contactos.id
+              ) {
+                // Crea una copia del estado de la conversación activa y agrega el nuevo mensaje
+                setConversacionActiva((prevConversacionActiva) => [
+                  ...prevConversacionActiva,
+                  nuevoMensaje
+                ]);
               }
             } else if (type === "finaliza-conversacion") {
               if(data.conversacion_id === conversacionMonitoreo.conversacion_id && data.nombreunico === conversacionMonitoreo.nombreunico){
