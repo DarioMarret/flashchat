@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { GetManejoConversacion, GetTokenDecoded, SubirMedia } from 'function/storeUsuario';
+import { DeleletConversacionMonitoreo, GetConversacionMonitoreo, GetManejoConversacion, GetTokenDecoded, SubirMedia } from 'function/storeUsuario';
 import { colorPrimario } from 'function/util/global';
 import moment from 'moment';
 import { useEffect, useRef, useState } from 'react';
@@ -13,17 +13,12 @@ import socket from 'views/SocketIO';
 export default function MensajeriaFlotante({ isOpen, onClose, conversation, agentes }) {
   const dispatch = useDispatch();
   const { conversacionMonitoreo } = useSelector(state => state.mensajeria);
-  const [convers, setConvers] = useState(conversacionMonitoreo);
   const dummy = useRef();
   const [conversacionActiva, setConversacionActiva] = useState([]);
   const [inputStr, setInputStr] = useState("");
   const [linkPreview, setLinkPreview] = useState("");
   const [typeInput, setTypeInput] = useState("text");
 
-  console.log(isOpen)
-  useEffect(() => {
-    // GetActivaConversacionMonitoreo(conversation);
-  }, [isOpen]);
   // recibe la conversacion activa
   const NombreAGente=(agente_id)=>{
     for (let index = 0; index < agentes.length; index++) {
@@ -120,17 +115,16 @@ export default function MensajeriaFlotante({ isOpen, onClose, conversation, agen
     if (socket) {
       try {
         const cuenta_id = GetTokenDecoded().cuenta_id;
+        const conversacioMoni = GetConversacionMonitoreo();
         const handleMensaje = (msg) => {
           const { type, data } = msg;
-          if (data && data.cuenta_id === cuenta_id) {
+          if (conversacioMoni && data && data.cuenta_id === cuenta_id) {
             if (type === "mensaje_card" && data.mensaje.length > 0) {
               // Verifica si la conversación de monitoreo está activa y si los detalles del mensaje coinciden con la conversación activa
               const nuevoMensaje = data.mensaje[0];
-              if (
-                conversacionMonitoreo &&
-                nuevoMensaje.conversacion_id === conversacionMonitoreo.conversacion_id &&
-                nuevoMensaje.nombreunico === conversacionMonitoreo.nombreunico &&
-                nuevoMensaje.Contactos.id === conversacionMonitoreo.Contactos.id
+              if (nuevoMensaje.conversacion_id === conversacioMoni.conversacion_id &&
+                nuevoMensaje.nombreunico === conversacioMoni.nombreunico &&
+                nuevoMensaje.Contactos.id === conversacioMoni.Contactos.id
               ) {
                 // Crea una copia del estado de la conversación activa y agrega el nuevo mensaje
                 setConversacionActiva((prevConversacionActiva) => [
@@ -139,9 +133,10 @@ export default function MensajeriaFlotante({ isOpen, onClose, conversation, agen
                 ]);
               }
             } else if (type === "finaliza-conversacion") {
-              if(data.conversacion_id === conversacionMonitoreo.conversacion_id && data.nombreunico === conversacionMonitoreo.nombreunico){
+              if(data.conversacion_id === conversacioMoni.conversacion_id && data.nombreunico === conversacioMoni.nombreunico){
                 onClose();
                 dispatch({ type: "SET_CONVERSACION_MONITOREO", payload: null });
+                DeleletConversacionMonitoreo()
               }
             }
           }
@@ -151,11 +146,12 @@ export default function MensajeriaFlotante({ isOpen, onClose, conversation, agen
           const { type, data } = msg;
           if (type === "response_cambiar_estado" && data.cuenta_id === cuenta_id) {
             const { estado, conversacion_id, contacto_id, nombreunico } = data;
-            if (conversacionMonitoreo && conversacionMonitoreo.conversacion_id === conversacion_id &&
-              conversacionMonitoreo.nombreunico === nombreunico && conversacionMonitoreo.Contactos.id === contacto_id) {
+            if (conversacioMoni && conversacioMoni.conversacion_id === conversacion_id &&
+              conversacioMoni.nombreunico === nombreunico && conversacioMoni.Contactos.id === contacto_id) {
               if (estado === "Eliminado" || estado === "Finalizado" || estado === "Resuelta") {
                 onClose();
                 dispatch({ type: "SET_CONVERSACION_MONITOREO", payload: null });
+                DeleletConversacionMonitoreo()
               }
             }
           }

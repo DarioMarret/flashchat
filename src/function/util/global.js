@@ -8,6 +8,7 @@ export const estaso_nav = "flash_estado:";
 export const tabconversacion = "flash_tabconversacion:";
 export const etiquetas = "flash_etiquetas:";
 export const conversacion_activa = "flash_conversacion_activa";
+export const conversacion_monitoreo = "flash_conversacion_monitoreo";
 export const recordatorio_store = "flash_recordatorio";
 export const dev = false;
 export const proxy = "backflash"
@@ -51,9 +52,7 @@ export const BmHttp = bm;
 
 const dominio = () => {
     try {
-        console.log(GetTokenDecoded())
         if(GetTokenDecoded() === null){
-            console.log("no hay token")
             return  dev ? "https://flash.codigomarret.com/backflash/" : "https://api.flashchat.chat/backflash/";
         }else{
             // return  "http://localhost:5002/"

@@ -1,4 +1,4 @@
-import { GetTokenDecoded } from 'function/storeUsuario';
+import { GetTokenDecoded, SetConversacionMonitoreo } from 'function/storeUsuario';
 import { BmHttp, colorPrimario } from 'function/util/global';
 import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
@@ -26,6 +26,7 @@ function Cola(props) {
   
     const handleEyeClick = (conversation) => {
       dispatch({ type: 'SET_CONVERSACION_MONITOREO', payload: conversation });
+      SetConversacionMonitoreo(conversation);
       GetActivaConversacionMonitoreo(conversation);
       setSelectedConversation(conversation);
       setIsModalOpen(true);

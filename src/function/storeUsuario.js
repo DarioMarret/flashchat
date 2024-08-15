@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { DecodeJwt, DescryptCualquierDato } from "./util/ecrypt";
-import { conversacion_activa, host, recordatorio_store, usuario_token } from "./util/global";
+import { conversacion_activa, conversacion_monitoreo, host, recordatorio_store, usuario_token } from "./util/global";
 
 
 export const IsKeyObject =(obj, str)=>{
@@ -64,6 +64,23 @@ export function removeDatosUsuario() {
 export const RemoverConversacion = () => {
     localStorage.removeItem("conversacion_activa");
     return true;
+}
+
+export const SetConversacionMonitoreo = (data) => {
+    localStorage.setItem(conversacion_monitoreo, JSON.stringify(data));
+    return true;
+}
+export const DeleletConversacionMonitoreo = () => {
+    localStorage.removeItem(conversacion_monitoreo);
+    return true;
+}
+export const GetConversacionMonitoreo = () => {
+    const local = localStorage.getItem(conversacion_monitoreo);
+    if (local) {
+      return JSON.parse(local);
+    } else {
+      return null;
+    }
 }
 
 export const SubirMedia = async (imagen, type, nombre) => {
