@@ -7,7 +7,6 @@ import { GetToken, removeDatosUsuario } from "function/storeUsuario";
 import React, { useEffect, useMemo, useState } from "react";
 import { Provider } from "react-redux";
 import { Navigate, Route, BrowserRouter as Router, Routes } from "react-router-dom";
-import routes from "routes";
 import store from "./redux/store";
 
 import image3 from "assets/img/full-screen-image-3.jpg";
@@ -26,6 +25,8 @@ import Contactos from "views/Pages/Contactos";
 import Mensajeria from "views/Pages/Mensajeria/Mensajeria";
 import Auths from "views/Pages/auth/Auths";
 
+import { ControllerServiceMenuAgente } from "components/Sidebar/service/menu.service";
+import routesInit from "routes";
 import { AlertBanner } from "views/Components/Alert/Alert";
 import Cola from "views/Pages/Cola/Cola";
 import PCorreo from "views/Pages/Correo/PCorreo";
@@ -46,6 +47,7 @@ import "./assets/css/style.css";
 
 export default function App() {
   const [auth, setAuth] = useState(undefined);
+  const [ routes, setRoutes ] = useState([]);
   // const dispatch = useDispatch();
   const [ReloadUser, setReloadUser] = useState(false);
   const [sidebarImage, setSidebarImage] = React.useState(image3);
@@ -59,10 +61,16 @@ export default function App() {
   });
 
   useEffect(() => {
-    (() => {
+    (async() => {
       const user = GetToken();
       if (user != null) {
         setAuth(user);
+        let menu = await ControllerServiceMenuAgente();
+        if(menu.length === 0){
+          setRoutes(routesInit)
+        }else{
+          setRoutes(menu);
+        }
       } else {
         setAuth(null);
       }

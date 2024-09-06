@@ -178,21 +178,7 @@ function Masivos(props) {
     console.log("E: ", e.target.name);
     console.log("E: ", e.target.value);
     try {
-      // setEnvio({
-      //   ...envio,
-      //   [e.target.name]: e.target.value,
-      // });
-      if (envio.type === "video") {
-        setEnvio({
-          ...envio,
-          video: e.target.value,
-        });
-      } else if (envio.type === "imagen") {
-        setEnvio({
-          ...envio,
-          imagen: e.target.value,
-        });
-      } else if (e.target.name === "plantilla_id") {
+      if (e.target.name === "plantilla_id") {
         let text = "";
         listPlantillas.map((item) => {
           if (item.id === e.target.value) {
@@ -274,12 +260,24 @@ function Masivos(props) {
           ...envio,
           contact_plantilla: e.target.checked,
         });
+      } else if (e.target.name === "numero") {
+        setEnvio({
+          ...envio,
+          [e.target.name]: e.target.value,
+        });
+      }else if (e.target.name === "mensaje") {
+        setEnvio({
+          ...envio,
+          mensaje: e.target.value,
+          mensaje_content: e.target.value,
+        });
       }else{
         setEnvio({
           ...envio,
           [e.target.name]: e.target.value,
         });
       }
+      console.log("Envio: ", envio);
     } catch (error) {
       console.log(error);
     }
@@ -287,7 +285,9 @@ function Masivos(props) {
 
   const handleSelect = (item) => {
     if (item) {
-      let inf = JSON.parse(item.target.value);
+      console.log("Item: ", item.target.value);
+      const nombreBot = item.target.value;
+      let inf = bots.filter((item) => item.nombre_bot === nombreBot)[0];
       setEnvio({
         ...envio,
         nombre_bot: inf.nombre_bot,
@@ -477,143 +477,147 @@ function Masivos(props) {
   };
 
   const EnvioPrueba = async (e) => {
-    console.log("Envio: ", envio);
-    e.preventDefault();
-    if (envio.numero === null || envio.numero === "") {
-      Swal.fire({
-        icon: "error",
-        title: "El numero es obligatorio",
-        showConfirmButton: false,
-        timer: 1500,
-      });
-      return null;
-    }
-    if (
-      envio.channel_id === 4 &&
-      envio.numero !== null &&
-      envio.plantilla_id !== null &&
-      envio.api_key !== null
-    ) {
-      let component = [];
-      const body = components.filter((item) => item.type === "body");
-      const header = components.filter((item) => item.type === "header");
-      const footer = components.filter((item) => item.type === "footer");
-      if (Array.isArray(body).length > 0) {
-        component.push({
-          type: "body",
-          parameters: body.map((item) => {
-            return {
-              type: "text",
-              text: item.text,
-            };
-          }),
-        });
-      } else if (Array.isArray(header) && header.length > 0) {
-        component.push({
-          type: "header",
-          parameters: header.map((item) => {
-            console.log("Item: ", item);
-            return {
-              type: "text",
-              text: item.text,
-            };
-          }),
-        });
-      } else if ( typeof catidadVariables.headerVideo === "object" && Object.keys(catidadVariables.headerVideo).length > 0 ) {
-        component.push({
-          type: "header",
-          parameters: [catidadVariables.headerVideo],
-        });
-        // tambien lo seteamos en video para que se muestre en el modal
-        setEnvio({
-          ...envio,
-          video: catidadVariables.headerVideo.video.link,
-        });
-      } else if ( typeof catidadVariables.headerImagen === "object" && Object.keys(catidadVariables.headerImagen).length > 0) {
-        component.push({
-          type: "header",
-          parameters: [catidadVariables.headerImagen],
-        });
-        // tambien lo seteamos en imagen para que se muestre en el modal
-        setEnvio({
-          ...envio,
-          imagen: catidadVariables.headerImagen.image.link,
-        });
-      } else if (Array.isArray(footer) && footer.length > 0) {
-        component.push({
-          type: "footer",
-          parameters: footer.map((item) => {
-            return {
-              type: "text",
-              text: item.text,
-            };
-          }),
-        });
-      }
-
-      listPlantillas.map(async (item) => {
-        if (item.id === envio.plantilla_id) {
-          let plan = {
-            api_key: envio.api_key,
-            plantilla: {
-              to: envio.numero,
-              type: "template",
-              template: {
-                namespace: item.namespace,
-                language: {
-                  code: item.language,
-                  policy: "deterministic",
-                },
-                name: item.name,
-                components: component,
-              },
-            },
-          };
-          const { status } = await BmHttp().post("plantilla_envio_360", plan);
-          if (status === 200) {
-            Swal.fire({
-              icon: "success",
-              title: "Plantilla enviada",
-              showConfirmButton: false,
-              timer: 1500,
-            });
-          } else {
-            Swal.fire({
-              icon: "error",
-              title: "Error al enviar mensaje",
-              showConfirmButton: false,
-              timer: 1500,
-            });
-          }
-        }
-      });
-    } else if (envio.channel_id === 2) {
-      
-      const { status } = await BmHttp().post("qr_mensaje_external", {
-        sessionName: envio.nombreunico,
-        numero: [envio.numero],
-        mensaje: {
-          type: "masivo",
-          text: envio.mensaje,
-          image: envio.imagen,
-          video: envio.video,
-        },
-      });
-      if (status === 200) {
-        Swal.fire({
-          icon: "success",
-          title: "Mensaje enviado",
-          showConfirmButton: false,
-          timer: 1500,
-        });
-      } else {
+    try {
+      console.log("Envio: ", envio);
+      e.preventDefault();
+      if (envio.numero === null || envio.numero === "") {
         Swal.fire({
           icon: "error",
-          title: "Error al enviar mensaje",
+          title: "El numero es obligatorio",
           showConfirmButton: false,
           timer: 1500,
         });
+        return null;
       }
+      if (
+        envio.channel_id === 4 &&
+        envio.numero !== null &&
+        envio.plantilla_id !== null &&
+        envio.api_key !== null
+      ) {
+        let component = [];
+        const body = components.filter((item) => item.type === "body");
+        const header = components.filter((item) => item.type === "header");
+        const footer = components.filter((item) => item.type === "footer");
+        if (Array.isArray(body).length > 0) {
+          component.push({
+            type: "body",
+            parameters: body.map((item) => {
+              return {
+                type: "text",
+                text: item.text,
+              };
+            }),
+          });
+        } else if (Array.isArray(header) && header.length > 0) {
+          component.push({
+            type: "header",
+            parameters: header.map((item) => {
+              console.log("Item: ", item);
+              return {
+                type: "text",
+                text: item.text,
+              };
+            }),
+          });
+        } else if ( typeof catidadVariables.headerVideo === "object" && Object.keys(catidadVariables.headerVideo).length > 0 ) {
+          component.push({
+            type: "header",
+            parameters: [catidadVariables.headerVideo],
+          });
+          // tambien lo seteamos en video para que se muestre en el modal
+          setEnvio({
+            ...envio,
+            video: catidadVariables.headerVideo.video.link,
+          });
+        } else if ( typeof catidadVariables.headerImagen === "object" && Object.keys(catidadVariables.headerImagen).length > 0) {
+          component.push({
+            type: "header",
+            parameters: [catidadVariables.headerImagen],
+          });
+          // tambien lo seteamos en imagen para que se muestre en el modal
+          setEnvio({
+            ...envio,
+            imagen: catidadVariables.headerImagen.image.link,
+          });
+        } else if (Array.isArray(footer) && footer.length > 0) {
+          component.push({
+            type: "footer",
+            parameters: footer.map((item) => {
+              return {
+                type: "text",
+                text: item.text,
+              };
+            }),
+          });
+        }
+  
+        listPlantillas.map(async (item) => {
+          if (item.id === envio.plantilla_id) {
+            let plan = {
+              api_key: envio.api_key,
+              plantilla: {
+                to: envio.numero,
+                type: "template",
+                template: {
+                  namespace: item.namespace,
+                  language: {
+                    code: item.language,
+                    policy: "deterministic",
+                  },
+                  name: item.name,
+                  components: component,
+                },
+              },
+            };
+            const { status } = await BmHttp().post("plantilla_envio_360", plan);
+            if (status === 200) {
+              Swal.fire({
+                icon: "success",
+                title: "Plantilla enviada",
+                showConfirmButton: false,
+                timer: 1500,
+              });
+            } else {
+              Swal.fire({
+                icon: "error",
+                title: "Error al enviar mensaje",
+                showConfirmButton: false,
+                timer: 1500,
+              });
+            }
+          }
+        });
+      } else if (envio.channel_id === 2) {
+        
+        const { status } = await BmHttp().post("qr_mensaje_external", {
+          sessionName: "2_ordenfacil593969078528",
+          numero: [envio.numero],
+          mensaje: {
+            type: "masivo",
+            text: envio.mensaje,
+            image: envio.imagen,
+            video: envio.video,
+          },
+        });
+        if (status === 200) {
+          Swal.fire({
+            icon: "success",
+            title: "Mensaje enviado",
+            showConfirmButton: false,
+            timer: 1500,
+          });
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "Error al enviar mensaje",
+            showConfirmButton: false,
+            timer: 1500,
+          });
+        }
+      }
+    } catch (error) {
+      console.log(error);      
     }
   };
 
@@ -1101,12 +1105,12 @@ function Masivos(props) {
                   className="form-control"
                   id="nombreunico"
                   name="nombreunico"
-                  value={JSON.stringify(envio)}
+                  value={envio.nombre_bot}
                   onChange={handleSelect}
                 >
                   <option value="">Seleccione una conexion</option>
                   {bots.map((item, index) => (
-                      <option key={index} value={JSON.stringify(item)}>
+                      <option key={index} value={item.nombre_bot}>
                         {item.nombre_bot}
                       </option>
                   ))}
@@ -1123,7 +1127,7 @@ function Masivos(props) {
                     placeholder="intervalo_entre"
                     name="intervalo_entre"
                     value={envio.intervalo_entre}
-                    onChange={handleEnvio}
+                    onChange={(e)=>handleEnvio(e)}
                   />
                 </div>
 
@@ -1138,7 +1142,7 @@ function Masivos(props) {
                     placeholder="retardo_entre_msjs"
                     name="retardo_entre_msjs"
                     value={envio.retardo_entre_msjs}
-                    onChange={handleEnvio}
+                    onChange={(e)=>handleEnvio(e)}
                   />
                 </div>
 
@@ -1152,7 +1156,7 @@ function Masivos(props) {
                     name="fecha_envio"
                     min={moment().format("YYYY-MM-DDTHH:mm")}
                     value={envio.fecha_envio}
-                    onChange={handleEnvio}
+                    onChange={(e)=>handleEnvio(e)}
                   />
                 </div>
               </div>
@@ -1170,7 +1174,6 @@ function Masivos(props) {
                   onChange={(e)=>handleEnvio(e)}
                 />
               </div>
-              {envio.channel_id === 4 ? (
                 <div className="form-group">
                   <label htmlFor="contact_plantilla" className="">
                     Contactos externos
@@ -1185,7 +1188,6 @@ function Masivos(props) {
                     onClick={(e) => handleEnvio(e)}
                   />
                 </div>
-              ) : null}
               {envio.channel_id !== 0 && envio.channel_id !== 2 ? (
                 <div className="form-group">
                   <label htmlFor="todos_contactos" className="">
@@ -1333,7 +1335,7 @@ function Masivos(props) {
                     id="numero"
                     name="numero"
                     value={envio.numero}
-                    onChange={(e)=>handleEnvio(e)}
+                    onChange={(e)=>setEnvio({...envio, numero: e.target.value})}
                   />
                 </div>
               }

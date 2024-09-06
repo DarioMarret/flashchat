@@ -1,6 +1,6 @@
 import axios from 'axios';
-import { DecodeJwt, DescryptCualquierDato } from "./util/ecrypt";
-import { conversacion_activa, conversacion_monitoreo, host, recordatorio_store, usuario_token } from "./util/global";
+import { DecodeJwt, DescryptCualquierDato, EncryptCualquierDato } from "./util/ecrypt";
+import { conversacion_activa, conversacion_monitoreo, host, recordatorio_store, usuario_menu, usuario_token } from "./util/global";
 
 
 export const IsKeyObject =(obj, str)=>{
@@ -8,7 +8,7 @@ export const IsKeyObject =(obj, str)=>{
 }
 
 export const GetToken = () => {
-    let token = localStorage.getItem(usuario_token);
+    let token = DescryptCualquierDato(localStorage.getItem(usuario_token));
     if(token === null){
         return null;
     }else{
@@ -21,7 +21,7 @@ export const GetToken = () => {
 }
 
 export const GetTokenDecoded = () => {
-    let token = localStorage.getItem(usuario_token);
+    let token = DescryptCualquierDato(localStorage.getItem(usuario_token));
     if(token === null){
         return null;
     }else{
@@ -31,15 +31,15 @@ export const GetTokenDecoded = () => {
 
 export function setDatosUsuario(data) {
     try {
-        // const use = EncryptCualquierDato(strings);
-        localStorage.setItem(usuario_token,data)
+        localStorage.setItem(usuario_token,EncryptCualquierDato(data))
+        const menu = DecodeJwt(data)
+        SetMenu(menu.menu)
         return true;
     } catch (error) {
         console.log(error);
     }
 }
 
-  
 export function getDatosUsuario() {
     try {
         const parse = DescryptCualquierDato(localStorage.getItem(usuario_token))
@@ -81,6 +81,21 @@ export const GetConversacionMonitoreo = () => {
     } else {
       return null;
     }
+}
+
+// menu
+export const GetMenu = () => {
+    const local = localStorage.getItem(usuario_menu);
+    if (local) {
+      return JSON.parse(local);
+    } else {
+      return null;
+    }
+}
+
+export const SetMenu = (data) => {
+    localStorage.setItem(usuario_menu, JSON.stringify(data));
+    return true;
 }
 
 export const SubirMedia = async (imagen, type, nombre) => {

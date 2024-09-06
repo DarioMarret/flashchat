@@ -3,6 +3,7 @@ import { GetToken, GetTokenDecoded } from "function/storeUsuario";
 
 export const usuario_local = "flash_usuario:";
 export const usuario_token = "flash_token_usuario:";
+export const usuario_menu = "flash_menu_usuario:";
 export const card_mensajes = "flash_card_mensajes:";
 export const estaso_nav = "flash_estado:";
 export const tabconversacion = "flash_tabconversacion:";
@@ -61,7 +62,7 @@ const dominio = () => {
     } catch (error) {
         console.log(error)
     }
-    // return  GetTokenDecoded() && GetTokenDecoded().cuenta.url_dominio ? GetTokenDecoded().cuenta.url_dominio : dev ? "https://flash.codigomarret.com/backflash/" : "https://api.flashchat.chat/backflash/";
+    return  "http://localhost:5002/"
 }
 export const host = dominio;
 

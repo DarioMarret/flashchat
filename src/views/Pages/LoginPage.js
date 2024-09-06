@@ -1,6 +1,7 @@
 import logo from "assets/img/logo512.png";
+import { setDatosUsuario } from "function/storeUsuario";
 import { DecodeJwt } from "function/util/ecrypt";
-import { BmHttp, colorPrimario, HoraServer, host, HttpLogin, tabconversacion, usuario_token } from "function/util/global";
+import { BmHttp, colorPrimario, HoraServer, host, HttpLogin, tabconversacion } from "function/util/global";
 import useAuth from "hook/useAuth";
 import React from "react";
 
@@ -116,7 +117,7 @@ const LoginPage =(props)=> {
           let info_token = await DecodeJwt(data.token);
           const { activar_ini, horario_ini, activar_fin, horario_fin } = info_token;
           if (!activar_ini) {
-            localStorage.setItem(usuario_token, data.token);
+            setDatosUsuario(data.token);
             login(data.token);
             setReloadUser(true);
           } else {
@@ -124,7 +125,7 @@ const LoginPage =(props)=> {
             if (hora_actual === null) return;
             const { hora } = hora_actual;
             if (separarHora(hora) >= separarHora(horario_ini) && separarHora(hora) <= separarHora(horario_fin)) {
-              localStorage.setItem(usuario_token, data.token);
+              setDatosUsuario(data.token);
               login(data.token);
               localStorage.setItem(tabconversacion, 'Sin leer');
               setReloadUser(true);

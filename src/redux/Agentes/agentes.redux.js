@@ -1,6 +1,7 @@
 
 const initialState = {
     agenteArray: [],
+    agenteMenu: [],
 }
 
 export default function agentesReducer(state = initialState, action) {
@@ -9,6 +10,11 @@ export default function agentesReducer(state = initialState, action) {
             return {
                 ...state,
                 agenteArray: action.payload
+            }
+        case 'GET_MENU_AGENTE':
+            return {
+                ...state,
+                agenteMenu: action.payload
             }
         default:
             return state

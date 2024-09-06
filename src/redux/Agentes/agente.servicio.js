@@ -61,6 +61,19 @@ export const fetchAgentes = () => async (dispatch) => {
     }
 };
 
+export const fetchMenuAgente = () => async (dispatch) => {
+    try {
+        const url = `menu_cuenta?cuenta_id=${GetTokenDecoded().cuenta_id}`
+        const {data, status} = await BmHttp().get(url);
+        if(status !== 200) {
+            dispatch({ type: 'GET_MENU_AGENTE', payload: [] });
+        }else{
+            dispatch({ type: 'GET_MENU_AGENTE', payload: data.data });
+        }
+    } catch (error) {
+        console.error('Error fetching menu agente:', error);
+    }
+}
 
 export const setModalRedux = (modal) => async (dispatch) => {
     dispatch({ type: 'SET_MODAL', payload: modal });

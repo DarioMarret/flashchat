@@ -1,3 +1,4 @@
+import { ControllerServiceAsignacionMenuAgente, ControllerServiceMenuAgente } from 'components/Sidebar/service/menu.service';
 import { GetTokenDecoded, SubirMedia } from 'function/storeUsuario';
 import { BmHttp } from 'function/util/global';
 import Multiselect from 'multiselect-react-dropdown';
@@ -10,12 +11,17 @@ import {
 } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 import Swal from 'sweetalert2';
+import ModalOpcionesMenu from 'views/Components/Modales/ModalOpcionesMenu';
 import socket from 'views/SocketIO';
-import { addAgente } from '../../../redux/Agentes/agente.servicio';
+import { addAgente, fetchMenuAgente } from '../../../redux/Agentes/agente.servicio';
 
 function Agentes(props) {
     const dispatch = useDispatch();
-    const { agenteArray } = useSelector(state => state.agentes);
+    const { agenteArray, agenteMenu } = useSelector(state => state.agentes);
+    const [ showOpciones, setShowOpciones ] = useState(false);
+    const [agentOpciones, setAgentOpciones] = useState({})
+    const [selectedMenus, setSelectedMenus] = useState([]);
+
     const [show, setShow] = useState(false);
 
     const [agentes, setAgentes] = useState(agenteArray)
@@ -50,6 +56,11 @@ function Agentes(props) {
             }
         ]
     })
+
+    const handleAssign = async (selectedMenus) => {
+        console.log('Menús asignados:', selectedMenus);
+        await ControllerServiceAsignacionMenuAgente(agentOpciones.id, selectedMenus)
+    };
     
 
     const [bots, setBots] = useState([])
@@ -85,6 +96,38 @@ function Agentes(props) {
         })
     }
 
+    const openModalMenu = async (agente) => {
+        if(agente){
+            const menu_agente = await ControllerServiceMenuAgente(agente.id)
+            console.log(menu_agente)
+            // hacer un macht de los menus para que salga el checkout de los menus que ya tiene asignado el agente
+            agenteMenu.map((menu, index) => {
+                menu_agente.map((menu_agente, index) => {
+                    if(menu.uuid === menu_agente.uuid){
+                        setSelectedMenus((prevSelected) => {
+                            return [...prevSelected, menu.id]
+                        })
+                    }
+
+                    if(menu.views){
+                        menu.views.map((view, index) => {
+                            menu_agente.views.map((view_agente, index) => {
+                                if(view.uuid === view_agente.uuid){
+                                    setSelectedMenus((prevSelected) => {
+                                        return [...prevSelected, view.id]
+                                    })
+                                }
+                            })
+                        })
+                    }
+                })
+            })
+
+            setAgentOpciones(agente)
+        }
+        setShowOpciones(!showOpciones)
+    }
+
     const RecargarPaginaAgente = (item) => {
         socket.emit("recargar_pagina", {
             type: "recargar_agente_id",
@@ -101,12 +144,7 @@ function Agentes(props) {
         })
     }
 
-    const ListarAgentes = async() => {
-        // const url = `agentes/${GetTokenDecoded().cuenta_id}`
-        // const { data, status } = await BmHttp().get(url, {
-        //     infomacion: "listar agentes"
-        // })
-        // if (status === 200) {
+    const ListarAgentes = () => {
             let ag = []
             agenteArray.map((agente, index) => {
                 ag.push({
@@ -167,6 +205,19 @@ function Agentes(props) {
                         >
                             <i className="fas fa-trash-alt text-danger"></i>
                         </button>
+                        {
+                            GetTokenDecoded().perfil === 'Administrador'
+                            ?
+                            <button className="btn btn"
+                                onClick={() => {
+                                   openModalMenu(agente)
+                                }}
+                            >
+                                {/* opciones de menu */}
+                                <i className="fas fa-ellipsis-v"></i>
+                            </button>
+                            : null
+                        }
                     </div>
                 })
             })
@@ -278,13 +329,17 @@ function Agentes(props) {
     }
 
     useEffect(() => {
+        dispatch(addAgente())
+        dispatch(fetchMenuAgente())
+    }, [])
+
+    useEffect(() => {
         (async()=>{
-            dispatch(addAgente())
-            await ListarAgentes()
+            ListarAgentes()
             await ListarEquipos()
             await ListarBots()
         })()
-    }, [agenteArray])
+    }, [])
 
     return (
         <>
@@ -610,6 +665,14 @@ function Agentes(props) {
                 </Modal.Footer>
 
             </Modal>
+            <ModalOpcionesMenu
+                show={showOpciones}
+                handleClose={openModalMenu}
+                menus={agenteMenu}
+                handleAssign={handleAssign}
+                selectedMenus={selectedMenus}
+                setSelectedMenus={setSelectedMenus}
+            />
          </Container>
         </>
     );

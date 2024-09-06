@@ -1,4 +1,4 @@
-import Dashboard from "views/Dashboard.js";
+import Dashboard from "views/Dashboard";
 import Bots from "views/Pages/Bot/Bots";
 import Agentes from "views/Pages/Configuracion/Agentes";
 import ComprobantesOcr from "views/Pages/Configuracion/ComprobantesOcr";
@@ -19,7 +19,7 @@ import Mensajeria from "views/Pages/Mensajeria/Mensajeria";
 import NuevaPagina from "views/Pages/Paginas/NuevaPagina";
 import Suscripciones from "views/Pages/Suscripcion/Suscripcion";
 
-var routes = [
+var routesInit = [
     {
       path: "/panel",
       layout: "/admin",
@@ -448,4 +448,6 @@ var routes = [
 
   ];
 
-export default routes;
+// var routes = []
+
+export default routesInit;

@@ -1,3 +1,9 @@
+
+button{
+  /* todo los texto en uppercase */
+  text-transform: uppercase;
+  font-weight: 600;
+}
 .draggable-recordatorio {
   cursor: move;
 }
