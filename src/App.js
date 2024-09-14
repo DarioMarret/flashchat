@@ -1,5 +1,4 @@
 // import AdminFooter from "components/Footers/AdminFooter";
-import { GoogleOAuthProvider } from '@react-oauth/google';
 import AdminNavbar from "components/Navbars/AdminNavbar";
 import Sidebar from "components/Sidebar/Sidebar";
 import AuthContext from "context/AuthContext";
@@ -46,8 +45,6 @@ import Suscripciones from "views/Pages/Suscripcion/Suscripcion";
 import "./assets/css/style.css";
 
 export default function App() {
-  const clientId = "273479276179-0oes8c6m25b455k827nj7ebm0uhd2g6n.apps.googleusercontent.com"
-  const scret_client = "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"
   const [auth, setAuth] = useState(undefined);
   const [ routes, setRoutes ] = useState([]);
   // const dispatch = useDispatch();
@@ -108,7 +105,6 @@ export default function App() {
   if (auth === undefined) return null;
   return (
     <Provider store={store}>
-      <GoogleOAuthProvider clientId={clientId}>
         <AuthContext.Provider value={authData}>
           <Router>
             {!auth ? (
@@ -292,7 +288,6 @@ export default function App() {
           </Router>
           
         </AuthContext.Provider>
-      </GoogleOAuthProvider>
     </Provider>
   );
 }
