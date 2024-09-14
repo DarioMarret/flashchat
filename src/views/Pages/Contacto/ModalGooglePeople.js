@@ -1,4 +1,5 @@
 
+import { GetTokenDecoded } from 'function/storeUsuario';
 import { colorPrimario } from 'function/util/global';
 import { useEffect } from 'react';
 import { Modal } from 'react-bootstrap';
@@ -7,7 +8,7 @@ import Swal from 'sweetalert2';
 function ModalGooglePeople(props) {
     const { show, onHide } = props;
     const clientId = "273479276179-0oes8c6m25b455k827nj7ebm0uhd2g6n.apps.googleusercontent.com"
-    const redirect_uri = "https://api.flashchat.chat/backflash/people/callback/2/"
+    const redirect_uri = "https://api.flashchat.chat/backflash/people/callback?cuenta_id="+GetTokenDecoded().cuenta.id
     // Función para manejar la carga de archivos
     let newContact = {
         names: [{ givenName: "Juan LocalHost" }],
