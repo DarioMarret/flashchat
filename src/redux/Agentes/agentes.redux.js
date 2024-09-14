@@ -16,6 +16,11 @@ export default function agentesReducer(state = initialState, action) {
                 ...state,
                 agenteMenu: action.payload
             }
+        case 'GET_AGENTES':
+            return {
+                ...state,
+                agenteArray: action.payload
+            }
         default:
             return state
     }

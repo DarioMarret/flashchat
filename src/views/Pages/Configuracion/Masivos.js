@@ -340,11 +340,13 @@ function Masivos(props) {
         setEnvio({
           ...envio,
           video: url,
+          imagen: null,
         });
       } else {
         setEnvio({
           ...envio,
           imagen: url,
+          video: null,
         });
       }
       console.log("envio: ", envio);
@@ -591,7 +593,7 @@ function Masivos(props) {
       } else if (envio.channel_id === 2) {
         
         const { status } = await BmHttp().post("qr_mensaje_external", {
-          sessionName: "2_ordenfacil593969078528",
+          sessionName: envio.nombreunico,
           numero: [envio.numero],
           mensaje: {
             type: "masivo",
@@ -987,6 +989,7 @@ function Masivos(props) {
                             cursor: "pointer",
                             width: "auto",
                           }}
+                          title={item.mensaje}
                         >
                           {item.mensaje.substring(0, 45)}...
                         </b>

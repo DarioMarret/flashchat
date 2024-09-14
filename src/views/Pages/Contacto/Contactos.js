@@ -7,9 +7,13 @@ import { Input } from "reactstrap";
 import Swal from "sweetalert2";
 import { v4 } from "uuid";
 import socket from "views/SocketIO";
+import ModalGooglePeople from "./ModalGooglePeople";
 
 export default function Contactos(props) {
   const [show, setShow] = useState(false);
+  const [showG, setShowG] = useState(false);
+
+
   const handleClose = () => {
     Limpiar();
     setShow(!show);
@@ -60,17 +64,20 @@ export default function Contactos(props) {
       });
     }
   }
+
+  const handleShowG = () => {
+    setShowG(!showG);
+  }
+
   const [canales, setCanales] = useState([]);
   const [contactos, setContactos] = useState([]);
   const [bot, setBot] = useState([]); 
   const [limitContactos, setLimitContactos] = useState(10);
-  const [offsetContactos, setOffsetContactos] = useState(0);
   const [contac, setContac] = useState([]);
   const [totalContactos, setTotalContactos] = useState(0);
-  const [pageContactos, setPageContactos] = useState(1);
-  const [totalPaginasContactos, setTotalPaginasContactos] = useState(0);
   const [siguiente, setSiguiente] = useState("");
   const [anterior, setAnterior] = useState("");
+  const [mensajeGoogle, setMensajeGoogle] = useState("");
 
   const [contacto, setContacto] = useState({
     id: 0,
@@ -196,6 +203,19 @@ export default function Contactos(props) {
   }
 
   useEffect(() => {
+    // validar la query success que se recibe en la url
+    const urlParams = new URLSearchParams(window.location.search);
+    const success = urlParams.get('success');
+    if(success) {
+        console.log("success", success);
+        setMensajeGoogle("Cuenta de Google autenticada correctamente");
+        // borrar el mensaje despues de 5 segundos
+        setTimeout(() => {
+          setMensajeGoogle("");
+        }, 5000);
+    }
+  }, []);
+  useEffect(() => {
     (async()=>{
       await ListarBot();
       await ListarCanal();
@@ -229,15 +249,27 @@ export default function Contactos(props) {
 
   const hanbleBuscar = async(e) => {
     let busqueda = e.target.value;
-    if (busqueda !== "") {
-      const { data, status } = await BmHttp().post(`${host()}contactos/coincidencia`,{
-        cuenta_id: GetTokenDecoded().cuenta_id,
-        coincidencia: busqueda
-      });
-      console.log(data);
-      setContac(data);
-    } else {
-      await ListarContactos()
+    // validar es es numero 
+    if(!isNaN(parseInt(busqueda)) && String(busqueda).length >= 5){
+      if (busqueda !== "" && busqueda ) {
+        const { data } = await BmHttp().post(`${host()}contactos/coincidencia`,{
+          cuenta_id: GetTokenDecoded().cuenta_id,
+          coincidencia: busqueda
+        });
+        setContac(data);
+      } else {
+        await ListarContactos()
+      }
+    }else{
+      if (busqueda !== "" && String(busqueda).length >= 2 && isNaN(parseInt(busqueda))) {
+        const { data } = await BmHttp().post(`${host()}contactos/coincidencia`,{
+          cuenta_id: GetTokenDecoded().cuenta_id,
+          coincidencia: busqueda
+        });
+        setContac(data);
+      } else {
+        await ListarContactos()
+      }
     }
   };
 
@@ -246,13 +278,39 @@ export default function Contactos(props) {
       <Container fluid>
         <div className="d-flex flex-column flex-md-row justify-content-between mb-3 align-items-center">
           <div className="d-flex justify-content-start">
-            <button className="mx-2 button-bm" onClick={handleClose}>
-              Crear contacto
+            <button className="mx-2 button-bm" onClick={handleClose}
+              title="Crear contacto"
+            >
+              <i className="fas fa-user-plus" title="Crear contacto"></i>
             </button>
-            <button className="mx-2 button-bm" onClick={()=>ExportarContactos()}>Exportar contactos</button>
+            <button className="mx-2 button-bm" onClick={()=>ExportarContactos()} title="Exportar contactos">
+              <i className="fas fa-file-export" title="Exportar contactos"></i>
+            </button>
             {/* <button className="mx-2 button-bm">Importar contactos</button> */}
+            {/* Conectar Google People Api */}
+            <button className="mx-2 button-bm" title="Conectar Google People Api"
+              onClick={handleShowG}
+            >
+              <i className="fab fa-google" title="Conectar Google People Api"></i>
+            </button>
           </div>
-
+          {
+            mensajeGoogle !== "" && (
+              <div 
+                style={{
+                  position: "absolute",
+                  top: "0",
+                  right: "0",
+                  zIndex: "1000",
+                  width: "100%",
+                }}  
+                className="alert alert-success" 
+                role="alert"
+                >
+                {mensajeGoogle}
+              </div>
+            )
+          }
           <div>
             
             <Input placeholder="Buscar contacto"
@@ -294,6 +352,10 @@ export default function Contactos(props) {
                   <td>{contacto.telefono}</td>
                   <td>{contacto.channel.proveedor}</td>
                   <td className="d-flex justify-content-center">
+                    {/* inconon para sincronizar con google people api */}
+                    {/* <button className="btn btn">
+                      <i className="fas fa-sync" title="Google People Contact."></i>
+                    </button> */}
                     {/* redireccionamiento */}
                     <button
                       className="btn btn"
@@ -302,25 +364,33 @@ export default function Contactos(props) {
                       }
                     >
                       {/* ver historial */}
-                      <i className="fas fa-eye"></i>
+                      <i className="fas fa-eye"
+                        title="Ver historial"
+                      ></i>
                     </button>
                     {/* iniciar una conversacion */}
                     <button className="btn btn" 
                       onClick={() =>handleShow(contacto) }
                     >
-                      <i className="fas fa-comments"></i>
+                      <i className="fas fa-comments"
+                        title="Iniciar conversacion"
+                      ></i>
                     </button>
                     <button
                       className="btn btn"
                       onClick={() => EditarContacto(contacto)}
                     >
-                      <i className="fas fa-edit"></i>
+                      <i className="fas fa-edit"
+                        title="Editar contacto"
+                      ></i>
                     </button>
                     <button
                       className="btn btn"
                       onClick={() => EliminarContacto(contacto.id)}
                     >
-                      <i className="fas fa-trash-alt"></i>
+                      <i className="fas fa-trash-alt"
+                        title="Eliminar contacto"
+                      ></i>
                     </button>
                   </td>
                 </tr>
@@ -545,6 +615,11 @@ export default function Contactos(props) {
             </button>
           </Modal.Footer>
         </Modal>
+        <ModalGooglePeople
+          show={showG}
+          onHide={handleShowG}
+          className="shadow"
+        />
       </Container>
     </>
   );

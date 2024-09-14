@@ -8,7 +8,7 @@ import HorarioAtencion from "views/Pages/Configuracion/HorarioAtencion";
 import Inactividad from "views/Pages/Configuracion/Inactividad";
 import Masivos from "views/Pages/Configuracion/Masivos";
 import MensajesAutomaticos from "views/Pages/Configuracion/MensajesAutomaticos";
-import Contactos from "views/Pages/Contactos";
+import Contactos from "views/Pages/Contacto/Contactos";
 import Execiones from "views/Pages/Execiones/Execiones";
 import Galeria from "views/Pages/Galeria/Galeria";
 import Historial from "views/Pages/History/Historial";

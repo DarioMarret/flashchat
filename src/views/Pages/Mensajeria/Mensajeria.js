@@ -18,7 +18,7 @@ import Swal from 'sweetalert2';
 // import socket from "views/SocketIO";
 import MensajeriaContext from "context/MensajeriaContext";
 import Picker from "emoji-picker-react";
-import { DeletManejoConversacionStorange, GetManejoConversacion, SetManejoConversacionStorange, SubirMedia, removeDatosUsuario, setDatosUsuario } from "function/storeUsuario";
+import { DeletManejoConversacionStorange, GetManejoConversacion, SetManejoConversacionStorange, SubirMedia, removeDatosUsuario } from "function/storeUsuario";
 import { colorPrimario } from "function/util/global";
 import useAuth from "hook/useAuth";
 import { useDispatch, useSelector } from 'react-redux';
@@ -304,19 +304,6 @@ export default function Mensajeria() {
         }
       };
   
-      const handleInfoUsuario = (msg) => {
-        try {
-          const { type, data, agente_id } = msg;
-          if (type === "recargarToken" && agente_id === usuarioId) {
-            if(cardMensage.length > 0){
-              setDatosUsuario(data);
-            }
-          }
-        } catch (error) {
-          console.log(error);
-        }
-      };
-  
       const handleAsignacionAgente = (msg) => {
         try {
           const { type, data } = msg;
@@ -369,7 +356,7 @@ export default function Mensajeria() {
       socket.on(`cambiar_estado_${cuentaId}`, handleCambiarEstado);
       socket.on(`liberar_chat_${cuentaId}`, handleLiberarChat);
       socket.on(`transferir_chat_${cuentaId}`, handleTransferirChat);
-      socket.on(`infoUsuario_${cuentaId}`, handleInfoUsuario);
+      // socket.on(`infoUsuario_${cuentaId}`, handleInfoUsuario);
       socket.on(`asignacion_agente_${cuentaId}`, handleAsignacionAgente);
       socket.on(`recargar_${cuentaId}`, handleRecargar);
   
@@ -378,7 +365,7 @@ export default function Mensajeria() {
         socket.off(`cambiar_estado_${cuentaId}`, handleCambiarEstado);
         socket.off(`liberar_chat_${cuentaId}`, handleLiberarChat);
         socket.off(`transferir_chat_${cuentaId}`, handleTransferirChat);
-        socket.off(`infoUsuario_${cuentaId}`, handleInfoUsuario);
+        // socket.off(`infoUsuario_${cuentaId}`, handleInfoUsuario);
         socket.off(`asignacion_agente_${cuentaId}`, handleAsignacionAgente);
         socket.off(`recargar_${cuentaId}`, handleRecargar);
       };

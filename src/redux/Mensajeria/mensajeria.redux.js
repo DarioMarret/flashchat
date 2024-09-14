@@ -14,9 +14,11 @@ const initialState = {
     verConversacion: undefined,
     conversacionMonitoreo: null,
 }
+
 const BotEquipos = () => {
     let equipos = []
     let bots = []
+    let perfil = ""
     const tokenDecoded = GetTokenDecoded();
 
     if (tokenDecoded && tokenDecoded.equipos) {
@@ -31,10 +33,15 @@ const BotEquipos = () => {
         });
     }
 
-    return { equipos, bots }
+    perfil = tokenDecoded.perfil;
+
+    return { equipos, bots, perfil };
 }
 const FilterMensajes = (mensajes) => {
-    const { equipos, bots } = BotEquipos();
+    const { equipos, bots, perfil } = BotEquipos();
+    if(perfil === "superadmin"){
+        return mensajes
+    }
     return mensajes.filter(mensaje => {
         if(equipos.includes(mensaje.equipo_id) && bots.includes(mensaje.nombre_bot)){
             return mensaje

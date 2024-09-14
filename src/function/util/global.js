@@ -55,6 +55,7 @@ const dominio = () => {
     try {
         if(GetTokenDecoded() === null){
             return  dev ? "https://flash.codigomarret.com/backflash/" : "https://api.flashchat.chat/backflash/";
+            // return "http://localhost:5002/"
         }else{
             // return  "http://localhost:5002/"
             return GetTokenDecoded().cuenta.url_dominio

@@ -1,6 +1,6 @@
 // import AdminFooter from "components/Footers/AdminFooter";
+import { GoogleOAuthProvider } from '@react-oauth/google';
 import AdminNavbar from "components/Navbars/AdminNavbar";
-
 import Sidebar from "components/Sidebar/Sidebar";
 import AuthContext from "context/AuthContext";
 import { GetToken, removeDatosUsuario } from "function/storeUsuario";
@@ -21,7 +21,7 @@ import HorarioAtencion from "views/Pages/Configuracion/HorarioAtencion";
 import Inactividad from "views/Pages/Configuracion/Inactividad";
 import Masivos from "views/Pages/Configuracion/Masivos";
 import MensajesAutomaticos from "views/Pages/Configuracion/MensajesAutomaticos";
-import Contactos from "views/Pages/Contactos";
+import Contactos from "views/Pages/Contacto/Contactos";
 import Mensajeria from "views/Pages/Mensajeria/Mensajeria";
 import Auths from "views/Pages/auth/Auths";
 
@@ -46,6 +46,8 @@ import Suscripciones from "views/Pages/Suscripcion/Suscripcion";
 import "./assets/css/style.css";
 
 export default function App() {
+  const clientId = "273479276179-0oes8c6m25b455k827nj7ebm0uhd2g6n.apps.googleusercontent.com"
+  const scret_client = "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"
   const [auth, setAuth] = useState(undefined);
   const [ routes, setRoutes ] = useState([]);
   // const dispatch = useDispatch();
@@ -106,189 +108,191 @@ export default function App() {
   if (auth === undefined) return null;
   return (
     <Provider store={store}>
-      <AuthContext.Provider value={authData}>
-        <Router>
-          {!auth ? (
-              <>
-                <div className="wrapper wrapper-full-page">
-                  <Auths />
-                </div>
-              </>
-          ) : (
-            <>
-              <div className="wrapper">
-                <Sidebar routes={routes} image={sidebarImage} 
-                  // background={colorPrimario}
-                  setMensajeBanner={setMensajeBanner}
-                  background={sidebarBackground}
-                />
-                <div className="main-panel">
-                  <AlertBanner 
-                    message={mensajeBanner.mensaje} 
-                    type={mensajeBanner.tipo}
-                    btnColor={mensajeBanner.btnColor}
-                    setMensajeBanner={setMensajeBanner}
-                  />
-                  <AdminNavbar />
-                  
-                  <div className="content pt-2" style={{ overflow: 'auto'}}>
-                    <Routes
-                      basename="/"
-                      forceRefresh={true}
-                      initialEntries={["/admin/dashboard"]}
-                    >
-                      <Route
-                        path="/admin/dashboard"
-                        element={<Dashboard />}
-                        exact
-                      />
-                      <Route
-                        path="/admin/cuenta"
-                        element={<Cuenta />}
-                        exact
-                      />
-                      <Route
-                        path="/admin/suscripciones"
-                        element={<Suscripciones />}
-                        exact
-                      />
-                      <Route
-                        path="/admin/en-cola"
-                        element={<Cola />}
-                        exact
-                      />
-                      <Route
-                        path="/admin/factura"
-                        element={<Factura />}
-                        exact
-                      />
-                      <Route
-                        path="/admin/execiones"
-                        element={<Execiones />}
-                        exact
-                      />
-                      <Route
-                        path="/admin/historial-contacto/:id"
-                        element={<HistorialContacto />}
-                        exact
-                      />
-                      <Route
-                        path="/admin/historial"
-                        element={<Historial />}
-                        exact
-                      />
-                      <Route path="/*" element={<Navigate to="admin/dashboard" replace />} />
-                      <Route
-                        path="/admin/mensajeria"
-                        element={<Mensajeria />}
-                        exact
-                      />
-                      <Route
-                        path="/admin/correo"
-                        element={<PCorreo />}
-                        exact
-                      />
-                      <Route
-                        path="/admin/contactos"
-                        element={<Contactos />}
-                        exact
-                      />
-                      <Route path="/admin/equipos" element={<Equipos />} exact />
-                      <Route path="/admin/agentes" element={<Agentes />} exact />
-                      <Route
-                        path="/admin/etiquetas"
-                        element={<Etiquetas exact />}
-                      />
-                      <Route
-                        path="/admin/horarios-atencion"
-                        element={<HorarioAtencion />}
-                        exact
-                      />
-                      <Route path="/admin/equipos" element={<Equipos />} exact />
-                      <Route
-                        path="/admin/mensajes-automaticos"
-                        element={<MensajesAutomaticos />}
-                        exact
-                      />
-                      <Route
-                        path="/admin/multimedia"
-                        element={<Galeria />}
-                        exact
-                      />
-                      <Route
-                        path="/admin/inactividad"
-                        element={<Inactividad />}
-                        exact
-                      />
-                      <Route path="/admin/masivos" element={<Masivos />} exact />
-                      <Route
-                        path="/admin/ocr"
-                        element={<ComprobantesOcr />}
-                        exact
-                      />
-                      <Route path="/admin/bots" element={<Bots />} exact />
-                      {/* <Route path="/admin/sweet-alert" element={<SweetAlertPage />} exact /> */}
-                      <Route
-                        path="/admin/integraciones"
-                        element={<Integraciones />}
-                        exact
-                      />
-                      <Route 
-                        path="/admin/logs"
-                        element={<Logs/>}
-                        exact
-                      />
-                      <Route
-                        path="/admin/recordatorios"
-                        // element={<PageContrucion />}
-                        element={<Recordatorio />}
-                        exact
-                      />
-                      <Route path="/admin/perfil"
-                        element={<Perfil />}
-                        exact
-                      />
-                      <Route path="/admin/nueva_pagina"
-                        element={<NuevaPagina />}
-                        exact
-                      />
-                      <Route path="/admin/pagina/:id"
-                        element={<Paginas />}
-                        exact
-                      />
-                    </Routes>
+      <GoogleOAuthProvider clientId={clientId}>
+        <AuthContext.Provider value={authData}>
+          <Router>
+            {!auth ? (
+                <>
+                  <div className="wrapper wrapper-full-page">
+                    <Auths />
                   </div>
-                  {/* <AdminFooter /> */}
-                  <div
-                    className="close-layer"
-                    onClick={() =>
-                      document.documentElement.classList.toggle("nav-open")
-                    }
+                </>
+            ) : (
+              <>
+                <div className="wrapper">
+                  <Sidebar routes={routes} image={sidebarImage} 
+                    // background={colorPrimario}
+                    setMensajeBanner={setMensajeBanner}
+                    background={sidebarBackground}
                   />
+                  <div className="main-panel">
+                    <AlertBanner 
+                      message={mensajeBanner.mensaje} 
+                      type={mensajeBanner.tipo}
+                      btnColor={mensajeBanner.btnColor}
+                      setMensajeBanner={setMensajeBanner}
+                    />
+                    <AdminNavbar />
+                    
+                    <div className="content pt-2" style={{ overflow: 'auto'}}>
+                      <Routes
+                        basename="/"
+                        forceRefresh={true}
+                        initialEntries={["/admin/dashboard"]}
+                      >
+                        <Route
+                          path="/admin/dashboard"
+                          element={<Dashboard />}
+                          exact
+                        />
+                        <Route
+                          path="/admin/cuenta"
+                          element={<Cuenta />}
+                          exact
+                        />
+                        <Route
+                          path="/admin/suscripciones"
+                          element={<Suscripciones />}
+                          exact
+                        />
+                        <Route
+                          path="/admin/en-cola"
+                          element={<Cola />}
+                          exact
+                        />
+                        <Route
+                          path="/admin/factura"
+                          element={<Factura />}
+                          exact
+                        />
+                        <Route
+                          path="/admin/execiones"
+                          element={<Execiones />}
+                          exact
+                        />
+                        <Route
+                          path="/admin/historial-contacto/:id"
+                          element={<HistorialContacto />}
+                          exact
+                        />
+                        <Route
+                          path="/admin/historial"
+                          element={<Historial />}
+                          exact
+                        />
+                        <Route path="/*" element={<Navigate to="admin/dashboard" replace />} />
+                        <Route
+                          path="/admin/mensajeria"
+                          element={<Mensajeria />}
+                          exact
+                        />
+                        <Route
+                          path="/admin/correo"
+                          element={<PCorreo />}
+                          exact
+                        />
+                        <Route
+                          path="/admin/contactos"
+                          element={<Contactos />}
+                          exact
+                        />
+                        <Route path="/admin/equipos" element={<Equipos />} exact />
+                        <Route path="/admin/agentes" element={<Agentes />} exact />
+                        <Route
+                          path="/admin/etiquetas"
+                          element={<Etiquetas exact />}
+                        />
+                        <Route
+                          path="/admin/horarios-atencion"
+                          element={<HorarioAtencion />}
+                          exact
+                        />
+                        <Route path="/admin/equipos" element={<Equipos />} exact />
+                        <Route
+                          path="/admin/mensajes-automaticos"
+                          element={<MensajesAutomaticos />}
+                          exact
+                        />
+                        <Route
+                          path="/admin/multimedia"
+                          element={<Galeria />}
+                          exact
+                        />
+                        <Route
+                          path="/admin/inactividad"
+                          element={<Inactividad />}
+                          exact
+                        />
+                        <Route path="/admin/masivos" element={<Masivos />} exact />
+                        <Route
+                          path="/admin/ocr"
+                          element={<ComprobantesOcr />}
+                          exact
+                        />
+                        <Route path="/admin/bots" element={<Bots />} exact />
+                        {/* <Route path="/admin/sweet-alert" element={<SweetAlertPage />} exact /> */}
+                        <Route
+                          path="/admin/integraciones"
+                          element={<Integraciones />}
+                          exact
+                        />
+                        <Route 
+                          path="/admin/logs"
+                          element={<Logs/>}
+                          exact
+                        />
+                        <Route
+                          path="/admin/recordatorios"
+                          // element={<PageContrucion />}
+                          element={<Recordatorio />}
+                          exact
+                        />
+                        <Route path="/admin/perfil"
+                          element={<Perfil />}
+                          exact
+                        />
+                        <Route path="/admin/nueva_pagina"
+                          element={<NuevaPagina />}
+                          exact
+                        />
+                        <Route path="/admin/pagina/:id"
+                          element={<Paginas />}
+                          exact
+                        />
+                      </Routes>
+                    </div>
+                    {/* <AdminFooter /> */}
+                    <div
+                      className="close-layer"
+                      onClick={() =>
+                        document.documentElement.classList.toggle("nav-open")
+                      }
+                    />
+                  </div>
                 </div>
-              </div>
-              {/* <FixedPlugin
-                setSidebarImageParent={(value) => setSidebarImage(value)}
-                sidebarDefaultImage={sidebarImage}
-                sidebarImages={[image1, image2, image3, image4]}
-                backgroundColors={[
-                  "black",
-                  "azure",
-                  "green",
-                  "orange",
-                  "red",
-                  "purple",
-                ]}
-                backgroundColor={sidebarBackground}
-                setSidebarBackgroundParent={(value) =>
-                  setSidebarBackground(value)
-                }
-              /> */}
-            </>
-          )}
-        </Router>
-        
-      </AuthContext.Provider>
+                {/* <FixedPlugin
+                  setSidebarImageParent={(value) => setSidebarImage(value)}
+                  sidebarDefaultImage={sidebarImage}
+                  sidebarImages={[image1, image2, image3, image4]}
+                  backgroundColors={[
+                    "black",
+                    "azure",
+                    "green",
+                    "orange",
+                    "red",
+                    "purple",
+                  ]}
+                  backgroundColor={sidebarBackground}
+                  setSidebarBackgroundParent={(value) =>
+                    setSidebarBackground(value)
+                  }
+                /> */}
+              </>
+            )}
+          </Router>
+          
+        </AuthContext.Provider>
+      </GoogleOAuthProvider>
     </Provider>
   );
 }
