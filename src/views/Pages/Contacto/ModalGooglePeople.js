@@ -17,7 +17,7 @@ function ModalGooglePeople(props) {
     };
 
     const RedirectManual = async() => {
-        const cuenta_id = GetTokenDecoded().cuenta.id;
+        const cuenta_id = GetTokenDecoded().cuenta_id;
         await axios.post('https://api.flashchat.chat/backflash/set-session', { cuenta_id });
         const redirectUri = redirect_uri
         const googleAuthUrl = `https://accounts.google.com/o/oauth2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=https://www.googleapis.com/auth/contacts&access_type=offline&prompt=consent`;
