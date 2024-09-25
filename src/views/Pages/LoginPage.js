@@ -168,17 +168,17 @@ const LoginPage =(props)=> {
     <>
       <div
         className="full-page section-image d-flex align-items-center"
-        data-color="black"
-        data-image={require("assets/img/fondo2.jpeg")}
+        // data-color="black"
+        data-image={require("assets/img/1.png")}
         style={{ height: '100vh' }}
       >
         <div className="container content d-flex justify-content-center align-items-center p-0">
           <div className="row w-100">
             <div className="col-12 col-md-6 col-lg-8 d-none d-md-flex d-flex flex-column align-items-center justify-content-center">
               <div className="text-center">
-                <h3 className="text-uppercase mx-auto text-white font-600 text-center typing">Obtén tu cuenta demo por 5 días !</h3>
+                <h3 className="text-uppercase mx-auto text-obten font-600 text-center typing">Obtén tu cuenta demo por 5 días !</h3>
 
-                <p className="text-gray frasphe text-center mx-auto my-3">Descubre la revolución en atención al cliente con nuestro innovador chatbot durante 5 días de demo gratuito</p>
+                <p className="text-black frasphe text-center mx-auto my-3">Descubre la revolución en atención al cliente con nuestro innovador chatbot durante 5 días de demo gratuito</p>
                 <button className="btn-outline-white" 
                 onClick={() => setDemoStatus(!demoStatus)}>Quiero mi demo</button>
               </div>
@@ -343,7 +343,7 @@ const LoginPage =(props)=> {
           className="full-page-background"
           style={{
             backgroundImage:
-              "url(" + require("assets/img/fondo2.jpeg") + ")"
+              "url(" + require("assets/img/2.png") + ")"
           }}
         ></div>
       </div>

@@ -73,9 +73,12 @@ button.dropdown-toggle::after {
   width: 80% !important;
 }
 
+.text-obten{
+  color: #f39001;
+}
 .btn-outline-white {
-  border: 1px solid #FFF;
-  color: #FFF;
+  border: 1px solid #f39001;
+  color: #f39001;
   background: transparent;
   padding: 10px 20px;
   border-radius: 5px;
@@ -84,7 +87,7 @@ button.dropdown-toggle::after {
 
 .btn-outline-white:hover {
   background-color: #FFF;
-  color: #495057;
+  color: #f39001;
   animation: shake 0.5s;
 }
 
@@ -196,11 +199,11 @@ button.dropdown-toggle::after {
 }
 
 .text-blue {
-  color: #3F98F8;
+  color: #0267ff;
 }
 
 .bg-blue {
-  background-color: #3F98F8;
+  background-color: #0267ff;
 }
 
 .chat-text {
@@ -359,9 +362,9 @@ button.dropdown-toggle::after {
   vertical-align: top;
 }
 
-/* la cabecera de la tabla que sea de este colo 3F98F8 */
+/* la cabecera de la tabla que sea de este colo 0267ff */
 .table-personalisado thead th {
-  background-color: #3F98F8;
+  background-color: #0267ff;
   color: white;
   border: none;
   padding: 10px;
@@ -390,7 +393,7 @@ button.dropdown-toggle::after {
 }
 
 .button-bm {
-  background-color: #3F98F8;
+  background-color: #0267ff;
   color: white;
   border: none;
   padding: 10px 20px;
@@ -405,7 +408,7 @@ button.dropdown-toggle::after {
 }
 /* hover del button-bm */
 .button-bm:hover {
-  background-color: #3F98F8;
+  background-color: #0267ff;
   color: white;
   /* animation: shake 0.5s; */
 }
@@ -469,11 +472,11 @@ button.dropdown-toggle::after {
 
 .box-plan-button-suscribir {
   outline: none;
-  border: 1px solid #3F98F8;
+  border: 1px solid #0267ff;
   border-radius: 5px;
   min-height: 40px;
   background-color: transparent;
-  color: #3F98F8;
+  color: #0267ff;
   font-weight: bold;
   font-size: 20px;
   transition: transform 0.5s ease-in-out;
@@ -481,7 +484,7 @@ button.dropdown-toggle::after {
 
 .button-plus {
   border: none;
-  background-color: #3F98F8;
+  background-color: #0267ff;
   color: #fff;
 }
 
@@ -537,7 +540,7 @@ button.dropdown-toggle::after {
 }
 
 .bot-card-buttons-btn:hover > span {
-  color: #3F98F8 !important;
+  color: #0267ff !important;
 }
 
 /* Navbar menu */

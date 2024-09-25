@@ -8,7 +8,7 @@ import { Provider } from "react-redux";
 import { Navigate, Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import store from "./redux/store";
 
-import image3 from "assets/img/full-screen-image-3.jpg";
+// import image3 from "assets/img/full-screen-image-3.jpg";
 import { RemoverConversacion } from "function/storeUsuario";
 import Dashboard from "views/Dashboard";
 import Bots from "views/Pages/Bot/Bots";
@@ -49,7 +49,7 @@ export default function App() {
   const [ routes, setRoutes ] = useState([]);
   // const dispatch = useDispatch();
   const [ReloadUser, setReloadUser] = useState(false);
-  const [sidebarImage, setSidebarImage] = React.useState(image3);
+  const [sidebarImage, setSidebarImage] = React.useState("");
   const [sidebarBackground, setSidebarBackground] = React.useState("black")
   const [mensajeBanner, setMensajeBanner] = useState({
     mensaje: "",

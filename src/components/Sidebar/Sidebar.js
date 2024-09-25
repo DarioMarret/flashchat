@@ -27,7 +27,6 @@ function Sidebar({ routes, image, background, setMensajeBanner }) {
   // const navigate = useNavigate();
   // this is for the user collapse
   const [userCollapseState, setUserCollapseState] = React.useState(false);
-  const [paginasTab, setPaginasTab] = React.useState([]);
   const [recor, setRecor] = React.useState(null);
   const tokenDecoded = useRef(GetTokenDecoded());
   // this is for the rest of the collapses
@@ -63,50 +62,54 @@ function Sidebar({ routes, image, background, setMensajeBanner }) {
     if (tokenDecoded.current && tokenDecoded.current.cuenta_id) {
       const cuentaId = tokenDecoded.current.cuenta_id;
       const userId = tokenDecoded.current.id;
-      socket.on(`banner_${cuentaId}`, (data) => {
-        const { mensaje, cuenta_id } = data;
-        if (tokenDecoded.current && cuenta_id === tokenDecoded.current.cuenta_id) {
-          setMensajeBanner({
-            mensaje: mensaje,
-            color: data.color,
-            btnColor: data.btnColor,
-            tipo: data.tipo,
-            cuenta_id: cuenta_id,
-            tiempo: data.tiempo
-          });
-        }
-      });
-
-      socket.on(`infoUsuario_${cuentaId}_${userId}`, (msg) => {
-        try {
-          const { type, data, agente_id, cuenta_id, estado } = msg;
-          if (type === "recargarToken" && agente_id === userId && data !== null) {
-            logout();
-          } else if (type === "status" && agente_id === userId && cuenta_id === cuentaId) {
-            socket.emit('infoUsuario', { type: "online", agente_id, cuenta_id, estado });
-            dispatch(addAgente());
-          } else if (type === "mensaje_personalizado" && agente_id === userId && cuenta_id === cuentaId) {
-            Swal.fire({
-              title: 'Mensaje personalizado',
-              text: data.mensaje,
-              icon: data.tipo,
-              confirmButtonText: 'Ok',
-              confirmButtonColor: '#3F98F8',
+      if (socket) {
+        socket.on(`banner_${cuentaId}`, (data) => {
+          const { mensaje, cuenta_id } = data;
+          if (tokenDecoded.current && cuenta_id === tokenDecoded.current.cuenta_id) {
+            setMensajeBanner({
+              mensaje: mensaje,
+              color: data.color,
+              btnColor: data.btnColor,
+              tipo: data.tipo,
+              cuenta_id: cuenta_id,
+              tiempo: data.tiempo
             });
-          } else if (type === "recordatorio" && agente_id === userId && cuenta_id === cuentaId) {
-            SetCountRecordatorio(data);
-            setRecor(data);
           }
-        } catch (error) {
-          console.log(error);
-        }
-      });
+        });
+  
+        socket.on(`infoUsuario_${cuentaId}_${userId}`, (msg) => {
+          try {
+            const { type, data, agente_id, cuenta_id, estado } = msg;
+            if (type === "recargarToken" && agente_id === userId && data !== null) {
+              logout();
+            } else if (type === "status" && agente_id === userId && cuenta_id === cuentaId) {
+              socket.emit('infoUsuario', { type: "online", agente_id, cuenta_id, estado });
+              dispatch(addAgente());
+            } else if (type === "mensaje_personalizado" && agente_id === userId && cuenta_id === cuentaId) {
+              Swal.fire({
+                title: 'Mensaje personalizado',
+                text: data.mensaje,
+                icon: data.tipo,
+                confirmButtonText: 'Ok',
+                confirmButtonColor: '#3F98F8',
+              });
+            } else if (type === "recordatorio" && agente_id === userId && cuenta_id === cuentaId) {
+              SetCountRecordatorio(data);
+              setRecor(data);
+            }
+          } catch (error) {
+            console.log(error);
+          }
+        });
+      }
     }
     
     // Cleanup function to avoid memory leaks
     return () => {
-      socket.off(`banner_${tokenDecoded.current.cuenta_id}`);
-      socket.off(`infoUsuario_${tokenDecoded.current.cuenta_id}_${tokenDecoded.current.id}`);
+      if (socket){
+        socket.off(`banner_${tokenDecoded.current.cuenta_id}`);
+        socket.off(`infoUsuario_${tokenDecoded.current.cuenta_id}_${tokenDecoded.current.id}`);
+      }
     };
   }, [socket]);
 
