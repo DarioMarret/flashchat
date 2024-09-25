@@ -408,10 +408,13 @@ button.dropdown-toggle::after {
 }
 /* hover del button-bm */
 .button-bm:hover {
-  background-color: #0267ff;
-  color: white;
-  /* animation: shake 0.5s; */
+  background-color: #0267ff !important;
+  color: white !important;
+  transform: scale(1.04);
 }
+
+
+
 
 .card .table thead th:last-child  {
   display: table-cell;

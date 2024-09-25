@@ -1,7 +1,7 @@
 import logo from "assets/img/logo512.png";
 import { setDatosUsuario } from "function/storeUsuario";
 import { DecodeJwt } from "function/util/ecrypt";
-import { BmHttp, colorPrimario, HoraServer, host, HttpLogin, tabconversacion } from "function/util/global";
+import { BmHttp, colorPrimario, colorSecundario, HoraServer, host, HttpLogin, tabconversacion } from "function/util/global";
 import useAuth from "hook/useAuth";
 import React from "react";
 
@@ -20,6 +20,7 @@ const LoginPage =(props)=> {
   const dispatch = useDispatch();
   const [cardClasses, setCardClasses] = React.useState("card-hidden");
   const [demoStatus, setDemoStatus] = React.useState(false);
+  const [type, setType] = React.useState("password");
   const [agenda, setAgenda] = React.useState({
     fecha: "",
     nombre: "",
@@ -131,7 +132,8 @@ const LoginPage =(props)=> {
               setReloadUser(true);
             } else {
               Swal.fire({
-                title: 'Error',
+                icon: 'error',
+                title: 'Error de tiempo',
                 text: `Usuario inactivado temporalmente. Hora de inicio: ${horario_ini} `,
                 confirmButtonColor: colorPrimario,
                 timer: 2000
@@ -140,25 +142,28 @@ const LoginPage =(props)=> {
           }
         } else {
           Swal.fire({
-            title: 'Error',
-            html: '<p class="text-white">Usuario o contraseña incorrectos</p>',
-            confirmButtonColor: '#000'
+            icon: 'error',
+            title: 'Error de autenticación',
+            html: '<p class="text-black">Usuario o contraseña incorrectos</p>',
+            confirmButtonColor: colorSecundario
           });
         }
       } else {
         Swal.fire({
+          icon: 'error',
           title: 'Error',
-          html: '<p class="text-white">Error de conexión</p>',
-          confirmButtonColor: '#000',
+          html: '<p class="text-black">Error de conexión</p>',
+          confirmButtonColor: colorSecundario,
           timer: 2000
         });
       }
     } catch (error) {
       console.error("Error during login:", error);
       Swal.fire({
-        title: 'Error',
-        html: '<p class="text-white">Ha ocurrido un error. Por favor, inténtelo de nuevo más tarde.</p>',
-        confirmButtonColor: '#000',
+        icon: 'error',
+        title: 'Error de conexión',
+        html: '<p class="text-black">Ha ocurrido un error. Por favor, inténtelo de nuevo más tarde.</p>',
+        confirmButtonColor: colorSecundario,
         timer: 2000
       });
     }
@@ -262,7 +267,7 @@ const LoginPage =(props)=> {
                         </Form.Group>
                       </Card.Body>
                     <Card.Footer className="ml-auto mr-auto">
-                      <Button className="btn button-bm w-100" type="submit" variant="dark"
+                      <Button className="button-bm w-100" type="submit" variant="dark"
                         onClick={AgendarDemo}
                       >
                         {/* en espanol */}
@@ -293,40 +298,81 @@ const LoginPage =(props)=> {
                       <Card.Body>
                         <Form.Group className="mb-4">
                           <label className="font-600 d-flex align-items-center">
-                          <span className="material-symbols-outlined" style={{marginRight: '5px'}}>mail</span>
+                          {/* <span className="material-symbols-outlined" style={{marginRight: '5px'}}>mail</span> */}
                             Correo electrónico</label>
-                          <Form.Control
-                            placeholder="correo@email.com"
-                            type="email"
-                            name="correo"
-                            value={usuario.correo}
-                            onChange={handleInputChange}
-                          ></Form.Control>
+                          <div className="d-flex align-items-center"
+                            style={{ border: '1px solid #ced4da', borderRadius: '5px', padding: '5px' }} // Ajuste de borde y padding
+                          >
+                            <span className="material-symbols-outlined" style={{ marginLeft: '5px',
+                              marginRight: '5px',
+                              padding: '5px',
+                              borderRight: '1px solid #ced4da',
+                            }} // Ajuste de espacio entre el campo y el ícono
+                            >
+                              mail
+                            </span>
+
+                            <Form.Control
+                              placeholder="correo@email.com"
+                              type="email"
+                              name="correo"
+                              value={usuario.correo}
+                              onChange={handleInputChange}
+                              style={{ boxShadow: 'none', flexGrow: 1,
+                                border: 'none', outline: 'none', padding: '0', margin: '0',
+                                backgroundColor: 'transparent',
+                              }} // Asegura que el input ocupe todo el espacio disponible
+                            ></Form.Control>
+                          </div>
                         </Form.Group>
   
                         <Form.Group>
                           <label className="font-600 d-flex align-items-center">
-                          <span className="material-symbols-outlined" style={{marginRight: '5px'}}>
-                            lock
+                            {/* <span className="material-symbols-outlined" style={{ marginRight: '5px' }}>
+                              lock
+                            </span> */}
+                            Contraseña
+                          </label>
+                          
+                          <div className="d-flex align-items-center"
+                            style={{ border: '1px solid #ced4da', borderRadius: '5px', padding: '5px' }} // Ajuste de borde y padding
+                          >
+                            {/* Añadir para ver la contraseña */}
+                            <span 
+                              className="material-symbols-outlined" 
+                              style={{ cursor: 'pointer', marginLeft: '5px',
+                                marginRight: '5px',
+                                padding: '5px',
+                                borderRight: '1px solid #ced4da',
+                              }} // Ajuste de espacio entre el campo y el ícono
+                              onClick={() => setType(type === "password" ? "text" : "password")}
+                            >
+                              {type === "password" ? "visibility_off" : "visibility"}
                             </span>
-                            Contraseña</label>
-                          <Form.Control
-                            placeholder="********"
-                            type="password"
-                            name="clave"
-                            value={usuario.clave}
-                            onChange={handleInputChange}
-                          ></Form.Control>
+                            <Form.Control
+                              placeholder="********"
+                              type={type}
+                              name="clave"
+                              value={usuario.clave}
+                              onChange={handleInputChange}
+                              style={{ boxShadow: 'none', flexGrow: 1,
+                                border: 'none', outline: 'none', padding: '0', margin: '0',
+                                backgroundColor: 'transparent',
+                               }} // Asegura que el input ocupe todo el espacio disponible
+                            />
+                            
+
+                          </div>
                         </Form.Group>
-  
+
                       </Card.Body>
                     <Card.Footer className="ml-auto mr-auto">
-                      <Button className="btn button-bm w-100" type="submit" variant="dark"
+                      <button className="button-bm w-100" type="submit"
                         onClick={Login}
                       >
                         {/* en espanol */}
                         Iniciar sesión 
-                      </Button>
+                      </button>
   
                       <div className="mt-2 d-flex flex-column justify-content-center align-items-center">
                         <span className="text-span">- No tienes cuenta - </span>

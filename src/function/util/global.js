@@ -19,6 +19,7 @@ export const host_widget = dev ? "http://localhost:3001/?custom=" : "https://wid
 export const host_sdk = dev ? "http://localhost:8080/main.js" : "https://sdk.flashchat.chat/main.js"
 export const host_facturacion = "https://ordenfacil.org/api_facturacion";
 export const colorPrimario = "#0267ff";
+export const colorSecundario = "#f39001";
 // validar si es produccion o desarrollo
 const bm = () => {
     let token = GetToken();

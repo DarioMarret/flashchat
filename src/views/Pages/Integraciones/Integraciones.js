@@ -80,7 +80,7 @@ function Integraciones(props) {
                         className='d-flex justify-content-end align-items-center w-100'
                     >
                         <button
-                            className="btn button-bm"
+                            className=" button-bm"
                             onClick={() => setonHideMidkritik(!onHideMidkritik)}
                         >
                             Configurar
@@ -104,7 +104,7 @@ function Integraciones(props) {
                         className='d-flex justify-content-end align-items-center w-100'
                     >
                         <button
-                            className="btn btn button-bm disabled"
+                            className=" button-bm disabled"
                         >
                             Beta
                         </button>
@@ -127,7 +127,7 @@ function Integraciones(props) {
                         className='d-flex justify-content-end align-items-center w-100'
                     >
                         <button
-                            className="btn btn button-bm disabled"
+                            className=" button-bm disabled"
                         >
                             Beta
                         </button>
@@ -150,7 +150,7 @@ function Integraciones(props) {
                         className='d-flex justify-content-end align-items-center w-100'
                     >
                         <button
-                            className="btn btn button-bm disabled"
+                            className=" button-bm disabled"
                         >
                             Beta
                         </button>

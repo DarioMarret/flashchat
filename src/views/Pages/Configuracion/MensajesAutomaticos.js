@@ -240,7 +240,7 @@ function MensajesAutomaticos(props) {
                     <Modal.Footer
                         className="d-flex justify-content-end"
                     >
-                        <button className="btn button-bm ml-2"
+                        <button className="button-bm ml-2"
                             onClick={CrearMensaje}
                         >
                             {
@@ -341,7 +341,7 @@ function MensajesAutomaticos(props) {
                     <Modal.Footer
                         className="d-flex justify-content-end"
                     >
-                        <button className="btn button-bm w-100 ml-2"
+                        <button className="button-bm w-100 ml-2"
                             onClick={ActualizarMensajeEstado}
                         >
                             {

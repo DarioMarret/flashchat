@@ -1,10 +1,10 @@
 
 // react-bootstrap components
+import logo from "assets/img/registroLogo.png";
 import axios from "axios";
 import { host } from "function/util/global";
 import { useState } from "react";
 import {
-  Button,
   Card,
   Form
 } from "react-bootstrap";
@@ -46,8 +46,8 @@ function RegisterPage(props) {
     <>
       <div
         className="full-page section-image d-flex align-items-center pt-4"
-        data-color="black"
-        data-image={require("assets/img/fondo2.jpeg")}
+        // data-color="black"
+        // data-image={require("assets/img/fondo2.jpeg")}
         style={{ height: '100vh' }}
       >
         <div className="container content d-flex justify-content-center align-items-center p-0">
@@ -56,7 +56,12 @@ function RegisterPage(props) {
               <Form action="" className="form" method="">
                 <Card className={"card-login background-backdrop"}>
                   <Card.Header>
-                    <h3 className="header text-center">Registro</h3>
+                    <div className="d-flex justify-content-center align-items-center">
+                        <img src={logo} alt="FlashChat" className="logo" 
+                          style={{width: '250px', height: '100px'}}
+                        />
+                    </div>
+                    {/* <h3 className="header text-center">Registro</h3> */}
                     <hr/>
                   </Card.Header>
                     <Card.Body>
@@ -77,7 +82,7 @@ function RegisterPage(props) {
                         <span className="material-symbols-outlined" style={{marginRight: '5px'}}>phone_iphone</span>
                           Contacto</label>
                         <Form.Control
-                          placeholder="0999999999"
+                          placeholder="593 993 754 368"
                           type="text"
                           name="contacto"
                           onChange={handleInputChange}
@@ -111,15 +116,15 @@ function RegisterPage(props) {
                       </Form.Group>
                     </Card.Body>
                   <Card.Footer className="ml-auto mr-auto">
-                    <Button className="btn button-bm w-100" type="submit" variant="dark"
+                    <button className="btn button-bm w-100" type="submit"
                       disabled={disableRegistro}
                       onClick={(event) => Register(event)}
                     >
                       Registrarme
-                    </Button>
+                    </button>
 
                     <div className="mt-2 d-flex flex-column justify-content-center align-items-center">
-                      <small className="text-span">- Tendrás 10 días gratuitos - </small>
+                      <small className="text-span">- Tendrás 5 días gratuitos - </small>
                       <a className="text-link" onClick={() => props.setEstados(true)}>Iniciar sesión</a>
                     </div>
                   </Card.Footer>
@@ -133,7 +138,7 @@ function RegisterPage(props) {
           className="full-page-background"
           style={{
             backgroundImage:
-              "url(" + require("assets/img/fondo2.jpeg") + ")"
+            "url(" + require("assets/img/2.png") + ")"
           }}
         ></div>
       </div>

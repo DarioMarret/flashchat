@@ -154,7 +154,7 @@ function Inactividad(props) {
                                 onChange={handleMensaje}
                             ></textarea>
                         </div>
-                        <button type="submit" className="btn button-bm w-100"
+                        <button type="submit" className="button-bm w-100"
                             onClick={(e)=>ActualizarInactividad(e)}
                         >Guardar</button>
                     </form>

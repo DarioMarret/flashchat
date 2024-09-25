@@ -353,12 +353,12 @@ export default function Contactos(props) {
                   <td>{contacto.channel.proveedor}</td>
                   <td className="d-flex justify-content-center">
                     {/* inconon para sincronizar con google people api */}
-                    {/* <button className="btn btn">
+                    {/* <button className="">
                       <i className="fas fa-sync" title="Google People Contact."></i>
                     </button> */}
                     {/* redireccionamiento */}
                     <button
-                      className="btn btn"
+                      className=""
                       onClick={() => 
                         window.location.href = `/admin/historial-contacto/${contacto.id}`
                       }
@@ -369,7 +369,7 @@ export default function Contactos(props) {
                       ></i>
                     </button>
                     {/* iniciar una conversacion */}
-                    <button className="btn btn" 
+                    <button className="" 
                       onClick={() =>handleShow(contacto) }
                     >
                       <i className="fas fa-comments"
@@ -377,7 +377,7 @@ export default function Contactos(props) {
                       ></i>
                     </button>
                     <button
-                      className="btn btn"
+                      className=""
                       onClick={() => EditarContacto(contacto)}
                     >
                       <i className="fas fa-edit"
@@ -385,7 +385,7 @@ export default function Contactos(props) {
                       ></i>
                     </button>
                     <button
-                      className="btn btn"
+                      className=""
                       onClick={() => EliminarContacto(contacto.id)}
                     >
                       <i className="fas fa-trash-alt"
@@ -522,14 +522,14 @@ export default function Contactos(props) {
           <Modal.Footer>
             {contacto.id === 0 ? (
               <button
-                className="btn btn button-bm w-100"
+                className=" button-bm w-100"
                 onClick={CrearContacto}
               >
                 Crear contacto
               </button>
             ) : (
               <button
-                className="btn btn button-bm w-100"
+                className=" button-bm w-100"
                 onClick={CrearContacto}
               >
                 Editar contacto
@@ -608,7 +608,7 @@ export default function Contactos(props) {
           </Modal.Body>
           <Modal.Footer>
             <button
-              className="btn btn button-bm w-100"
+              className=" button-bm w-100"
               onClick={Enviarmensaje}
             >
               Enviar mensaje

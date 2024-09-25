@@ -180,7 +180,7 @@ function ModalMikritik(props) {
             </Modal.Body>
             <Modal.Footer>
                 <button
-                    className="btn btn button-bm w-100"
+                    className="button-bm w-100"
                     onClick={()=>GuardarMidkritik()}
                 >
                     Guardar
