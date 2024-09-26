@@ -24,6 +24,7 @@ function HorarioAtencion(props) {
         fin_horario: '',
         horario: '',
         mensaje_fuera_horario: '',
+        mensaje_dentro_horario: '',
         cuenta_id: GetTokenDecoded().cuenta_id
     })
 
@@ -156,6 +157,9 @@ function HorarioAtencion(props) {
                                 >Mensaje Fuera de Horario</th>
                                 <th
                                     className='text-white'
+                                >Mensaje Dentro de Horario</th>
+                                <th
+                                    className='text-white'
                                 >Acciones</th>
                             </tr>
                         </thead>
@@ -166,6 +170,7 @@ function HorarioAtencion(props) {
                                         <td>{item.equipos.equipos}</td>
                                         <td>{item.horario}</td>
                                         <td>{item.mensaje_fuera_horario}</td>
+                                        <td>{item.mensaje_dentro_horario}</td>
                                         <td>
                                             <button className="btn mx-1"
                                                 onClick={()=>EditarHorario(item)}
@@ -253,6 +258,15 @@ function HorarioAtencion(props) {
                                     onChange={handleHorario}
                                 />
                         </Form.Group>
+                        <Form.Group controlId="mensaje_dentro_horario">
+                                <Form.Label>Mensaje Dentro de Horario</Form.Label>
+                                <Form.Control type="text" placeholder="Mensaje Dentro de Horario"
+                                    name='mensaje_dentro_horario'
+                                    value={horario.mensaje_dentro_horario}
+                                    onChange={handleHorario}
+                                />
+                        </Form.Group>
+                        
                         {
                             horario.id !== 0 ?
                             <button 

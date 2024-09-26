@@ -4,16 +4,11 @@ import SweetAlert from "react-bootstrap-sweetalert";
 
 // react-bootstrap components
 import {
-  Badge,
   Button,
   Card,
-  Form,
-  InputGroup,
-  Navbar,
-  Nav,
-  Container,
-  Row,
   Col,
+  Container,
+  Row
 } from "react-bootstrap";
 
 function SweetAlertPage() {
@@ -96,7 +91,7 @@ function SweetAlertPage() {
         confirmBtnBsStyle="info"
         cancelBtnBsStyle="danger"
         confirmBtnText="Yes, delete it!"
-        cancelBtnText="Cancel"
+        cancelBtnText="Cancelar"
         showCancel
       >
         You will not be able to recover this imaginary file!
@@ -114,7 +109,7 @@ function SweetAlertPage() {
         confirmBtnBsStyle="info"
         cancelBtnBsStyle="danger"
         confirmBtnText="Yes, delete it!"
-        cancelBtnText="Cancel"
+        cancelBtnText="Cancelar"
         showCancel
       >
         You will not be able to recover this imaginary file!

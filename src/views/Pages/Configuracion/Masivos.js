@@ -8,6 +8,7 @@ import moment from "moment";
 import { useEffect, useState } from "react";
 import { Card, Container, Modal, Row, Spinner } from "react-bootstrap";
 import Swal from "sweetalert2";
+import { ControllerListarPlantillaCloudApi } from "./services/services.masivo";
 
 function Masivos(props) {
   const [show, setShow] = useState(false);
@@ -296,11 +297,13 @@ function Masivos(props) {
         api_key: inf.api_key,
         access_token: inf.access_token,
         plantilla: inf.plantilla,
+        id: inf.id,
       });
       if (inf.channel_id === 4) {
         ListarPlatilla360(inf.api_key);
       } else if (inf.channel_id === 3) {
         console.log("whatsappCloud");
+        ListarPlantillaCloudApi(inf.id);
       }
     }
   };
@@ -382,6 +385,11 @@ function Masivos(props) {
       setListPlantillas(data.data);
     }
   };
+
+  const ListarPlantillaCloudApi = async (id) => {
+    const data = await ControllerListarPlantillaCloudApi(id);
+    setListPlantillas(data.data);
+  }
 
   const handleCustomPlantilla = () => {
     let component = [];
@@ -491,12 +499,7 @@ function Masivos(props) {
         });
         return null;
       }
-      if (
-        envio.channel_id === 4 &&
-        envio.numero !== null &&
-        envio.plantilla_id !== null &&
-        envio.api_key !== null
-      ) {
+      if (envio.channel_id === 4 || envio.channel_id === 3 && envio.numero !== null && envio.plantilla_id !== null &&  envio.api_key !== null ) {
         let component = [];
         const body = components.filter((item) => item.type === "body");
         const header = components.filter((item) => item.type === "header");
@@ -553,41 +556,80 @@ function Masivos(props) {
             }),
           });
         }
-  
+        let plan;
         listPlantillas.map(async (item) => {
           if (item.id === envio.plantilla_id) {
-            let plan = {
-              api_key: envio.api_key,
-              plantilla: {
-                to: envio.numero,
-                type: "template",
-                template: {
-                  namespace: item.namespace,
-                  language: {
-                    code: item.language,
-                    policy: "deterministic",
+            if(envio.channel_id === 4){
+              plan = {
+                api_key: envio.api_key,
+                plantilla: {
+                  to: envio.numero,
+                  type: "template",
+                  template: {
+                    namespace: item.namespace,
+                    language: {
+                      code: item.language,
+                      policy: "deterministic",
+                    },
+                    name: item.name,
+                    components: component,
                   },
-                  name: item.name,
-                  components: component,
                 },
-              },
-            };
-            const { status } = await BmHttp().post("plantilla_envio_360", plan);
-            if (status === 200) {
-              Swal.fire({
-                icon: "success",
-                title: "Plantilla enviada",
-                showConfirmButton: false,
-                timer: 1500,
-              });
-            } else {
-              Swal.fire({
-                icon: "error",
-                title: "Error al enviar mensaje",
-                showConfirmButton: false,
-                timer: 1500,
-              });
+              };
+              const { status } = await BmHttp().post("plantilla_envio_360", plan);
+              if (status === 200) {
+                Swal.fire({
+                  icon: "success",
+                  title: "Plantilla enviada",
+                  showConfirmButton: false,
+                  timer: 1500,
+                });
+              } else {
+                Swal.fire({
+                  icon: "error",
+                  title: "Error al enviar mensaje",
+                  showConfirmButton: false,
+                  timer: 1500,
+                });
+              }
+            }else if (envio.channel_id === 3){
+              plan = {
+                id: envio.id,
+                plantilla: {
+                  messaging_product: "whatsapp",
+                  recipient_type: "individual",
+                  to: envio.numero,
+                  type: "template",
+                  template: {
+                    namespace: item.namespace,
+                    language: {
+                      code: item.language,
+                      policy: "deterministic",
+                    },
+                    name: item.name,
+                    components: component,
+                  },
+                },
+              };
+              const { status } = await BmHttp().post("plantilla_envio_cloud", plan);
+              if (status === 200) {
+                Swal.fire({
+                  icon: "success",
+                  title: "Plantilla enviada",
+                  showConfirmButton: false,
+                  timer: 1500,
+                });
+              } else {
+                Swal.fire({
+                  icon: "error",
+                  title: "Error al enviar mensaje",
+                  showConfirmButton: false,
+                  timer: 1500,
+                });
+              }
             }
+
+
           }
         });
       } else if (envio.channel_id === 2) {
