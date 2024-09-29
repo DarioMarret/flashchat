@@ -7,6 +7,7 @@ function Auths() {
 
   return (
     <>
+      
       {estados ? (
         <LoginPage setEstados={setEstados} />
       ) : (
