@@ -554,7 +554,7 @@ function Bots(props) {
                     <button className="bot-card-buttons-btn"
                       onClick={() =>{
                         if(bot.url){
-                          let url = bot.url.replaceAll("http://177.234.194.60:3022", "https://flashbot.bot")
+                          let url = bot.url.replaceAll("http://146.190.75.219:3022", "https://flashbot.bot")
                           if(bot.flowise){
                             window.open(`${url}`,"_blank")  
                           }else{
@@ -562,7 +562,7 @@ function Bots(props) {
                           }
                         }else{
                           ListarBots()
-                          let url = bot.url.replaceAll("http://177.234.194.60:3022", "https://flashbot.bot")
+                          let url = bot.url.replaceAll("http://146.190.75.219:3022", "https://flashbot.bot")
                           if(bot.flowise){
                             window.open(`${url}`,"_blank")  
                           }else{
