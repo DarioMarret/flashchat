@@ -297,7 +297,7 @@ function Masivos(props) {
         api_key: inf.api_key,
         access_token: inf.access_token,
         plantilla: inf.plantilla,
-        id: inf.id,
+        // id: inf.id,
       });
       if (inf.channel_id === 4) {
         ListarPlatilla360(inf.api_key);
