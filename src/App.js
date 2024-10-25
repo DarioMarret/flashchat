@@ -22,7 +22,6 @@ import Masivos from "views/Pages/Configuracion/Masivos";
 import MensajesAutomaticos from "views/Pages/Configuracion/MensajesAutomaticos";
 import Contactos from "views/Pages/Contacto/Contactos";
 import Mensajeria from "views/Pages/Mensajeria/Mensajeria";
-import Auths from "views/Pages/auth/Auths";
 
 import { ControllerServiceMenuAgente } from "components/Sidebar/service/menu.service";
 import routesInit from "routes";
@@ -36,6 +35,7 @@ import Galeria from "views/Pages/Galeria/Galeria";
 import HistorialContacto from "views/Pages/HistorialContacto/HistorialContacto";
 import Historial from "views/Pages/History/Historial";
 import Integraciones from "views/Pages/Integraciones/Integraciones";
+import LandingPage from "views/Pages/LandingPage/LandingPage";
 import Logs from "views/Pages/Logs/Logs";
 import NuevaPagina from "views/Pages/Paginas/NuevaPagina";
 import Paginas from "views/Pages/Paginas/Paginas";
@@ -110,7 +110,8 @@ export default function App() {
             {!auth ? (
                 <>
                   <div className="wrapper wrapper-full-page">
-                    <Auths />
+                    <LandingPage />
+                    {/* <Auths /> */}
                   </div>
                 </>
             ) : (
