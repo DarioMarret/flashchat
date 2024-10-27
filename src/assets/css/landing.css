@@ -4,6 +4,22 @@
   --color-text-marron: #9F5B3DD9;
 }
 
+.nav-link {
+  cursor: pointer;
+}
+
+.flash-mt-80 {
+  margin-top: 80px !important;
+}
+
+.flash-gap-6 {
+  gap: 4rem !important;
+}
+
+.flash-bg-secondary {
+  background-color: var(--color-secondary) !important;
+}
+
 .flash-text-primary {
   color: var(--color-primary) !important;
 }
@@ -16,12 +32,25 @@
   color: white !important;
 }
 
+.flash-text-marron {
+  color: var(--color-text-marron) !important;
+}
+
 .flash-navbar {
   height: 90px !important;
 }
 
+.flash-btn-secondary {
+  border: none;
+  border-radius: 25px;  
+  font-size: 15px;
+  width: 210px;
+  text-transform: none;
+  cursor: pointer;
+}
+
 .flash-first-section {
-  height: 95vh;
+  height: auto;
   position: relative;
   /* background-image: url("assets/img/bg-landing-section-first.svg"); */
   background-size: cover;
@@ -47,14 +76,139 @@
 }
 
 .flash-first-section-text > p {
-  font-size: 12px;
+  font-size: 16px;
+}
+
+.flash-btn-group {
+  margin-bottom: 90px;
+  position: relative;
+  z-index: 10;
 }
 
 .flash-first-section-description {
   margin-top: 30px;
-  font-size: 20px;
   width: 100%;
   color: var(--color-text-marron);
+}
+
+.flash-first-section-description > p {
+  font-size: 24px !important;
+}
+
+.third-section-whatsapp-img {
+  top: -30px;
+}
+
+.flash-service-box-body {
+  border: 1px solid var(--color-primary);
+  border-radius: 25px;
+  height: 370px;
+}
+
+.flash-text-third-section-services {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+.flash-service-box-body h4, .flash-service-box-body p {
+  font-size: 26px;
+}
+
+.flash-service-box-circle {
+  width: 70px;
+  height: 70px;
+  border-radius: 999px;
+  background-color: var(--color-secondary);
+  box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+  font-size: 30px;  
+  top: -40px;
+  left: 42%;
+}
+
+.flash-fouth-section .flash-list {
+  width: 100%;
+}
+
+.flash-fouth-section .flash-list-detail > p {
+  font-size: 20px;
+}
+
+.flash-circle-rigth {
+  right: 150px;
+  top: 25px;
+}
+
+.flash-circle-rigth > span, .flash-circle-left > span {
+  width: 110px;
+  height: 110px;
+  border-radius: 999px;
+  background-color: var(--color-primary);
+  position: relative;
+}
+
+.flash-circle-rigth > span::after {
+  content: "";
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  border-radius: 999px;
+  background-color: var(--color-primary);
+  top: 160px;
+  left: -35px;
+}
+
+.flash-circle-rigth > span::before {
+  content: "";
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  border-radius: 999px;
+  background-color: var(--color-primary);
+  top: 145px;
+  right: -70px;
+}
+
+.flash-fouth-section-img > img {
+  position: relative;
+  top: 0;
+  right: 0;
+}
+
+.flash-circle-left > span {
+  width: 70px;
+  height: 70px;
+  top: 65px;
+  left: 65px;
+}
+
+.flash-circle-left > span::before {
+  content: "";
+  background-color: var(--color-primary);
+  position: absolute;
+  width: 90px;
+  height: 90px;
+  top: -50px;
+  left: 150px;
+  border-radius: 999px;
+}
+
+.flash-circle-left > span::after {
+  content: "";
+  background-color: var(--color-primary);
+  position: absolute;
+  width: 35px;
+  height: 35px;
+  top: 110px;
+  left: 100px;
+  border-radius: 999px;
+}
+
+.flash-fouth-section-img-text-leads {
+  font-size: 27px;
+}
+
+.flash-fouth-section-svg {
+  margin-top: 0px;
 }
 
 @media (min-width: 481px) {
@@ -78,6 +232,14 @@
 
   .flash-first-section-text > p {
     font-size: 16px;
+  }
+
+  .flash-text-third-section-services {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .flash-service-box-body h4, .flash-service-box-body p {
+    font-size: 23px;
   }
 }
 
@@ -110,5 +272,55 @@
 
   .flash-first-section-description > p {
     font-size: 20px !important;
+  }
+
+  .flash-text-third-section-services {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+
+  .flash-service-box-body {
+    height: 360px;
+  }
+
+  .flash-service-box-circle {
+    top: -35px;
+    left: -25px;
+  }
+
+  .flash-fouth-section-img {
+    height: 400px;
+  }
+
+  .flash-fouth-section .flash-list {
+    width: 60%;
+  }
+
+  .flash-fouth-section .flash-list-detail > p {
+    font-size: 22px;
+  }
+
+  .flash-fouth-section-img > img {
+    right: 160px;
+    top: -135px;
+    position: absolute;
+  }
+
+  .flash-fouth-section-img-text-leads {
+    font-size: 27px;
+    position: absolute;
+    right: 185px;
+    bottom: 20px;
+  }
+
+  .flash-fouth-section-svg {
+    margin-top: -290px;
+  }
+}
+
+@media (min-width: 1456px) {
+  .box-landing {
+    width: 1200px;
+    margin: 0 auto;
+    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
   }
 }
