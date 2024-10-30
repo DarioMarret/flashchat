@@ -52,6 +52,7 @@ function Masivos(props) {
   const [masivos, setMasivos] = useState([]);
   const [progresoFile, setProgresoFile] = useState(0);
   const [listPlantillas, setListPlantillas] = useState([]);
+  const [etiquetasWhatsapp, setEtiquetasWhatsapp] = useState([]);
   const [catidadVariables, setCatidadVariables] = useState({
     header: [],
     headerVideo: {},
@@ -86,6 +87,7 @@ function Masivos(props) {
     access_token: null,
     api_key: null,
     bots: [],
+    id_etiqueta: null,
   });
 
   // esto se acciona cuando se escribe en los inputs de las variables
@@ -297,6 +299,7 @@ function Masivos(props) {
         api_key: inf.api_key,
         access_token: inf.access_token,
         plantilla: inf.plantilla,
+        id_etiqueta: inf.id_etiqueta,
         // id: inf.id,
       });
       if (inf.channel_id === 4) {
@@ -304,6 +307,8 @@ function Masivos(props) {
       } else if (inf.channel_id === 3) {
         console.log("whatsappCloud");
         ListarPlantillaCloudApi(inf.id);
+      }else if (inf.channel_id === 2) {
+        ListarEtiqutasWhatsapp(inf.nombreunico);
       }
     }
   };
@@ -389,6 +394,14 @@ function Masivos(props) {
   const ListarPlantillaCloudApi = async (id) => {
     const data = await ControllerListarPlantillaCloudApi(id);
     setListPlantillas(data.data);
+  }
+
+  const ListarEtiqutasWhatsapp = async (nombreunico) => {
+    const url = `contactos/etiqueta_whatsapp?sessionName=${nombreunico}`;
+    const { data, status } = await BmHttp().get(url);
+    if (status === 200) {
+      setEtiquetasWhatsapp(data.data);
+    }
   }
 
   const handleCustomPlantilla = () => {
@@ -1161,6 +1174,27 @@ function Masivos(props) {
                   ))}
                 </select>
               </div>
+                {
+                  envio.channel_id === 2 ? (
+                    <div className="form-group">
+                      <label htmlFor="plantilla">Etiquetas Whatsapp</label>
+                      <select
+                        className="form-control"
+                        id="id_etiqueta"
+                        name="id_etiqueta"
+                        value={envio.id_etiqueta}
+                        onChange={handleEnvio}
+                      >
+                        <option value="">Seleccione una Etiqueta</option>
+                        {etiquetasWhatsapp.map((item, index) => (
+                          <option key={index} value={item.id_etiqueta}>
+                            {item.name_etiqueta}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  ) : null
+                }
 
               <div className="d-flex justify-conten-center">
                 <div className="form-group m-1 col-4 col-md-4 col-lg-4">
