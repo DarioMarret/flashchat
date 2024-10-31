@@ -1371,6 +1371,8 @@ function Masivos(props) {
                       value="video"
                       onChange={handleType}
                     />
+                    {/* para que pueda subir mas de un video */}
+                    
                   </div>
                 </div>
               </div>
