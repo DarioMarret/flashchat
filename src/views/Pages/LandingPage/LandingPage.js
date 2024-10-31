@@ -1,20 +1,19 @@
-import logo from "assets/img/Flaschat-horizontal.png";
-import houseIcon from "assets/icons/house-icon-flaschat.png";
 import "assets/css/landing.css";
-import likeIcon from "assets/icons/like-icon-flaschat.png";
-import whatsappIon from "assets/icons/whatsapp-icon-flaschat.png";
 import checkIcon from "assets/icons/check-icon.flaschant.png";
 import facebookIcon from "assets/icons/facebook-icon-flaschat.png";
+import houseIcon from "assets/icons/house-icon-flaschat.png";
 import instagramIcon from "assets/icons/instagram-icon-flaschat.png";
 import xIcon from "assets/icons/x-icons-flaschat.png";
-import users from "assets/img/users-flaschat.png";
-import botFlaschat from "assets/img/flachat-bot.png";
-import lifeDigitalImg from "assets/img/life-digital.png";
 import bgFirstSection from "assets/img/bg-landing-section-first.svg";
 import bgLastSection from "assets/img/bg-landing-section-last.svg";
+import botFlaschat from "assets/img/flachat-bot.png";
+import logo from "assets/img/Flaschat-horizontal.png";
+import lifeDigitalImg from "assets/img/life-digital.png";
+import users from "assets/img/users-flaschat.png";
 
 export default function LandingPage() {
   const year = new Date().getFullYear();
+  const apiLinkWhatsapp = 'https://wa.me/593999070572?text=👋%20Hola%2C%20estoy%20interesado%20en%20conocer%20m%C3%A1s%20sobre%20la%20plataforma%20FlashChat';
 
   return (
     <div className="box-landing">
@@ -51,15 +50,16 @@ export default function LandingPage() {
                 </a>
               </li>
               <li className="nav-item">
-                <a className="nav-link flash-text-secondary" href="#">
-                  Sobre Nosotros
-                </a>
-              </li>
-              <li className="nav-item">
                 <a className="nav-link flash-text-secondary">Servicios</a>
               </li>
               <li className="nav-item">
                 <a className="nav-link flash-text-secondary">Contáctanos</a>
+              </li>
+              <li className="nav-item">
+                <a className="nav-link flash-text-secondary">Login</a>
+              </li>
+              <li className="nav-item">
+                <a className="nav-link flash-text-secondary">Registro</a>
               </li>
             </ul>
           </div>
@@ -67,11 +67,11 @@ export default function LandingPage() {
       </nav>
 
       {/* Primera seccion */}
-      <div className="bg-white w-100 flash-first-section">
+      <div className="w-100 flash-first-section">
         <img
           src={bgFirstSection}
           alt="First section"
-          className="position-absolute w-100"
+          className="position-absolute w-100 flash-first-section-img-landing"
         />
         <img
           src={botFlaschat}
@@ -113,38 +113,27 @@ export default function LandingPage() {
           </p>
         </div>
 
-        <div className="d-flex gap-3 px-2 px-md-5 mt-5 flash-btn-group justify-content-center justify-content-md-start">
-          <button className="text-white flash-bg-secondary px-3 py-2 flash-btn-secondary">
+        <div className="d-flex gap-3 px-2 px-md-5 mt-5 flash-btn-group justify-content-center justify-content-md-start flash-text-decoration-none">
+          <a className="text-white flash-bg-secondary px-3 py-2 flash-btn-secondary flash-text-decoration-none"
+          href={apiLinkWhatsapp} target="_blank" >
             Quiero mi demostración
-          </button>
+          </a>
 
-          <button className="text-white flash-bg-secondary px-3 py-2 flash-btn-secondary">
-            Aprender más
-          </button>
+          {/* <button className="text-white flash-bg-secondary px-3 py-2 flash-btn-secondary">
+            Ver planes
+          </button> */}
         </div>
       </div>
 
       {/* Segunda seccion */}
-      <div className="bg-white w-100 flash-second-section">
-        <div className="px-2 px-md-5 d-flex gap-2 justify-content-center justify-content-md-start align-items-center">
-          <img src={likeIcon} alt="Like Icon" />
-          <span className="flash-text-primary">Explora más</span>
-        </div>
-      </div>
 
       {/* Tercera seccion */}
       <div className="bg-white w-100 flash-third-section">
         <div className="px-2 px-md-5 mt-5">
           <div className="flash-third-section-title d-flex justify-content-center align-items-center position-relative">
-            <h2 className="flash-text-primary">
+            <h2 className="flash-text-primary text-center">
               Lleva tu comunicación al siguiente nivel
             </h2>
-            <img
-              src={whatsappIon}
-              alt="Whatsapp Icon"
-              width="80px"
-              className="position-absolute end-0 third-section-whatsapp-img d-none d-md-block"
-            />
           </div>
 
           <div className="flash-text-third-section-services flash-mt-80 flash-gap-6">
@@ -234,12 +223,14 @@ export default function LandingPage() {
           </div>
 
           <div className="my-5 text-center text-md-start">
-            <button
+            <a
               className="text-white flash-bg-secondary p-2 p-md-3 flash-btn-secondary"
-              style={{ width: "250px", fontSize: "20px" }}
+              style={{ width: "250px", fontSize: "20px", textDecoration: 'none' }}
+              href={apiLinkWhatsapp}
+              target="_blank"
             >
               Haz click aquí
-            </button>
+            </a>
           </div>
 
           <div className="w-100 position-relative flash-fouth-section-img">
@@ -280,7 +271,7 @@ export default function LandingPage() {
 
           <div className="d-flex flex-column justify-content-center text-center flex-lg-row gap-2">
             <span className="d-block flash-text-primary">
-              © {year} Flash Chat
+              © {year} FlashChat
             </span>
             <span className="d-block flash-text-primary d-none d-lg-block">
               |
@@ -305,7 +296,7 @@ export default function LandingPage() {
           </div>
 
           <div className="d-flex gap-3 text-center w-auto justify-content-center">
-            <a href="#" className="flash-cursor-pointer">
+            <a href="https://www.facebook.com/people/FlashChat/61566874176659/"  className="flash-cursor-pointer" target="_blank">
               <img
                 src={facebookIcon}
                 alt="Facebook icon"
