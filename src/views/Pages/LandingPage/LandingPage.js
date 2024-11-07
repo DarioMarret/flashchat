@@ -10,6 +10,11 @@ import botFlaschat from "assets/img/flachat-bot.png";
 import logo from "assets/img/Flaschat-horizontal.png";
 import lifeDigitalImg from "assets/img/life-digital.png";
 import users from "assets/img/users-flaschat.png";
+import personaImg from "assets/img/persona-fondo.png";
+import personaSentadaImg from "assets/img/persona-sentada.png";
+import banderaBlancaIcon from "assets/icons/bandera-blanco-icon.png";
+import banderaNaranjaIcon from "assets/icons/bandera-naranja-icon.png";
+import botSercicesImg from "assets/img/bot-servicios.png";
 
 export default function LandingPage() {
   const year = new Date().getFullYear();
@@ -126,8 +131,6 @@ export default function LandingPage() {
       </div>
 
       {/* Segunda seccion */}
-
-      {/* Tercera seccion */}
       <div className="bg-white w-100 flash-third-section">
         <div className="px-2 px-md-5 mt-5">
           <div className="flash-third-section-title d-flex justify-content-center align-items-center position-relative">
@@ -185,7 +188,7 @@ export default function LandingPage() {
         </div>
       </div>
 
-      {/* Cuarta seccion */}
+      {/* Tercera seccion */}
       <div className="bg-white w-100 flash-fouth-section">
         <div className="px-2 px-md-5 flash-mt-80 position-relative">
           <div className="flash-circle-rigth position-absolute d-none d-lg-block">
@@ -241,9 +244,9 @@ export default function LandingPage() {
               className=""
             />
 
-            <p className="flash-text-primary flash-fouth-section-img-text-leads text-center text-lg-start py-3">
+            {/* <p className="flash-text-primary flash-fouth-section-img-text-leads text-center text-lg-start py-3">
               ¡Comineza hoy!
-            </p>
+            </p> */}
 
             <div className="flash-circle-left position-absolute d-none d-lg-block">
               <span className="d-block"></span>
@@ -251,12 +254,77 @@ export default function LandingPage() {
           </div>
         </div>
 
-        <div className="w-100 flash-fouth-section-svg">
+        {/* <div className="w-100 flash-fouth-section-svg">
           <img
             src={bgLastSection}
             alt="Landing last section bg"
             className="w-100"
           />
+        </div> */}
+      </div>
+
+      {/* Cuarta seccion */}
+      <div className="bg-white w-100 flash-fifth-section">
+        <div className="d-flex flex-column flex-lg-row gap-3 px-2 px-md-5 h-100 position-relative">
+          <div className="d-flex flex-column flash-fth-box-1 justify-content-lg-around">
+            <div className="flash-fifth-info">
+              <h2 className="flash-text-primary flash-fifth-title text-center fw-bold">Soluciones con chatbots</h2>
+            </div>
+
+            <div className="flash-fifth-title-box-circle d-none d-lg-block position-relative">
+              <div className="circle position-absolute"></div>
+            </div>
+            
+            <div className="flash-fifth-info-detail">
+              <h4 className="text-center flash-text-primary flash-fifth-subtitle my-3 fw-semibold">¿Qué hacemos?</h4>
+              <p className="px-lg-3 text-center text-lg-start flash-text-marron flash-fifth-text">FlashChat ofrece un ecosistema de chatbots especializados en diferentes áreas, diseñados para adaptarse a tus necesidades comerciales. </p>
+            </div>
+          </div>
+
+          <div className="flash-fifth-box-img d-none d-lg-block flash-fth-box-2">
+            <img src={personaImg} alt="Persona" className="w-100 h-100"/>
+          </div>
+
+          <div class="flash-fifth-box-circle-img position-absolute d-none d-lg-block"></div>
+        </div>
+      </div>
+
+      {/* Quinta seccion */}
+      <div className="bg-white w-100 flash-about-section d-flex flex-column flash-mt-80 position-relative">
+        <img src={botSercicesImg} alt="Bot servicios" className="position-absolute box-servicie d-none d-lg-block"/>
+ 
+        <div className="d-flex flex-column flex-md-row flash-about-box">
+          <div className="flash-bg-primary text-white w-100 position-relative text-center box-item">
+            <img src={personaSentadaImg} alt="persona sentada" height="450px"/>
+            <img src={banderaBlancaIcon} alt="bandera-blanca" width="40px" style={{ top: '20px', right: '25px' }} className="position-absolute"/>
+          </div>
+          <div className="flash-bg-secondary text-white w-100 box-item d-flex flex-column justify-content-center align-items-center gap-3 position-relative">
+            <div className="px-5 text-center">
+              <h2 className="fw-bold mb-3">¿Quíenes somos?</h2>
+              <p>Somos un equipo multidisciplinario de desarrolladores, diseñadores y estrategas tecnológicos dedicados a crear soluciones de chat inteligentes. </p>
+            </div>
+
+            <img src={banderaNaranjaIcon} alt="bandera-naranja" width="40px" style={{ top: '20px', right: '25px' }} className="position-absolute"/>
+          </div>
+        </div>
+        <div className="d-flex flex-column flex-md-row flash-about-box">
+          <div className="flash-bg-secondary text-white w-100 box-item d-flex flex-column justify-content-center align-items-center gap-3 position-relative order-2 order-lg-1">
+            <div className="px-5 text-center">
+              <h2 className="fw-bold mb-3">Nuestro equipo</h2>
+              <p>Está compuesto por expertos en inteligencia artificial, desarrollo de software y diseño de experiencia de usuario. Juntos, nos esforzamos por ofrecer un servicio excepcional y resultados medibles.</p>
+            </div>
+
+            <img src={banderaNaranjaIcon} alt="bandera-naranja" width="40px" style={{ top: '20px', right: '25px' }} className="position-absolute"/>
+          </div>
+
+          <div className="flash-bg-primary text-white w-100 box-item d-flex flex-column justify-content-center align-items-center gap-3 position-relative order-1 order-lg-2">
+            <div className="px-5 text-center">
+              <h2 className="fw-bold mb-3">Nuestro misión</h2>
+              <p>Trabajamos estrechamente con nuestros clientes para crear herramientas de chat que se alineen con sus necesidades específicas, desde atención al cliente 24/7 hasta soluciones de ventas automatizadas.</p>
+            </div>
+
+            <img src={banderaBlancaIcon} alt="bandera-blanca" width="40px" style={{ top: '20px', right: '25px' }} className="position-absolute"/>
+          </div>
         </div>
       </div>
 

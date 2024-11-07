@@ -16,6 +16,10 @@
   gap: 4rem !important;
 }
 
+.flash-bg-primary {
+  background-color: var(--color-primary) !important;
+}
+
 .flash-bg-secondary {
   background-color: var(--color-secondary) !important;
 }
@@ -216,6 +220,68 @@
   margin-top: 0px;
 }
 
+.flash-fifth-section {
+  height: auto;
+  margin-top: 80px;
+
+  .flash-fifth-subtitle, .flash-fifth-text {
+    font-size: 26px;
+  }
+
+  .flash-fifth-title-box-circle {
+    height: 110px;
+  }
+
+  .flash-fifth-title-box-circle .circle::before {
+    content: "";
+    background-color: var(--color-primary);
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    border-radius: 999px;
+    top: 55px;
+    left: 20px;
+  }
+  
+  .flash-fifth-title-box-circle .circle::after {
+    content: "";
+    background-color: var(--color-primary);
+    position: absolute;
+    width: 42px;
+    height: 42px;
+    border-radius: 999px;
+    left: 100px;
+  }
+
+  .flash-fifth-box-circle-img {
+    content: "";
+    background-color: var(--color-primary);
+    position: absolute;
+    width: 120px;
+    height: 120px;
+    border-radius: 999px;
+    right: 115px;
+    top: 30px;
+  }
+}
+
+.flash-about-section {
+  .box-item {
+    min-height: 400px;
+
+    p {
+      font-size: 26px;
+    }
+  }
+
+  .box-servicie {
+    z-index: 50;
+    left: 46.5%;
+    top: 49%;
+    width: 90px;
+  }
+}
+
 @media (min-width: 481px) {
   .flash-first-section .title-first-section {
     font-size: 1.8rem;
@@ -248,7 +314,7 @@
   }
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 992px) {
   .flash-first-section .title-first-section {
     font-size: 3.6rem;
   }
@@ -320,6 +386,35 @@
   .flash-fouth-section-svg {
     margin-top: -290px;
   }
+
+  .flash-fifth-section {
+    height: 100vh;
+    margin-top: 0px;
+
+    .flash-fifth-title {
+      font-size: 56px;
+    }
+
+    .flash-fifth-subtitle {
+      font-size: 32px;
+    }
+
+    .flash-fth-box-1 {
+      width: 40%;
+    }
+
+    .flash-fth-box-2 {
+      width: 60%;
+    }
+  }
+
+  .flash-about-section {
+    .box-item {
+      h2 {
+        font-size: 2.3rem;
+      }
+    }
+  }
 }
 
 @media (min-width: 1456px) {
@@ -340,5 +435,11 @@
 
   .flash-first-section-description > p {
     color: white;
+  }
+
+  .flash-about-section {
+    .box-servicie {
+      left: 47%;
+    }
   }
 }
