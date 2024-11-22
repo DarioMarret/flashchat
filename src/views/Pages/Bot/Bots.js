@@ -45,7 +45,9 @@ function Bots(props) {
     srcname: "",
     source: "",
     url: "",
-    flowise: false
+    flowise: false,
+    leer_mensaje: true,
+    bot_respuesta: true,
   });
   const [sdk, setSdk] = useState(null);
   const [ruta, setRuta] = useState("");
@@ -297,7 +299,9 @@ function Bots(props) {
       api_telegram: "",
       srcname: "",
       source: "",
-      flowise: false
+      flowise: false,
+      leer_mensaje: true,
+      bot_respuesta: true,
     });
   };
 
@@ -462,7 +466,9 @@ function Bots(props) {
       api_telegram: item.api_telegram,
       srcname: item.srcname,
       source: item.source,
-      flowise: item.flowise
+      flowise: item.flowise,
+      leer_mensaje: item.leer_mensaje,
+      bot_respuesta: item.bot_respuesta
     });
     setShow(!show);
   };
@@ -638,6 +644,48 @@ function Bots(props) {
                   checked={bot.flowise}
                   onChange={(e) =>
                     setBot({ ...bot, flowise: e.target.checked })
+                  }
+                />
+              </div>
+              {/* Leer mensaje  solo si es qr */}
+
+              {
+                bot.channel_id === 2 ? (
+                  <div className="form-group">
+                    <label htmlFor="description">
+                      Leer mensaje
+                      <b
+                        className="text-secondary"
+                        style={{ fontSize: "12px" }}
+                      > (Leer mensajes de los usuarios)</b>
+                    </label>
+                    <input type="checkbox"
+                      className="mx-2"
+                      id="exampleFormControlSelect1"
+                      checked={bot.leer_mensaje}
+                      onChange={(e) =>
+                        setBot({ ...bot, leer_mensaje: e.target.checked })
+                      }
+                    />
+                  </div>
+                ) : null
+              }
+
+              {/* Bot response */}
+              <div className="form-group">
+                <label htmlFor="description">
+                  Bot response
+                  <b
+                    className="text-secondary"
+                    style={{ fontSize: "12px" }}
+                  > (Responder mensajes de los usuarios)</b>
+                </label>
+                <input type="checkbox"
+                  className="mx-2"
+                  id="exampleFormControlSelect1"
+                  checked={bot.bot_respuesta}
+                  onChange={(e) =>
+                    setBot({ ...bot, bot_respuesta: e.target.checked })
                   }
                 />
               </div>

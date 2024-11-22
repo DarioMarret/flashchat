@@ -78,6 +78,15 @@ export default function Contactos(props) {
   const [siguiente, setSiguiente] = useState("");
   const [anterior, setAnterior] = useState("");
   const [mensajeGoogle, setMensajeGoogle] = useState("");
+  const [desde, setDesde] = useState("");
+  const [hasta, setHasta] = useState("");
+  const [etiqueta, setEtiqueta] = useState("");
+  // para activar el modal de filtro
+  const [showFilter, setShowFilter] = useState(false);
+
+  const hanbleOpenFilter = () => {
+    setShowFilter(!showFilter);
+  }
 
   const [contacto, setContacto] = useState({
     id: 0,
@@ -224,27 +233,78 @@ export default function Contactos(props) {
   }, []);
 
   // crear un execl con los contactos y descargarlo
-  const ExportarContactos = () => {
-    let data = [];
-    for (let i = 0; i < contactos.length; i++) {
-      data.push({
-        id: contactos[i].id,
-        nombre: contactos[i].nombre,
-        correo: contactos[i].correo,
-        telefono: contactos[i].telefono,
-        canal: contactos[i].channel.proveedor,
-      });
+  const ExportarContactos = async () => {
+    try {
+      const { data, status } = await BmHttp().post(
+        `contactoDescarga/`,
+        { cuenta_id: GetTokenDecoded().cuenta_id },
+        { responseType: "blob" } // Asegúrate de recibir los datos como blob
+      );
+  
+      // Verifica que la respuesta sea exitosa
+      if (status === 200) {
+        // Crear una URL para el archivo recibido
+        const url = window.URL.createObjectURL(new Blob([data]));
+  
+        // Crear un elemento <a> para descargar el archivo
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", "contactos.xlsx");
+  
+        // Añadir y activar el clic en el enlace
+        document.body.appendChild(link);
+        link.click();
+  
+        // Eliminar el enlace después de la descarga
+        link.remove();
+      }
+    } catch (error) {
+      console.error("Error al exportar los contactos:", error);
+      alert("Hubo un error al descargar los contactos. Intenta nuevamente.");
     }
-    let csv = "ID,Nombre,Correo,Telefono,Canal\n";
-    data.forEach(function (row) {
-      csv += row.id + "," + row.nombre + "," + row.correo + ",";
-      csv += row.telefono + "," + row.canal + "\n";
-    });
-    let hiddenElement = document.createElement("a");
-    hiddenElement.href = "data:text/csv;charset=utf-8," + encodeURI(csv);
-    hiddenElement.target = "_blank";
-    hiddenElement.download = "contactos.csv";
-    hiddenElement.click();
+  };
+  
+  const ExportarContactosFiltrado = async () => {
+    try {
+      if(desde === "" || hasta === ""){
+        alert("Debes seleccionar una fecha desde y hasta");
+        return;
+      }
+
+      if(etiqueta === ""){
+        setEtiqueta(undefined);
+      }
+
+      const { data, status } = await BmHttp().post(
+        `contactoDescargaFechaEtiqueta`,
+        { cuenta_id: GetTokenDecoded().cuenta_id,
+          desde: desde,
+          hasta: hasta,
+         },
+        { responseType: "blob" } // Asegúrate de recibir los datos como blob
+      );
+  
+      // Verifica que la respuesta sea exitosa
+      if (status === 200) {
+        // Crear una URL para el archivo recibido
+        const url = window.URL.createObjectURL(new Blob([data]));
+  
+        // Crear un elemento <a> para descargar el archivo
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", "contactos.xlsx");
+  
+        // Añadir y activar el clic en el enlace
+        document.body.appendChild(link);
+        link.click();
+  
+        // Eliminar el enlace después de la descarga
+        link.remove();
+      }
+    } catch (error) {
+      console.error("Error al exportar los contactos:", error);
+      alert("Hubo un error al descargar los contactos. Intenta nuevamente.");
+    }
   };
 
   const hanbleBuscar = async(e) => {
@@ -286,6 +346,12 @@ export default function Contactos(props) {
             <button className="mx-2 button-bm" onClick={()=>ExportarContactos()} title="Exportar contactos">
               <i className="fas fa-file-export" title="Exportar contactos"></i>
             </button>
+
+            <button className="mx-2 button-bm" onClick={()=>hanbleOpenFilter()} title="Exportar contactos filtrados">
+              Filter
+              <i className="fas fa-file-export" title="Exportar contactos filtrados"></i>
+            </button>
+
             {/* <button className="mx-2 button-bm">Importar contactos</button> */}
             {/* Conectar Google People Api */}
             <button className="mx-2 button-bm" title="Conectar Google People Api"
@@ -620,6 +686,90 @@ export default function Contactos(props) {
           onHide={handleShowG}
           className="shadow"
         />
+
+
+        {/* Modal para descargar contactos filtrado por fecha desde hasta y etiqueta */}
+        <Modal
+          size="md"
+          show={showFilter}
+          onHide={hanbleOpenFilter}
+          aria-labelledby="example-modal-sizes-title-lg shadow"
+          className="shadow"
+        >
+          <Modal.Header>
+            <div className="d-flex justify-content-between w-100">
+              <Modal.Title>Exportar contactos filtrados</Modal.Title>
+              <button
+                type="button"
+                className="btn ml-auto"
+                onClick={hanbleOpenFilter}
+              >
+                <i
+                  className="fa fa-times"
+                  style={{
+                    fontSize: "1.1em",
+                    backgroundColor: "transparent",
+                    color: colorPrimario,
+                  }}
+                ></i>
+              </button>
+            </div>
+          </Modal.Header>
+          <Modal.Body>
+            <form>
+              <div className="form-group">
+                <label htmlFor="desde">Desde</label>
+                <input
+                  type="date"
+                  className="form-control"
+                  id="desde"
+                  placeholder="Desde"
+                  value={desde}
+                  onChange={(e) =>
+                    setDesde(e.target.value)
+                  }
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="hasta">Hasta</label>
+                <input
+                  type="date"
+                  className="form-control"
+                  id="hasta"
+                  placeholder="Hasta"
+                  value={hasta}
+                  onChange={(e) =>
+                    setHasta(e.target.value)
+                  }
+                />
+              </div>
+              {/* Nombre de la etiqueta */}
+              <div className="form-group">
+                <label htmlFor="etiqueta">Etiqueta</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  id="etiqueta"
+                  placeholder="Etiqueta"
+                  value={etiqueta}
+                  onChange={(e) =>
+                    setEtiqueta(e.target.value)
+                  }
+                />
+              </div>
+            </form>
+          </Modal.Body>
+          <Modal.Footer>
+            <button
+              className="btn button-bm w-100"
+              onClick={ExportarContactosFiltrado}
+            >
+              Exportar contactos filtrados
+            </button>
+          </Modal.Footer>
+        </Modal>
+          
+
       </Container>
     </>
   );
