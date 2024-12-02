@@ -3,8 +3,8 @@ import { BmHttp } from 'function/util/global';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
 import {
-    Card,
-    Container
+  Card,
+  Container
 } from 'react-bootstrap';
 // import Swal from 'sweetalert2';
 
@@ -25,7 +25,7 @@ export default function Cuenta() {
       const fecha1 = moment(fecha);
       const fecha2 = moment(fechaActual);
       const dias = fecha2.diff(fecha1, 'days');
-      const diasRestantes = 15 - dias;
+      const diasRestantes = 5 - dias;
       setDiasrestante(diasRestantes);
     }
   }
