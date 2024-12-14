@@ -116,7 +116,7 @@ const LoginPage =(props)=> {
       if (status === 200) {
         if (data.status === 200) {
           let info_token = await DecodeJwt(data.token);
-          const { activar_ini, horario_ini, activar_fin, horario_fin } = info_token;
+          const { activar_ini, horario_ini, horario_fin } = info_token;
           if (!activar_ini) {
             setDatosUsuario(data.token);
             login(data.token);
@@ -140,6 +140,13 @@ const LoginPage =(props)=> {
               });
             }
           }
+        }else if(data.status === 421){
+          Swal.fire({
+            icon: 'warning',
+            title: 'Estado de cuenta',
+            html: `<p class="text-black">${data.message}</p>`,
+            confirmButtonColor: colorSecundario
+          });
         } else {
           Swal.fire({
             icon: 'error',
