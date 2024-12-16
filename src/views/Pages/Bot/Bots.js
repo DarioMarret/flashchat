@@ -18,6 +18,9 @@ import Swal from "sweetalert2";
 import ModelSdk from "views/Components/Modales/ModelSdk";
 
 
+const permiso_facebook = "pages_show_list,pages_read_engagement,pages_manage_metadata,pages_messaging,pages_read_user_content,pages_manage_ads";
+const permiso_instagram = "instagram_basic,instagram_manage_messages,instagram_manage_comments,instagram_manage_insights";
+
 function Bots(props) {
   const [show, setShow] = useState(false);
   const [opQr, setOpQr] = useState(false);
@@ -737,7 +740,7 @@ function Bots(props) {
                       appId="3176667395950990"
                       // appId="398382928426980"
                       fields="email,name,picture,accounts"
-                      scope="pages_show_list,pages_read_engagement,pages_manage_metadata,pages_read_user_content,pages_manage_ads"
+                      scope={bot.channel_id === 8 ? permiso_instagram : permiso_facebook}
                       autoLoad={true}
                       onSuccess={(response) => {
                         console.log('Login Success!', response);
