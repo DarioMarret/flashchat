@@ -303,8 +303,8 @@ function Bots(props) {
       srcname: "",
       source: "",
       flowise: false,
-      leer_mensaje: false,
-      bot_respuesta: false,
+      leer_mensaje: true,
+      bot_respuesta: true,
     });
   };
 

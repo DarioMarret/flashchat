@@ -23,8 +23,7 @@ export const colorSecundario = "#f39001";
 // validar si es produccion o desarrollo
 const bm = () => {
     let token = GetToken();
-    let url = GetTokenDecoded().cuenta.url_dominio;
-    // let url = "http://localhost:5002/"
+    let url = GetTokenDecoded() ? GetTokenDecoded().cuenta.url_dominio : "https://api.flashchat.chat/backflash/";
     if (token === null) {
         Logout()
     }
@@ -56,9 +55,7 @@ const dominio = () => {
     try {
         if(GetTokenDecoded() === null){
             return  dev ? "https://flash.codigomarret.com/backflash/" : "https://api.flashchat.chat/backflash/";
-            // return "http://localhost:5002/"
         }else{
-            // return  "http://localhost:5002/"
             return GetTokenDecoded().cuenta.url_dominio
         }
     } catch (error) {

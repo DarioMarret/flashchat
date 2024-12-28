@@ -118,6 +118,7 @@ function CardChat(props) {
     socket.emit("transferir_chat", {
       cuenta_id: GetTokenDecoded().cuenta_id,
       agente_transferir: GetTokenDecoded().nombre,
+      id_agente_transfer: GetTokenDecoded().id,
       contacto_id: data.contacto_id,
       conversacion_id: data.conversacion_id,
       agente_id: agente_id,

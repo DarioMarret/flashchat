@@ -154,7 +154,6 @@ function Equipos(props) {
     }
 
     useEffect(() => {
-
         (async () => {
             await ListarAgentes()
             await ListarEquipos()

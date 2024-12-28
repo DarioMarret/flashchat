@@ -52,7 +52,6 @@ const LoginPage =(props)=> {
   
   const AgendarDemo = async (event) => {
     event.preventDefault();
-    console.log(agenda)
     if(agenda.correo === "" || agenda.fecha === "" || agenda.telefono === "" || agenda.detalle === "" || agenda.nombre === ""){
       Swal.fire({
         title: 'Error',

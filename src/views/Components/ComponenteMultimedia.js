@@ -12,7 +12,87 @@ function ComponenteMultimedia(props) {
         // Reemplaza el texto entre asteriscos y guiones bajos con etiquetas <strong> y <em>
         let formattedText = texto.replace(boldRegex, "<strong>$1</strong>");
         formattedText = formattedText.replace(italicRegex, "<em>$1</em>");
+
+        // aqui tambien puede tener una reactions
+        if (item.reactions) {
+            return (
+                <>
+                <span style={{ whiteSpace: "pre-wrap", wordWrap: "break-word" }} dangerouslySetInnerHTML={{ __html: formattedText }} />
+                <div className="d-flex gap-2">
+                    {item.reactions.map((reaction, index) => {
+                        return (
+                            <ComponenteMultimedia key={index} item={reaction} />
+                        );
+                    })}
+                </div>
+                </>
+            );
+        }
+
+
+
         return <span style={{ whiteSpace: "pre-wrap", wordWrap: "break-word" }} dangerouslySetInnerHTML={{ __html: formattedText }} />;
+    }else if (item.type === "response") {
+        /*
+        {
+            "id": "AE0D23BBAD2E024CA1ED7C30E1AD34CC",
+            "text": "Posi",
+            "type": "response",
+            "parems": {
+                "id": "BAE5CFCD388E76A1",
+                "text": "*[Administrador]*\n es ",
+                "type": "response"
+            }
+        }
+        */
+
+        /*
+        {
+            "id": "AE0D23BBAD2E024CA1ED7C30E1AD34CC",
+            "text": "Posi",
+            "type": "response",
+            "parems": {
+                "id": "BAE5CFCD388E76A1",
+                "text": "*[Administrador]*\n es ",
+                "type": "response"
+            },
+            "reactions": [
+                {
+                    "id": "AE0D23BBAD2E024CA1ED7C30E1AD34CC",
+                    "text": "👍🏿",
+                    "type": "like"
+                }
+            ]
+        }
+        */
+        return (
+            <>
+            <div className="d-flex flex-column gap-2">
+                <div className="d-flex gap-2"
+                    style={{ cursor: "pointer",
+                        borderRadius: "5px",
+                        backgroundColor: "#f5f5f5",
+                        color: "#000",
+                    }}
+                >
+                    <ComponenteMultimedia item={item.parems} />
+                </div>
+                <span className="">{String(item.text)}</span>
+                <div className="d-flex gap-2">
+                    {item.reactions && item.reactions.map((reaction, index) => {
+                        return (
+                            <ComponenteMultimedia key={index} item={reaction} />
+                        );
+                    })}
+                </div>
+            </div>
+            </>
+        );
+
+    } else if (item.type === "like") {
+        return (
+            <span className="material-symbols-outlined">{String(item.text)}</span>
+        );
     } else if (item.type === "image") {
         // cuando se haga click en la imagen se debe abrir en un modal
         // validar si la dentro de la imagen hay texto, si hay texto mostrarlo debajo de la imagen
@@ -72,6 +152,10 @@ function ComponenteMultimedia(props) {
         );
     }else if(item.type === "location"){
         return <span className="">{String(item.text)}</span>;
+    } else if (item.type === "sticker") {
+        return (
+            <img src={item.url} alt="sticker" width={100} />
+        );
     } else {
         return null;
     }

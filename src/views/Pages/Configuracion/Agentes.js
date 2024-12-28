@@ -42,6 +42,7 @@ function Agentes(props) {
         contacto: '',
         perfil: '',
         botId: [],
+        agenteId: [],
         dias_laborales: [
             {
                 agente_id: GetTokenDecoded().id,
@@ -206,17 +207,17 @@ function Agentes(props) {
                             <i className="fas fa-trash-alt text-danger"></i>
                         </button>
                         {
-                            GetTokenDecoded().perfil === 'Administrador'
-                            ?
-                            <button className="btn btn"
-                                onClick={() => {
-                                   openModalMenu(agente)
-                                }}
-                            >
-                                {/* opciones de menu */}
-                                <i className="fas fa-ellipsis-v"></i>
-                            </button>
-                            : null
+                            // GetTokenDecoded().perfil === 'Administrador'
+                            // ?
+                            // <button className="btn btn"
+                            //     onClick={() => {
+                            //        openModalMenu(agente)
+                            //     }}
+                            // >
+                            //     {/* opciones de menu */}
+                            //     <i className="fas fa-ellipsis-v"></i>
+                            // </button>
+                            // : null
                         }
                     </div>
                 })
@@ -246,6 +247,19 @@ function Agentes(props) {
         if (status === 200) {
             setEquipos(data.data)
         }
+    }
+
+    const handleAgentes = (e) => {
+        setAgente({
+            ...agente,
+            agenteId: e
+        })
+    }
+    const handleAgentesRemove = (e) => {
+        setAgente({
+            ...agente,
+            agenteId: e,
+        });
     }
 
     const CrearAgente = async() => {
@@ -449,7 +463,14 @@ function Agentes(props) {
                 <Modal.Body>
                     <Form>
                         <Form.Group controlId="exampleForm.ControlSelect1">
-                            <Form.Label>Atencion bot</Form.Label>
+                            <Form.Label>
+                                {/* info */}
+                                <i className="fas fa-info-circle text-primary ml-1"
+                                    data-toggle="tooltip"
+                                    data-placement="top"
+                                    title="Seleccione los bot que podra atender el agente"
+                                ></i>                                
+                                Atencion bot</Form.Label>
                             <Multiselect
                                 options={bots}
                                 displayValue="name"
@@ -459,6 +480,18 @@ function Agentes(props) {
                                 selectedValues={agente.botId}
                             />
                         </Form.Group>
+
+                        {/* <Form.Group controlId="formBasicPassword">
+                            <Form.Label>Agentes</Form.Label>
+                            <Multiselect
+                                options={agentes}
+                                displayValue="name"
+                                avoidHighlightFirstOption="true"
+                                onSelect={handleAgentes}
+                                onRemove={handleAgentesRemove}
+                                selectedValues={agente.agenteId}
+                            />
+                        </Form.Group> */}
 
                         <Form.Group controlId="exampleForm.ControlInput2" className='d-flex justify-content-between'>
                             <div className='w-50 p-1'>
@@ -511,7 +544,14 @@ function Agentes(props) {
                         </Form.Group>
 
                         <Form.Group controlId="exampleForm.ControlInput4">
-                            <Form.Label>Perfil</Form.Label>
+                            <Form.Label>
+                            {/* info */}
+                            <i className="fas fa-info-circle text-primary ml-1"
+                                data-toggle="tooltip"
+                                data-placement="top"
+                                title="Seleccione un perfil para el agente"
+                            ></i>                                
+                                Perfil</Form.Label>
                             <Form.Control as="select"
                                 onChange={(e) => setAgente({...agente, perfil: e.target.value})}
                                 value={agente.perfil}
@@ -522,10 +562,18 @@ function Agentes(props) {
                             </Form.Control>
                         </Form.Group>
                         {/* horario de trabajo */}
+    
                         <Form.Group controlId="exampleForm.ControlInput5"  className='d-flex justify-content-between'>
                             <div className='w-50 p-1 flex-d justify-content-between'>
                                 <div>
-                                    <Form.Label>Hora Entrada</Form.Label>
+                                    <Form.Label>
+                                    {/* info */}
+                                    <i className="fas fa-info-circle text-primary ml-1"
+                                        data-toggle="tooltip"
+                                        data-placement="top"
+                                        title="Si activa esta opcion el agente no podra atender conversaciones antes de la hora de entrada"
+                                    ></i>
+                                        Hora Entrada</Form.Label>
                                     <Form.Control type="time"
                                         name='horario_ini'
                                         value={agente.horario_ini}
@@ -542,9 +590,18 @@ function Agentes(props) {
                                     />
                                 </div>
                             </div>
+
+                            {/* horario de salida */}
                             <div className='w-50 p-1 flex-d justify-content-between'>
                                 <div>
-                                    <Form.Label>Hora Salida </Form.Label>
+                                    <Form.Label>
+                                    {/* info */}
+                                    <i className="fas fa-info-circle text-primary ml-1"
+                                        data-toggle="tooltip"
+                                        data-placement="top"
+                                        title="Si activa esta opcion el agente no podra atender conversaciones despues de la hora de salida"
+                                    ></i>
+                                        Hora Salida </Form.Label>
                                     <Form.Control type="time"
                                         name='horario_fin'
                                         value={agente.horario_fin}
@@ -561,14 +618,42 @@ function Agentes(props) {
                                     />
                                 </div>
                             </div>
-
                         </Form.Group>
+                        {/* Auto asignacion de conversaciones */}
+                        <hr/>
+                        <Form.Group controlId="autoasignacion" className='text-center'>
+                            {/* info de lo que significa esto */}
+                            <i className="fas fa-info-circle text-primary ml-1"
+                                data-toggle="tooltip"
+                                data-placement="top"
+                                title="Si activa esta opcion el las conversaciones que lleguen a la cola de atencion se le asignaran automaticamente a los agentes que tengan esta opcion activada"
+                            ></i>
+                            <Form.Label>Auto asignacion
+                                
+                             </Form.Label>
+                            <input type="checkbox"
+                                name='cola'
+                                className=''
+                                checked={agente.cola}
+                                onChange={(e) => setAgente({...agente, cola: e.target.checked})}
+                            />
+                        </Form.Group>
+                        <hr/>
+
+                        {/* activar dias laborares */}
                         <Form.Group controlId="exampleForm.ControlInput5">
                             {/* activar dias laborares */}
                             {
                                 agente.dias_laborales.length > 0 ?
                                     <div className='w-100 p-1'>
-                                        <Form.Label>Dias laborales</Form.Label>
+                                        <Form.Label>
+                                            {/* info */}
+                                            <i className="fas fa-info-circle text-primary ml-1"
+                                                data-toggle="tooltip"
+                                                data-placement="top"
+                                                title="Seleccione los dias laborales del agente"
+                                            ></i>                                            
+                                            Dias laborales</Form.Label>
                                         <div className='d-flex justify-content-between'>
                                             <div className='d-flex justify-content-center align-items-center'>
                                                 <label className='mx-1'>Lunes</label>
