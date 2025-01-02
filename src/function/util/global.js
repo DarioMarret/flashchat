@@ -24,6 +24,7 @@ export const colorSecundario = "#f39001";
 const bm = () => {
     let token = GetToken();
     let url = GetTokenDecoded() ? GetTokenDecoded().cuenta.url_dominio : "https://api.flashchat.chat/backflash/";
+    // let url = "http://localhost:5002/";
     if (token === null) {
         Logout()
     }

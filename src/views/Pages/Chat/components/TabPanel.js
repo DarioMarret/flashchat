@@ -4,8 +4,10 @@
 import { GetTokenDecoded } from 'function/storeUsuario';
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
+import { FixedSizeList as List } from 'react-window';
 import { v4 as uuidv4 } from 'uuid';
 import { CardChat } from 'views/Pages/CardChat';
+import useWindowHeight from './useWindowHeight';
 
 function TabPanel(props) {
     const { agenteArray } = useSelector(state => state.agentes);
@@ -13,11 +15,27 @@ function TabPanel(props) {
     const { card_mensajes, misConversaciones, etiquetaSelect } = props;
     const [agentes, setAgentes] = useState(agenteArray);
     const [newCardMensajes, setNewCardMensajes] = useState([]);
+    const windowHeight = useWindowHeight();
+    const userId = GetTokenDecoded().id; // Suponiendo que tienes una función para obtener el ID del usuario actual
+
 
     // Función para cargar los mensajes
     useEffect(() => {
-        setNewCardMensajes(card_mensajes);
-    }, [card_mensajes, misConversaciones, verConversacion]);
+        let filteredMessages;
+        switch (misConversaciones) {
+            case 'Sin leer':
+                filteredMessages = card_mensajes.filter(msg => msg.agente_id === 0);
+                break;
+            case 'Mias':
+                filteredMessages = card_mensajes.filter(msg => msg.agente_id === userId);
+                break;
+            case 'Todas':
+            default:
+                filteredMessages = card_mensajes;
+                break;
+        }
+        setNewCardMensajes(filteredMessages);
+    }, [card_mensajes, misConversaciones, userId]);
 
     const ListarAgentes = async() => {
         let ag = []
@@ -31,87 +49,42 @@ function TabPanel(props) {
         setAgentes(ag)
     }
     
+    const Row = ({ index, style  }) => {
+        const item = newCardMensajes[index];
+        if (!item || !item.mensaje) return null;
+
+        return (
+            <div style={style}>
+                <CardChat
+                    key={uuidv4()}
+                    messageItem={item}
+                    // verConversacion={() => ManejarConversacion(item)}
+                />
+            </div>
+        );
+    };
+
     useEffect(() => {
         (async()=>{
             await ListarAgentes()
         })()
     }, [])
 
-    if(misConversaciones === 'Sin leer'){
-        return (
-            <div className="w-100 d-flex flex-column gap-3 box-items-chat">
-                {newCardMensajes.map((item, index) => {
-                    if(item.mensaje){
-                        if(item.agente_id === 0){
-                            return <CardChat
-                                key={index}
-                                messageItem={item} 
-                                index={ uuidv4() }
-                                // verConversacion={() => ManejarConversacion(item)}
-                            />
-                        }
-                    }
-                })}
-                <div className="offside-chat"></div>
-            </div>
-        )
-    }else if (misConversaciones === 'Mias'){
-        return (
-            <div className="w-100 d-flex flex-column gap-3 box-items-chat">
-                {newCardMensajes.map((item, index) => {
-                    if(item.mensaje){
-                        if(item.agente_id === GetTokenDecoded().id){
-                            return <CardChat 
-                                key={index}
-                                messageItem={item} 
-                                index={uuidv4()}
-                                // verConversacion={() => ManejarConversacion(item)}
-                            />
-                        }
-                    }
-                })}
-                <div className="offside-chat"></div>
-            </div>
-        )
-    }else if (misConversaciones === 'Etiquetas' && etiquetaSelect !== ''){
-        return (
-            <div className="w-100 d-flex flex-column gap-3 box-items-chat">
-                {newCardMensajes.map((item, index) => {
-                    if(item.mensaje){
-                        console.log(item.etiquetas_estado)
-                        if(item.etiquetas_estado && item.etiquetas_estado.length > 0 && item.etiquetas_estado.some(etiqueta => etiqueta.etiquetas === etiquetaSelect)){
-                            return <CardChat 
-                                key={index}
-                                messageItem={item} 
-                                index={uuidv4()}
-                                // verConversacion={() => ManejarConversacion(item)}
-                            />
-                        }
-                    }
-                })}
-                <div className="offside-chat"></div>
-            </div>
-        )
-    }else {
-        return (
-            <div className="w-100 d-flex flex-column gap-3 box-items-chat">
-                {newCardMensajes.map((item, index) => {
-                    if(item.mensaje){
-                        return (
-                            <CardChat 
-                                key={index}
-                                messageItem={item} 
-                                index={uuidv4()}
-                                // verConversacion={() => ManejarConversacion(item)}
-                            />
-                        );
-                    }
-                })}
-                <div className="offside-chat"></div>
-            </div>
-        )
-    }
-
+    return (
+        <div className="w-100 d-flex flex-column gap-3 box-items-chat">
+            <List
+                height={windowHeight - 150} // Ajusta '150' según los elementos fijos en tu página
+                // height={500} 
+                width='100%'
+                itemSize={200}
+                itemCount={newCardMensajes.length}
+                itemData={newCardMensajes}
+            >
+                {Row}
+            </List>
+            <div className="offside-chat"></div>
+        </div>
+    );
 }
 
 export default TabPanel;

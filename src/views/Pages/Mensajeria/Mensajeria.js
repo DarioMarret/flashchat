@@ -58,7 +58,7 @@ export default function Mensajeria() {
     const { data } = await BmHttp().get(`cuenta_plan/${GetTokenDecoded().cuenta_id}`)
     // verificar si el plan asignado es el 1 osea el plan gratuito y si la fecha ya expiro
     // a la fecha es mayor a 15 dias 
-    if(data.data[0].plan_id === 1 && moment(data.data[0].fecha) <= moment().subtract(15, 'days')){
+    if(data.data[0].plan_id === 1 && moment(data.data[0].fecha) <= moment().subtract(5, 'days')){
       setDisabledInput(true)
       Swal.fire({
         title: 'Plan gratuito expirado',

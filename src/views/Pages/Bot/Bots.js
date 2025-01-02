@@ -351,7 +351,7 @@ function Bots(props) {
         setLinkQr(data.data.qr)
       }
     } catch (error) {
-      console.log(error)      
+      console.log(error)
     }
   }
 
