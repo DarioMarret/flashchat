@@ -1,4 +1,5 @@
 import { AudioRecorder } from 'react-audio-voice-recorder';
+import { handlePaste } from '../../service/ultilInputs';
 
 export default function InputChat({inputStr, setInputStr, EnvianMensaje, linkPreview, CargarAvatar, colorPrimario, disabledInput, setShowRespuesta, setShowPicker, setTypeInput, showRespuesta, addAudioElement, openGrande, setOpenGrande}) {
   return (
@@ -12,6 +13,13 @@ export default function InputChat({inputStr, setInputStr, EnvianMensaje, linkPre
         placeholder="Escribir ..."
         disabled={disabledInput}
         value={inputStr}
+        onPaste={async (event)=>{
+          const rest = await handlePaste(event);
+          if(rest){
+            setInputStr(rest.content);
+            setTypeInput(rest.type);
+          }
+        }}
         onChange={(e) => {
           setInputStr(e.target.value)
         }}
@@ -47,6 +55,9 @@ export default function InputChat({inputStr, setInputStr, EnvianMensaje, linkPre
           }
         </div>
       )}
+      {
+        
+      }
     </div>
 
     <div

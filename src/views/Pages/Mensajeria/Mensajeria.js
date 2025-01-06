@@ -30,6 +30,7 @@ import { fetchMensajeriaCard } from '../../../redux/Mensajeria/mensajeria.servic
 import CardTab from "./components/CardTab/CardTab";
 import InfoHistorialContacto from "./components/InfoContacto/InfoHistorialContacto";
 import { EmiittingMensaje, EmittMesnaje, EventoAsignacionAgente, GetActivaConversacion, random } from "./service/Eventos";
+import { handlePaste } from "./service/ultilInputs";
 
 moment.locale("es");
 var cardMensage = [];
@@ -930,6 +931,13 @@ export default function Mensajeria() {
                   placeholder="Escribir ..."
                   disabled={disabledInput}
                   value={inputStr}
+                  onPaste={async (event)=>{
+                    const rest = await handlePaste(event);
+                    if(rest){
+                      setInputStr(rest.content);
+                      setTypeInput(rest.type);
+                    }
+                  }}
                   onChange={(e) => {
                     setInputStr(e.target.value)
                   }}
