@@ -909,6 +909,7 @@ export default function Mensajeria() {
                               }}
                               onClick={() => {
                                 setInputStr(item.mensaje);
+                                setTypeInput(item.type)
                                 setShowRespuesta(false);
                               }}
                             >

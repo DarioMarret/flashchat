@@ -28,7 +28,8 @@ function MensajesAutomaticos(props) {
         id: 0,
         mensaje: '',
         cuenta_id: GetTokenDecoded().cuenta_id,
-        estado: ''
+        estado: '',
+        type: ''
     })
 
     const [mensajes, setMensajes] = useState([])
@@ -57,6 +58,7 @@ function MensajesAutomaticos(props) {
             id: mensaje.id,
             cuenta_id: GetTokenDecoded().cuenta_id,
             mensaje: mensaje.mensaje,
+            type: mensaje.type,
             estado: mensaje.estado
         }
         const { status } = await BmHttp().put(url, data)
@@ -88,6 +90,7 @@ function MensajesAutomaticos(props) {
             const url = `/mensaje_predeterminado`
             const data = {
                 mensaje: mensaje.mensaje,
+                type: mensaje.type,
                 cuenta_id: GetTokenDecoded().cuenta_id
             }
             const { status } = await BmHttp().post(url, data)
@@ -98,6 +101,13 @@ function MensajesAutomaticos(props) {
                     title: 'Mensaje Creado',
                     showConfirmButton: false,
                     timer: 1500
+                })
+                setMensaje({
+                    id: 0,
+                    mensaje: '',
+                    cuenta_id: GetTokenDecoded().cuenta_id,
+                    estado: '',
+                    type: ''
                 })
             }
         }else{
@@ -115,6 +125,13 @@ function MensajesAutomaticos(props) {
                     title: 'Mensaje Actualizado',
                     showConfirmButton: false,
                     timer: 1500
+                })
+                setMensaje({
+                    id: 0,
+                    mensaje: '',
+                    cuenta_id: GetTokenDecoded().cuenta_id,
+                    estado: '',
+                    type: ''
                 })
                 handleClose()
             }
@@ -174,6 +191,12 @@ function MensajesAutomaticos(props) {
                                 <th scope="col-9"
                                     className="text-start text-white"
                                 >Mensaje</th>
+
+                                {/* type */}
+                                <th scope='col-2'
+                                    className="text-center text-white"
+                                >Tipo</th>
+
                                 <th scope="col-2"
                                     className="text-center text-white"
                                 >Acciones</th>
@@ -183,6 +206,7 @@ function MensajesAutomaticos(props) {
                             {mensajes.map((item) => (
                                 <tr key={item.id}>
                                     <td className="text-start">{item.mensaje}</td>
+                                    <td className="text-start">{item.type}</td>
                                     <td className="text-center d-flex justify-content-center align-items-center gap-2 m-0 p-0" >
                                         <button className="btn btn m-0" onClick={()=>handleShow(item)}><i className="fas fa-edit"></i></button>
                                         <button className="btn btn m-0" onClick={()=>EliminarMensaje(item.id)}><i className="fas fa-trash-alt text-danger"></i></button>
@@ -222,18 +246,44 @@ function MensajesAutomaticos(props) {
                     <Modal.Body>
                         <form>
                             <div className="form-group">
-                                <label htmlFor="mensaje">Mensaje</label>
-                                <textarea className="form-control" id="mensaje" 
-                                value={mensaje.mensaje}
-                                cols={3}
-                                rows={10}
-                                style={{
-                                    // resize: 'none',
-                                    overflow: 'auto',
-                                    height: 'auto'
-                                }}
-                                onChange={(e) => setMensaje({...mensaje, mensaje: e.target.value})}
-                                ></textarea>
+                                <label  htmlFor="typo">Tipo</label>
+                                <select className="form-control" id="typo"
+                                    value={mensaje.type}
+                                    onChange={(e) => setMensaje({...mensaje, type: e.target.value})}
+                                >
+                                    <option value="">Seleccione tipo de mensaje</option>
+                                    <option value="text">Texto</option>
+                                    <option value="image">Image</option>
+                                    <option value="video">Video</option>
+                                </select>
+
+                                {
+                                    mensaje.type === 'image' || mensaje.type === 'video'
+                                    ? <div className="form-group">
+                                        <label htmlFor="media">Media</label>
+                                        <input type="text" className="form-control" id="mensaje" placeholder='Ingrese la url de la imagen o video'
+                                        value={mensaje.mensaje}
+                                        onChange={(e) => setMensaje({...mensaje, mensaje: e.target.value})}
+                                        />
+                                     </div>
+                                    : null
+                                }
+                                {
+                                    mensaje.type === 'text' ? <div className="form-group">
+                                        <label htmlFor="mensaje">Mensaje</label>
+                                        <textarea className="form-control" id="mensaje" 
+                                        value={mensaje.mensaje}
+                                        cols={3}
+                                        rows={10}
+                                        style={{
+                                            // resize: 'none',
+                                            overflow: 'auto',
+                                            height: 'auto'
+                                        }}
+                                        onChange={(e) => setMensaje({...mensaje, mensaje: e.target.value})}
+                                        ></textarea>
+                                    </div> : null
+                                }
                             </div>
                         </form>
                     </Modal.Body>

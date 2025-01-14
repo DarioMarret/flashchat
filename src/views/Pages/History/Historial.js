@@ -15,8 +15,8 @@ function Historial(props) {
     const [verConversacion, setVerConversacion] = useState([])
     const [conversacionHistorial, setConversacionHistorial] = useState([])
     const [filtro, setFiltro] = useState({
-        fecha_desde: "",
-        fecha_hasta: "",
+        fecha_desde: moment().subtract(15, 'days').format('YYYY-MM-DD'),
+        fecha_hasta: moment().format('YYYY-MM-DD'),
         conversacion_id: "",
         agente_id: "",
         equipo_id: "",
@@ -126,6 +126,7 @@ function Historial(props) {
                 setMensajeHistorial("Buscando historial...")
                 // si se selecciona fecha desde y fecha hasta
                 const { data, status } = await BmHttp().post(`conversacion_historial_filter`, {
+                // const { data, status } = await axios.post(`http://0.0.0.0:5002/conversacion_historial_filter`, {
                     cuenta_id: GetTokenDecoded().cuenta_id,
                     desde: moment(filtro.fecha_desde).format('YYYY-MM-DD'),
                     hasta: moment(filtro.fecha_hasta).format('YYYY-MM-DD'),
@@ -208,8 +209,10 @@ function Historial(props) {
                             <p>Fecha desde</p>
                             <input type="date"
                                 // desde 3 meses atras hasta hoy
+                                value={filtro.fecha_desde}
                                 max={moment().format('YYYY-MM-DD')}
-                                min={moment().subtract(3, 'months').format('YYYY-MM-DD')}
+                                // minimum 7 dias atras
+                                min={moment().subtract(15, 'days').format('YYYY-MM-DD')}
                                 className='form-control'
                                 onChange={(e) => setFiltro({ ...filtro, fecha_desde: e.target.value })}
                             />
@@ -218,8 +221,9 @@ function Historial(props) {
                             <p>Fecha hasta</p>
                             <input type="date"
                                 // desde 3 meses atras hasta hoy
+                                value={filtro.fecha_hasta}
                                 max={moment().format('YYYY-MM-DD')}
-                                min={moment().subtract(3, 'months').format('YYYY-MM-DD')}
+                                min={Math.max(moment(filtro.fecha_desde).format('YYYY-MM-DD'), moment().subtract(15, 'days').format('YYYY-MM-DD'))}
                                 className='form-control'
                                 onChange={(e) => setFiltro({ ...filtro, fecha_hasta: e.target.value })}
                             />

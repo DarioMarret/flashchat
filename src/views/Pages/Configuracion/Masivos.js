@@ -941,10 +941,7 @@ function Masivos(props) {
 
         <div className="w-full d-flex flex-column flex-md-row row">
           {masivos.map((item, index) => (
-            <div
-              className="col-12 col-md-6 d-flex flex-column mb-3"
-              // style={{ width: '40%' }}
-            >
+            <div className="col-12 col-md-6 d-flex flex-column mb-3">
               <div className="p-4 pt-3 pb-2 bg-white rounded shadow">
                 <Card.Body>
                   <Row>
