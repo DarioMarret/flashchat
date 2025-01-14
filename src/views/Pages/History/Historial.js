@@ -15,7 +15,7 @@ function Historial(props) {
     const [verConversacion, setVerConversacion] = useState([])
     const [conversacionHistorial, setConversacionHistorial] = useState([])
     const [filtro, setFiltro] = useState({
-        fecha_desde: moment().subtract(15, 'days').format('YYYY-MM-DD'),
+        fecha_desde: moment().subtract(5, 'days').format('YYYY-MM-DD'),
         fecha_hasta: moment().format('YYYY-MM-DD'),
         conversacion_id: "",
         agente_id: "",
@@ -96,6 +96,16 @@ function Historial(props) {
     }
 
     const BuscarConversacionFiltro  = async() => {
+        if(filtro.nombreunico === "Selecciona la conexion" || filtro.nombreunico === ""){
+            Swal.fire({
+                icon: 'info',
+                title: 'Oops...',
+                text: 'Debes seleccionar la conexion',
+                timer: 2000,
+                confirmButtonColor: '#3F98F8'
+            })
+            return null
+        }
         if(filtro.fecha_desde === "" && filtro.fecha_hasta === "" && filtro.conversacion_id === "" && filtro.agente_id === "" && filtro.equipo_id === "" && filtro.nombreunico === ""){
             Swal.fire({
                 icon: 'info',
@@ -104,6 +114,7 @@ function Historial(props) {
                 timer: 2000,
                 confirmButtonColor: '#3F98F8'
             })
+            return null
         }else if(filtro.fecha_desde !== "" && filtro.fecha_hasta === ""){
             Swal.fire({
                 icon: 'info',
@@ -112,6 +123,7 @@ function Historial(props) {
                 timer: 2000,
                 confirmButtonColor: '#3F98F8'
             })
+            return null
         }else if(filtro.fecha_desde === "" && filtro.fecha_hasta !== ""){
             Swal.fire({
                 icon: 'info',
@@ -120,6 +132,7 @@ function Historial(props) {
                 timer: 2000,
                 confirmButtonColor: '#3F98F8'
             })
+            return null
         }else{
             try {
                 setModal(true)
