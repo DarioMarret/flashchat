@@ -207,17 +207,17 @@ function Agentes(props) {
                             <i className="fas fa-trash-alt text-danger"></i>
                         </button>
                         {
-                            // GetTokenDecoded().perfil === 'Administrador'
-                            // ?
-                            // <button className="btn btn"
-                            //     onClick={() => {
-                            //        openModalMenu(agente)
-                            //     }}
-                            // >
-                            //     {/* opciones de menu */}
-                            //     <i className="fas fa-ellipsis-v"></i>
-                            // </button>
-                            // : null
+                            GetTokenDecoded().perfil === 'Administrador'
+                            ?
+                            <button className="btn btn"
+                                onClick={() => {
+                                   openModalMenu(agente)
+                                }}
+                            >
+                                {/* opciones de menu */}
+                                <i className="fas fa-ellipsis-v"></i>
+                            </button>
+                            : null
                         }
                     </div>
                 })

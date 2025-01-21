@@ -381,6 +381,8 @@ const LoginPage =(props)=> {
                       </button>
   
                       <div className="mt-2 d-flex flex-column justify-content-center align-items-center">
+                        {/* terminos y condicione  */}
+                        <a className="text-link" href="https://flashchat.chat/politicas" target="_blank" rel="noreferrer">Términos y condiciones</a>
                         <span className="text-span">- No tienes cuenta - </span>
                         <a className="text-link" onClick={() => props.setEstados(false)}>Regístrate</a>
                       </div>
