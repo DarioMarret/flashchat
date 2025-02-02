@@ -64,7 +64,8 @@ function ModalGooglePeople(props) {
                         Esto te permitirá tener una lista de contactos actualizada y poder
                         enviar mensajes a través de la plataforma.
                         reduccionendo las posibilidades de que tus mensajes sean marcados como spam o el bloqueo temporal de tu cuenta Whatsapp qr.
-                   </p> 
+                   </p>
+                   <a className="text-sm text-center text-blue-600 hover:underline" href="https://flashchat.chat/politicas" target="_blank" rel="noreferrer">Lea los Términos y condiciones</a>
                    <e>
                         Para continuar, por favor inicia sesión con tu cuenta de Google.
                    </e>
