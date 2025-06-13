@@ -185,6 +185,7 @@ function Masivos(props) {
         let text = "";
         listPlantillas.map((item) => {
           if (item.id === e.target.value) {
+            console.log("Item: ", item);
             item.components.map((item) => {
               text += item.text ? item.text : "";
             });
@@ -681,7 +682,7 @@ function Masivos(props) {
   const GuardarEnvio = async (e) => {
     e.preventDefault();
     let info = null;
-    if (envio.channel_id === 4) {
+    if (envio.channel_id === 4 || envio.channel_id === 3) {
       info = handleCustomPlantilla();
     } else {
       info = {};

@@ -11,7 +11,7 @@ export const etiquetas = "flash_etiquetas:";
 export const conversacion_activa = "flash_conversacion_activa";
 export const conversacion_monitoreo = "flash_conversacion_monitoreo";
 export const recordatorio_store = "flash_recordatorio";
-export const dev = false;
+export const dev = true; // true = desarrollo, false = produccion
 export const proxy = "backflash"
 export const plantillas_360 = "https://waba.360dialog.io/v1/configs/templates?offset=0&limit=1000&sort=business_templates.name&filters={}"
 export const host_360 = "https://waba.360dialog.io/v1/messages"
