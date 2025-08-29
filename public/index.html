@@ -1,20 +1,59 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" 
+  className="overflow-hidden">
   <head>
     <meta charset="utf-8" />
-    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" 
+      type="image/x-icon"
+    />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#000000" />
     <meta
       name="description"
-      content="Web site created using create-react-app"
+      content="Plataforma de chat en tiempo real para la comunicación entre usuarios de la comunidad de Flash. conecta con tus clientes y proveedores de servicios de manera rapida y sencilla. integracion con facebook, instagram, whatsapp, telegram"
     />
-    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
+    <link rel="apple-touch-icon" href="%PUBLIC_URL%/favicon.ico" />
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"></noscript>
+    
+    <meta name="facebook-domain-verification" content="re53pssz1yix7gw93hqijubcmgdwvi" />
     <title>FlashChat</title>
+    <!-- palabras clave -->
+    <meta name="keywords" content="chat, chat en tiempo real, chat en vivo, chat en linea, 
+    chat para web, chat para facebook, chat para instagram, chat para whatsapp, 
+    chat para telegram, chat para email, chat para webchat, 
+    chat para mikrotik, chat para ordenfacil, 
+    chat para clientes, chat para proveedores, 
+    chat para empresas, chat para negocios, 
+    chat para comercios, chat para tiendas, chat para restaurantes, 
+    chat para hoteles, chat para bares, chat para cafeterias, chat para panaderias, 
+    chat para pastelerias, chat para supermercados, chat para farmacias, 
+    chat para ferreterias, chat para tiendas de ropa, 
+    chat para tiendas de zapatos, chat para tiendas de celulares,
+    chat para tiendas de computadoras, chat para tiendas de electrodomesticos,
+    chat para tiendas de muebles, chat para tiendas de decoracion, chat para
+    tiendas de juguetes, chat para tiendas de deportes, chat para tiendas de mascotas, 
+    chat para tiendas de autos, chat para tiendas de motos, chat para tiendas de bicicletas, 
+    chat para tiendas de repuestos, chat para tiendas de herramientas, chat para tiendas de jardineria, 
+    chat para tiendas de pinturas, chat para tiendas de librerias, chat para tiendas de papelerias, 
+    chat para tiendas de cosmeticos, chat para tiendas de perfumerias, chat para tiendas de joyas, 
+    chat para tiendas de relojes, chat para tiendas de lenceria, chat para tiendas de moda, chat para tiendas de belleza, chat para tiendas de salud, 
+    chat para tiendas de deportes, chat para tiendas de entretenimiento, chat para tiendas de ocio, chat para tiendas de turismo, chat para tiendas de viajes, 
+    chat para tiendas de hoteles, chat para tiendas de restaurantes, chat para tiendas de bares, chat para tiendas de cafeterias, chat para tiendas de panaderias, 
+    chat para tiendas de pastelerias, chat para tiendas de supermercados, chat para tiendas de farmacias, chat para tiendas de ferreterias, chat para tiendas de tiendas de",
+    />
   </head>
-  <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
+  <body style="overflow-x: hidden;">
+    <noscript>
+      FlashChat es una plataforma de chat en tiempo real que facilita la comunicación entre usuarios y cliente. 
+      Conéctate con clientes y proveedores de manera rápida y sencilla. 
+      Compatible con WhatsApp, Telegram, email, webchat, Mikrotik y OrdenFacil para una integración fluida y eficiente.
+  </noscript>
     <div id="root"></div>
+    
+    <script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js"></script>
+    <script async defer crossorigin="anonymous" src="https://connect.facebook.net/es_ES/sdk.js#xfbml=1&version=v18.0&appId=3176667395950990&autoLogAppEvents=1" nonce="PGyk9SsQ"></script>
+    <script async defer src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   </body>
 </html>

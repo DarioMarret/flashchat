@@ -1,0 +1,430 @@
+import { GetTokenDecoded } from 'function/storeUsuario';
+import { BmHttp } from 'function/util/global';
+import moment from 'moment';
+import { useEffect, useState } from 'react';
+import { Modal } from 'react-bootstrap';
+import { Card, Col, Container } from 'reactstrap';
+import Swal from 'sweetalert2';
+import ModalHistorial from 'views/Components/Modales/ModalHistorial';
+
+function Historial(props) {
+    const [agentes, setAgentes] = useState([])
+    const [equipos, setEquipos] = useState([])
+    const [bots, setBots] = useState([])
+    const [mensaje_historial, setMensajeHistorial] = useState(null)
+    const [verConversacion, setVerConversacion] = useState([])
+    const [conversacionHistorial, setConversacionHistorial] = useState([])
+    const [filtro, setFiltro] = useState({
+        fecha_desde: moment().subtract(5, 'days').format('YYYY-MM-DD'),
+        fecha_hasta: moment().format('YYYY-MM-DD'),
+        conversacion_id: "",
+        agente_id: "",
+        equipo_id: "",
+        nombreunico: ""
+    })
+
+    const [modal, setModal] = useState(false)
+    const [showHistorial, setShowHistorial] = useState(false)
+    const onHideHistorial = () => setShowHistorial(false)
+
+
+    const ListarAgentes = async () => {
+        const url = `agentes/${GetTokenDecoded().cuenta_id}`
+        const { data, status } = await BmHttp().get(url)
+        if (status === 200) {
+            let ag = []
+            data.data.map((agente, index) => {
+                ag.push({
+                    id: agente.id,
+                    cuenta_id: agente.cuenta_id,
+                    nombre: agente.nombre,
+                })
+            })
+            setAgentes(ag)
+        } else {
+            setAgentes([])
+        }
+    }
+
+    const ListarEquipos = async () => {
+        let url = 'equipo/' + GetTokenDecoded().cuenta_id
+        const { data, status } = await BmHttp().get(url)
+        if (status === 200) {
+            setEquipos(data.data)
+        }
+    }
+
+    const ListarBots = async () => {
+        const url = `bots/${GetTokenDecoded().cuenta_id}`;
+        const { data, status } = await BmHttp().get(url);
+        if (status === 200) {
+            setBots(data.data);
+        }
+    };
+
+
+    const OntenerConversacion = async (items) => {
+        const { data, status } = await BmHttp().post(`conversacion_activa`, {
+            cuenta_id: GetTokenDecoded().cuenta_id,
+            conversacion_id: items.conversacion_id,
+            equipo_id: items.equipo_id,
+            channel_id: items.channel_id,
+            contacto_id: items.contacto_id,
+            agente_id: items.agente_id,
+            nombreunico: items.nombreunico,
+        })
+        setVerConversacion(data)
+        setShowHistorial(true)
+    }
+
+    const NombreAgente = (id) => {
+        let nombre = agentes.filter((item) => item.id === id)
+        if (nombre.length > 0) {
+            return nombre[0].nombre
+        } else {
+            return "Sin agente"
+        }
+    }
+
+    const Conexion = (id) => {
+        let nombre = bots.filter((item) => item.nombreunico === id)
+        if (nombre.length > 0) {
+            return nombre[0].nombre_bot
+        } else {
+            return "Sin conexion"
+        }
+    }
+
+    const BuscarConversacionFiltro  = async() => {
+        if(filtro.nombreunico === "Selecciona la conexion" || filtro.nombreunico === ""){
+            Swal.fire({
+                icon: 'info',
+                title: 'Oops...',
+                text: 'Debes seleccionar la conexion',
+                timer: 2000,
+                confirmButtonColor: '#3F98F8'
+            })
+            return null
+        }
+        if(filtro.fecha_desde === "" && filtro.fecha_hasta === "" && filtro.conversacion_id === "" && filtro.agente_id === "" && filtro.equipo_id === "" && filtro.nombreunico === ""){
+            Swal.fire({
+                icon: 'info',
+                title: 'Oops...',
+                text: 'Debes seleccionar al menos fecha desde o fecha hasta',
+                timer: 2000,
+                confirmButtonColor: '#3F98F8'
+            })
+            return null
+        }else if(filtro.fecha_desde !== "" && filtro.fecha_hasta === ""){
+            Swal.fire({
+                icon: 'info',
+                title: 'Oops...',
+                text: 'Debes seleccionar fecha hasta',
+                timer: 2000,
+                confirmButtonColor: '#3F98F8'
+            })
+            return null
+        }else if(filtro.fecha_desde === "" && filtro.fecha_hasta !== ""){
+            Swal.fire({
+                icon: 'info',
+                title: 'Oops...',
+                text: 'Debes seleccionar fecha desde',
+                timer: 2000,
+                confirmButtonColor: '#3F98F8'
+            })
+            return null
+        }else{
+            try {
+                setModal(true)
+                setMensajeHistorial("Buscando historial...")
+                // si se selecciona fecha desde y fecha hasta
+                const { data, status } = await BmHttp().post(`conversacion_historial_filter`, {
+                // const { data, status } = await axios.post(`http://0.0.0.0:5002/conversacion_historial_filter`, {
+                    cuenta_id: GetTokenDecoded().cuenta_id,
+                    desde: moment(filtro.fecha_desde).format('YYYY-MM-DD'),
+                    hasta: moment(filtro.fecha_hasta).format('YYYY-MM-DD'),
+                    conversacion_id: filtro.conversacion_id === "" || filtro.conversacion_id === 0 ? null : parseInt(filtro.conversacion_id),
+                    agente_id: filtro.agente_id === "" || filtro.agente_id === 0 ? null : parseInt(filtro.agente_id),
+                    equipo_id: filtro.equipo_id === "" || filtro.equipo_id === 0 ? null : parseInt(filtro.equipo_id),
+                    nombreunico: filtro.nombreunico === "" || filtro.nombreunico === 0 ? null : filtro.nombreunico
+                })
+                if(data && data.status === 200){
+                    // setConversacionHistorial(data.data)
+                    //sacar solo la primera conversacion de la lista de cada conversacion_id que se ata a el contacto
+                    let conversaciones = []
+                    data.data.map((item, index) => {
+                        setMensajeHistorial('Filtrando conversaciones...')
+                        if (conversaciones.length === 0) {
+                            conversaciones.push(item)
+                        } else {
+                            let existe = conversaciones.filter((conversacion) => conversacion.conversacion_id === item.conversacion_id && conversacion.contacto_id === item.contacto_id)
+                            if (existe.length === 0) {
+                                conversaciones.push(item)
+                            }
+                        }
+                    })
+                    // anadir un campo de que calcule el tiempo transcurrido desdel primer mensaje hasta el ultimo de cada
+                    // conversacion
+                    conversaciones.map((item, index) => {
+                        setMensajeHistorial('Calculando tiempo de atencion...')
+                        let fecha = moment(item.createdAt).format('YYYY-MM-DD HH:mm:ss')
+                        let ultimamensaje = data.data.filter((conversacion) => conversacion.conversacion_id === item.conversacion_id && conversacion.contacto_id === item.contacto_id)
+                        let fecha2 = moment(ultimamensaje[ultimamensaje.length - 1].updatedAt).format('YYYY-MM-DD HH:mm:ss')
+                        let tiempo = moment(fecha2).diff(moment(fecha), 'minutes')
+                        if (tiempo < 0) {
+                            tiempo = tiempo * -1
+                        }
+                        item.tiempo = tiempo
+                    })
+                    setConversacionHistorial(conversaciones)
+                    setModal(false)
+                    setMensajeHistorial(null)
+                }else{
+                    setConversacionHistorial([])
+                    setMensajeHistorial("No se encontraron conversaciones")
+                    setTimeout(() => {
+                        setMensajeHistorial(null)
+                        setModal(false)
+                    }, 2000)
+                }
+            } catch (error) {
+                console.log("error: ",error)
+                setMensajeHistorial("Lo sentimos, error al buscar historial")
+                setTimeout(() => {
+                    setModal(false)
+                    setMensajeHistorial(null)
+                }, 2000)
+                return null
+            }
+        }
+    }
+
+    useEffect(() => {
+        (async () => {
+            await ListarAgentes()
+            await ListarEquipos()
+            await ListarBots()
+            // await ObtenerContactos()
+            // await ListarCardContacto()
+        })()
+    }, [])
+
+    return (
+        <Container fluid>
+            <Card
+                    className="p-3 mb-3 card-stats border-0 shadow"
+                >
+                    <p>Filtro</p>
+                    <Col
+                        className="d-flex"
+                    >
+                        <div className='mx-3 w-100'>
+                            <p>Fecha desde</p>
+                            <input type="date"
+                                // desde 3 meses atras hasta hoy
+                                value={filtro.fecha_desde}
+                                max={moment().format('YYYY-MM-DD')}
+                                // minimum 7 dias atras
+                                min={moment().subtract(15, 'days').format('YYYY-MM-DD')}
+                                className='form-control'
+                                onChange={(e) => setFiltro({ ...filtro, fecha_desde: e.target.value })}
+                            />
+                        </div>
+                        <div className='mx-3 w-100'>
+                            <p>Fecha hasta</p>
+                            <input type="date"
+                                // desde 3 meses atras hasta hoy
+                                value={filtro.fecha_hasta}
+                                max={moment().format('YYYY-MM-DD')}
+                                min={Math.max(moment(filtro.fecha_desde).format('YYYY-MM-DD'), moment().subtract(15, 'days').format('YYYY-MM-DD'))}
+                                className='form-control'
+                                onChange={(e) => setFiltro({ ...filtro, fecha_hasta: e.target.value })}
+                            />
+                        </div>
+                        <div className='mx-3 w-100'>
+                            <p># Conversacion</p>
+                            <input type="text12"
+                                className='form-control'
+                                onChange={(e) => setFiltro({ ...filtro, conversacion_id: e.target.value })}
+                            />
+                        </div>
+                        <div className='mx-3 w-100'>
+                            <p>Agente</p>
+                            <select
+                                className='form-control'
+                                onChange={(e) => setFiltro({ ...filtro, agente_id: e.target.value })}
+                            >
+                                <option>Selecciona el agente</option>
+                                {
+                                    agentes.map((agente, index) => {
+                                        return (
+                                            <option key={index} value={agente.id}>{agente.nombre}</option>
+                                        )
+                                    })
+                                }
+                            </select>
+                        </div>
+                        <div className='mx-3 w-100'>
+                            <p>Equipo</p>
+                            <select
+                                className='form-control'
+                                onChange={(e) => setFiltro({ ...filtro, equipo_id: e.target.value })}
+                            >
+                                <option>Selecciona el equipo</option>
+                                {
+                                    equipos.map((equipo, index) => {
+                                        return (
+                                            <option key={index} value={equipo.id}>{equipo.equipos}</option>
+                                        )
+                                    })
+                                }
+                            </select>
+                        </div>
+                        <div className='mx-3 w-100'>
+                            <p>Conexion</p>
+                            <select
+                                className='form-control'
+                                onChange={(e) => setFiltro({ ...filtro, nombreunico: e.target.value })}
+                            >
+                                <option>Selecciona la conexion</option>
+                                {
+                                    bots.map((bot, index) => {
+                                        return (
+                                            <option key={index} value={bot.nombreunico}>{bot.nombre_bot}</option>
+                                        )
+                                    })
+                                }
+                            </select>
+                        </div>
+                    </Col>
+                    <Col className='p-3 '>
+                        <button
+                            className="button-bm shadow"
+                            onClick={() => BuscarConversacionFiltro()}
+                        >Buscar</button>
+                    </Col>
+                </Card> 
+                {
+                    conversacionHistorial.length > 0 ?
+                        <Card className="p-3 mb-3 card-stats border-0 shadow">
+                            <div
+                                className="d-flex justify-content-between"
+                            >
+                                <p>Historial</p>
+                                <p>Cantidad: {conversacionHistorial.length}</p>
+                            </div>
+                            <div className="table-responsive">
+                                <table className="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Avatar</th>
+                                            <th>Fecha</th>
+                                            <th>Tiempo atencion</th>
+                                            <th>Conversacion</th>
+                                            <th>Contacto</th>
+                                            <th>Agente</th>
+                                            <th>Equipo</th>
+                                            <th>Conexion</th>
+                                            <th>Estado</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {
+                                            conversacionHistorial.map((item, index) => {
+                                                return (
+                                                    <tr key={index}>
+                                                        <td
+                                                            style={{
+                                                                display: "flex",
+                                                                flexDirection: "column",
+                                                                justifyContent: "center",
+                                                                alignItems: "center",
+                                                            }}
+                                                        >
+                                                                <img
+                                                                    src={item.avatar}
+                                                                    alt="avatar"
+                                                                    className="rounded-circle"
+                                                                    width="40"
+                                                                    style={{
+                                                                        minWidth: "40px",
+                                                                        minHeight: "40px",
+                                                                    }}
+                                                                />
+
+                                                        </td>
+                                                        <td>{moment(item.createdAt).format('YYYY-MM-DD HH:mm:ss')}</td>
+                                                        <td>
+                                                            <span
+                                                                className={item.tiempo > 60 ? "text-danger" : "text-success"}
+                                                            >
+                                                            {
+                                                                item.tiempo === 0 ?
+                                                                "Menos de un minuto"
+                                                                :
+                                                                item.tiempo + " minutos"
+                                                            }
+                                                            </span>
+                                                        </td>
+                                                        <td>{item.conversacion_id}</td>
+                                                        <td>
+                                                            <span>{item.nombre}</span>
+                                                            <br />
+                                                            <span
+                                                                style={{
+                                                                    cursor: "pointer",
+                                                                    color: "#3F98F8",
+                                                                    fontSize: "12px",
+                                                                }}
+                                                            >+{item.telefono}</span>
+                                                        </td>
+                                                        <td>{NombreAgente(item.agente_id)}</td>
+                                                        <td>{item.equipo_id}</td>
+                                                        <td>{Conexion(item.nombreunico)}</td>
+                                                        <td>{item.estado}</td>
+                                                        <td>
+                                                            <button
+                                                                className="button-bm"
+                                                                onClick={() => OntenerConversacion(item)}
+                                                            >Ver</button>
+                                                        </td>
+                                                    </tr>
+                                                )
+                                            })
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </Card>
+                        : null
+                }
+            <Modal
+                className="modal-dialog-centered"
+                show={modal}
+            >
+                {/* <div className="modal-header">
+                    <h5 className="modal-title" id="exampleModalLabel">
+                        Cargando...
+                    </h5>
+                </div> */}
+                <div className="modal-body">
+                    <div className='w-100 text-center'>
+                        <p>{mensaje_historial}</p>
+                    </div>
+                    <div className="d-flex justify-content-center">
+                        <div className="spinner-border text-primary" role="status">
+                            <span className="sr-only">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </Modal>
+            <ModalHistorial
+                showHistorial={showHistorial}
+                onHideHistorial={onHideHistorial}
+                conversacion={verConversacion}
+            />
+        </Container>
+    );
+}
+
+export default Historial;

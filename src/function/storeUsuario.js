@@ -1,18 +1,27 @@
-import { DecodeJwt, DescryptCualquierDato } from "./util/ecrypt";
-import { usuario_token } from "./util/global";
+import axios from 'axios';
+import { DecodeJwt, DescryptCualquierDato, EncryptCualquierDato } from "./util/ecrypt";
+import { conversacion_activa, conversacion_monitoreo, host, recordatorio_store, usuario_menu, usuario_token } from "./util/global";
 
+
+export const IsKeyObject =(obj, str)=>{
+    return str in obj;
+}
 
 export const GetToken = () => {
-    let token = localStorage.getItem(usuario_token);
+    let token = DescryptCualquierDato(localStorage.getItem(usuario_token));
     if(token === null){
         return null;
     }else{
+        let info = DecodeJwt(token);
+        if(info.exp < Date.now() / 1000){
+            return null;
+        }
         return token;
     }
 }
 
 export const GetTokenDecoded = () => {
-    let token = localStorage.getItem(usuario_token);
+    let token = DescryptCualquierDato(localStorage.getItem(usuario_token));
     if(token === null){
         return null;
     }else{
@@ -22,16 +31,15 @@ export const GetTokenDecoded = () => {
 
 export function setDatosUsuario(data) {
     try {
-        // const use = EncryptCualquierDato(strings);
-        localStorage.setItem(usuario_token,data)
+        localStorage.setItem(usuario_token,EncryptCualquierDato(data))
+        const menu = DecodeJwt(data)
+        SetMenu(menu.menu)
         return true;
     } catch (error) {
         console.log(error);
     }
 }
 
-
-  
 export function getDatosUsuario() {
     try {
         const parse = DescryptCualquierDato(localStorage.getItem(usuario_token))
@@ -51,4 +59,100 @@ export function removeDatosUsuario() {
     } catch (error) {
         console.log(error);
     }
+}
+
+export const RemoverConversacion = () => {
+    localStorage.removeItem("conversacion_activa");
+    return true;
+}
+
+export const SetConversacionMonitoreo = (data) => {
+    localStorage.setItem(conversacion_monitoreo, JSON.stringify(data));
+    return true;
+}
+export const DeleletConversacionMonitoreo = () => {
+    localStorage.removeItem(conversacion_monitoreo);
+    return true;
+}
+export const GetConversacionMonitoreo = () => {
+    const local = localStorage.getItem(conversacion_monitoreo);
+    if (local) {
+      return JSON.parse(local);
+    } else {
+      return null;
+    }
+}
+
+// menu
+export const GetMenu = () => {
+    const local = localStorage.getItem(usuario_menu);
+    if (local) {
+      return JSON.parse(local);
+    } else {
+      return null;
+    }
+}
+
+export const SetMenu = (data) => {
+    localStorage.setItem(usuario_menu, JSON.stringify(data));
+    return true;
+}
+
+export const SubirMedia = async (imagen, type, nombre) => {
+    const url = `${host()}upload`;
+    const formData = new FormData();
+    if(type){
+        formData.append("media", imagen, nombre);
+        const { data, status } = await axios.post(url, formData);
+        console.log(data);
+        if (status === 200) {
+            return data.url;
+        }else{
+            return null;
+        }
+    }else{
+        formData.append("media", imagen);
+        const { data, status } = await axios.post(url, formData);
+        console.log(data);
+        if (status === 200) {
+            return data.url;
+        }else{
+            return null;
+        }
+    
+    }
+}
+
+export const GetManejoConversacion = () => {
+    const local = localStorage.getItem(conversacion_activa);
+    if (local) {
+      return JSON.parse(local);
+    } else {
+      return null;
+    }
+}
+
+export const SetManejoConversacionStorange = (data) => {
+    localStorage.setItem(conversacion_activa, JSON.stringify(data));
+    return true;
+}
+
+export const DeletManejoConversacionStorange = () => {
+    localStorage.removeItem(conversacion_activa);
+    return true;
+}
+
+
+export const GetCountRecordatorio = () => {
+    const local = localStorage.getItem(recordatorio_store);
+    if (local) {
+      return parseInt(local);
+    } else {
+      return null;
+    }
+}
+
+export const SetCountRecordatorio = (data) => {
+    localStorage.setItem(recordatorio_store, data);
+    return true;
 }

@@ -1,25 +1,32 @@
-import React from "react";
+import { colorPrimario, estaso_nav } from "function/util/global";
+import useAuth from "hook/useAuth";
+import React, { useEffect } from "react";
 
 // react-bootstrap components
 import {
-  Badge,
   Button,
-  ButtonGroup,
-  Card,
-  Dropdown,
-  Form,
-  InputGroup,
-  Navbar,
-  Nav,
-  Pagination,
   Container,
-  Row,
-  Col,
-  Collapse,
+  Nav,
+  Navbar
 } from "react-bootstrap";
 
 function AdminNavbar() {
   const [collapseOpen, setCollapseOpen] = React.useState(false);
+  const [estado, setEstado] = React.useState(false);
+
+  useEffect(() => {
+    let estado = localStorage.getItem(estaso_nav)
+    setEstado(estado)
+    document.body.classList.toggle(estado)
+  }, [estado])
+
+  function HandleNavBar(estilos) {
+    localStorage.setItem(estaso_nav, estilos)
+    setEstado(estilos)
+    document.body.classList.toggle(estilos)
+  }
+
+  const { logout } = useAuth();
   return (
     <>
       <Navbar expand="lg">
@@ -27,28 +34,30 @@ function AdminNavbar() {
           <div className="navbar-wrapper">
             <div className="navbar-minimize">
               <Button
-                className="btn-fill btn-round btn-icon d-none d-lg-block bg-dark border-dark"
-                variant="dark"
+                className="btn-fill btn-round btn-icon d-none d-lg-block"
                 onClick={() => document.body.classList.toggle("sidebar-mini")}
+                // onClick={() => HandleNavBar("sidebar-mini")}
               >
-                <i className="fas fa-ellipsis-v visible-on-sidebar-regular"></i>
-                <i className="fas fa-bars visible-on-sidebar-mini"></i>
+                <i className="fas fa-ellipsis-v visible-on-sidebar-regular icon-dak"></i>
+                <i className="fas fa-bars visible-on-sidebar-mini icon-dak"></i>
               </Button>
+
               <Button
-                className="btn-fill btn-round btn-icon d-block d-lg-none bg-dark border-dark"
-                variant="dark"
+                className="btn-fill btn-round btn-icon d-block d-lg-none"
                 onClick={() =>
                   document.documentElement.classList.toggle("nav-open")
+                  // HandleNavBar("nav-open")
                 }
               >
-                <i className="fas fa-ellipsis-v visible-on-sidebar-regular"></i>
-                <i className="fas fa-bars visible-on-sidebar-mini"></i>
+                <i className="fas fa-ellipsis-v visible-on-sidebar-regular icon-dak"></i>
+                <i className="fas fa-bars visible-on-sidebar-mini icon-dak"></i>
               </Button>
             </div>
             <Navbar.Brand href="#pablo" onClick={(e) => e.preventDefault()}>
-              Buttons
+              {/* Buttons */}
             </Navbar.Brand>
           </div>
+          
           <button
             className="navbar-toggler navbar-toggler-right border-0"
             type="button"
@@ -58,24 +67,30 @@ function AdminNavbar() {
             <span className="navbar-toggler-bar burger-lines"></span>
             <span className="navbar-toggler-bar burger-lines"></span>
           </button>
+
           <Navbar.Collapse className="justify-content-end" in={collapseOpen}>
-            <Nav className="nav mr-auto" navbar>
+            {/* <Nav className="nav mr-auto ml-2" navbar>
               <Form
-                className="navbar-form navbar-left navbar-search-form ml-3 ml-lg-0"
+                className="navbar-form navbar-left navbar-search-form"
+                style={{ marginRight: '15px' }}
                 role="search"
               >
-                <InputGroup>
-                  <i className="nc-icon nc-zoom-split"></i>
+                <InputGroup className="py-1 d-flex align-items-center bb-1">
+                  <i className="nc-icon nc-zoom-split mr-1"></i>
+
                   <Form.Control
                     defaultValue=""
-                    placeholder="Search..."
+                    placeholder="Buscar ..."
                     type="text"
+                    className=""
+                    style={{ marginLeft: '10px' }}
                   ></Form.Control>
                 </InputGroup>
               </Form>
-            </Nav>
+            </Nav> */}
+
             <Nav navbar>
-              <Dropdown as={Nav.Item}>
+              {/* <Dropdown as={Nav.Item}>
                 <Dropdown.Toggle
                   as={Nav.Link}
                   id="dropdown-165516306"
@@ -116,8 +131,8 @@ function AdminNavbar() {
                     Another action
                   </Dropdown.Item>
                 </Dropdown.Menu>
-              </Dropdown>
-              <Dropdown as={Nav.Item}>
+              </Dropdown> */}
+              {/* <Dropdown as={Nav.Item}>
                 <Dropdown.Toggle
                   as={Nav.Link}
                   id="dropdown-414718872"
@@ -210,7 +225,21 @@ function AdminNavbar() {
                     Log out
                   </Dropdown.Item>
                 </Dropdown.Menu>
-              </Dropdown>
+              </Dropdown> */}
+
+                <Button
+                  // className="btn-fill btn d-block bg-dark border-dark"
+                  // variant={colorPrimario}
+                  style={{
+                    color: 'white',
+                    background: colorPrimario
+                  }}
+                  onClick={() =>
+                    logout()
+                  }
+                >
+                  Cerrar Session
+                </Button>
             </Nav>
           </Navbar.Collapse>
         </Container>

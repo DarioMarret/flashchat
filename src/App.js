@@ -1,22 +1,17 @@
-import FixedPlugin from "components/FixedPlugin/FixedPlugin";
 // import AdminFooter from "components/Footers/AdminFooter";
 import AdminNavbar from "components/Navbars/AdminNavbar";
-
 import Sidebar from "components/Sidebar/Sidebar";
 import AuthContext from "context/AuthContext";
 import { GetToken, removeDatosUsuario } from "function/storeUsuario";
 import React, { useEffect, useMemo, useState } from "react";
+import { Provider } from "react-redux";
 import { Navigate, Route, BrowserRouter as Router, Routes } from "react-router-dom";
-import routes from "routes";
+import store from "./redux/store";
 
-import image1 from "assets/img/full-screen-image-1.jpg";
-import image2 from "assets/img/full-screen-image-2.jpg";
-import image3 from "assets/img/full-screen-image-3.jpg";
-import image4 from "assets/img/full-screen-image-4.jpg";
-import AuthFooter from "components/Footers/AuthFooter";
-import AuthNavbar from "components/Navbars/AuthNavbar";
+// import image3 from "assets/img/full-screen-image-3.jpg";
+import { RemoverConversacion } from "function/storeUsuario";
 import Dashboard from "views/Dashboard";
-import ChatBots from "views/Pages/ChatBots";
+import Bots from "views/Pages/Bot/Bots";
 import Agentes from "views/Pages/Configuracion/Agentes";
 import ComprobantesOcr from "views/Pages/Configuracion/ComprobantesOcr";
 import Equipos from "views/Pages/Configuracion/Equipos";
@@ -25,21 +20,56 @@ import HorarioAtencion from "views/Pages/Configuracion/HorarioAtencion";
 import Inactividad from "views/Pages/Configuracion/Inactividad";
 import Masivos from "views/Pages/Configuracion/Masivos";
 import MensajesAutomaticos from "views/Pages/Configuracion/MensajesAutomaticos";
-import Contactos from "views/Pages/Contactos";
-import LoginPage from "views/Pages/LoginPage";
-import Mensajeria from "views/Pages/Mensajeria";
+import Contactos from "views/Pages/Contacto/Contactos";
+import Mensajeria from "views/Pages/Mensajeria/Mensajeria";
+import Auths from "views/Pages/auth/Auths";
+
+import { ControllerServiceMenuAgente } from "components/Sidebar/service/menu.service";
+import routesInit from "routes";
+import { AlertBanner } from "views/Components/Alert/Alert";
+import Cola from "views/Pages/Cola/Cola";
+import PCorreo from "views/Pages/Correo/PCorreo";
+import Cuenta from "views/Pages/Cuenta/Cuenta";
+import Execiones from "views/Pages/Execiones/Execiones";
+import Factura from "views/Pages/Factura/Factura";
+import Galeria from "views/Pages/Galeria/Galeria";
+import HistorialContacto from "views/Pages/HistorialContacto/HistorialContacto";
+import Historial from "views/Pages/History/Historial";
+import Integraciones from "views/Pages/Integraciones/Integraciones";
+import Logs from "views/Pages/Logs/Logs";
+import NuevaPagina from "views/Pages/Paginas/NuevaPagina";
+import Paginas from "views/Pages/Paginas/Paginas";
+import Perfil from "views/Pages/Perfil/Perfil";
+import Recordatorio from "views/Pages/Recordatorio/Recordatorio";
+import Suscripciones from "views/Pages/Suscripcion/Suscripcion";
+import "./assets/css/style.css";
 
 export default function App() {
   const [auth, setAuth] = useState(undefined);
+  const [ routes, setRoutes ] = useState([]);
+  // const dispatch = useDispatch();
   const [ReloadUser, setReloadUser] = useState(false);
-  const [sidebarImage, setSidebarImage] = React.useState(image3);
-  const [sidebarBackground, setSidebarBackground] = React.useState("black");
+  const [sidebarImage, setSidebarImage] = React.useState("");
+  const [sidebarBackground, setSidebarBackground] = React.useState("black")
+  const [mensajeBanner, setMensajeBanner] = useState({
+    mensaje: "",
+    color: "",
+    tipo: "",
+    cuenta_id: "",
+    tiempo: 0
+  });
 
   useEffect(() => {
-    (() => {
+    (async() => {
       const user = GetToken();
       if (user != null) {
         setAuth(user);
+        let menu = await ControllerServiceMenuAgente();
+        if(menu.length === 0){
+          setRoutes(routesInit)
+        }else{
+          setRoutes(menu);
+        }
       } else {
         setAuth(null);
       }
@@ -49,12 +79,18 @@ export default function App() {
 
   const login = (user) => {
     setAuth(user);
-  };
+    // volver a recargar las rutas
+    setReloadUser(true);
+  }
+
   const logout = () => {
     removeDatosUsuario();
+    RemoverConversacion();
     setAuth(null);
     setReloadUser(true);
-  };
+    window.location.href = "/";
+  }
+
   const authData = useMemo(
     () => ({
       auth,
@@ -63,107 +99,195 @@ export default function App() {
       setReloadUser,
     }),
     [auth]
-  );
+  )
+
+
   if (auth === undefined) return null;
   return (
-    <AuthContext.Provider value={authData}>
-      <Router>
-        {auth ? (
-          <>
-            <div className="wrapper">
-              <Sidebar routes={routes} image={sidebarImage} background={sidebarBackground} />
-              <div className="main-panel">
-                <AdminNavbar />
-                <div className="content">
-                  <Routes
-                    basename="/"
-                    forceRefresh={true}
-                    initialEntries={["/admin/dashboard"]}
-                  >
-                    <Route
-                      path="/admin/dashboard"
-                      element={<Dashboard />}
-                      exact
+    <Provider store={store}>
+        <AuthContext.Provider value={authData}>
+          <Router>
+            {!auth ? (
+                <>
+                  <div className="wrapper wrapper-full-page">
+                    <Auths />
+                  </div>
+                </>
+            ) : (
+              <>
+                <div className="wrapper">
+                  <Sidebar routes={routes} image={sidebarImage} 
+                    // background={colorPrimario}
+                    setMensajeBanner={setMensajeBanner}
+                    background={sidebarBackground}
+                  />
+                  <div className="main-panel">
+                    <AlertBanner 
+                      message={mensajeBanner.mensaje} 
+                      type={mensajeBanner.tipo}
+                      btnColor={mensajeBanner.btnColor}
+                      setMensajeBanner={setMensajeBanner}
                     />
-                    <Route path="/*" element={<Navigate to="admin/dashboard" replace />} />
-                    <Route
-                      path="/admin/mensajeria"
-                      element={<Mensajeria />}
-                      exact
+                    <AdminNavbar />
+                    
+                    <div className="content pt-2" style={{ overflow: 'auto'}}>
+                      <Routes
+                        basename="/"
+                        forceRefresh={true}
+                        initialEntries={["/admin/dashboard"]}
+                      >
+                        <Route
+                          path="/admin/dashboard"
+                          element={<Dashboard />}
+                          exact
+                        />
+                        <Route
+                          path="/admin/cuenta"
+                          element={<Cuenta />}
+                          exact
+                        />
+                        <Route
+                          path="/admin/suscripciones"
+                          element={<Suscripciones />}
+                          exact
+                        />
+                        <Route
+                          path="/admin/en-cola"
+                          element={<Cola />}
+                          exact
+                        />
+                        <Route
+                          path="/admin/factura"
+                          element={<Factura />}
+                          exact
+                        />
+                        <Route
+                          path="/admin/execiones"
+                          element={<Execiones />}
+                          exact
+                        />
+                        <Route
+                          path="/admin/historial-contacto/:id"
+                          element={<HistorialContacto />}
+                          exact
+                        />
+                        <Route
+                          path="/admin/historial"
+                          element={<Historial />}
+                          exact
+                        />
+                        <Route path="/*" element={<Navigate to="admin/dashboard" replace />} />
+                        <Route
+                          path="/admin/mensajeria"
+                          element={<Mensajeria />}
+                          exact
+                        />
+                        <Route
+                          path="/admin/correo"
+                          element={<PCorreo />}
+                          exact
+                        />
+                        <Route
+                          path="/admin/contactos"
+                          element={<Contactos />}
+                          exact
+                        />
+                        <Route path="/admin/equipos" element={<Equipos />} exact />
+                        <Route path="/admin/agentes" element={<Agentes />} exact />
+                        <Route
+                          path="/admin/etiquetas"
+                          element={<Etiquetas exact />}
+                        />
+                        <Route
+                          path="/admin/horarios-atencion"
+                          element={<HorarioAtencion />}
+                          exact
+                        />
+                        <Route path="/admin/equipos" element={<Equipos />} exact />
+                        <Route
+                          path="/admin/mensajes-automaticos"
+                          element={<MensajesAutomaticos />}
+                          exact
+                        />
+                        <Route
+                          path="/admin/multimedia"
+                          element={<Galeria />}
+                          exact
+                        />
+                        <Route
+                          path="/admin/inactividad"
+                          element={<Inactividad />}
+                          exact
+                        />
+                        <Route path="/admin/masivos" element={<Masivos />} exact />
+                        <Route
+                          path="/admin/ocr"
+                          element={<ComprobantesOcr />}
+                          exact
+                        />
+                        <Route path="/admin/bots" element={<Bots />} exact />
+                        {/* <Route path="/admin/sweet-alert" element={<SweetAlertPage />} exact /> */}
+                        <Route
+                          path="/admin/integraciones"
+                          element={<Integraciones />}
+                          exact
+                        />
+                        <Route 
+                          path="/admin/logs"
+                          element={<Logs/>}
+                          exact
+                        />
+                        <Route
+                          path="/admin/recordatorios"
+                          // element={<PageContrucion />}
+                          element={<Recordatorio />}
+                          exact
+                        />
+                        <Route path="/admin/perfil"
+                          element={<Perfil />}
+                          exact
+                        />
+                        <Route path="/admin/nueva_pagina"
+                          element={<NuevaPagina />}
+                          exact
+                        />
+                        <Route path="/admin/pagina/:id"
+                          element={<Paginas />}
+                          exact
+                        />
+                      </Routes>
+                    </div>
+                    {/* <AdminFooter /> */}
+                    <div
+                      className="close-layer"
+                      onClick={() =>
+                        document.documentElement.classList.toggle("nav-open")
+                      }
                     />
-                    <Route
-                      path="/admin/contactos"
-                      element={<Contactos />}
-                      exact
-                    />
-                    <Route path="/admin/equipos" element={<Equipos />} exact />
-                    <Route path="/admin/agentes" element={<Agentes />} exact />
-                    <Route
-                      path="/admin/etiquetas"
-                      element={<Etiquetas exact />}
-                    />
-                    <Route
-                      path="/admin/horarios-atencion"
-                      element={<HorarioAtencion />}
-                      exact
-                    />
-                    <Route path="/admin/equipos" element={<Equipos />} exact />
-                    <Route
-                      path="/admin/mensajes-automaticos"
-                      element={<MensajesAutomaticos />}
-                      exact
-                    />
-                    <Route
-                      path="/admin/inactividad"
-                      element={<Inactividad />}
-                      exact
-                    />
-                    <Route path="/admin/masivos" element={<Masivos />} exact />
-                    <Route
-                      path="/admin/ocr"
-                      element={<ComprobantesOcr />}
-                      exact
-                    />
-                    <Route path="/admin/bots" element={<ChatBots />} exact />
-                  </Routes>
+                  </div>
                 </div>
-                {/* <AdminFooter /> */}
-                <div
-                  className="close-layer"
-                  onClick={() =>
-                    document.documentElement.classList.toggle("nav-open")
+                {/* <FixedPlugin
+                  setSidebarImageParent={(value) => setSidebarImage(value)}
+                  sidebarDefaultImage={sidebarImage}
+                  sidebarImages={[image1, image2, image3, image4]}
+                  backgroundColors={[
+                    "black",
+                    "azure",
+                    "green",
+                    "orange",
+                    "red",
+                    "purple",
+                  ]}
+                  backgroundColor={sidebarBackground}
+                  setSidebarBackgroundParent={(value) =>
+                    setSidebarBackground(value)
                   }
-                />
-              </div>
-            </div>
-            <FixedPlugin
-              setSidebarImageParent={(value) => setSidebarImage(value)}
-              sidebarDefaultImage={sidebarImage}
-              sidebarImages={[image1, image2, image3, image4]}
-              backgroundColors={[
-                "black",
-                "azure",
-                "green",
-                "orange",
-                "red",
-                "purple",
-              ]}
-              backgroundColor={sidebarBackground}
-              setSidebarBackgroundParent={(value) =>
-                setSidebarBackground(value)
-              }
-            />
-          </>
-        ) : (
-          <>
-            <div className="wrapper wrapper-full-page">
-              <AuthNavbar />
-              <LoginPage />
-              <AuthFooter />
-            </div>
-          </>
-        )}
-      </Router>
-    </AuthContext.Provider>
+                /> */}
+              </>
+            )}
+          </Router>
+          
+        </AuthContext.Provider>
+    </Provider>
   );
 }

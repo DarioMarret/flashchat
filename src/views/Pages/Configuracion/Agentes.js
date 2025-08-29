@@ -1,20 +1,30 @@
-import axios from 'axios';
-import Table from 'components/ReactTable/ReactTable';
-import { GetTokenDecoded } from 'function/storeUsuario';
-import { host } from 'function/util/global';
+import { ControllerServiceAsignacionMenuAgente, ControllerServiceMenuAgente } from 'components/Sidebar/service/menu.service';
+import { GetTokenDecoded, SubirMedia } from 'function/storeUsuario';
+import { BmHttp } from 'function/util/global';
+import Multiselect from 'multiselect-react-dropdown';
 import { useEffect, useState } from 'react';
 import {
-    Button,
+    Card,
     Container,
     Form,
-    Modal,
+    Modal
 } from 'react-bootstrap';
-
+import { useDispatch, useSelector } from 'react-redux';
+import Swal from 'sweetalert2';
+import ModalOpcionesMenu from 'views/Components/Modales/ModalOpcionesMenu';
+import socket from 'views/SocketIO';
+import { addAgente, fetchMenuAgente } from '../../../redux/Agentes/agente.servicio';
 
 function Agentes(props) {
+    const dispatch = useDispatch();
+    const { agenteArray, agenteMenu } = useSelector(state => state.agentes);
+    const [ showOpciones, setShowOpciones ] = useState(false);
+    const [agentOpciones, setAgentOpciones] = useState({})
+    const [selectedMenus, setSelectedMenus] = useState([]);
+
     const [show, setShow] = useState(false);
-    const handleClose = () => setShow(!show);
-    const [agentes, setAgentes] = useState([])
+
+    const [agentes, setAgentes] = useState(agenteArray)
     const [equipos, setEquipos] = useState([])
     const [agente, setAgente] = useState({
         cuenta_id: GetTokenDecoded().cuenta_id,
@@ -22,173 +32,733 @@ function Agentes(props) {
         nombre: '',
         avatar: '',
         correo: '',
+        horario_ini: '',
+        activar_ini: false,
+        horario_fin: '',
+        activar_fin: false,
         clave: '',
-        menu: {},
+        newclave: '',
+        menu: [],
         contacto: '',
         perfil: '',
+        botId: [],
+        agenteId: [],
+        dias_laborales: [
+            {
+                agente_id: GetTokenDecoded().id,
+                lunes: false,
+                martes: false,
+                miercoles: false,
+                jueves: false,
+                viernes: false,
+                sabado: false,
+                domingo: false,
+                id: 0
+            }
+        ]
     })
 
-    const ListarAgentes = async() => {
-        const url = `${host}agentes/${GetTokenDecoded().cuenta_id}`
-        const { data, status } = await axios.get(url)
-        if (status === 200) {
+    const handleAssign = async (selectedMenus) => {
+        console.log('Menús asignados:', selectedMenus);
+        await ControllerServiceAsignacionMenuAgente(agentOpciones.id, selectedMenus)
+    };
+    
+
+    const [bots, setBots] = useState([])
+    const handleClose = () => {
+        setShow(!show)
+        setAgente({
+            id: 0,
+            cuenta_id: GetTokenDecoded().cuenta_id,
+            equipo_id: 0,
+            nombre: '',
+            avatar: '',
+            horario_fin: '',
+            horario_ini: '',
+            correo: '',
+            clave: '',
+            menu: [],
+            contacto: '',
+            perfil: '',
+            botId: [],
+            dias_laborales: [
+                {
+                    agente_id: GetTokenDecoded().id,
+                    lunes: false,
+                    martes: false,
+                    miercoles: false,
+                    jueves: false,
+                    viernes: false,
+                    sabado: false,
+                    domingo: false,
+                    id: 0
+                }
+            ]
+        })
+    }
+
+    const openModalMenu = async (agente) => {
+        if(agente){
+            const menu_agente = await ControllerServiceMenuAgente(agente.id)
+            console.log(menu_agente)
+            // hacer un macht de los menus para que salga el checkout de los menus que ya tiene asignado el agente
+            agenteMenu.map((menu, index) => {
+                menu_agente.map((menu_agente, index) => {
+                    if(menu.uuid === menu_agente.uuid){
+                        setSelectedMenus((prevSelected) => {
+                            return [...prevSelected, menu.id]
+                        })
+                    }
+
+                    if(menu.views){
+                        menu.views.map((view, index) => {
+                            menu_agente.views.map((view_agente, index) => {
+                                if(view.uuid === view_agente.uuid){
+                                    setSelectedMenus((prevSelected) => {
+                                        return [...prevSelected, view.id]
+                                    })
+                                }
+                            })
+                        })
+                    }
+                })
+            })
+
+            setAgentOpciones(agente)
+        }
+        setShowOpciones(!showOpciones)
+    }
+
+    const RecargarPaginaAgente = (item) => {
+        socket.emit("recargar_pagina", {
+            type: "recargar_agente_id",
+            data:{
+                agente_id: item.id,
+                cuenta_id: GetTokenDecoded().cuenta_id
+            }
+        })
+        Swal.fire({
+            icon: 'success',
+            title: 'Se envio la solicitud de recarga',
+            showConfirmButton: false,
+            timer: 1500
+        })
+    }
+
+    const ListarAgentes = () => {
             let ag = []
-            data.data.map((agente, index) => {
+            agenteArray.map((agente, index) => {
                 ag.push({
                     id: agente.id,
+                    botId: agente.botId,
                     cuenta_id: agente.cuenta_id,
                     equipo_id: agente.equipo_id,
                     equipo: agente.equipos.equipos,
                     nombre: agente.nombre,
-                    avatar: <img src="https://codigomarret.online/upload/img/chatbot.jpeg" alt="avatar" width={50} className="rounded-circle"/>,
+                    horario: agente.horario_ini + " - " + agente.horario_fin,
+                    avatar: agente.avatar === "" ?
+                    <img src="https://codigomarret.online/upload/img/chatbot.jpeg" alt="avatar" width={40} className="rounded-circle"/> :   
+                    <img src={agente.avatar} alt="avatar" width={40} className="rounded-circle"/>,
                     correo: agente.correo,
-                    estado: agente.estado,
+                    live: agente.estado,
+                    estado: agente.estado === 'offline' ? <button className="btn btn text-danger" disabled={true} >Offline</button>
+                    : <button disabled={true} className="btn btn text-success">Online</button>,
                     contacto: agente.contacto,
                     fecha: agente.fecha,
-                    clave: agente.clave,
+                    // clave: agente.clave,
+                    newclave: "",
                     perfil: agente.perfil,
+                    accion: <div className="d-flex justify-content-center gap-2">
+                        {/* recargar pagina del agente */}
+                        <button className="btn btn"
+                            onClick={() => {
+                                RecargarPaginaAgente(agente)
+                            }}
+                        >
+                            <i className="fas fa-sync-alt"></i>
+                        </button>
+                        <button className="btn btn "
+                            onClick={() => {
+                                setAgente({
+                                    id: agente.id,
+                                    botId: agente.botId,
+                                    cuenta_id: agente.cuenta_id,
+                                    equipo_id: agente.equipo_id,
+                                    nombre: agente.nombre,
+                                    avatar: agente.avatar,
+                                    correo: agente.correo,
+                                    contacto: agente.contacto,
+                                    horario_ini: agente.horario_ini,
+                                    activar_ini: agente.activar_ini,
+                                    horario_fin: agente.horario_fin,
+                                    activar_fin: agente.activar_fin,
+                                    clave: agente.clave,
+                                    perfil: agente.perfil,
+                                    dias_laborales: agente.dias_laborales
+                                })
+                                setShow(!show)
+                            }}
+                        >
+                            <i className="fas fa-edit"></i>
+                        </button>
+                        <button className="btn btn"
+                            onClick={() => EliminarAgente(agente.id, agente.nombre)}
+                        >
+                            <i className="fas fa-trash-alt text-danger"></i>
+                        </button>
+                        {
+                            GetTokenDecoded().perfil === 'Administrador'
+                            ?
+                            <button className="btn btn"
+                                onClick={() => {
+                                   openModalMenu(agente)
+                                }}
+                            >
+                                {/* opciones de menu */}
+                                <i className="fas fa-ellipsis-v"></i>
+                            </button>
+                            : null
+                        }
+                    </div>
                 })
             })
             setAgentes(ag)
+        // }
+    }
+
+    const ListarBots = async() => {
+        const url = `bots/${GetTokenDecoded().cuenta_id}`
+        const { data, status } = await BmHttp().get(url)
+        if (status === 200) {
+            let labels = []
+            data.data.map(bot => {
+                labels.push({
+                    name: bot.nombre_bot,
+                    id: bot.id
+                })
+            })
+            setBots(labels)
         }
     }
 
     const ListarEquipos = async() => {
-        const url = `${host}equipo/${GetTokenDecoded().cuenta_id}`
-        const { data, status } = await axios.get(url)
+        const url = `equipo/${GetTokenDecoded().cuenta_id}`
+        const { data, status } = await BmHttp().get(url)
         if (status === 200) {
             setEquipos(data.data)
         }
     }
 
+    const handleAgentes = (e) => {
+        setAgente({
+            ...agente,
+            agenteId: e
+        })
+    }
+    const handleAgentesRemove = (e) => {
+        setAgente({
+            ...agente,
+            agenteId: e,
+        });
+    }
+
     const CrearAgente = async() => {
-        const url = `${host}agente`
+        const url = `agentes`
+        const { data, status } = await BmHttp().post(url, agente)
+        if (status === 200) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Agente creado',
+                showConfirmButton: false,
+                timer: 1500
+            }).then(() => {
+                dispatch(addAgente())
+                ListarAgentes()
+                handleClose()
+            })
+        }else if(status === 400){
+            Swal.fire({
+                icon: 'error',
+                title: 'El correo ya existe',
+                showConfirmButton: false,
+                timer: 1500
+            })
+        }
+    }
+
+    const CargarAvatar = async(file) => {
+        const url = await SubirMedia(file)
+        if(url !== null){
+            setAgente({
+                ...agente,
+                avatar: url
+            })
+            return url
+        }else{
+            return null
+        }
+    }
+
+    const handlebotSelect = (e) => {
+        setAgente({
+            ...agente,
+            botId: e
+        })
+    }
+
+    const handlebotRemove = (e) => {
+        setAgente({
+            ...agente,
+            botId: e
+        })
+    }
+
+
+    const EliminarAgente = async(id, nombre) => {
+        const url = `agentes/${id}`
+        Swal.fire({
+            title: 'Estas seguro?',
+            html: `Eliminaras el agente <b>${nombre}</b>`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                BmHttp().delete(url)
+                .then(response => {
+                    ListarAgentes()
+                })
+            }
+        })
+    }
+
+    const ActualizarAgente = async() => {
+        const url = `agentes/${agente.id}`
+        const { data, status } = await BmHttp().put(url, agente)
+        if (status === 200) {
+            dispatch(addAgente())
+            ListarAgentes()
+            handleClose()
+        }
     }
 
     useEffect(() => {
-        ListarAgentes()
-        ListarEquipos()
+        dispatch(addAgente())
+        dispatch(fetchMenuAgente())
+    }, [])
+
+    useEffect(() => {
+        (async()=>{
+            ListarAgentes()
+            await ListarEquipos()
+            await ListarBots()
+        })()
     }, [])
 
     return (
         <>
          <Container fluid>
-            <div className='d-flex justify-content-end mb-3'>
-                <button className="btn btn-primary ml-2"
+            <div className='d-flex justify-content-start mb-3'>
+                <button className="button-bm ml-2"
                     onClick={handleClose}
-                >Crear Bots</button>
+                >Crear agente</button>
             </div>
-            <Table 
-                columns={[
-                    {
-                        Header: 'Equipo',
-                        accessor: 'equipo',
-                    },
-                    {
-                        Header: 'Nombre',
-                        accessor: 'nombre',
-                    },
-                    {
-                        Header: 'Perfil',
-                        accessor: 'perfil',
-                    },
-                    {
-                        Header: 'Avatar',
-                        accessor: 'avatar',
-                    },
-                    {
-                        Header: 'Correo',
-                        accessor: 'correo',
-                    },
-                    {
-                        Header: 'Estado',
-                        accessor: 'estado',
-                    },
-                    // {
-                    //     Header: 'Fecha',
-                    //     accessor: 'fecha',
-                    // },
-                    {
-                        Header: 'Contacto',
-                        accessor: 'contacto',
-                    },
-                ]}
-                data={agentes}
-                title='Lista de agentes'
-            />
+            <div className='d-flex justify-content-between'>
+                <div className='d-flex justify-content-start'>
+                    <h4 className='text-center'>Agentes</h4>
+                </div>
+                <div className='d-flex justify-content-end'>
+                    <h4 className='text-center mx-1'>Total: {agentes.length}</h4>
+                    <h4 className='text-center mx-1 text-success'>Online: {agentes.filter(agente => agente.live === 'online').length}</h4>
+                    <h4 className='text-center mx-1 text-danger'>Offline: {agentes.filter(agente => agente.live === 'offline').length}</h4>
+                </div>
+            </div>
+            <Card style={{ overflow: 'auto' }}>
+                {/* Catidad de usuario total total en online o total en ofline */}
 
+                <table responsive className="table-personalisado ">
+                    <thead className='table-active'>
+                        <tr 
+                            className='text-white text-center font-weight-bold text-uppercase text-monospace align-middle'
+                        >
+                            <th
+                                className='align-middle text-white'
+                            >Equipo</th>
+                            <th
+                                className='align-middle text-white'
+                            >Nombre</th>
+                            <th
+                                className='align-middle text-white' 
+                            >Perfil</th>
+                            <th
+                                className='align-middle text-white' 
+                            >Avatar</th>
+                            <th
+                                className='align-middle text-white' 
+                            >Correo</th>
+                            <th
+                                className='align-middle text-white'
+                            >Horario</th>
+
+                            <th
+                                className='align-middle text-white' 
+                            >Estado</th>
+                            <th
+                                className='align-middle text-white' 
+                            >Contacto</th>
+                            <th
+                                className='align-middle text-white'
+                            >Accion</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {
+                            agentes.map((agente, index) => (
+                                <tr key={index}
+                                    className='text-center'
+                                >
+                                    <td>{agente.equipo}</td>
+                                    <td>{agente.nombre}</td>
+                                    <td>{agente.perfil}</td>
+                                    <td>{agente.avatar}</td>
+                                    <td>{agente.correo}</td>
+                                    <td>{agente.horario !== 'undefined - undefined' ? agente.horario : 'Sin horario'}</td>
+                                    <td>{agente.estado}</td>
+                                    <td>{agente.contacto}</td>
+                                    <td>{agente.accion}</td>
+                                </tr>
+                            ))
+                        }
+                    </tbody>
+                </table>
+            </Card>
             <Modal
                 show={show}
                 onHide={handleClose}
                 backdrop="static"
                 keyboard={false}
+                centered={true}
+                size='lg'
             >
-                <Modal.Header closeButton>
-                <Modal.Title>Crear Agente</Modal.Title>
+                <Modal.Header >
+                    <div
+                        className='d-flex justify-content-between w-100'
+                    >
+                    {
+                        agente.id === 0 ?
+                        <Modal.Title>Crear Agente</Modal.Title>
+                        :
+                        <Modal.Title>Editar Agente</Modal.Title>
+                    }
+                    {/* botton para X para cerrar el modal */}
+                    <button 
+                    type="button"
+                    className="btn-dark ml-auto"
+                        onClick={handleClose}
+                    >
+                        <i className="fa fa-times"></i>
+                    </button>
+                    </div>
                 </Modal.Header>
                 <Modal.Body>
                     <Form>
                         <Form.Group controlId="exampleForm.ControlSelect1">
-                            <Form.Label>Equipo</Form.Label>
-                            <Form.Control as="select"
-                                onChange={(e) => setAgente({...agente, equipo_id: e.target.value})}
-                            >
-                                <option value={0}>Seleccione un equipo</option>
+                            <Form.Label>
+                                {/* info */}
+                                <i className="fas fa-info-circle text-primary ml-1"
+                                    data-toggle="tooltip"
+                                    data-placement="top"
+                                    title="Seleccione los bot que podra atender el agente"
+                                ></i>                                
+                                Atencion bot</Form.Label>
+                            <Multiselect
+                                options={bots}
+                                displayValue="name"
+                                avoidHighlightFirstOption="true"
+                                onSelect={handlebotSelect}
+                                onRemove={handlebotRemove}
+                                selectedValues={agente.botId}
+                            />
+                        </Form.Group>
+
+                        {/* <Form.Group controlId="formBasicPassword">
+                            <Form.Label>Agentes</Form.Label>
+                            <Multiselect
+                                options={agentes}
+                                displayValue="name"
+                                avoidHighlightFirstOption="true"
+                                onSelect={handleAgentes}
+                                onRemove={handleAgentesRemove}
+                                selectedValues={agente.agenteId}
+                            />
+                        </Form.Group> */}
+
+                        <Form.Group controlId="exampleForm.ControlInput2" className='d-flex justify-content-between'>
+                            <div className='w-50 p-1'>
+                                <Form.Label>Nombre</Form.Label>
+                                <Form.Control type="text"
+                                    name='nombre'
+                                    value={agente.nombre}
+                                    onChange={(e) => setAgente({...agente, nombre: e.target.value})}
+                                />
+                            </div>
+                            <div className='w-50 p-1'>
+                                <Form.Label>Clave</Form.Label>
                                 {
-                                    equipos.map((equipo, index) => (
-                                        <option value={equipo.id} key={index}>{equipo.equipos}</option>
-                                    ))
+                                    agente.id === 0 ?
+                                    <Form.Control 
+                                        type="password"
+                                        name='clave'
+                                        autoComplete='off'
+                                        aria-autocomplete='none'
+                                        onChange={(e) => setAgente({...agente, clave: e.target.value})}
+                                    />
+                                    :
+                                    <Form.Control 
+                                        type="password"
+                                        name='clave'
+                                        autoComplete='off'
+                                        aria-autocomplete='none'
+                                        onChange={(e) => setAgente({...agente, newclave: e.target.value})}
+                                    />
                                 }
-                            </Form.Control>
+                            </div>
                         </Form.Group>
-                        <Form.Group controlId="exampleForm.ControlInput1">
-                            <Form.Label>Nombre</Form.Label>
-                            <Form.Control type="text"
-                                onChange={(e) => setAgente({...agente, nombre: e.target.value})}
-                            />
+                        <Form.Group controlId="exampleForm.ControlInput3" className='d-flex justify-content-between'>
+                            <div className='w-50 p-1'>
+                                <Form.Label>Correo</Form.Label>
+                                <Form.Control type="email"
+                                    name='correo'
+                                    value={agente.correo}
+                                    onChange={(e) => setAgente({...agente, correo: e.target.value})}
+                                />
+                            </div>
+                            <div className='w-50 p-1'>
+                                <Form.Label>Contacto</Form.Label>
+                                <Form.Control type="text"
+                                    name='contacto'
+                                    value={agente.contacto}
+                                    onChange={(e) => setAgente({...agente, contacto: e.target.value})}
+                                />
+                            </div>
                         </Form.Group>
-                        <Form.Group controlId="exampleForm.ControlInput1">
-                            <Form.Label>Avatar</Form.Label>
-                            <Form.Control type="file"
-                                onChange={(e) => setAgente({...agente, avatar: e.target.value})}
-                            />
-                        </Form.Group>
-                        <Form.Group controlId="exampleForm.ControlInput1">
-                            <Form.Label>Correo</Form.Label>
-                            <Form.Control type="email"
-                                onChange={(e) => setAgente({...agente, correo: e.target.value})}
-                            />
-                        </Form.Group>
-                        <Form.Group controlId="exampleForm.ControlInput1">
-                            <Form.Label>Clave</Form.Label>
-                            <Form.Control type="password"
-                                onChange={(e) => setAgente({...agente, clave: e.target.value})}
-                            />
-                        </Form.Group>
-                        <Form.Group controlId="exampleForm.ControlInput1">
-                            <Form.Label>Perfil</Form.Label>
+
+                        <Form.Group controlId="exampleForm.ControlInput4">
+                            <Form.Label>
+                            {/* info */}
+                            <i className="fas fa-info-circle text-primary ml-1"
+                                data-toggle="tooltip"
+                                data-placement="top"
+                                title="Seleccione un perfil para el agente"
+                            ></i>                                
+                                Perfil</Form.Label>
                             <Form.Control as="select"
                                 onChange={(e) => setAgente({...agente, perfil: e.target.value})}
                                 value={agente.perfil}
                             >
                                     <option value={0}>Seleccione un Perfil</option>
-                                    <option value="agente" key={1}>agente</option>
-                                    <option value="administrador" key={2}>administrador</option>
+                                    <option value="Agente" key={1}>Agente</option>
+                                    <option value="Administrador" key={2}>Administrador</option>
                             </Form.Control>
+                        </Form.Group>
+                        {/* horario de trabajo */}
+    
+                        <Form.Group controlId="exampleForm.ControlInput5"  className='d-flex justify-content-between'>
+                            <div className='w-50 p-1 flex-d justify-content-between'>
+                                <div>
+                                    <Form.Label>
+                                    {/* info */}
+                                    <i className="fas fa-info-circle text-primary ml-1"
+                                        data-toggle="tooltip"
+                                        data-placement="top"
+                                        title="Si activa esta opcion el agente no podra atender conversaciones antes de la hora de entrada"
+                                    ></i>
+                                        Hora Entrada</Form.Label>
+                                    <Form.Control type="time"
+                                        name='horario_ini'
+                                        value={agente.horario_ini}
+                                        onChange={(e) => setAgente({...agente, horario_ini: e.target.value})}
+                                    />
+                                </div>
+                                <div className='d-flex justify-content-center align-items-center'>
+                                    <label className='mx-1'>Activar validacion de entrada</label>
+                                    <input type="checkbox"
+                                        name='activar_ini'
+                                        className=''
+                                        checked={agente.activar_ini}
+                                        onChange={(e) => setAgente({...agente, activar_ini: e.target.checked})}
+                                    />
+                                </div>
+                            </div>
+
+                            {/* horario de salida */}
+                            <div className='w-50 p-1 flex-d justify-content-between'>
+                                <div>
+                                    <Form.Label>
+                                    {/* info */}
+                                    <i className="fas fa-info-circle text-primary ml-1"
+                                        data-toggle="tooltip"
+                                        data-placement="top"
+                                        title="Si activa esta opcion el agente no podra atender conversaciones despues de la hora de salida"
+                                    ></i>
+                                        Hora Salida </Form.Label>
+                                    <Form.Control type="time"
+                                        name='horario_fin'
+                                        value={agente.horario_fin}
+                                        onChange={(e) => setAgente({...agente, horario_fin: e.target.value})}
+                                    />
+                                </div>
+                                <div className='d-flex justify-content-center align-items-center'>
+                                    <label className='mx-1'>Activar validacion de salida</label>
+                                    <input type="checkbox"
+                                        name='activar_fin'
+                                        className=''
+                                        checked={agente.activar_fin}
+                                        onChange={(e) => setAgente({...agente, activar_fin: e.target.checked})}
+                                    />
+                                </div>
+                            </div>
+                        </Form.Group>
+                        {/* Auto asignacion de conversaciones */}
+                        <hr/>
+                        <Form.Group controlId="autoasignacion" className='text-center'>
+                            {/* info de lo que significa esto */}
+                            <i className="fas fa-info-circle text-primary ml-1"
+                                data-toggle="tooltip"
+                                data-placement="top"
+                                title="Si activa esta opcion el las conversaciones que lleguen a la cola de atencion se le asignaran automaticamente a los agentes que tengan esta opcion activada"
+                            ></i>
+                            <Form.Label>Auto asignacion
+                                
+                             </Form.Label>
+                            <input type="checkbox"
+                                name='cola'
+                                className=''
+                                checked={agente.cola}
+                                onChange={(e) => setAgente({...agente, cola: e.target.checked})}
+                            />
+                        </Form.Group>
+                        <hr/>
+
+                        {/* activar dias laborares */}
+                        <Form.Group controlId="exampleForm.ControlInput5">
+                            {/* activar dias laborares */}
+                            {
+                                agente.dias_laborales.length > 0 ?
+                                    <div className='w-100 p-1'>
+                                        <Form.Label>
+                                            {/* info */}
+                                            <i className="fas fa-info-circle text-primary ml-1"
+                                                data-toggle="tooltip"
+                                                data-placement="top"
+                                                title="Seleccione los dias laborales del agente"
+                                            ></i>                                            
+                                            Dias laborales</Form.Label>
+                                        <div className='d-flex justify-content-between'>
+                                            <div className='d-flex justify-content-center align-items-center'>
+                                                <label className='mx-1'>Lunes</label>
+                                                <input type="checkbox"
+                                                    name='lunes'
+                                                    className=''
+                                                    checked={agente.dias_laborales[0].lunes}
+                                                    onChange={(e) => setAgente({...agente, dias_laborales: [{...agente.dias_laborales[0], lunes: e.target.checked}]})}
+                                                />
+                                            </div>
+                                            <div className='d-flex justify-content-center align-items-center'>
+                                                <label className='mx-1'>Martes</label>
+                                                <input type="checkbox"
+                                                    name='martes'
+                                                    className=''
+                                                    checked={agente.dias_laborales[0].martes}
+                                                    onChange={(e) => setAgente({...agente, dias_laborales: [{...agente.dias_laborales[0], martes: e.target.checked}]})}
+                                                />
+                                            </div>
+                                            <div className='d-flex justify-content-center align-items-center'>
+                                                <label className='mx-1'>Miercoles</label>
+                                                <input type="checkbox"
+                                                    name='miercoles'
+                                                    className=''
+                                                    checked={agente.dias_laborales[0].miercoles}
+                                                    onChange={(e) => setAgente({...agente, dias_laborales: [{...agente.dias_laborales[0], miercoles: e.target.checked}]})}
+                                                />
+                                            </div>
+                                            <div className='d-flex justify-content-center align-items-center'>
+                                                <label className='mx-1'>Jueves</label>
+                                                <input type="checkbox"
+                                                    name='jueves'
+                                                    className=''
+                                                    checked={agente.dias_laborales[0].jueves}
+                                                    onChange={(e) => setAgente({...agente, dias_laborales: [{...agente.dias_laborales[0], jueves: e.target.checked}]})}
+                                                />
+                                            </div>
+                                            <div className='d-flex justify-content-center align-items-center'>
+                                                <label className='mx-1'>Viernes</label>
+                                                <input type="checkbox"
+                                                    name='viernes'
+                                                    className=''
+                                                    checked={agente.dias_laborales[0].viernes}
+                                                    onChange={(e) => setAgente({...agente, dias_laborales: [{...agente.dias_laborales[0], viernes: e.target.checked}]})}
+                                                />
+                                            </div>
+                                            <div className='d-flex justify-content-center align-items-center'>
+                                                <label className='mx-1'>Sabado</label>
+                                                <input type="checkbox"
+                                                    name='sabado'
+                                                    className=''
+                                                    checked={agente.dias_laborales[0].sabado}
+                                                    onChange={(e) => setAgente({...agente, dias_laborales: [{...agente.dias_laborales[0], sabado: e.target.checked}]})}
+                                                />
+                                            </div>
+                                            <div className='d-flex justify-content-center align-items-center'>
+                                                <label className='mx-1'>Domingo</label>
+                                                <input type="checkbox"
+                                                    name='domingo'
+                                                    className=''
+                                                    checked={agente.dias_laborales[0].domingo}
+                                                    onChange={(e) => setAgente({...agente, dias_laborales: [{...agente.dias_laborales[0], domingo: e.target.checked}]})}
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    : null
+                            }
+                        </Form.Group>
+                        {/* Cargar avatar */}
+                        <Form.Group controlId="exampleForm.ControlInput6">
+                            <Form.Label>Avatar</Form.Label>
+                            <Form.Control type="file"
+                                accept="image/png, image/jpeg"
+                                name='avatar'
+                                onChange={(e) => CargarAvatar(e.target.files[0])}
+                            />
                         </Form.Group>
                     </Form>
                 </Modal.Body>
                 <Modal.Footer>
-                <Button variant="secondary" onClick={handleClose}>
-                    Cerrar
-                </Button>
-                <Button variant="primary"
-                    onClick={CrearAgente}
-                >Crear</Button>
+                {
+                    agente.id !== 0 ?
+                    <button
+                        className='button-bm mr-2 w-100'
+                        onClick={ActualizarAgente}
+                    >ACTUALIZAR</button>
+                    :
+                    <button
+                        className='button-bm mr-2 w-100'
+                        onClick={CrearAgente}
+                    >GUARDAR</button>
+                }
                 </Modal.Footer>
 
             </Modal>
-         </Container>   
+            <ModalOpcionesMenu
+                show={showOpciones}
+                handleClose={openModalMenu}
+                menus={agenteMenu}
+                handleAssign={handleAssign}
+                selectedMenus={selectedMenus}
+                setSelectedMenus={setSelectedMenus}
+            />
+         </Container>
         </>
     );
 }

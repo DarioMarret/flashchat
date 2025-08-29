@@ -1,0 +1,164 @@
+{
+  "id_autorizacion": 2813,
+  "infoTributaria": {
+    "ambiente": 2,
+    "tipoEmision": "1",
+    "razonSocial": "UNIVERSIDAD ESTATAL PENÍNSULA DE SANTA ELENA",
+    "nombreComercial": "UNIVERSIDAD ESTATAL PENÍNSULA DE SANTA ELENA",
+    "ruc": "0968559740001",
+    "claveAcceso": "0509202401096855974000120010010000264481234567819",
+    "codDoc": "01",
+    "estab": "001",
+    "ptoEmi": "001",
+    "secuencial": "000026448",
+    "dirMatriz": "Santa elena"
+  },
+  "infoFactura": {
+    "fechaEmision": "05/09/2024",
+    "dirEstablecimiento": "Salinas",
+    "obligadoContabilidad": "NO",
+    "tipoIdentificacionComprador": "05",
+    "razonSocialComprador": "MELANIE JAMILETH DOMINGUEZ ARANEA",
+    "identificacionComprador": "0928141266",
+    "direccionComprador": "CALLE 54 AVENIDA 46 Y 47",
+    "totalSinImpuestos": "130.00",
+    "totalDescuento": "0.00",
+    "totalConImpuestos": {
+      "totalImpuesto": [
+        {
+          "codigo": "2",
+          "codigoPorcentaje": "0",
+          "baseImponible": "130.00",
+          "valor": "0.00"
+        }
+      ]
+    },
+    "propina": "0.00",
+    "importeTotal": "130.00",
+    "moneda": "DOLAR"
+  },
+  "detalles": {
+    "detalle": [
+      {
+        "codigoPrincipal": "202495-1",
+        "codigoAuxiliar": "CAR-04-32-101",
+        "descripcion": "2024-2 Tasa de matrícula por segunda y tercera ocasión (perdida de gratuidad parcial, temporal, definitiva, profesional o egresado de IES pública, segunda carrera simultánea, segundo cambio de carrera y tercera matrícula de otra IES)",
+        "cantidad": "1",
+        "precioUnitario": "10.00",
+        "descuento": "0.00",
+        "precioTotalSinImpuesto": "10.00",
+        "impuestos": {
+          "impuesto": [
+            {
+              "codigo": "2",
+              "codigoPorcentaje": "0",
+              "tarifa": 0.0,
+              "baseImponible": "10.00",
+              "valor": "0.00"
+            }
+          ]
+        }
+      },
+      {
+        "codigoPrincipal": "CAR-04-94-1781",
+        "codigoAuxiliar": "CAR-04-32-101",
+        "descripcion": "2024-2 ANTROPOLOGIA Y ESTUDIOS CULTURALES",
+        "cantidad": "1",
+        "precioUnitario": "24.00",
+        "descuento": "0.00",
+        "precioTotalSinImpuesto": "24.00",
+        "impuestos": {
+          "impuesto": [
+            {
+              "codigo": "2",
+              "codigoPorcentaje": "0",
+              "tarifa": 0.0,
+              "baseImponible": "24.00",
+              "valor": "0.00"
+            }
+          ]
+        }
+      },
+      {
+        "codigoPrincipal": "CAR-04-94-1782",
+        "codigoAuxiliar": "CAR-04-32-102",
+        "descripcion": "2024-2 TEORIAS SOCIALES",
+        "cantidad": "1",
+        "precioUnitario": "24.00",
+        "descuento": "0.00",
+        "precioTotalSinImpuesto": "24.00",
+        "impuestos": {
+          "impuesto": [
+            {
+              "codigo": "2",
+              "codigoPorcentaje": "0",
+              "tarifa": 0.0,
+              "baseImponible": "24.00",
+              "valor": "0.00"
+            }
+          ]
+        }
+      },
+      {
+        "codigoPrincipal": "CAR-04-94-1783",
+        "codigoAuxiliar": "CAR-04-32-103",
+        "descripcion": "2024-2 GESTION SOCIAL I",
+        "cantidad": "1",
+        "precioUnitario": "32.00",
+        "descuento": "0.00",
+        "precioTotalSinImpuesto": "32.00",
+        "impuestos": {
+          "impuesto": [
+            {
+              "codigo": "2",
+              "codigoPorcentaje": "0",
+              "tarifa": 0.0,
+              "baseImponible": "32.00",
+              "valor": "0.00"
+            }
+          ]
+        }
+      },
+      {
+        "codigoPrincipal": "CAR-04-94-1784",
+        "codigoAuxiliar": "CAR-04-32-104",
+        "descripcion": "2024-2 EPISTEMOLOGIA DE LAS CIENCIAS SOCIALES",
+        "cantidad": "1",
+        "precioUnitario": "24.00",
+        "descuento": "0.00",
+        "precioTotalSinImpuesto": "24.00",
+        "impuestos": {
+          "impuesto": [
+            {
+              "codigo": "2",
+              "codigoPorcentaje": "0",
+              "tarifa": 0.0,
+              "baseImponible": "24.00",
+              "valor": "0.00"
+            }
+          ]
+        }
+      },
+      {
+        "codigoPrincipal": "CAR-04-94-1785",
+        "codigoAuxiliar": "CAR-04-32-105",
+        "descripcion": "2024-2 BASE DE DATOS CIENTIFICAS",
+        "cantidad": "1",
+        "precioUnitario": "16.00",
+        "descuento": "0.00",
+        "precioTotalSinImpuesto": "16.00",
+        "impuestos": {
+          "impuesto": [
+            {
+              "codigo": "2",
+              "codigoPorcentaje": "0",
+              "tarifa": 0.0,
+              "baseImponible": "16.00",
+              "valor": "0.00"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

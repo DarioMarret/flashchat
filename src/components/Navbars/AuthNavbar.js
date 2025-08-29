@@ -3,13 +3,9 @@ import { Link, useLocation } from "react-router-dom";
 
 // react-bootstrap components
 import {
-  Badge,
-  Button,
-  Card,
-  Navbar,
-  Nav,
   Container,
-  Col,
+  Nav,
+  Navbar
 } from "react-bootstrap";
 
 function AuthNavbar() {
@@ -29,6 +25,7 @@ function AuthNavbar() {
               <span className="d-block d-md-none">LBDP React</span>
             </Navbar.Brand>
           </div>
+
           <button
             className="navbar-toggler navbar-toggler-right border-0"
             type="button"

@@ -1,66 +1,320 @@
 // react component used to create charts
 // react components used to create a SVG / Vector map
-import { VectorMap } from "react-jvectormap";
 
 // react-bootstrap components
-import { GetTokenDecoded } from "function/storeUsuario";
 import {
-  Button,
+  BarElement,
+  CategoryScale,
+  Chart as ChartJS,
+  Legend,
+  LinearScale,
+  Title,
+  Tooltip,
+} from 'chart.js';
+import { GetTokenDecoded } from "function/storeUsuario";
+import { BmHttp } from 'function/util/global';
+import moment from "moment";
+import { useEffect, useState } from "react";
+import {
   Card,
   Col,
   Container,
-  Form,
-  OverlayTrigger,
   Row,
-  Table,
-  Tooltip
+  Table
 } from "react-bootstrap";
+import { Bar } from "react-chartjs-2";
 
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+);
+var mes = [{
+  "mes": "Enero",
+  "mes_numero": 1,
+  "contar": 0
+}, {
+  "mes": "Febrero",
+  "mes_numero": 2,
+  "contar": 0
+}, {
+  "mes": "Marzo",
+  "mes_numero": 3,
+  "contar": 0
+}, {
+  "mes": "Abril",
+  "mes_numero": 4,
+  "contar": 0
+}, {
+  "mes": "Mayo",
+  "mes_numero": 5,
+  "contar": 0
+}, {
+  "mes": "Junio",
+  "mes_numero": 6,
+  "contar": 0
+}, {
+  "mes": "Julio",
+  "mes_numero": 7,
+  "contar": 0
+}, {
+  "mes": "Agosto",
+  "mes_numero": 8,
+  "contar": 0
+}, {
+  "mes": "Septiembre",
+  "mes_numero": 9,
+  "contar": 0
+}, {
+  "mes": "Octubre",
+  "mes_numero": 10,
+  "contar": 0
+}, {
+  "mes": "Noviembre",
+  "mes_numero": 11,
+  "contar": 0
+}, {
+  "mes": "Diciembre",
+  "mes_numero": 12,
+  "contar": 0
+}]
+
+var horas24 = [{
+  "hora": "00:00",
+  "numero": 0,
+  "contar": 0
+}, {
+  "hora": "01:00",
+  "numero": 1,
+  "contar": 0
+}, {
+  "hora": "02:00",
+  "numero": 2,
+  "contar": 0
+}, {
+  "hora": "03:00",
+  "numero": 3,
+  "contar": 0
+}, {
+  "hora": "04:00",
+  "numero": 4,
+  "contar": 0
+}, {
+  "hora": "05:00",
+  "numero": 5,
+  "contar": 0
+}, {
+  "hora": "06:00",
+  "numero": 6,
+  "contar": 0
+}, {
+  "hora": "07:00",
+  "numero": 7,
+  "contar": 0
+}, {
+  "hora": "08:00",
+  "numero": 8,
+  "contar": 0
+}, {
+  "hora": "09:00",
+  "numero": 9,
+  "contar": 0
+}, {
+  "hora": "10:00",
+  "numero": 10,
+  "contar": 0
+}, {
+  "hora": "11:00",
+  "numero": 11,
+  "contar": 0
+}, {
+  "hora": "12:00",
+  "numero": 12,
+  "contar": 0
+}, {
+  "hora": "13:00",
+  "numero": 13,
+  "contar": 0
+}, {
+  "hora": "14:00",
+  "numero": 14,
+  "contar": 0
+}, {
+  "hora": "15:00",
+  "numero": 15,
+  "contar": 0
+}, {
+  "hora": "16:00",
+  "numero": 16,
+  "contar": 0
+}, {
+  "hora": "17:00",
+  "numero": 17,
+  "contar": 0
+}, {
+  "hora": "18:00",
+  "numero": 18,
+  "contar": 0
+}, {
+  "hora": "19:00",
+  "numero": 19,
+  "contar": 0
+}, {
+  "hora": "20:00",
+  "numero": 20,
+  "contar": 0
+}, {
+  "hora": "21:00",
+  "numero": 21,
+  "contar": 0
+}, {
+  "hora": "22:00",
+  "numero": 22,
+  "contar": 0
+}, {
+  "hora": "23:00",
+  "numero": 23,
+  "contar": 0
+
+}]
 function Dashboard() {
-  console.log("useEffect App: ", GetTokenDecoded());
+
+  const [bots, setBots] = useState([]);
+  const [contactos, setContactos] = useState([]);
+  const [conversaciones, setConversaciones] = useState();
+  const [agentes, setAgentes] = useState([]);
+  
+
+  const IsketObj = (obj, key) => {
+    return obj[key] !== undefined;
+  }
+
+  const ListarBots = async() => {
+    const conversacionBot = await BmHttp().get(`bots_conversacion/${GetTokenDecoded().cuenta_id}`)
+    setBots(conversacionBot.data.bot)
+    setConversaciones(conversacionBot.data.conversacionesCantidad);
+    if(conversacionBot.status === 200){
+      conversacionBot.data.bot.forEach((bot, index) => {
+        conversacionBot.data.conversacion.forEach((conversacion, index) => {
+          if(bot.nombreunico === conversacion.nombreunico){
+            IsketObj(bot, 'contador') ? bot.contador++ : bot.contador = 1;
+          }
+        })
+      })
+      let anioActual = moment().format('YYYY');
+      mes.forEach((m, index) => {
+        conversacionBot.data.conversacion.forEach((conversacion, index) => {
+          if(conversacion.anio === parseInt(anioActual)){
+            if(conversacion.mes === m.mes_numero){
+              m.contar++;
+            }
+          }
+        })
+      })
+      let diaActual = moment().format('D');
+      console.log(diaActual);
+      horas24.forEach((h, index) => {
+        conversacionBot.data.conversacion.forEach((conversacion, index) => {
+          if(conversacion.dia === parseInt(diaActual)){
+            if(conversacion.hora === h.numero){
+              h.contar++;
+            }
+          }
+        })
+      })
+      setBots(conversacionBot.data.bot)
+      setConversaciones(conversacionBot.data.conversacionesCantidad);
+    }
+  }
+
+  const ListarContactos = async() => {
+    const { data, status } = await BmHttp().get(`contactos/${GetTokenDecoded().cuenta_id}?skip=0&take=10`);
+    if (status === 200) {
+      setContactos(data.total);
+    }
+  }
+  const ListarAgentes = async() => {
+    const { data, status } = await BmHttp().get(`agentes/${GetTokenDecoded().cuenta_id}`)
+    if (status === 200) {
+      setAgentes(data.data);
+    }
+  }
+
+  useEffect(() => {
+    (async()=>{
+      await ListarContactos();
+      await ListarAgentes();
+      await ListarBots();
+    })()
+  }, []);
+
+  const options = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'top',
+      },
+      title: {
+        display: true,
+        text: 'FlashChat Bar',
+      },
+    },
+  };
+  const labels = bots.map(bot => bot.nombre_bot);
+  const labelsMes = mes.map(m => m.mes);
+  const labelsHora = horas24.map(h => h.hora);
   return (
     <>
       <Container fluid>
         <Row>
           <Col lg="3" sm="6">
-            <Card className="card-stats">
+            <Card className="card-stats border-0 shadow">
               <Card.Body>
                 <Row>
                   <Col xs="5">
                     <div className="icon-big text-center icon-warning">
-                      <i className="nc-icon nc-chart text-warning"></i>
+                      {/* <i className="nc-icon nc-chart text-warning"></i> */}
+                      {/* icono de clientes o contactos */}
+                      <i className="nc-icon nc-single-02 text-primary"></i>
                     </div>
                   </Col>
                   <Col xs="7">
                     <div className="numbers">
-                      <p className="card-category">Number</p>
-                      <Card.Title as="h4">150GB</Card.Title>
+                      <p className="card-category">Contactos</p>
+                      <Card.Title as="h4">{contactos}</Card.Title>
                     </div>
                   </Col>
                 </Row>
               </Card.Body>
               <Card.Footer>
                 <hr></hr>
-                <div className="stats">
-                  <i className="fas fa-redo mr-1"></i>
-                  Update Now
+                <div className="stats cursor-pointer">
+                  <i className="fas fa-redo mr-1 cursor-pointer"></i>
+                  Actualizar
                 </div>
               </Card.Footer>
             </Card>
           </Col>
+
           <Col lg="3" sm="6">
-            <Card className="card-stats">
+            <Card className="card-stats border-0 shadow">
               <Card.Body>
                 <Row>
                   <Col xs="5">
                     <div className="icon-big text-center icon-warning">
-                      <i className="nc-icon nc-light-3 text-success"></i>
+                      {/* <i className="nc-icon nc-light-3 text-success"></i> */}
+                      {/* icono de mensajeria */}
+                      <i className="nc-icon nc-chat-round text-success"></i>
                     </div>
                   </Col>
                   <Col xs="7">
                     <div className="numbers">
-                      <p className="card-category">Revenue</p>
-                      <Card.Title as="h4">$ 1,345</Card.Title>
+                      <p className="card-category">Conversaciones</p>
+                      <Card.Title as="h4">{conversaciones}</Card.Title>
                     </div>
                   </Col>
                 </Row>
@@ -69,24 +323,27 @@ function Dashboard() {
                 <hr></hr>
                 <div className="stats">
                   <i className="far fa-calendar-alt mr-1"></i>
-                  Last day
+                  A la fecha
                 </div>
               </Card.Footer>
             </Card>
           </Col>
+
           <Col lg="3" sm="6">
-            <Card className="card-stats">
+            <Card className="card-stats border-0 shadow">
               <Card.Body>
                 <Row>
                   <Col xs="5">
                     <div className="icon-big text-center icon-warning">
-                      <i className="nc-icon nc-vector text-danger"></i>
+                      {/* <i className="nc-icon nc-vector text-danger"></i> */}
+                      {/* bot */}
+                      <i className="nc-icon nc-android text-danger"></i>
                     </div>
                   </Col>
                   <Col xs="7">
                     <div className="numbers">
-                      <p className="card-category">Errors</p>
-                      <Card.Title as="h4">23</Card.Title>
+                      <p className="card-category">Bot</p>
+                      <Card.Title as="h4">{bots.length}</Card.Title>
                     </div>
                   </Col>
                 </Row>
@@ -95,24 +352,30 @@ function Dashboard() {
                 <hr></hr>
                 <div className="stats">
                   <i className="far fa-clock-o mr-1"></i>
-                  In the last hour
+                  Bots activos
                 </div>
               </Card.Footer>
             </Card>
           </Col>
+
           <Col lg="3" sm="6">
-            <Card className="card-stats">
+            <Card className="card-stats border-0 shadow">
               <Card.Body>
                 <Row>
                   <Col xs="5">
                     <div className="icon-big text-center icon-warning">
-                      <i className="nc-icon nc-favourite-28 text-primary"></i>
+                      {/* <i className="nc-icon nc-favourite-28 text-primary"></i> */}
+                      {/* icono de agentes */}
+                      <i className="nc-icon nc-badge text-primary"></i>
                     </div>
                   </Col>
                   <Col xs="7">
                     <div className="numbers">
-                      <p className="card-category">Followers</p>
-                      <Card.Title as="h4">+45K</Card.Title>
+                      <p className="card-category">Agentes</p>
+                      <Card.Title as="h4">{
+                        // los que estan con estado online
+                        agentes.filter(agente => agente.estado === 'online').length
+                      }</Card.Title>
                     </div>
                   </Col>
                 </Row>
@@ -121,145 +384,62 @@ function Dashboard() {
                 <hr></hr>
                 <div className="stats">
                   <i className="fas fa-redo mr-1"></i>
-                  Update now
+                  Agentes en linea
                 </div>
               </Card.Footer>
             </Card>
           </Col>
         </Row>
+
         <Row>
           <Col md="12">
-            <Card>
+            <Card className="border-0 shadow">
               <Card.Header>
-                <Card.Title as="h4">Global Sales by Top Locations</Card.Title>
-                <p className="card-category">All products that were shipped</p>
+                <Card.Title as="h4">Conversaciones por bot</Card.Title>
               </Card.Header>
               <Card.Body>
                 <Row>
                   <Col md="6">
                     <Table responsive>
+                      <thead className="text-primary">
+                        <tr>
+                          <th>Canal</th>
+                          <th>Bot</th>
+                          <th>Conversaciones</th>
+                        </tr>
+                      </thead>
                       <tbody>
-                        <tr>
-                          <td>
-                            <div className="flag">
-                              <img
-                                alt="..."
-                                src={require("assets/img/flags/US.png")}
-                              ></img>
-                            </div>
-                          </td>
-                          <td>USA</td>
-                          <td className="text-right">2.920</td>
-                          <td className="text-right">53.23%</td>
-                        </tr>
-                        <tr>
-                          <td>
-                            <div className="flag">
-                              <img
-                                alt="..."
-                                src={require("assets/img/flags/DE.png")}
-                              ></img>
-                            </div>
-                          </td>
-                          <td>Germany</td>
-                          <td className="text-right">1.300</td>
-                          <td className="text-right">20.43%</td>
-                        </tr>
-                        <tr>
-                          <td>
-                            <div className="flag">
-                              <img
-                                alt="..."
-                                src={require("assets/img/flags/AU.png")}
-                              ></img>
-                            </div>
-                          </td>
-                          <td>Australia</td>
-                          <td className="text-right">760</td>
-                          <td className="text-right">10.35%</td>
-                        </tr>
-                        <tr>
-                          <td>
-                            <div className="flag">
-                              <img
-                                alt="..."
-                                src={require("assets/img/flags/GB.png")}
-                              ></img>
-                            </div>
-                          </td>
-                          <td>United Kingdom</td>
-                          <td className="text-right">690</td>
-                          <td className="text-right">7.87%</td>
-                        </tr>
-                        <tr>
-                          <td>
-                            <div className="flag">
-                              <img
-                                alt="..."
-                                src={require("assets/img/flags/RO.png")}
-                              ></img>
-                            </div>
-                          </td>
-                          <td>Romania</td>
-                          <td className="text-right">600</td>
-                          <td className="text-right">5.94%</td>
-                        </tr>
-                        <tr>
-                          <td>
-                            <div className="flag">
-                              <img
-                                alt="..."
-                                src={require("assets/img/flags/BR.png")}
-                              ></img>
-                            </div>
-                          </td>
-                          <td>Brasil</td>
-                          <td className="text-right">550</td>
-                          <td className="text-right">4.34%</td>
-                        </tr>
+                        {
+                          bots.map((bot, index) => (
+                            <tr key={index}>
+                              <td>{bot.channel.proveedor}</td>
+                              <td>{bot.nombre_bot}</td>
+                              <td>{bot.contador}</td>
+                            </tr>
+                          ))
+                        }
                       </tbody>
+
                     </Table>
                   </Col>
-                  <Col className="ml-auto mr-auto" md="6">
-                    <VectorMap
-                      map={"world_mill"}
-                      backgroundColor="transparent"
-                      zoomOnScroll={false}
-                      containerStyle={{
-                        width: "100%",
-                        height: "300px"
-                      }}
-                      containerClassName="map"
-                      regionStyle={{
-                        initial: {
-                          fill: "#e4e4e4",
-                          "fill-opacity": 0.9,
-                          stroke: "none",
-                          "stroke-width": 0,
-                          "stroke-opacity": 0
+                      {/* grafica de barra  */}
+                  <Col md="6">
+                    <Bar
+                      data={
+                        {
+                          labels: labels,
+                          datasets: [
+                            {
+                              label: 'Conversaciones',
+                              data: bots.map(bot => bot.contador),
+                              backgroundColor: "rgba(75,192,192,0.2)",
+                              borderColor: "rgba(75,192,192,1)",
+                              borderWidth: 1
+                            }
+                          ]
                         }
-                      }}
-                      series={{
-                        regions: [
-                          {
-                            values: {
-                              AU: 760,
-                              BR: 550,
-                              CA: 120,
-                              DE: 1300,
-                              FR: 540,
-                              GB: 690,
-                              GE: 200,
-                              IN: 200,
-                              RO: 600,
-                              RU: 300,
-                              US: 2920
-                            },
-                            scale: ["#AAAAAA", "#444444"],
-                            normalizeFunction: "polynomial"
-                          }
-                        ]
-                      }}
+                      }
+                      options={options}
                     />
                   </Col>
                 </Row>
@@ -268,111 +448,69 @@ function Dashboard() {
           </Col>
         </Row>
         <Row>
-          <Col md="4">
-            <Card>
+          <Col md="12">
+            <Card className="border-0 shadow">
               <Card.Header>
-                <Card.Title as="h4">Email Statistics</Card.Title>
-                <p className="card-category">Last Campaign Performance</p>
+                <Card.Title as="h4">Conversacion por hora</Card.Title>
+                <p className="card-category">24/7</p>
               </Card.Header>
               <Card.Body>
-                {/* <ChartistGraph
-                  className="ct-perfect-fourth"
-                  data={{
-                    labels: ["40%", "20%", "40%"],
-                    series: [40, 20, 40]
-                  }}
-                  type="Pie"
-                /> */}
-              </Card.Body>
-              <Card.Footer>
-                <div className="legend">
-                  <i className="fas fa-circle mr-1 text-info"></i>
-                  Open <i className="fas fa-circle mr-1 text-danger"></i>
-                  Bounce <i className="fas fa-circle mr-1 text-warning"></i>
-                  Unsubscribe
-                </div>
-                <hr></hr>
-                <div className="stats">
-                  <i className="far fa-clock-o"></i>
-                  Campaign sent 2 days ago
-                </div>
-              </Card.Footer>
-            </Card>
-          </Col>
-          <Col md="8">
-            <Card>
-              <Card.Header>
-                <Card.Title as="h4">Users Behavior</Card.Title>
-                <p className="card-category">24 Hours performance</p>
-              </Card.Header>
-              <Card.Body>
-                {/* <ChartistGraph
-                  data={{
-                    labels: [
-                      "9:00AM",
-                      "12:00AM",
-                      "3:00PM",
-                      "6:00PM",
-                      "9:00PM",
-                      "12:00PM",
-                      "3:00AM",
-                      "6:00AM",
-                      ""
-                    ],
-                    series: [
-                      [287, 385, 490, 492, 554, 586, 698, 695, 630],
-                      [67, 152, 143, 240, 287, 335, 435, 437, 470],
-                      [23, 113, 67, 108, 190, 239, 307, 308, 430]
-                    ]
-                  }}
-                  type="Line"
-                  options={{
-                    low: 0,
-                    high: 800,
-                    showArea: false,
-                    height: "245px",
-                    axisX: {
-                      showGrid: false
-                    },
-                    lineSmooth: true,
-                    showLine: true,
-                    showPoint: true,
-                    fullWidth: true,
-                    chartPadding: {
-                      right: 50
-                    }
-                  }}
-                  responsiveOptions={[
-                    [
-                      "screen and (max-width: 640px)",
-                      {
-                        axisX: {
-                          labelInterpolationFnc: function (value) {
-                            return value[0];
-                          }
+                <Bar
+                  data={
+                    {
+                      labels: labelsHora,
+                      datasets: [
+                        {
+                          label: 'Conversaciones',
+                          data: horas24.map(h => h.contar),
+                          backgroundColor: "rgba(75,192,192,0.2)",
+                          borderColor: "rgba(75,192,192,1)",
+                          borderWidth: 1,
                         }
-                      }
-                    ]
-                  ]}
-                /> */}
+                      ]
+                    }
+                  }
+                  options={options}
+                />
               </Card.Body>
-              <Card.Footer>
-                <div className="legend">
-                  <i className="fas fa-circle mr-1 text-info"></i>
-                  Open <i className="fas fa-circle mr-1 text-danger"></i>
-                  Click <i className="fas fa-circle mr-1 text-warning"></i>
-                  Click Second Time
-                </div>
-                <hr></hr>
-                <div className="stats">
-                  <i className="fas fa-history"></i>
-                  Updated 3 minutes ago
-                </div>
-              </Card.Footer>
             </Card>
           </Col>
         </Row>
+
+
         <Row>
+          <Col md="12">
+            <Card className="border-0 shadow">
+              <Card.Header>
+                <Card.Title as="h4">Conversacion por mes</Card.Title>
+                <p className="card-category">24/7</p>
+              </Card.Header>
+              <Card.Body>
+                <Bar
+                  data={
+                    {
+                      labels: labelsMes,
+                      datasets: [
+                        {
+                          label: 'Conversaciones',
+                          data: mes.map(m => m.contar),
+                          backgroundColor: "rgba(75,192,192,0.2)",
+                          borderColor: "rgba(75,192,192,1)",
+                          borderWidth: 1,
+                          // base: 0,
+                          // categoryPercentage: 0.5,
+                          // barPercentage: 0.5,
+                        }
+                      ]
+                    }
+                  }
+                  options={options}
+                />
+              </Card.Body>
+            </Card>
+          </Col>
+        </Row>
+        {/* <Row>
           <Col md="6">
             <Card>
               <Card.Header>
@@ -380,55 +518,7 @@ function Dashboard() {
                 <p className="card-category">All products including Taxes</p>
               </Card.Header>
               <Card.Body>
-                {/* <ChartistGraph
-                  data={{
-                    labels: [
-                      "Jan",
-                      "Feb",
-                      "Mar",
-                      "Apr",
-                      "Mai",
-                      "Jun",
-                      "Jul",
-                      "Aug",
-                      "Sep",
-                      "Oct",
-                      "Nov",
-                      "Dec"
-                    ],
-                    series: [
-                      [
-                        542, 443, 320, 780, 553, 453, 326, 434, 568, 610, 756,
-                        895
-                      ],
-                      [
-                        412, 243, 280, 580, 453, 353, 300, 364, 368, 410, 636,
-                        695
-                      ]
-                    ]
-                  }}
-                  type="Bar"
-                  options={{
-                    seriesBarDistance: 10,
-                    axisX: {
-                      showGrid: false
-                    },
-                    height: "245px"
-                  }}
-                  responsiveOptions={[
-                    [
-                      "screen and (max-width: 640px)",
-                      {
-                        seriesBarDistance: 5,
-                        axisX: {
-                          labelInterpolationFnc: function (value) {
-                            return value[0];
-                          }
-                        }
-                      }
-                    ]
-                  ]}
-                /> */}
+
               </Card.Body>
               <Card.Footer>
                 <div className="legend">
@@ -760,7 +850,7 @@ function Dashboard() {
               </Card.Footer>
             </Card>
           </Col>
-        </Row>
+        </Row> */}
       </Container>
     </>
   );

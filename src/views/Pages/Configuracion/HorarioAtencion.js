@@ -1,122 +1,194 @@
-import Table from "components/ReactTable/ReactTable";
-import { useState } from 'react';
+import { GetTokenDecoded } from 'function/storeUsuario';
+import { BmHttp } from 'function/util/global';
+import { useEffect, useState } from 'react';
 import {
+    Card,
     Col,
     Container,
     Form,
     Modal,
     Row
 } from "react-bootstrap";
+import Swal from "sweetalert2";
 
 function HorarioAtencion(props) {
     const [show, setShow] = useState(false);
+    const [equipos, setEquipos] = useState([]);
+    const [horarios, setHorarios] = useState([]);
     const handleClose = () => setShow(!show);
+    
     const [horario, setHorario] = useState({
         id: 0,
         equipo_id: 0,
+        inicio_horario: '',
+        fin_horario: '',
         horario: '',
         mensaje_fuera_horario: '',
-        cuenta_id: 0
-    });
+        mensaje_dentro_horario: '',
+        cuenta_id: GetTokenDecoded().cuenta_id
+    })
+
+    const ListarEquipos = async () => {
+        let url = 'equipo/'+GetTokenDecoded().cuenta_id
+        const { data, status } = await BmHttp().get(url)
+        if(status === 200){
+            setEquipos(data.data)
+        }
+    }
+    
+    const ListarHorarios = async () => {
+        let url = 'horarios/'+GetTokenDecoded().cuenta_id
+        const { data, status } = await BmHttp().get(url)
+        if(status === 200){
+            setHorarios(data)
+        }
+    }
+
+    const EditarHorario = async (item) => {
+        setHorario(item)
+        setShow(true)
+    }
+
+    const ActualizarHorario = async (e) => {
+        e.preventDefault()
+        let url = 'horarios/'+horario.id
+        let data = {
+            ...horario,
+            equipo_id: parseInt(horario.equipo_id),
+            horario: horario.inicio_horario+' - '+horario.fin_horario
+        }
+        const { status } = await BmHttp().put(url, data)
+        if(status === 200){
+            Swal.fire({
+                icon: 'success',
+                title: 'Horario Actualizado',
+                showConfirmButton: false,
+                timer: 1500
+            }).then(() => {
+                ListarHorarios()
+                setShow(false)
+            })
+        }
+    }
+
+    const EliminarHorario = async (id) => {
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: "¡No podrás revertir esto!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            cancelButtonText: 'Cancelar',
+            confirmButtonText: 'Sí, eliminar'
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                let url = 'horarios/'+id
+                const { status } = await BmHttp().delete(url)
+                if(status === 200){
+                    ListarHorarios()
+                }
+            }
+        })
+    }
+
+    const GuardarHorario = async (e) => {
+        e.preventDefault()
+        let url = 'horarios'
+        let data = {
+            ...horario,
+            equipo_id: parseInt(horario.equipo_id),
+            horario: horario.inicio_horario+' - '+horario.fin_horario
+        }
+        const { status } = await BmHttp().post(url, data)
+        if(status === 200){
+            Swal.fire({
+                icon: 'success',
+                title: 'Horario Creado',
+                showConfirmButton: false,
+                timer: 1500
+            }).then(() => {
+                ListarHorarios()
+                setShow(false)
+            })
+        }
+    }
+
+    const handleHorario = (e) => {
+        if(e.target.name !== 'equipo_id'){
+            setHorario({
+                ...horario,
+                [e.target.name]: parseInt(e.target.value),
+            });
+        }
+        setHorario({
+            ...horario,
+            [e.target.name]: e.target.value,
+        });
+    }
+
+    useEffect(() => {
+        (async()=>{
+            await ListarEquipos()
+            await ListarHorarios()
+        })()
+    }, [])
+
     return (
         <>
             <Container fluid>
-                <div className='d-flex justify-content-end mb-3'>
-                    <button className="btn btn-primary ml-2"
+                <div className='d-flex justify-content-start mb-3'>
+                    <button className="btn button-bm ml-2"
                         onClick={handleClose}
                     >Crear Horario</button>
                 </div>
-                <Table 
-                    columns={[
-                        {
-                            Header: 'Equipo',
-                            accessor: 'equipo',
-                        },
-                        {
-                            Header: 'Horario',
-                            accessor: 'horario',
-                        },
-                        {
-                            Header: 'Mensaje Fuera de Horario',
-                            accessor: 'mensaje_fuera_horario',
-                        },
-                        {
-                            Header: 'Acciones',
-                            accessor: 'acciones',
-                        }
-                    ]}
-                    data={[
-                        {
-                            id: 1,
-                            equipo: 'Ventas',
-                            horario: 'Lunes a Viernes de 8:00 a 18:00',
-                            mensaje_fuera_horario: 'Lo sentimos, estamos fuera de horario',
-                            acciones: (
-                                <>
-                                    <button className="btn btn-primary ml-2"
-                                        onClick={handleClose}
-                                    >Editar</button>
-                                    <button className="btn btn-danger ml-2"
-                                        onClick={handleClose}
-                                    >Eliminar</button>
-                                </>
-                            
-                            )
-                        },
-                        {
-                            id: 2,
-                            equipo: 'Ventas',
-                            horario: 'Lunes a Viernes de 8:00 a 18:00',
-                            mensaje_fuera_horario: 'Lo sentimos, estamos fuera de horario',
-                            acciones: (
-                                <>
-                                    <button className="btn btn-primary ml-2"
-                                        onClick={handleClose}
-                                    >Editar</button>
-                                    <button className="btn btn-danger ml-2"
-                                        onClick={handleClose}
-                                    >Eliminar</button>
-                                </>
-                            
-                            )
-                        },
-                        {
-                            id: 3,
-                            equipo: 'Ventas',
-                            horario: 'Lunes a Viernes de 8:00 a 18:00',
-                            mensaje_fuera_horario: 'Lo sentimos, estamos fuera de horario',
-                            acciones: (
-                                <>
-                                    <button className="btn btn-primary ml-2"
-                                        onClick={handleClose}
-                                    >Editar</button>
-                                    <button className="btn btn-danger ml-2"
-                                        onClick={handleClose}
-                                    >Eliminar</button>
-                                </>
-                            
-                            )
-                        },
-                        {
-                            id: 4,
-                            equipo: 'Ventas',
-                            horario: 'Lunes a Viernes de 8:00 a 18:00',
-                            mensaje_fuera_horario: 'Lo sentimos, estamos fuera de horario',
-                            acciones: (
-                                <>
-                                    <button className="btn btn-primary ml-2"
-                                        onClick={handleClose}
-                                    >Editar</button>
-                                    <button className="btn btn-danger ml-2"
-                                        onClick={handleClose}
-                                    >Eliminar</button>
-                                </>
-                            
-                            )
-                        }
-                    ]}
-                    title='Lista de Horarios'
-                />
+                <Card style={{ overflow: 'auto' }}>
+                    <table responsive className='table-personalisado table-hover'>
+                        <thead className="table-active">
+                            <tr className="text-center" >
+                                <th
+                                    className='text-white'
+                                >Equipo</th>
+                                <th
+                                    className='text-white'
+                                >Horario</th>
+                                <th
+                                    className='text-white'
+                                >Mensaje Fuera de Horario</th>
+                                <th
+                                    className='text-white'
+                                >Mensaje Dentro de Horario</th>
+                                <th
+                                    className='text-white'
+                                >Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {
+                                horarios.map((item, key) => (
+                                    <tr key={key} className="text-center">
+                                        <td>{item.equipos.equipos}</td>
+                                        <td>{item.horario}</td>
+                                        <td>{item.mensaje_fuera_horario}</td>
+                                        <td>{item.mensaje_dentro_horario}</td>
+                                        <td>
+                                            <button className="btn mx-1"
+                                                onClick={()=>EditarHorario(item)}
+                                            >
+                                                <i className="fas fa-edit"></i>
+                                            </button>
+                                            <button className="btn mx-1"
+                                                onClick={()=>EliminarHorario(item.id)}
+                                            >
+                                                <i className="fas fa-trash-alt text-danger"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))
+                            }
+                        </tbody>
+                    </table>
+                </Card>
             </Container>
             <Modal
                 show={show}
@@ -124,19 +196,33 @@ function HorarioAtencion(props) {
                 backdrop="static"
                 keyboard={false}
             >
-                <Modal.Header closeButton>
-                <Modal.Title>Crear Horario</Modal.Title>
+                <Modal.Header>
+                    {
+                        horario.id !== 0 ?
+                        <Modal.Title>Editar Horario</Modal.Title>:
+                        <Modal.Title>Crear Horario</Modal.Title>
+                    }
+                    <button type="button" 
+                        className="btn button-bm"
+                        onClick={handleClose}>
+                        <i className="fa fa-times"></i>
+                    </button>
                 </Modal.Header>
                 <Modal.Body>
                     <Form>
                         <Form.Group controlId="formBasicPassword">
                                 <Form.Label>Seleciona Equipo</Form.Label>
-                                <select className="form-control" id="exampleFormControlSelect1">
-                                    <option>Equipo 1</option>
-                                    <option>Equipo 2</option>
-                                    <option>Equipo 3</option>
-                                    <option>Equipo 4</option>
-                                    <option>Equipo 5</option>
+                                <select className="form-control" id="exampleFormControlSelect1"
+                                    name='equipo_id'
+                                    onChange={handleHorario}
+                                    value={horario.equipo_id}
+                                >
+                                    <option value="0">Seleciona Equipo</option>
+                                   {
+                                        equipos.map((item, key) => (
+                                            <option key={key} value={item.id}>{item.equipos}</option>
+                                        ))
+                                   }
                                 </select>
                         </Form.Group>   
                         <Form.Group controlId="formBasicPassword">
@@ -149,27 +235,53 @@ function HorarioAtencion(props) {
                                     <Row className="justify-content-center">
                                         <Col md="4" sm="6" xs="12">
                                             <Form.Control type="time"
-                                                name='horario'
-                                                // onChange={handleEquipo}
+                                                name='inicio_horario'
+                                                value={horario.inicio_horario}
+                                                onChange={handleHorario}
                                             />
                                         </Col>
                                         <Col md="4" sm="6" xs="12">
                                             <Form.Control type="time"
-                                                name='horario'
-                                                // onChange={handleEquipo}
+                                                name='fin_horario'
+                                                value={horario.fin_horario}
+                                                onChange={handleHorario}
                                             />
                                         </Col>
                                     </Row>
                                 </Col>
                         </Form.Group>
-                        <Form.Group controlId="formBasicPassword">
+                        <Form.Group controlId="mensaje_fuera_horario">
                                 <Form.Label>Mensaje Fuera de Horario</Form.Label>
                                 <Form.Control type="text" placeholder="Mensaje Fuera de Horario"
                                     name='mensaje_fuera_horario'
-                                    // onChange={handleEquipo}
+                                    value={horario.mensaje_fuera_horario}
+                                    onChange={handleHorario}
                                 />
                         </Form.Group>
+                        <Form.Group controlId="mensaje_dentro_horario">
+                                <Form.Label>Mensaje Dentro de Horario</Form.Label>
+                                <Form.Control type="text" placeholder="Mensaje Dentro de Horario"
+                                    name='mensaje_dentro_horario'
+                                    value={horario.mensaje_dentro_horario}
+                                    onChange={handleHorario}
+                                />
+                        </Form.Group>
+                        
+                        {
+                            horario.id !== 0 ?
+                            <button 
+                                className='btn button-bm mr-2 w-100 mt-3'
+                            type="submit" onClick={(e)=>ActualizarHorario(e)}>
+                                Editar
+                            </button>:
+                            <button 
+                                className='btn button-bm mr-2 w-100 mt-3'
+                            type="submit" onClick={(e)=>GuardarHorario(e)}>
+                                Crear
+                            </button>
+                        }
                     </Form>
+
                 </Modal.Body>
             </Modal>
         </>
